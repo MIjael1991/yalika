@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -12,6 +16,20 @@ export class CompanyService {
         createdAt: 'desc',
       },
     });
+  }
+
+  async findOne(id: string) {
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('La empresa no existe');
+    }
+
+    return company;
   }
 
   async create(name: string) {
