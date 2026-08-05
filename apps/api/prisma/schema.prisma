@@ -15,5 +15,37 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  users User[]
+  roles Role[]
+
   @@map("companies")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, name])
+  @@map("roles")
 }

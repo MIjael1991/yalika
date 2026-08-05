@@ -44,3 +44,13 @@ export { Prisma }
  * 
  */
 export type Company = Prisma.CompanyModel
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model Role
+ * 
+ */
+export type Role = Prisma.RoleModel
