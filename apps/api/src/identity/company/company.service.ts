@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CompanyService {
+  constructor(private readonly prisma: PrismaService) {}
 
-  getInfo() {
-    return {
-      id: 1,
-      name: 'ORION Technologies',
-      version: '0.0.1',
-      status: 'active'
-    };
+  async findAll() {
+    return this.prisma.company.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
+  async create(name: string) {
+    return this.prisma.company.create({
+      data: {
+        name,
+      },
+    });
+  }
 }
