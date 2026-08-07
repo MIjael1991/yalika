@@ -54,3 +54,28 @@ export type User = Prisma.UserModel
  * 
  */
 export type Role = Prisma.RoleModel
+/**
+ * Model Task
+ * 
+ */
+export type Task = Prisma.TaskModel
+/**
+ * Model Incident
+ * 
+ */
+export type Incident = Prisma.IncidentModel
+/**
+ * Model IncidentAlternative
+ * 
+ */
+export type IncidentAlternative = Prisma.IncidentAlternativeModel
+/**
+ * Model KnowledgeTemplate
+ * 
+ */
+export type KnowledgeTemplate = Prisma.KnowledgeTemplateModel
+/**
+ * Model KnowledgeAlternativeTemplate
+ * 
+ */
+export type KnowledgeAlternativeTemplate = Prisma.KnowledgeAlternativeTemplateModel

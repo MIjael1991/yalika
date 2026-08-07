@@ -53,7 +53,12 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Company: 'Company',
   User: 'User',
-  Role: 'Role'
+  Role: 'Role',
+  Task: 'Task',
+  Incident: 'Incident',
+  IncidentAlternative: 'IncidentAlternative',
+  KnowledgeTemplate: 'KnowledgeTemplate',
+  KnowledgeAlternativeTemplate: 'KnowledgeAlternativeTemplate'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,7 +95,8 @@ export const UserScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  companyId: 'companyId'
+  companyId: 'companyId',
+  roleId: 'roleId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -107,6 +113,86 @@ export const RoleScalarFieldEnum = {
 } as const
 
 export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const TaskScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  priority: 'priority',
+  status: 'status',
+  dueAt: 'dueAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  userId: 'userId'
+} as const
+
+export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const IncidentScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  severity: 'severity',
+  status: 'status',
+  occurredAt: 'occurredAt',
+  resolvedAt: 'resolvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId'
+} as const
+
+export type IncidentScalarFieldEnum = (typeof IncidentScalarFieldEnum)[keyof typeof IncidentScalarFieldEnum]
+
+
+export const IncidentAlternativeScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  cost: 'cost',
+  delayMinutes: 'delayMinutes',
+  estimatedLoss: 'estimatedLoss',
+  continuityScore: 'continuityScore',
+  impact: 'impact',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  incidentId: 'incidentId'
+} as const
+
+export type IncidentAlternativeScalarFieldEnum = (typeof IncidentAlternativeScalarFieldEnum)[keyof typeof IncidentAlternativeScalarFieldEnum]
+
+
+export const KnowledgeTemplateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  category: 'category',
+  description: 'description',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeTemplateScalarFieldEnum = (typeof KnowledgeTemplateScalarFieldEnum)[keyof typeof KnowledgeTemplateScalarFieldEnum]
+
+
+export const KnowledgeAlternativeTemplateScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  defaultPriority: 'defaultPriority',
+  order: 'order',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  knowledgeTemplateId: 'knowledgeTemplateId'
+} as const
+
+export type KnowledgeAlternativeTemplateScalarFieldEnum = (typeof KnowledgeAlternativeTemplateScalarFieldEnum)[keyof typeof KnowledgeAlternativeTemplateScalarFieldEnum]
 
 
 export const SortOrder = {
