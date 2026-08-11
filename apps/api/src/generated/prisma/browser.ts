@@ -57,3 +57,23 @@ export type KnowledgeTemplate = Prisma.KnowledgeTemplateModel
  * 
  */
 export type KnowledgeAlternativeTemplate = Prisma.KnowledgeAlternativeTemplateModel
+/**
+ * Model Event
+ * 
+ */
+export type Event = Prisma.EventModel
+/**
+ * Model Workflow
+ * 
+ */
+export type Workflow = Prisma.WorkflowModel
+/**
+ * Model WorkflowStep
+ * 
+ */
+export type WorkflowStep = Prisma.WorkflowStepModel
+/**
+ * Model Experience
+ * 
+ */
+export type Experience = Prisma.ExperienceModel

@@ -58,7 +58,11 @@ export const ModelName = {
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
   KnowledgeTemplate: 'KnowledgeTemplate',
-  KnowledgeAlternativeTemplate: 'KnowledgeAlternativeTemplate'
+  KnowledgeAlternativeTemplate: 'KnowledgeAlternativeTemplate',
+  Event: 'Event',
+  Workflow: 'Workflow',
+  WorkflowStep: 'WorkflowStep',
+  Experience: 'Experience'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -195,12 +199,90 @@ export const KnowledgeAlternativeTemplateScalarFieldEnum = {
 export type KnowledgeAlternativeTemplateScalarFieldEnum = (typeof KnowledgeAlternativeTemplateScalarFieldEnum)[keyof typeof KnowledgeAlternativeTemplateScalarFieldEnum]
 
 
+export const EventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  source: 'source',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  data: 'data',
+  occurredAt: 'occurredAt',
+  createdAt: 'createdAt',
+  companyId: 'companyId'
+} as const
+
+export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
+
+
+export const WorkflowScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  status: 'status',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId'
+} as const
+
+export type WorkflowScalarFieldEnum = (typeof WorkflowScalarFieldEnum)[keyof typeof WorkflowScalarFieldEnum]
+
+
+export const WorkflowStepScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  stepOrder: 'stepOrder',
+  status: 'status',
+  actionType: 'actionType',
+  data: 'data',
+  startedAt: 'startedAt',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  workflowId: 'workflowId'
+} as const
+
+export type WorkflowStepScalarFieldEnum = (typeof WorkflowStepScalarFieldEnum)[keyof typeof WorkflowStepScalarFieldEnum]
+
+
+export const ExperienceScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  category: 'category',
+  success: 'success',
+  delayMinutes: 'delayMinutes',
+  extraCost: 'extraCost',
+  estimatedLoss: 'estimatedLoss',
+  customersAffected: 'customersAffected',
+  notes: 'notes',
+  selectedAlternativeTitle: 'selectedAlternativeTitle',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  incidentId: 'incidentId',
+  workflowId: 'workflowId',
+  selectedAlternativeId: 'selectedAlternativeId'
+} as const
+
+export type ExperienceScalarFieldEnum = (typeof ExperienceScalarFieldEnum)[keyof typeof ExperienceScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -217,4 +299,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

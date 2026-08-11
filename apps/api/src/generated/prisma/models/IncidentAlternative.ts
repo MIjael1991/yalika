@@ -285,6 +285,7 @@ export type IncidentAlternativeWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"IncidentAlternative"> | Date | string
   incidentId?: Prisma.StringFilter<"IncidentAlternative"> | string
   incident?: Prisma.XOR<Prisma.IncidentScalarRelationFilter, Prisma.IncidentWhereInput>
+  experiences?: Prisma.ExperienceListRelationFilter
 }
 
 export type IncidentAlternativeOrderByWithRelationInput = {
@@ -301,6 +302,7 @@ export type IncidentAlternativeOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   incidentId?: Prisma.SortOrder
   incident?: Prisma.IncidentOrderByWithRelationInput
+  experiences?: Prisma.ExperienceOrderByRelationAggregateInput
 }
 
 export type IncidentAlternativeWhereUniqueInput = Prisma.AtLeast<{
@@ -320,6 +322,7 @@ export type IncidentAlternativeWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"IncidentAlternative"> | Date | string
   incidentId?: Prisma.StringFilter<"IncidentAlternative"> | string
   incident?: Prisma.XOR<Prisma.IncidentScalarRelationFilter, Prisma.IncidentWhereInput>
+  experiences?: Prisma.ExperienceListRelationFilter
 }, "id">
 
 export type IncidentAlternativeOrderByWithAggregationInput = {
@@ -373,6 +376,7 @@ export type IncidentAlternativeCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   incident: Prisma.IncidentCreateNestedOneWithoutAlternativesInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutSelectedAlternativeInput
 }
 
 export type IncidentAlternativeUncheckedCreateInput = {
@@ -388,6 +392,7 @@ export type IncidentAlternativeUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   incidentId: string
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutSelectedAlternativeInput
 }
 
 export type IncidentAlternativeUpdateInput = {
@@ -403,6 +408,7 @@ export type IncidentAlternativeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   incident?: Prisma.IncidentUpdateOneRequiredWithoutAlternativesNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutSelectedAlternativeNestedInput
 }
 
 export type IncidentAlternativeUncheckedUpdateInput = {
@@ -418,6 +424,7 @@ export type IncidentAlternativeUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   incidentId?: Prisma.StringFieldUpdateOperationsInput | string
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutSelectedAlternativeNestedInput
 }
 
 export type IncidentAlternativeCreateManyInput = {
@@ -533,6 +540,11 @@ export type IncidentAlternativeSumOrderByAggregateInput = {
   continuityScore?: Prisma.SortOrder
 }
 
+export type IncidentAlternativeNullableScalarRelationFilter = {
+  is?: Prisma.IncidentAlternativeWhereInput | null
+  isNot?: Prisma.IncidentAlternativeWhereInput | null
+}
+
 export type IncidentAlternativeCreateNestedManyWithoutIncidentInput = {
   create?: Prisma.XOR<Prisma.IncidentAlternativeCreateWithoutIncidentInput, Prisma.IncidentAlternativeUncheckedCreateWithoutIncidentInput> | Prisma.IncidentAlternativeCreateWithoutIncidentInput[] | Prisma.IncidentAlternativeUncheckedCreateWithoutIncidentInput[]
   connectOrCreate?: Prisma.IncidentAlternativeCreateOrConnectWithoutIncidentInput | Prisma.IncidentAlternativeCreateOrConnectWithoutIncidentInput[]
@@ -591,6 +603,22 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type IncidentAlternativeCreateNestedOneWithoutExperiencesInput = {
+  create?: Prisma.XOR<Prisma.IncidentAlternativeCreateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.IncidentAlternativeCreateOrConnectWithoutExperiencesInput
+  connect?: Prisma.IncidentAlternativeWhereUniqueInput
+}
+
+export type IncidentAlternativeUpdateOneWithoutExperiencesNestedInput = {
+  create?: Prisma.XOR<Prisma.IncidentAlternativeCreateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.IncidentAlternativeCreateOrConnectWithoutExperiencesInput
+  upsert?: Prisma.IncidentAlternativeUpsertWithoutExperiencesInput
+  disconnect?: Prisma.IncidentAlternativeWhereInput | boolean
+  delete?: Prisma.IncidentAlternativeWhereInput | boolean
+  connect?: Prisma.IncidentAlternativeWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentAlternativeUpdateToOneWithWhereWithoutExperiencesInput, Prisma.IncidentAlternativeUpdateWithoutExperiencesInput>, Prisma.IncidentAlternativeUncheckedUpdateWithoutExperiencesInput>
+}
+
 export type IncidentAlternativeCreateWithoutIncidentInput = {
   id?: string
   title: string
@@ -603,6 +631,7 @@ export type IncidentAlternativeCreateWithoutIncidentInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutSelectedAlternativeInput
 }
 
 export type IncidentAlternativeUncheckedCreateWithoutIncidentInput = {
@@ -617,6 +646,7 @@ export type IncidentAlternativeUncheckedCreateWithoutIncidentInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutSelectedAlternativeInput
 }
 
 export type IncidentAlternativeCreateOrConnectWithoutIncidentInput = {
@@ -663,6 +693,82 @@ export type IncidentAlternativeScalarWhereInput = {
   incidentId?: Prisma.StringFilter<"IncidentAlternative"> | string
 }
 
+export type IncidentAlternativeCreateWithoutExperiencesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  cost?: number | null
+  delayMinutes?: number | null
+  estimatedLoss?: number | null
+  continuityScore?: number | null
+  impact?: string | null
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incident: Prisma.IncidentCreateNestedOneWithoutAlternativesInput
+}
+
+export type IncidentAlternativeUncheckedCreateWithoutExperiencesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  cost?: number | null
+  delayMinutes?: number | null
+  estimatedLoss?: number | null
+  continuityScore?: number | null
+  impact?: string | null
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incidentId: string
+}
+
+export type IncidentAlternativeCreateOrConnectWithoutExperiencesInput = {
+  where: Prisma.IncidentAlternativeWhereUniqueInput
+  create: Prisma.XOR<Prisma.IncidentAlternativeCreateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedCreateWithoutExperiencesInput>
+}
+
+export type IncidentAlternativeUpsertWithoutExperiencesInput = {
+  update: Prisma.XOR<Prisma.IncidentAlternativeUpdateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedUpdateWithoutExperiencesInput>
+  create: Prisma.XOR<Prisma.IncidentAlternativeCreateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedCreateWithoutExperiencesInput>
+  where?: Prisma.IncidentAlternativeWhereInput
+}
+
+export type IncidentAlternativeUpdateToOneWithWhereWithoutExperiencesInput = {
+  where?: Prisma.IncidentAlternativeWhereInput
+  data: Prisma.XOR<Prisma.IncidentAlternativeUpdateWithoutExperiencesInput, Prisma.IncidentAlternativeUncheckedUpdateWithoutExperiencesInput>
+}
+
+export type IncidentAlternativeUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delayMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  estimatedLoss?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  continuityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incident?: Prisma.IncidentUpdateOneRequiredWithoutAlternativesNestedInput
+}
+
+export type IncidentAlternativeUncheckedUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cost?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  delayMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  estimatedLoss?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  continuityScore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  impact?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incidentId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 export type IncidentAlternativeCreateManyIncidentInput = {
   id?: string
   title: string
@@ -689,6 +795,7 @@ export type IncidentAlternativeUpdateWithoutIncidentInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  experiences?: Prisma.ExperienceUpdateManyWithoutSelectedAlternativeNestedInput
 }
 
 export type IncidentAlternativeUncheckedUpdateWithoutIncidentInput = {
@@ -703,6 +810,7 @@ export type IncidentAlternativeUncheckedUpdateWithoutIncidentInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutSelectedAlternativeNestedInput
 }
 
 export type IncidentAlternativeUncheckedUpdateManyWithoutIncidentInput = {
@@ -720,6 +828,35 @@ export type IncidentAlternativeUncheckedUpdateManyWithoutIncidentInput = {
 }
 
 
+/**
+ * Count Type IncidentAlternativeCountOutputType
+ */
+
+export type IncidentAlternativeCountOutputType = {
+  experiences: number
+}
+
+export type IncidentAlternativeCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  experiences?: boolean | IncidentAlternativeCountOutputTypeCountExperiencesArgs
+}
+
+/**
+ * IncidentAlternativeCountOutputType without action
+ */
+export type IncidentAlternativeCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the IncidentAlternativeCountOutputType
+   */
+  select?: Prisma.IncidentAlternativeCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * IncidentAlternativeCountOutputType without action
+ */
+export type IncidentAlternativeCountOutputTypeCountExperiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExperienceWhereInput
+}
+
 
 export type IncidentAlternativeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -735,6 +872,8 @@ export type IncidentAlternativeSelect<ExtArgs extends runtime.Types.Extensions.I
   updatedAt?: boolean
   incidentId?: boolean
   incident?: boolean | Prisma.IncidentDefaultArgs<ExtArgs>
+  experiences?: boolean | Prisma.IncidentAlternative$experiencesArgs<ExtArgs>
+  _count?: boolean | Prisma.IncidentAlternativeCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["incidentAlternative"]>
 
 export type IncidentAlternativeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -787,6 +926,8 @@ export type IncidentAlternativeSelectScalar = {
 export type IncidentAlternativeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "cost" | "delayMinutes" | "estimatedLoss" | "continuityScore" | "impact" | "status" | "createdAt" | "updatedAt" | "incidentId", ExtArgs["result"]["incidentAlternative"]>
 export type IncidentAlternativeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   incident?: boolean | Prisma.IncidentDefaultArgs<ExtArgs>
+  experiences?: boolean | Prisma.IncidentAlternative$experiencesArgs<ExtArgs>
+  _count?: boolean | Prisma.IncidentAlternativeCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IncidentAlternativeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   incident?: boolean | Prisma.IncidentDefaultArgs<ExtArgs>
@@ -799,6 +940,7 @@ export type $IncidentAlternativePayload<ExtArgs extends runtime.Types.Extensions
   name: "IncidentAlternative"
   objects: {
     incident: Prisma.$IncidentPayload<ExtArgs>
+    experiences: Prisma.$ExperiencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1208,6 +1350,7 @@ readonly fields: IncidentAlternativeFieldRefs;
 export interface Prisma__IncidentAlternativeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   incident<T extends Prisma.IncidentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncidentDefaultArgs<ExtArgs>>): Prisma.Prisma__IncidentClient<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  experiences<T extends Prisma.IncidentAlternative$experiencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.IncidentAlternative$experiencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExperiencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1647,6 +1790,30 @@ export type IncidentAlternativeDeleteManyArgs<ExtArgs extends runtime.Types.Exte
    * Limit how many IncidentAlternatives to delete.
    */
   limit?: number
+}
+
+/**
+ * IncidentAlternative.experiences
+ */
+export type IncidentAlternative$experiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Experience
+   */
+  select?: Prisma.ExperienceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Experience
+   */
+  omit?: Prisma.ExperienceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExperienceInclude<ExtArgs> | null
+  where?: Prisma.ExperienceWhereInput
+  orderBy?: Prisma.ExperienceOrderByWithRelationInput | Prisma.ExperienceOrderByWithRelationInput[]
+  cursor?: Prisma.ExperienceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExperienceScalarFieldEnum | Prisma.ExperienceScalarFieldEnum[]
 }
 
 /**

@@ -186,6 +186,9 @@ export type CompanyWhereInput = {
   roles?: Prisma.RoleListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
+  events?: Prisma.EventListRelationFilter
+  workflows?: Prisma.WorkflowListRelationFilter
+  experiences?: Prisma.ExperienceListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -198,6 +201,9 @@ export type CompanyOrderByWithRelationInput = {
   roles?: Prisma.RoleOrderByRelationAggregateInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   incidents?: Prisma.IncidentOrderByRelationAggregateInput
+  events?: Prisma.EventOrderByRelationAggregateInput
+  workflows?: Prisma.WorkflowOrderByRelationAggregateInput
+  experiences?: Prisma.ExperienceOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -213,6 +219,9 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   roles?: Prisma.RoleListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
   incidents?: Prisma.IncidentListRelationFilter
+  events?: Prisma.EventListRelationFilter
+  workflows?: Prisma.WorkflowListRelationFilter
+  experiences?: Prisma.ExperienceListRelationFilter
 }, "id" | "name">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -247,6 +256,9 @@ export type CompanyCreateInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -259,6 +271,9 @@ export type CompanyUncheckedCreateInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -271,6 +286,9 @@ export type CompanyUpdateInput = {
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -283,6 +301,9 @@ export type CompanyUncheckedUpdateInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -402,6 +423,48 @@ export type CompanyUpdateOneRequiredWithoutIncidentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutIncidentsInput, Prisma.CompanyUpdateWithoutIncidentsInput>, Prisma.CompanyUncheckedUpdateWithoutIncidentsInput>
 }
 
+export type CompanyCreateNestedOneWithoutEventsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutEventsInput, Prisma.CompanyUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutEventsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutEventsInput, Prisma.CompanyUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutEventsInput
+  upsert?: Prisma.CompanyUpsertWithoutEventsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutEventsInput, Prisma.CompanyUpdateWithoutEventsInput>, Prisma.CompanyUncheckedUpdateWithoutEventsInput>
+}
+
+export type CompanyCreateNestedOneWithoutWorkflowsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutWorkflowsInput, Prisma.CompanyUncheckedCreateWithoutWorkflowsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutWorkflowsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutWorkflowsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutWorkflowsInput, Prisma.CompanyUncheckedCreateWithoutWorkflowsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutWorkflowsInput
+  upsert?: Prisma.CompanyUpsertWithoutWorkflowsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutWorkflowsInput, Prisma.CompanyUpdateWithoutWorkflowsInput>, Prisma.CompanyUncheckedUpdateWithoutWorkflowsInput>
+}
+
+export type CompanyCreateNestedOneWithoutExperiencesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutExperiencesInput, Prisma.CompanyUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutExperiencesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutExperiencesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutExperiencesInput, Prisma.CompanyUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutExperiencesInput
+  upsert?: Prisma.CompanyUpsertWithoutExperiencesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutExperiencesInput, Prisma.CompanyUpdateWithoutExperiencesInput>, Prisma.CompanyUncheckedUpdateWithoutExperiencesInput>
+}
+
 export type CompanyCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -411,6 +474,9 @@ export type CompanyCreateWithoutUsersInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -422,6 +488,9 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -449,6 +518,9 @@ export type CompanyUpdateWithoutUsersInput = {
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -460,6 +532,9 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRolesInput = {
@@ -471,6 +546,9 @@ export type CompanyCreateWithoutRolesInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRolesInput = {
@@ -482,6 +560,9 @@ export type CompanyUncheckedCreateWithoutRolesInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRolesInput = {
@@ -509,6 +590,9 @@ export type CompanyUpdateWithoutRolesInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRolesInput = {
@@ -520,6 +604,9 @@ export type CompanyUncheckedUpdateWithoutRolesInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutTasksInput = {
@@ -531,6 +618,9 @@ export type CompanyCreateWithoutTasksInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutTasksInput = {
@@ -542,6 +632,9 @@ export type CompanyUncheckedCreateWithoutTasksInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutTasksInput = {
@@ -569,6 +662,9 @@ export type CompanyUpdateWithoutTasksInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutTasksInput = {
@@ -580,6 +676,9 @@ export type CompanyUncheckedUpdateWithoutTasksInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
@@ -591,6 +690,9 @@ export type CompanyCreateWithoutIncidentsInput = {
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
@@ -602,6 +704,9 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIncidentsInput = {
@@ -629,6 +734,9 @@ export type CompanyUpdateWithoutIncidentsInput = {
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
@@ -640,6 +748,225 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutEventsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutEventsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutEventsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutEventsInput, Prisma.CompanyUncheckedCreateWithoutEventsInput>
+}
+
+export type CompanyUpsertWithoutEventsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutEventsInput, Prisma.CompanyUncheckedUpdateWithoutEventsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutEventsInput, Prisma.CompanyUncheckedCreateWithoutEventsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutEventsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutEventsInput, Prisma.CompanyUncheckedUpdateWithoutEventsInput>
+}
+
+export type CompanyUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutWorkflowsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutWorkflowsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutWorkflowsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutWorkflowsInput, Prisma.CompanyUncheckedCreateWithoutWorkflowsInput>
+}
+
+export type CompanyUpsertWithoutWorkflowsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutWorkflowsInput, Prisma.CompanyUncheckedUpdateWithoutWorkflowsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutWorkflowsInput, Prisma.CompanyUncheckedCreateWithoutWorkflowsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutWorkflowsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutWorkflowsInput, Prisma.CompanyUncheckedUpdateWithoutWorkflowsInput>
+}
+
+export type CompanyUpdateWithoutWorkflowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutExperiencesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutExperiencesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutExperiencesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutExperiencesInput, Prisma.CompanyUncheckedCreateWithoutExperiencesInput>
+}
+
+export type CompanyUpsertWithoutExperiencesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutExperiencesInput, Prisma.CompanyUncheckedUpdateWithoutExperiencesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutExperiencesInput, Prisma.CompanyUncheckedCreateWithoutExperiencesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutExperiencesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutExperiencesInput, Prisma.CompanyUncheckedUpdateWithoutExperiencesInput>
+}
+
+export type CompanyUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -652,6 +979,9 @@ export type CompanyCountOutputType = {
   roles: number
   tasks: number
   incidents: number
+  events: number
+  workflows: number
+  experiences: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -659,6 +989,9 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   roles?: boolean | CompanyCountOutputTypeCountRolesArgs
   tasks?: boolean | CompanyCountOutputTypeCountTasksArgs
   incidents?: boolean | CompanyCountOutputTypeCountIncidentsArgs
+  events?: boolean | CompanyCountOutputTypeCountEventsArgs
+  workflows?: boolean | CompanyCountOutputTypeCountWorkflowsArgs
+  experiences?: boolean | CompanyCountOutputTypeCountExperiencesArgs
 }
 
 /**
@@ -699,6 +1032,27 @@ export type CompanyCountOutputTypeCountIncidentsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.IncidentWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountWorkflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkflowWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountExperiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExperienceWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -710,6 +1064,9 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   roles?: boolean | Prisma.Company$rolesArgs<ExtArgs>
   tasks?: boolean | Prisma.Company$tasksArgs<ExtArgs>
   incidents?: boolean | Prisma.Company$incidentsArgs<ExtArgs>
+  events?: boolean | Prisma.Company$eventsArgs<ExtArgs>
+  workflows?: boolean | Prisma.Company$workflowsArgs<ExtArgs>
+  experiences?: boolean | Prisma.Company$experiencesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -743,6 +1100,9 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   roles?: boolean | Prisma.Company$rolesArgs<ExtArgs>
   tasks?: boolean | Prisma.Company$tasksArgs<ExtArgs>
   incidents?: boolean | Prisma.Company$incidentsArgs<ExtArgs>
+  events?: boolean | Prisma.Company$eventsArgs<ExtArgs>
+  workflows?: boolean | Prisma.Company$workflowsArgs<ExtArgs>
+  experiences?: boolean | Prisma.Company$experiencesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -755,6 +1115,9 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     roles: Prisma.$RolePayload<ExtArgs>[]
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     incidents: Prisma.$IncidentPayload<ExtArgs>[]
+    events: Prisma.$EventPayload<ExtArgs>[]
+    workflows: Prisma.$WorkflowPayload<ExtArgs>[]
+    experiences: Prisma.$ExperiencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1160,6 +1523,9 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   roles<T extends Prisma.Company$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tasks<T extends Prisma.Company$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   incidents<T extends Prisma.Company$incidentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$incidentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  events<T extends Prisma.Company$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workflows<T extends Prisma.Company$workflowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$workflowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  experiences<T extends Prisma.Company$experiencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$experiencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExperiencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1680,6 +2046,78 @@ export type Company$incidentsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.IncidentScalarFieldEnum | Prisma.IncidentScalarFieldEnum[]
+}
+
+/**
+ * Company.events
+ */
+export type Company$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Event
+   */
+  select?: Prisma.EventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Event
+   */
+  omit?: Prisma.EventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventInclude<ExtArgs> | null
+  where?: Prisma.EventWhereInput
+  orderBy?: Prisma.EventOrderByWithRelationInput | Prisma.EventOrderByWithRelationInput[]
+  cursor?: Prisma.EventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventScalarFieldEnum | Prisma.EventScalarFieldEnum[]
+}
+
+/**
+ * Company.workflows
+ */
+export type Company$workflowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Workflow
+   */
+  select?: Prisma.WorkflowSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Workflow
+   */
+  omit?: Prisma.WorkflowOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkflowInclude<ExtArgs> | null
+  where?: Prisma.WorkflowWhereInput
+  orderBy?: Prisma.WorkflowOrderByWithRelationInput | Prisma.WorkflowOrderByWithRelationInput[]
+  cursor?: Prisma.WorkflowWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkflowScalarFieldEnum | Prisma.WorkflowScalarFieldEnum[]
+}
+
+/**
+ * Company.experiences
+ */
+export type Company$experiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Experience
+   */
+  select?: Prisma.ExperienceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Experience
+   */
+  omit?: Prisma.ExperienceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExperienceInclude<ExtArgs> | null
+  where?: Prisma.ExperienceWhereInput
+  orderBy?: Prisma.ExperienceOrderByWithRelationInput | Prisma.ExperienceOrderByWithRelationInput[]
+  cursor?: Prisma.ExperienceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExperienceScalarFieldEnum | Prisma.ExperienceScalarFieldEnum[]
 }
 
 /**

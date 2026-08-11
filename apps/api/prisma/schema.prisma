@@ -15,10 +15,13 @@ model Company {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  roles     Role[]
-  tasks     Task[]
-  incidents Incident[]
+  users       User[]
+  roles       Role[]
+  tasks       Task[]
+  incidents   Incident[]
+  events      Event[]
+  workflows   Workflow[]
+  experiences Experience[]
 
   @@map("companies")
 }
@@ -35,8 +38,8 @@ model User {
   company   Company @relation(fields: [companyId], references: [id])
 
   roleId String?
-  role   Role? @relation(fields: [roleId], references: [id])
- 
+  role   Role?   @relation(fields: [roleId], references: [id])
+
   tasks Task[]
 
   @@map("users")
@@ -60,60 +63,62 @@ model Role {
 }
 
 model Task {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   category    String?
-  priority    String   @default("normal")
-  status      String   @default("pending")
+  priority    String    @default("normal")
+  status      String    @default("pending")
   dueAt       DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
   userId String?
-  user   User? @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
 
   @@map("tasks")
 }
 
 model Incident {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   category    String?
-  severity    String   @default("medium")
-  status      String   @default("open")
-  occurredAt  DateTime @default(now())
+  severity    String    @default("medium")
+  status      String    @default("open")
+  occurredAt  DateTime  @default(now())
   resolvedAt  DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
 
   alternatives IncidentAlternative[]
+  experiences  Experience[]
 
   @@map("incidents")
 }
 
 model IncidentAlternative {
-  id                   String   @id @default(uuid())
-  title                String
-  description          String?
-  cost                 Float?
-  delayMinutes         Int?
-  estimatedLoss        Float?
-  continuityScore      Int?
-  impact               String?
-  status               String   @default("proposed")
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  cost            Float?
+  delayMinutes    Int?
+  estimatedLoss   Float?
+  continuityScore Int?
+  impact          String?
+  status          String   @default("proposed")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  incidentId String
-  incident   Incident @relation(fields: [incidentId], references: [id])
+  incidentId  String
+  incident    Incident     @relation(fields: [incidentId], references: [id])
+  experiences Experience[]
 
   @@map("incident_alternatives")
 }
@@ -148,4 +153,102 @@ model KnowledgeAlternativeTemplate {
 
   @@unique([knowledgeTemplateId, title])
   @@map("knowledge_alternative_templates")
+}
+
+model Event {
+  id         String   @id @default(uuid())
+  type       String
+  source     String?
+  entityType String?
+  entityId   String?
+  data       Json?
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId, type])
+  @@index([occurredAt])
+  @@map("events")
+}
+
+model Workflow {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  status     String   @default("active")
+  entityType String?
+  entityId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  steps       WorkflowStep[]
+  experiences Experience[]
+
+  @@index([companyId, type])
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id          String    @id @default(uuid())
+  name        String
+  stepOrder   Int
+  status      String    @default("pending")
+  actionType  String?
+  data        Json?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, stepOrder])
+  @@map("workflow_steps")
+}
+
+model Experience {
+  id String @id @default(uuid())
+
+  type     String @default("incident_resolution")
+  category String
+
+  success Boolean
+
+  delayMinutes      Int?
+  extraCost         Float?
+  estimatedLoss     Float?
+  customersAffected Int?
+
+  notes String?
+
+  selectedAlternativeTitle String?
+
+  verifiedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  incidentId String
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  selectedAlternativeId String?
+  selectedAlternative   IncidentAlternative? @relation(fields: [selectedAlternativeId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, category])
+  @@index([incidentId])
+  @@index([workflowId])
+  @@index([selectedAlternativeId])
+  @@map("experiences")
 }

@@ -25,4 +25,8 @@ findTodayByPriority(@Param('priority') priority: string) {
   create(@Body() createTaskDto: CreateTaskDto) {
     return this.taskService.create(createTaskDto);
   }
+  @Post(':id/complete')
+complete(@Param('id') id: string) {
+  return this.taskService.complete(id);
+}
 }

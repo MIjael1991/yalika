@@ -109,4 +109,31 @@ export class TaskService {
       },
     });
   }
+
+  async complete(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: {
+        id: taskId,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('La tarea no existe');
+    }
+
+    if (task.status === 'completed') {
+      throw new BadRequestException(
+        'La tarea ya fue completada',
+      );
+    }
+
+    return this.prisma.task.update({
+      where: {
+        id: taskId,
+      },
+      data: {
+        status: 'completed',
+      },
+    });
+  }
 }

@@ -232,6 +232,7 @@ export type IncidentWhereInput = {
   companyId?: Prisma.StringFilter<"Incident"> | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   alternatives?: Prisma.IncidentAlternativeListRelationFilter
+  experiences?: Prisma.ExperienceListRelationFilter
 }
 
 export type IncidentOrderByWithRelationInput = {
@@ -248,6 +249,7 @@ export type IncidentOrderByWithRelationInput = {
   companyId?: Prisma.SortOrder
   company?: Prisma.CompanyOrderByWithRelationInput
   alternatives?: Prisma.IncidentAlternativeOrderByRelationAggregateInput
+  experiences?: Prisma.ExperienceOrderByRelationAggregateInput
 }
 
 export type IncidentWhereUniqueInput = Prisma.AtLeast<{
@@ -267,6 +269,7 @@ export type IncidentWhereUniqueInput = Prisma.AtLeast<{
   companyId?: Prisma.StringFilter<"Incident"> | string
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   alternatives?: Prisma.IncidentAlternativeListRelationFilter
+  experiences?: Prisma.ExperienceListRelationFilter
 }, "id">
 
 export type IncidentOrderByWithAggregationInput = {
@@ -316,6 +319,7 @@ export type IncidentCreateInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
   alternatives?: Prisma.IncidentAlternativeCreateNestedManyWithoutIncidentInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateInput = {
@@ -331,6 +335,7 @@ export type IncidentUncheckedCreateInput = {
   updatedAt?: Date | string
   companyId: string
   alternatives?: Prisma.IncidentAlternativeUncheckedCreateNestedManyWithoutIncidentInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUpdateInput = {
@@ -346,6 +351,7 @@ export type IncidentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
   alternatives?: Prisma.IncidentAlternativeUpdateManyWithoutIncidentNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateInput = {
@@ -361,6 +367,7 @@ export type IncidentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   alternatives?: Prisma.IncidentAlternativeUncheckedUpdateManyWithoutIncidentNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentCreateManyInput = {
@@ -517,6 +524,20 @@ export type IncidentUpdateOneRequiredWithoutAlternativesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutAlternativesInput, Prisma.IncidentUpdateWithoutAlternativesInput>, Prisma.IncidentUncheckedUpdateWithoutAlternativesInput>
 }
 
+export type IncidentCreateNestedOneWithoutExperiencesInput = {
+  create?: Prisma.XOR<Prisma.IncidentCreateWithoutExperiencesInput, Prisma.IncidentUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutExperiencesInput
+  connect?: Prisma.IncidentWhereUniqueInput
+}
+
+export type IncidentUpdateOneRequiredWithoutExperiencesNestedInput = {
+  create?: Prisma.XOR<Prisma.IncidentCreateWithoutExperiencesInput, Prisma.IncidentUncheckedCreateWithoutExperiencesInput>
+  connectOrCreate?: Prisma.IncidentCreateOrConnectWithoutExperiencesInput
+  upsert?: Prisma.IncidentUpsertWithoutExperiencesInput
+  connect?: Prisma.IncidentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IncidentUpdateToOneWithWhereWithoutExperiencesInput, Prisma.IncidentUpdateWithoutExperiencesInput>, Prisma.IncidentUncheckedUpdateWithoutExperiencesInput>
+}
+
 export type IncidentCreateWithoutCompanyInput = {
   id?: string
   title: string
@@ -529,6 +550,7 @@ export type IncidentCreateWithoutCompanyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   alternatives?: Prisma.IncidentAlternativeCreateNestedManyWithoutIncidentInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateWithoutCompanyInput = {
@@ -543,6 +565,7 @@ export type IncidentUncheckedCreateWithoutCompanyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   alternatives?: Prisma.IncidentAlternativeUncheckedCreateNestedManyWithoutIncidentInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentCreateOrConnectWithoutCompanyInput = {
@@ -600,6 +623,7 @@ export type IncidentCreateWithoutAlternativesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentUncheckedCreateWithoutAlternativesInput = {
@@ -614,6 +638,7 @@ export type IncidentUncheckedCreateWithoutAlternativesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutIncidentInput
 }
 
 export type IncidentCreateOrConnectWithoutAlternativesInput = {
@@ -644,6 +669,7 @@ export type IncidentUpdateWithoutAlternativesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateWithoutAlternativesInput = {
@@ -658,6 +684,83 @@ export type IncidentUncheckedUpdateWithoutAlternativesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutIncidentNestedInput
+}
+
+export type IncidentCreateWithoutExperiencesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  category?: string | null
+  severity?: string
+  status?: string
+  occurredAt?: Date | string
+  resolvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutIncidentsInput
+  alternatives?: Prisma.IncidentAlternativeCreateNestedManyWithoutIncidentInput
+}
+
+export type IncidentUncheckedCreateWithoutExperiencesInput = {
+  id?: string
+  title: string
+  description?: string | null
+  category?: string | null
+  severity?: string
+  status?: string
+  occurredAt?: Date | string
+  resolvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  alternatives?: Prisma.IncidentAlternativeUncheckedCreateNestedManyWithoutIncidentInput
+}
+
+export type IncidentCreateOrConnectWithoutExperiencesInput = {
+  where: Prisma.IncidentWhereUniqueInput
+  create: Prisma.XOR<Prisma.IncidentCreateWithoutExperiencesInput, Prisma.IncidentUncheckedCreateWithoutExperiencesInput>
+}
+
+export type IncidentUpsertWithoutExperiencesInput = {
+  update: Prisma.XOR<Prisma.IncidentUpdateWithoutExperiencesInput, Prisma.IncidentUncheckedUpdateWithoutExperiencesInput>
+  create: Prisma.XOR<Prisma.IncidentCreateWithoutExperiencesInput, Prisma.IncidentUncheckedCreateWithoutExperiencesInput>
+  where?: Prisma.IncidentWhereInput
+}
+
+export type IncidentUpdateToOneWithWhereWithoutExperiencesInput = {
+  where?: Prisma.IncidentWhereInput
+  data: Prisma.XOR<Prisma.IncidentUpdateWithoutExperiencesInput, Prisma.IncidentUncheckedUpdateWithoutExperiencesInput>
+}
+
+export type IncidentUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutIncidentsNestedInput
+  alternatives?: Prisma.IncidentAlternativeUpdateManyWithoutIncidentNestedInput
+}
+
+export type IncidentUncheckedUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  severity?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  alternatives?: Prisma.IncidentAlternativeUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentCreateManyCompanyInput = {
@@ -685,6 +788,7 @@ export type IncidentUpdateWithoutCompanyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   alternatives?: Prisma.IncidentAlternativeUpdateManyWithoutIncidentNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateWithoutCompanyInput = {
@@ -699,6 +803,7 @@ export type IncidentUncheckedUpdateWithoutCompanyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   alternatives?: Prisma.IncidentAlternativeUncheckedUpdateManyWithoutIncidentNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutIncidentNestedInput
 }
 
 export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
@@ -721,10 +826,12 @@ export type IncidentUncheckedUpdateManyWithoutCompanyInput = {
 
 export type IncidentCountOutputType = {
   alternatives: number
+  experiences: number
 }
 
 export type IncidentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   alternatives?: boolean | IncidentCountOutputTypeCountAlternativesArgs
+  experiences?: boolean | IncidentCountOutputTypeCountExperiencesArgs
 }
 
 /**
@@ -744,6 +851,13 @@ export type IncidentCountOutputTypeCountAlternativesArgs<ExtArgs extends runtime
   where?: Prisma.IncidentAlternativeWhereInput
 }
 
+/**
+ * IncidentCountOutputType without action
+ */
+export type IncidentCountOutputTypeCountExperiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExperienceWhereInput
+}
+
 
 export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -759,6 +873,7 @@ export type IncidentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   companyId?: boolean
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   alternatives?: boolean | Prisma.Incident$alternativesArgs<ExtArgs>
+  experiences?: boolean | Prisma.Incident$experiencesArgs<ExtArgs>
   _count?: boolean | Prisma.IncidentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["incident"]>
 
@@ -810,6 +925,7 @@ export type IncidentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type IncidentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   alternatives?: boolean | Prisma.Incident$alternativesArgs<ExtArgs>
+  experiences?: boolean | Prisma.Incident$experiencesArgs<ExtArgs>
   _count?: boolean | Prisma.IncidentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IncidentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -824,6 +940,7 @@ export type $IncidentPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     company: Prisma.$CompanyPayload<ExtArgs>
     alternatives: Prisma.$IncidentAlternativePayload<ExtArgs>[]
+    experiences: Prisma.$ExperiencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1233,6 +1350,7 @@ export interface Prisma__IncidentClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   alternatives<T extends Prisma.Incident$alternativesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$alternativesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$IncidentAlternativePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  experiences<T extends Prisma.Incident$experiencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Incident$experiencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExperiencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1695,6 +1813,30 @@ export type Incident$alternativesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.IncidentAlternativeScalarFieldEnum | Prisma.IncidentAlternativeScalarFieldEnum[]
+}
+
+/**
+ * Incident.experiences
+ */
+export type Incident$experiencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Experience
+   */
+  select?: Prisma.ExperienceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Experience
+   */
+  omit?: Prisma.ExperienceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExperienceInclude<ExtArgs> | null
+  where?: Prisma.ExperienceWhereInput
+  orderBy?: Prisma.ExperienceOrderByWithRelationInput | Prisma.ExperienceOrderByWithRelationInput[]
+  cursor?: Prisma.ExperienceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExperienceScalarFieldEnum | Prisma.ExperienceScalarFieldEnum[]
 }
 
 /**
