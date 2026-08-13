@@ -77,3 +77,133 @@ export type WorkflowStep = Prisma.WorkflowStepModel
  * 
  */
 export type Experience = Prisma.ExperienceModel
+/**
+ * Model Customer
+ * 
+ */
+export type Customer = Prisma.CustomerModel
+/**
+ * Model Visit
+ * 
+ */
+export type Visit = Prisma.VisitModel
+/**
+ * Model LoyaltyProgram
+ * 
+ */
+export type LoyaltyProgram = Prisma.LoyaltyProgramModel
+/**
+ * Model CustomerReward
+ * 
+ */
+export type CustomerReward = Prisma.CustomerRewardModel
+/**
+ * Model ProductCategory
+ * 
+ */
+export type ProductCategory = Prisma.ProductCategoryModel
+/**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model ProductVariant
+ * 
+ */
+export type ProductVariant = Prisma.ProductVariantModel
+/**
+ * Model ProductImage
+ * 
+ */
+export type ProductImage = Prisma.ProductImageModel
+/**
+ * Model Promotion
+ * 
+ */
+export type Promotion = Prisma.PromotionModel
+/**
+ * Model PromotionProduct
+ * 
+ */
+export type PromotionProduct = Prisma.PromotionProductModel
+/**
+ * Model Site
+ * 
+ */
+export type Site = Prisma.SiteModel
+/**
+ * Model SiteSection
+ * 
+ */
+export type SiteSection = Prisma.SiteSectionModel
+/**
+ * Model Supplier
+ * 
+ */
+export type Supplier = Prisma.SupplierModel
+/**
+ * Model InventoryItem
+ * 
+ */
+export type InventoryItem = Prisma.InventoryItemModel
+/**
+ * Model StockMovement
+ * 
+ */
+export type StockMovement = Prisma.StockMovementModel
+/**
+ * Model InventoryCount
+ * 
+ */
+export type InventoryCount = Prisma.InventoryCountModel
+/**
+ * Model StockReceipt
+ * 
+ */
+export type StockReceipt = Prisma.StockReceiptModel
+/**
+ * Model StockReceiptLine
+ * 
+ */
+export type StockReceiptLine = Prisma.StockReceiptLineModel
+/**
+ * Model ProductRecipe
+ * 
+ */
+export type ProductRecipe = Prisma.ProductRecipeModel
+/**
+ * Model ProductRecipeComponent
+ * 
+ */
+export type ProductRecipeComponent = Prisma.ProductRecipeComponentModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model OrderItem
+ * 
+ */
+export type OrderItem = Prisma.OrderItemModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model DiningTable
+ * 
+ */
+export type DiningTable = Prisma.DiningTableModel
+/**
+ * Model OrderSplit
+ * 
+ */
+export type OrderSplit = Prisma.OrderSplitModel
+/**
+ * Model OrderSplitItem
+ * 
+ */
+export type OrderSplitItem = Prisma.OrderSplitItemModel

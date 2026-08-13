@@ -182,6 +182,7 @@ export type CompanyWhereInput = {
   status?: Prisma.StringFilter<"Company"> | string
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
+  site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   users?: Prisma.UserListRelationFilter
   roles?: Prisma.RoleListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
@@ -189,6 +190,22 @@ export type CompanyWhereInput = {
   events?: Prisma.EventListRelationFilter
   workflows?: Prisma.WorkflowListRelationFilter
   experiences?: Prisma.ExperienceListRelationFilter
+  customers?: Prisma.CustomerListRelationFilter
+  visits?: Prisma.VisitListRelationFilter
+  loyaltyPrograms?: Prisma.LoyaltyProgramListRelationFilter
+  customerRewards?: Prisma.CustomerRewardListRelationFilter
+  productCategories?: Prisma.ProductCategoryListRelationFilter
+  products?: Prisma.ProductListRelationFilter
+  promotions?: Prisma.PromotionListRelationFilter
+  suppliers?: Prisma.SupplierListRelationFilter
+  inventoryItems?: Prisma.InventoryItemListRelationFilter
+  stockMovements?: Prisma.StockMovementListRelationFilter
+  inventoryCounts?: Prisma.InventoryCountListRelationFilter
+  stockReceipts?: Prisma.StockReceiptListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
+  diningTables?: Prisma.DiningTableListRelationFilter
+  orderSplits?: Prisma.OrderSplitListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -197,6 +214,7 @@ export type CompanyOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  site?: Prisma.SiteOrderByWithRelationInput
   users?: Prisma.UserOrderByRelationAggregateInput
   roles?: Prisma.RoleOrderByRelationAggregateInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
@@ -204,6 +222,22 @@ export type CompanyOrderByWithRelationInput = {
   events?: Prisma.EventOrderByRelationAggregateInput
   workflows?: Prisma.WorkflowOrderByRelationAggregateInput
   experiences?: Prisma.ExperienceOrderByRelationAggregateInput
+  customers?: Prisma.CustomerOrderByRelationAggregateInput
+  visits?: Prisma.VisitOrderByRelationAggregateInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramOrderByRelationAggregateInput
+  customerRewards?: Prisma.CustomerRewardOrderByRelationAggregateInput
+  productCategories?: Prisma.ProductCategoryOrderByRelationAggregateInput
+  products?: Prisma.ProductOrderByRelationAggregateInput
+  promotions?: Prisma.PromotionOrderByRelationAggregateInput
+  suppliers?: Prisma.SupplierOrderByRelationAggregateInput
+  inventoryItems?: Prisma.InventoryItemOrderByRelationAggregateInput
+  stockMovements?: Prisma.StockMovementOrderByRelationAggregateInput
+  inventoryCounts?: Prisma.InventoryCountOrderByRelationAggregateInput
+  stockReceipts?: Prisma.StockReceiptOrderByRelationAggregateInput
+  orders?: Prisma.OrderOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
+  diningTables?: Prisma.DiningTableOrderByRelationAggregateInput
+  orderSplits?: Prisma.OrderSplitOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -215,6 +249,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"Company"> | string
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
+  site?: Prisma.XOR<Prisma.SiteNullableScalarRelationFilter, Prisma.SiteWhereInput> | null
   users?: Prisma.UserListRelationFilter
   roles?: Prisma.RoleListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
@@ -222,6 +257,22 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.EventListRelationFilter
   workflows?: Prisma.WorkflowListRelationFilter
   experiences?: Prisma.ExperienceListRelationFilter
+  customers?: Prisma.CustomerListRelationFilter
+  visits?: Prisma.VisitListRelationFilter
+  loyaltyPrograms?: Prisma.LoyaltyProgramListRelationFilter
+  customerRewards?: Prisma.CustomerRewardListRelationFilter
+  productCategories?: Prisma.ProductCategoryListRelationFilter
+  products?: Prisma.ProductListRelationFilter
+  promotions?: Prisma.PromotionListRelationFilter
+  suppliers?: Prisma.SupplierListRelationFilter
+  inventoryItems?: Prisma.InventoryItemListRelationFilter
+  stockMovements?: Prisma.StockMovementListRelationFilter
+  inventoryCounts?: Prisma.InventoryCountListRelationFilter
+  stockReceipts?: Prisma.StockReceiptListRelationFilter
+  orders?: Prisma.OrderListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
+  diningTables?: Prisma.DiningTableListRelationFilter
+  orderSplits?: Prisma.OrderSplitListRelationFilter
 }, "id" | "name">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -252,6 +303,7 @@ export type CompanyCreateInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
@@ -259,6 +311,22 @@ export type CompanyCreateInput = {
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -267,6 +335,7 @@ export type CompanyUncheckedCreateInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
@@ -274,6 +343,22 @@ export type CompanyUncheckedCreateInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -282,6 +367,7 @@ export type CompanyUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
@@ -289,6 +375,22 @@ export type CompanyUpdateInput = {
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -297,6 +399,7 @@ export type CompanyUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
@@ -304,6 +407,22 @@ export type CompanyUncheckedUpdateInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -465,18 +584,273 @@ export type CompanyUpdateOneRequiredWithoutExperiencesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutExperiencesInput, Prisma.CompanyUpdateWithoutExperiencesInput>, Prisma.CompanyUncheckedUpdateWithoutExperiencesInput>
 }
 
+export type CompanyCreateNestedOneWithoutCustomersInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutCustomersInput, Prisma.CompanyUncheckedCreateWithoutCustomersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutCustomersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutCustomersNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutCustomersInput, Prisma.CompanyUncheckedCreateWithoutCustomersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutCustomersInput
+  upsert?: Prisma.CompanyUpsertWithoutCustomersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutCustomersInput, Prisma.CompanyUpdateWithoutCustomersInput>, Prisma.CompanyUncheckedUpdateWithoutCustomersInput>
+}
+
+export type CompanyCreateNestedOneWithoutVisitsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutVisitsInput, Prisma.CompanyUncheckedCreateWithoutVisitsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutVisitsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutVisitsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutVisitsInput, Prisma.CompanyUncheckedCreateWithoutVisitsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutVisitsInput
+  upsert?: Prisma.CompanyUpsertWithoutVisitsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutVisitsInput, Prisma.CompanyUpdateWithoutVisitsInput>, Prisma.CompanyUncheckedUpdateWithoutVisitsInput>
+}
+
+export type CompanyCreateNestedOneWithoutLoyaltyProgramsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedCreateWithoutLoyaltyProgramsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutLoyaltyProgramsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutLoyaltyProgramsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedCreateWithoutLoyaltyProgramsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutLoyaltyProgramsInput
+  upsert?: Prisma.CompanyUpsertWithoutLoyaltyProgramsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutLoyaltyProgramsInput, Prisma.CompanyUpdateWithoutLoyaltyProgramsInput>, Prisma.CompanyUncheckedUpdateWithoutLoyaltyProgramsInput>
+}
+
+export type CompanyCreateNestedOneWithoutCustomerRewardsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedCreateWithoutCustomerRewardsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutCustomerRewardsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutCustomerRewardsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedCreateWithoutCustomerRewardsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutCustomerRewardsInput
+  upsert?: Prisma.CompanyUpsertWithoutCustomerRewardsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutCustomerRewardsInput, Prisma.CompanyUpdateWithoutCustomerRewardsInput>, Prisma.CompanyUncheckedUpdateWithoutCustomerRewardsInput>
+}
+
+export type CompanyCreateNestedOneWithoutProductCategoriesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutProductCategoriesInput, Prisma.CompanyUncheckedCreateWithoutProductCategoriesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutProductCategoriesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutProductCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutProductCategoriesInput, Prisma.CompanyUncheckedCreateWithoutProductCategoriesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutProductCategoriesInput
+  upsert?: Prisma.CompanyUpsertWithoutProductCategoriesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutProductCategoriesInput, Prisma.CompanyUpdateWithoutProductCategoriesInput>, Prisma.CompanyUncheckedUpdateWithoutProductCategoriesInput>
+}
+
+export type CompanyCreateNestedOneWithoutProductsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutProductsInput, Prisma.CompanyUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutProductsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutProductsInput, Prisma.CompanyUncheckedCreateWithoutProductsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutProductsInput
+  upsert?: Prisma.CompanyUpsertWithoutProductsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutProductsInput, Prisma.CompanyUpdateWithoutProductsInput>, Prisma.CompanyUncheckedUpdateWithoutProductsInput>
+}
+
+export type CompanyCreateNestedOneWithoutPromotionsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPromotionsInput, Prisma.CompanyUncheckedCreateWithoutPromotionsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPromotionsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutPromotionsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPromotionsInput, Prisma.CompanyUncheckedCreateWithoutPromotionsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPromotionsInput
+  upsert?: Prisma.CompanyUpsertWithoutPromotionsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutPromotionsInput, Prisma.CompanyUpdateWithoutPromotionsInput>, Prisma.CompanyUncheckedUpdateWithoutPromotionsInput>
+}
+
+export type CompanyCreateNestedOneWithoutSiteInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSiteInput, Prisma.CompanyUncheckedCreateWithoutSiteInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSiteInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutSiteNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSiteInput, Prisma.CompanyUncheckedCreateWithoutSiteInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSiteInput
+  upsert?: Prisma.CompanyUpsertWithoutSiteInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutSiteInput, Prisma.CompanyUpdateWithoutSiteInput>, Prisma.CompanyUncheckedUpdateWithoutSiteInput>
+}
+
+export type CompanyCreateNestedOneWithoutSuppliersInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSuppliersInput, Prisma.CompanyUncheckedCreateWithoutSuppliersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSuppliersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutSuppliersNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSuppliersInput, Prisma.CompanyUncheckedCreateWithoutSuppliersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSuppliersInput
+  upsert?: Prisma.CompanyUpsertWithoutSuppliersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutSuppliersInput, Prisma.CompanyUpdateWithoutSuppliersInput>, Prisma.CompanyUncheckedUpdateWithoutSuppliersInput>
+}
+
+export type CompanyCreateNestedOneWithoutInventoryItemsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryItemsInput, Prisma.CompanyUncheckedCreateWithoutInventoryItemsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInventoryItemsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutInventoryItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryItemsInput, Prisma.CompanyUncheckedCreateWithoutInventoryItemsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInventoryItemsInput
+  upsert?: Prisma.CompanyUpsertWithoutInventoryItemsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutInventoryItemsInput, Prisma.CompanyUpdateWithoutInventoryItemsInput>, Prisma.CompanyUncheckedUpdateWithoutInventoryItemsInput>
+}
+
+export type CompanyCreateNestedOneWithoutStockMovementsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutStockMovementsInput, Prisma.CompanyUncheckedCreateWithoutStockMovementsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutStockMovementsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutStockMovementsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutStockMovementsInput, Prisma.CompanyUncheckedCreateWithoutStockMovementsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutStockMovementsInput
+  upsert?: Prisma.CompanyUpsertWithoutStockMovementsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutStockMovementsInput, Prisma.CompanyUpdateWithoutStockMovementsInput>, Prisma.CompanyUncheckedUpdateWithoutStockMovementsInput>
+}
+
+export type CompanyCreateNestedOneWithoutInventoryCountsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryCountsInput, Prisma.CompanyUncheckedCreateWithoutInventoryCountsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInventoryCountsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutInventoryCountsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryCountsInput, Prisma.CompanyUncheckedCreateWithoutInventoryCountsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutInventoryCountsInput
+  upsert?: Prisma.CompanyUpsertWithoutInventoryCountsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutInventoryCountsInput, Prisma.CompanyUpdateWithoutInventoryCountsInput>, Prisma.CompanyUncheckedUpdateWithoutInventoryCountsInput>
+}
+
+export type CompanyCreateNestedOneWithoutStockReceiptsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutStockReceiptsInput, Prisma.CompanyUncheckedCreateWithoutStockReceiptsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutStockReceiptsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutStockReceiptsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutStockReceiptsInput, Prisma.CompanyUncheckedCreateWithoutStockReceiptsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutStockReceiptsInput
+  upsert?: Prisma.CompanyUpsertWithoutStockReceiptsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutStockReceiptsInput, Prisma.CompanyUpdateWithoutStockReceiptsInput>, Prisma.CompanyUncheckedUpdateWithoutStockReceiptsInput>
+}
+
+export type CompanyCreateNestedOneWithoutOrdersInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrdersInput, Prisma.CompanyUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrdersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutOrdersNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrdersInput, Prisma.CompanyUncheckedCreateWithoutOrdersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrdersInput
+  upsert?: Prisma.CompanyUpsertWithoutOrdersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutOrdersInput, Prisma.CompanyUpdateWithoutOrdersInput>, Prisma.CompanyUncheckedUpdateWithoutOrdersInput>
+}
+
+export type CompanyCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.CompanyUpsertWithoutPaymentsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutPaymentsInput, Prisma.CompanyUpdateWithoutPaymentsInput>, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type CompanyCreateNestedOneWithoutDiningTablesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutDiningTablesInput, Prisma.CompanyUncheckedCreateWithoutDiningTablesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutDiningTablesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutDiningTablesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutDiningTablesInput, Prisma.CompanyUncheckedCreateWithoutDiningTablesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutDiningTablesInput
+  upsert?: Prisma.CompanyUpsertWithoutDiningTablesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutDiningTablesInput, Prisma.CompanyUpdateWithoutDiningTablesInput>, Prisma.CompanyUncheckedUpdateWithoutDiningTablesInput>
+}
+
+export type CompanyCreateNestedOneWithoutOrderSplitsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrderSplitsInput, Prisma.CompanyUncheckedCreateWithoutOrderSplitsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrderSplitsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutOrderSplitsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrderSplitsInput, Prisma.CompanyUncheckedCreateWithoutOrderSplitsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrderSplitsInput
+  upsert?: Prisma.CompanyUpsertWithoutOrderSplitsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutOrderSplitsInput, Prisma.CompanyUpdateWithoutOrderSplitsInput>, Prisma.CompanyUncheckedUpdateWithoutOrderSplitsInput>
+}
+
 export type CompanyCreateWithoutUsersInput = {
   id?: string
   name: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -485,12 +859,29 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -515,12 +906,29 @@ export type CompanyUpdateWithoutUsersInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -529,12 +937,29 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRolesInput = {
@@ -543,12 +968,29 @@ export type CompanyCreateWithoutRolesInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRolesInput = {
@@ -557,12 +999,29 @@ export type CompanyUncheckedCreateWithoutRolesInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRolesInput = {
@@ -587,12 +1046,29 @@ export type CompanyUpdateWithoutRolesInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRolesInput = {
@@ -601,12 +1077,29 @@ export type CompanyUncheckedUpdateWithoutRolesInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutTasksInput = {
@@ -615,12 +1108,29 @@ export type CompanyCreateWithoutTasksInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutTasksInput = {
@@ -629,12 +1139,29 @@ export type CompanyUncheckedCreateWithoutTasksInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutTasksInput = {
@@ -659,12 +1186,29 @@ export type CompanyUpdateWithoutTasksInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutTasksInput = {
@@ -673,12 +1217,29 @@ export type CompanyUncheckedUpdateWithoutTasksInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
@@ -687,12 +1248,29 @@ export type CompanyCreateWithoutIncidentsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
@@ -701,12 +1279,29 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIncidentsInput = {
@@ -731,12 +1326,29 @@ export type CompanyUpdateWithoutIncidentsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
@@ -745,12 +1357,29 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutEventsInput = {
@@ -759,12 +1388,29 @@ export type CompanyCreateWithoutEventsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutEventsInput = {
@@ -773,12 +1419,29 @@ export type CompanyUncheckedCreateWithoutEventsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutEventsInput = {
@@ -803,12 +1466,29 @@ export type CompanyUpdateWithoutEventsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutEventsInput = {
@@ -817,12 +1497,29 @@ export type CompanyUncheckedUpdateWithoutEventsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutWorkflowsInput = {
@@ -831,12 +1528,29 @@ export type CompanyCreateWithoutWorkflowsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutWorkflowsInput = {
@@ -845,12 +1559,29 @@ export type CompanyUncheckedCreateWithoutWorkflowsInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutWorkflowsInput = {
@@ -875,12 +1606,29 @@ export type CompanyUpdateWithoutWorkflowsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
@@ -889,12 +1637,29 @@ export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutExperiencesInput = {
@@ -903,12 +1668,29 @@ export type CompanyCreateWithoutExperiencesInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutExperiencesInput = {
@@ -917,12 +1699,29 @@ export type CompanyUncheckedCreateWithoutExperiencesInput = {
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
   incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
   workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutExperiencesInput = {
@@ -947,15 +1746,1152 @@ export type CompanyUpdateWithoutExperiencesInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
   roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutExperiencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutCustomersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutCustomersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutCustomersInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutCustomersInput, Prisma.CompanyUncheckedCreateWithoutCustomersInput>
+}
+
+export type CompanyUpsertWithoutCustomersInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutCustomersInput, Prisma.CompanyUncheckedUpdateWithoutCustomersInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutCustomersInput, Prisma.CompanyUncheckedCreateWithoutCustomersInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutCustomersInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutCustomersInput, Prisma.CompanyUncheckedUpdateWithoutCustomersInput>
+}
+
+export type CompanyUpdateWithoutCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutCustomersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutVisitsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutVisitsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutVisitsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutVisitsInput, Prisma.CompanyUncheckedCreateWithoutVisitsInput>
+}
+
+export type CompanyUpsertWithoutVisitsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutVisitsInput, Prisma.CompanyUncheckedUpdateWithoutVisitsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutVisitsInput, Prisma.CompanyUncheckedCreateWithoutVisitsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutVisitsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutVisitsInput, Prisma.CompanyUncheckedUpdateWithoutVisitsInput>
+}
+
+export type CompanyUpdateWithoutVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutVisitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutLoyaltyProgramsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutLoyaltyProgramsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutLoyaltyProgramsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedCreateWithoutLoyaltyProgramsInput>
+}
+
+export type CompanyUpsertWithoutLoyaltyProgramsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedUpdateWithoutLoyaltyProgramsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedCreateWithoutLoyaltyProgramsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutLoyaltyProgramsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutLoyaltyProgramsInput, Prisma.CompanyUncheckedUpdateWithoutLoyaltyProgramsInput>
+}
+
+export type CompanyUpdateWithoutLoyaltyProgramsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutLoyaltyProgramsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutCustomerRewardsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutCustomerRewardsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutCustomerRewardsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedCreateWithoutCustomerRewardsInput>
+}
+
+export type CompanyUpsertWithoutCustomerRewardsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedUpdateWithoutCustomerRewardsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedCreateWithoutCustomerRewardsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutCustomerRewardsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutCustomerRewardsInput, Prisma.CompanyUncheckedUpdateWithoutCustomerRewardsInput>
+}
+
+export type CompanyUpdateWithoutCustomerRewardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutCustomerRewardsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutProductCategoriesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutProductCategoriesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutProductCategoriesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutProductCategoriesInput, Prisma.CompanyUncheckedCreateWithoutProductCategoriesInput>
+}
+
+export type CompanyUpsertWithoutProductCategoriesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutProductCategoriesInput, Prisma.CompanyUncheckedUpdateWithoutProductCategoriesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutProductCategoriesInput, Prisma.CompanyUncheckedCreateWithoutProductCategoriesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutProductCategoriesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutProductCategoriesInput, Prisma.CompanyUncheckedUpdateWithoutProductCategoriesInput>
+}
+
+export type CompanyUpdateWithoutProductCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutProductCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutProductsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutProductsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutProductsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutProductsInput, Prisma.CompanyUncheckedCreateWithoutProductsInput>
+}
+
+export type CompanyUpsertWithoutProductsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutProductsInput, Prisma.CompanyUncheckedUpdateWithoutProductsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutProductsInput, Prisma.CompanyUncheckedCreateWithoutProductsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutProductsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutProductsInput, Prisma.CompanyUncheckedUpdateWithoutProductsInput>
+}
+
+export type CompanyUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutPromotionsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutPromotionsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutPromotionsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPromotionsInput, Prisma.CompanyUncheckedCreateWithoutPromotionsInput>
+}
+
+export type CompanyUpsertWithoutPromotionsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutPromotionsInput, Prisma.CompanyUncheckedUpdateWithoutPromotionsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPromotionsInput, Prisma.CompanyUncheckedCreateWithoutPromotionsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutPromotionsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutPromotionsInput, Prisma.CompanyUncheckedUpdateWithoutPromotionsInput>
+}
+
+export type CompanyUpdateWithoutPromotionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutPromotionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutSiteInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutSiteInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutSiteInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSiteInput, Prisma.CompanyUncheckedCreateWithoutSiteInput>
+}
+
+export type CompanyUpsertWithoutSiteInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutSiteInput, Prisma.CompanyUncheckedUpdateWithoutSiteInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSiteInput, Prisma.CompanyUncheckedCreateWithoutSiteInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutSiteInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutSiteInput, Prisma.CompanyUncheckedUpdateWithoutSiteInput>
+}
+
+export type CompanyUpdateWithoutSiteInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutSiteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -967,6 +2903,1283 @@ export type CompanyUncheckedUpdateWithoutExperiencesInput = {
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
   workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutSuppliersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutSuppliersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutSuppliersInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSuppliersInput, Prisma.CompanyUncheckedCreateWithoutSuppliersInput>
+}
+
+export type CompanyUpsertWithoutSuppliersInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutSuppliersInput, Prisma.CompanyUncheckedUpdateWithoutSuppliersInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSuppliersInput, Prisma.CompanyUncheckedCreateWithoutSuppliersInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutSuppliersInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutSuppliersInput, Prisma.CompanyUncheckedUpdateWithoutSuppliersInput>
+}
+
+export type CompanyUpdateWithoutSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutSuppliersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutInventoryItemsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutInventoryItemsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutInventoryItemsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryItemsInput, Prisma.CompanyUncheckedCreateWithoutInventoryItemsInput>
+}
+
+export type CompanyUpsertWithoutInventoryItemsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutInventoryItemsInput, Prisma.CompanyUncheckedUpdateWithoutInventoryItemsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryItemsInput, Prisma.CompanyUncheckedCreateWithoutInventoryItemsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutInventoryItemsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutInventoryItemsInput, Prisma.CompanyUncheckedUpdateWithoutInventoryItemsInput>
+}
+
+export type CompanyUpdateWithoutInventoryItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutInventoryItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutStockMovementsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutStockMovementsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutStockMovementsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutStockMovementsInput, Prisma.CompanyUncheckedCreateWithoutStockMovementsInput>
+}
+
+export type CompanyUpsertWithoutStockMovementsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutStockMovementsInput, Prisma.CompanyUncheckedUpdateWithoutStockMovementsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutStockMovementsInput, Prisma.CompanyUncheckedCreateWithoutStockMovementsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutStockMovementsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutStockMovementsInput, Prisma.CompanyUncheckedUpdateWithoutStockMovementsInput>
+}
+
+export type CompanyUpdateWithoutStockMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutStockMovementsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutInventoryCountsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutInventoryCountsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutInventoryCountsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryCountsInput, Prisma.CompanyUncheckedCreateWithoutInventoryCountsInput>
+}
+
+export type CompanyUpsertWithoutInventoryCountsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutInventoryCountsInput, Prisma.CompanyUncheckedUpdateWithoutInventoryCountsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutInventoryCountsInput, Prisma.CompanyUncheckedCreateWithoutInventoryCountsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutInventoryCountsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutInventoryCountsInput, Prisma.CompanyUncheckedUpdateWithoutInventoryCountsInput>
+}
+
+export type CompanyUpdateWithoutInventoryCountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutInventoryCountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutStockReceiptsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutStockReceiptsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutStockReceiptsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutStockReceiptsInput, Prisma.CompanyUncheckedCreateWithoutStockReceiptsInput>
+}
+
+export type CompanyUpsertWithoutStockReceiptsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutStockReceiptsInput, Prisma.CompanyUncheckedUpdateWithoutStockReceiptsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutStockReceiptsInput, Prisma.CompanyUncheckedCreateWithoutStockReceiptsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutStockReceiptsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutStockReceiptsInput, Prisma.CompanyUncheckedUpdateWithoutStockReceiptsInput>
+}
+
+export type CompanyUpdateWithoutStockReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutStockReceiptsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutOrdersInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutOrdersInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrdersInput, Prisma.CompanyUncheckedCreateWithoutOrdersInput>
+}
+
+export type CompanyUpsertWithoutOrdersInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutOrdersInput, Prisma.CompanyUncheckedUpdateWithoutOrdersInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrdersInput, Prisma.CompanyUncheckedCreateWithoutOrdersInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutOrdersInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutOrdersInput, Prisma.CompanyUncheckedUpdateWithoutOrdersInput>
+}
+
+export type CompanyUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutOrdersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+}
+
+export type CompanyUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutPaymentsInput, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutPaymentsInput, Prisma.CompanyUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type CompanyUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutDiningTablesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutDiningTablesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutDiningTablesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutDiningTablesInput, Prisma.CompanyUncheckedCreateWithoutDiningTablesInput>
+}
+
+export type CompanyUpsertWithoutDiningTablesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutDiningTablesInput, Prisma.CompanyUncheckedUpdateWithoutDiningTablesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutDiningTablesInput, Prisma.CompanyUncheckedCreateWithoutDiningTablesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutDiningTablesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutDiningTablesInput, Prisma.CompanyUncheckedUpdateWithoutDiningTablesInput>
+}
+
+export type CompanyUpdateWithoutDiningTablesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutDiningTablesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutOrderSplitsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutOrderSplitsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutOrderSplitsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrderSplitsInput, Prisma.CompanyUncheckedCreateWithoutOrderSplitsInput>
+}
+
+export type CompanyUpsertWithoutOrderSplitsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutOrderSplitsInput, Prisma.CompanyUncheckedUpdateWithoutOrderSplitsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrderSplitsInput, Prisma.CompanyUncheckedCreateWithoutOrderSplitsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutOrderSplitsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutOrderSplitsInput, Prisma.CompanyUncheckedUpdateWithoutOrderSplitsInput>
+}
+
+export type CompanyUpdateWithoutOrderSplitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutOrderSplitsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -982,6 +4195,22 @@ export type CompanyCountOutputType = {
   events: number
   workflows: number
   experiences: number
+  customers: number
+  visits: number
+  loyaltyPrograms: number
+  customerRewards: number
+  productCategories: number
+  products: number
+  promotions: number
+  suppliers: number
+  inventoryItems: number
+  stockMovements: number
+  inventoryCounts: number
+  stockReceipts: number
+  orders: number
+  payments: number
+  diningTables: number
+  orderSplits: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -992,6 +4221,22 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   events?: boolean | CompanyCountOutputTypeCountEventsArgs
   workflows?: boolean | CompanyCountOutputTypeCountWorkflowsArgs
   experiences?: boolean | CompanyCountOutputTypeCountExperiencesArgs
+  customers?: boolean | CompanyCountOutputTypeCountCustomersArgs
+  visits?: boolean | CompanyCountOutputTypeCountVisitsArgs
+  loyaltyPrograms?: boolean | CompanyCountOutputTypeCountLoyaltyProgramsArgs
+  customerRewards?: boolean | CompanyCountOutputTypeCountCustomerRewardsArgs
+  productCategories?: boolean | CompanyCountOutputTypeCountProductCategoriesArgs
+  products?: boolean | CompanyCountOutputTypeCountProductsArgs
+  promotions?: boolean | CompanyCountOutputTypeCountPromotionsArgs
+  suppliers?: boolean | CompanyCountOutputTypeCountSuppliersArgs
+  inventoryItems?: boolean | CompanyCountOutputTypeCountInventoryItemsArgs
+  stockMovements?: boolean | CompanyCountOutputTypeCountStockMovementsArgs
+  inventoryCounts?: boolean | CompanyCountOutputTypeCountInventoryCountsArgs
+  stockReceipts?: boolean | CompanyCountOutputTypeCountStockReceiptsArgs
+  orders?: boolean | CompanyCountOutputTypeCountOrdersArgs
+  payments?: boolean | CompanyCountOutputTypeCountPaymentsArgs
+  diningTables?: boolean | CompanyCountOutputTypeCountDiningTablesArgs
+  orderSplits?: boolean | CompanyCountOutputTypeCountOrderSplitsArgs
 }
 
 /**
@@ -1053,6 +4298,118 @@ export type CompanyCountOutputTypeCountExperiencesArgs<ExtArgs extends runtime.T
   where?: Prisma.ExperienceWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountCustomersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountVisitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VisitWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountLoyaltyProgramsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LoyaltyProgramWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountCustomerRewardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CustomerRewardWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountProductCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductCategoryWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProductWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountPromotionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PromotionWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountSuppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SupplierWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountInventoryItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryItemWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountStockMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockMovementWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountInventoryCountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InventoryCountWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountStockReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockReceiptWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountOrdersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountDiningTablesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DiningTableWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountOrderSplitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderSplitWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1060,6 +4417,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  site?: boolean | Prisma.Company$siteArgs<ExtArgs>
   users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   roles?: boolean | Prisma.Company$rolesArgs<ExtArgs>
   tasks?: boolean | Prisma.Company$tasksArgs<ExtArgs>
@@ -1067,6 +4425,22 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   events?: boolean | Prisma.Company$eventsArgs<ExtArgs>
   workflows?: boolean | Prisma.Company$workflowsArgs<ExtArgs>
   experiences?: boolean | Prisma.Company$experiencesArgs<ExtArgs>
+  customers?: boolean | Prisma.Company$customersArgs<ExtArgs>
+  visits?: boolean | Prisma.Company$visitsArgs<ExtArgs>
+  loyaltyPrograms?: boolean | Prisma.Company$loyaltyProgramsArgs<ExtArgs>
+  customerRewards?: boolean | Prisma.Company$customerRewardsArgs<ExtArgs>
+  productCategories?: boolean | Prisma.Company$productCategoriesArgs<ExtArgs>
+  products?: boolean | Prisma.Company$productsArgs<ExtArgs>
+  promotions?: boolean | Prisma.Company$promotionsArgs<ExtArgs>
+  suppliers?: boolean | Prisma.Company$suppliersArgs<ExtArgs>
+  inventoryItems?: boolean | Prisma.Company$inventoryItemsArgs<ExtArgs>
+  stockMovements?: boolean | Prisma.Company$stockMovementsArgs<ExtArgs>
+  inventoryCounts?: boolean | Prisma.Company$inventoryCountsArgs<ExtArgs>
+  stockReceipts?: boolean | Prisma.Company$stockReceiptsArgs<ExtArgs>
+  orders?: boolean | Prisma.Company$ordersArgs<ExtArgs>
+  payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
+  diningTables?: boolean | Prisma.Company$diningTablesArgs<ExtArgs>
+  orderSplits?: boolean | Prisma.Company$orderSplitsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -1096,6 +4470,7 @@ export type CompanySelectScalar = {
 
 export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  site?: boolean | Prisma.Company$siteArgs<ExtArgs>
   users?: boolean | Prisma.Company$usersArgs<ExtArgs>
   roles?: boolean | Prisma.Company$rolesArgs<ExtArgs>
   tasks?: boolean | Prisma.Company$tasksArgs<ExtArgs>
@@ -1103,6 +4478,22 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   events?: boolean | Prisma.Company$eventsArgs<ExtArgs>
   workflows?: boolean | Prisma.Company$workflowsArgs<ExtArgs>
   experiences?: boolean | Prisma.Company$experiencesArgs<ExtArgs>
+  customers?: boolean | Prisma.Company$customersArgs<ExtArgs>
+  visits?: boolean | Prisma.Company$visitsArgs<ExtArgs>
+  loyaltyPrograms?: boolean | Prisma.Company$loyaltyProgramsArgs<ExtArgs>
+  customerRewards?: boolean | Prisma.Company$customerRewardsArgs<ExtArgs>
+  productCategories?: boolean | Prisma.Company$productCategoriesArgs<ExtArgs>
+  products?: boolean | Prisma.Company$productsArgs<ExtArgs>
+  promotions?: boolean | Prisma.Company$promotionsArgs<ExtArgs>
+  suppliers?: boolean | Prisma.Company$suppliersArgs<ExtArgs>
+  inventoryItems?: boolean | Prisma.Company$inventoryItemsArgs<ExtArgs>
+  stockMovements?: boolean | Prisma.Company$stockMovementsArgs<ExtArgs>
+  inventoryCounts?: boolean | Prisma.Company$inventoryCountsArgs<ExtArgs>
+  stockReceipts?: boolean | Prisma.Company$stockReceiptsArgs<ExtArgs>
+  orders?: boolean | Prisma.Company$ordersArgs<ExtArgs>
+  payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
+  diningTables?: boolean | Prisma.Company$diningTablesArgs<ExtArgs>
+  orderSplits?: boolean | Prisma.Company$orderSplitsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1111,6 +4502,7 @@ export type CompanyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Company"
   objects: {
+    site: Prisma.$SitePayload<ExtArgs> | null
     users: Prisma.$UserPayload<ExtArgs>[]
     roles: Prisma.$RolePayload<ExtArgs>[]
     tasks: Prisma.$TaskPayload<ExtArgs>[]
@@ -1118,6 +4510,22 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     events: Prisma.$EventPayload<ExtArgs>[]
     workflows: Prisma.$WorkflowPayload<ExtArgs>[]
     experiences: Prisma.$ExperiencePayload<ExtArgs>[]
+    customers: Prisma.$CustomerPayload<ExtArgs>[]
+    visits: Prisma.$VisitPayload<ExtArgs>[]
+    loyaltyPrograms: Prisma.$LoyaltyProgramPayload<ExtArgs>[]
+    customerRewards: Prisma.$CustomerRewardPayload<ExtArgs>[]
+    productCategories: Prisma.$ProductCategoryPayload<ExtArgs>[]
+    products: Prisma.$ProductPayload<ExtArgs>[]
+    promotions: Prisma.$PromotionPayload<ExtArgs>[]
+    suppliers: Prisma.$SupplierPayload<ExtArgs>[]
+    inventoryItems: Prisma.$InventoryItemPayload<ExtArgs>[]
+    stockMovements: Prisma.$StockMovementPayload<ExtArgs>[]
+    inventoryCounts: Prisma.$InventoryCountPayload<ExtArgs>[]
+    stockReceipts: Prisma.$StockReceiptPayload<ExtArgs>[]
+    orders: Prisma.$OrderPayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
+    diningTables: Prisma.$DiningTablePayload<ExtArgs>[]
+    orderSplits: Prisma.$OrderSplitPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1519,6 +4927,7 @@ readonly fields: CompanyFieldRefs;
  */
 export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  site<T extends Prisma.Company$siteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$siteArgs<ExtArgs>>): Prisma.Prisma__SiteClient<runtime.Types.Result.GetResult<Prisma.$SitePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   users<T extends Prisma.Company$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roles<T extends Prisma.Company$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tasks<T extends Prisma.Company$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1526,6 +4935,22 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   events<T extends Prisma.Company$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workflows<T extends Prisma.Company$workflowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$workflowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   experiences<T extends Prisma.Company$experiencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$experiencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExperiencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customers<T extends Prisma.Company$customersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$customersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  visits<T extends Prisma.Company$visitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$visitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VisitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  loyaltyPrograms<T extends Prisma.Company$loyaltyProgramsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$loyaltyProgramsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoyaltyProgramPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customerRewards<T extends Prisma.Company$customerRewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$customerRewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CustomerRewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  productCategories<T extends Prisma.Company$productCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$productCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  products<T extends Prisma.Company$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  promotions<T extends Prisma.Company$promotionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$promotionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PromotionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  suppliers<T extends Prisma.Company$suppliersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$suppliersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryItems<T extends Prisma.Company$inventoryItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$inventoryItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockMovements<T extends Prisma.Company$stockMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$stockMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  inventoryCounts<T extends Prisma.Company$inventoryCountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$inventoryCountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InventoryCountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stockReceipts<T extends Prisma.Company$stockReceiptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$stockReceiptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orders<T extends Prisma.Company$ordersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payments<T extends Prisma.Company$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  diningTables<T extends Prisma.Company$diningTablesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$diningTablesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiningTablePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orderSplits<T extends Prisma.Company$orderSplitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$orderSplitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderSplitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1953,6 +5378,25 @@ export type CompanyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
+ * Company.site
+ */
+export type Company$siteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Site
+   */
+  select?: Prisma.SiteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Site
+   */
+  omit?: Prisma.SiteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SiteInclude<ExtArgs> | null
+  where?: Prisma.SiteWhereInput
+}
+
+/**
  * Company.users
  */
 export type Company$usersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2118,6 +5562,390 @@ export type Company$experiencesArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.ExperienceScalarFieldEnum | Prisma.ExperienceScalarFieldEnum[]
+}
+
+/**
+ * Company.customers
+ */
+export type Company$customersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Customer
+   */
+  select?: Prisma.CustomerSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Customer
+   */
+  omit?: Prisma.CustomerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerInclude<ExtArgs> | null
+  where?: Prisma.CustomerWhereInput
+  orderBy?: Prisma.CustomerOrderByWithRelationInput | Prisma.CustomerOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
+}
+
+/**
+ * Company.visits
+ */
+export type Company$visitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Visit
+   */
+  select?: Prisma.VisitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Visit
+   */
+  omit?: Prisma.VisitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VisitInclude<ExtArgs> | null
+  where?: Prisma.VisitWhereInput
+  orderBy?: Prisma.VisitOrderByWithRelationInput | Prisma.VisitOrderByWithRelationInput[]
+  cursor?: Prisma.VisitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VisitScalarFieldEnum | Prisma.VisitScalarFieldEnum[]
+}
+
+/**
+ * Company.loyaltyPrograms
+ */
+export type Company$loyaltyProgramsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LoyaltyProgram
+   */
+  select?: Prisma.LoyaltyProgramSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LoyaltyProgram
+   */
+  omit?: Prisma.LoyaltyProgramOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LoyaltyProgramInclude<ExtArgs> | null
+  where?: Prisma.LoyaltyProgramWhereInput
+  orderBy?: Prisma.LoyaltyProgramOrderByWithRelationInput | Prisma.LoyaltyProgramOrderByWithRelationInput[]
+  cursor?: Prisma.LoyaltyProgramWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LoyaltyProgramScalarFieldEnum | Prisma.LoyaltyProgramScalarFieldEnum[]
+}
+
+/**
+ * Company.customerRewards
+ */
+export type Company$customerRewardsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CustomerReward
+   */
+  select?: Prisma.CustomerRewardSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CustomerReward
+   */
+  omit?: Prisma.CustomerRewardOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CustomerRewardInclude<ExtArgs> | null
+  where?: Prisma.CustomerRewardWhereInput
+  orderBy?: Prisma.CustomerRewardOrderByWithRelationInput | Prisma.CustomerRewardOrderByWithRelationInput[]
+  cursor?: Prisma.CustomerRewardWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CustomerRewardScalarFieldEnum | Prisma.CustomerRewardScalarFieldEnum[]
+}
+
+/**
+ * Company.productCategories
+ */
+export type Company$productCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProductCategory
+   */
+  select?: Prisma.ProductCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProductCategory
+   */
+  omit?: Prisma.ProductCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductCategoryInclude<ExtArgs> | null
+  where?: Prisma.ProductCategoryWhereInput
+  orderBy?: Prisma.ProductCategoryOrderByWithRelationInput | Prisma.ProductCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.ProductCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductCategoryScalarFieldEnum | Prisma.ProductCategoryScalarFieldEnum[]
+}
+
+/**
+ * Company.products
+ */
+export type Company$productsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Product
+   */
+  select?: Prisma.ProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Product
+   */
+  omit?: Prisma.ProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductInclude<ExtArgs> | null
+  where?: Prisma.ProductWhereInput
+  orderBy?: Prisma.ProductOrderByWithRelationInput | Prisma.ProductOrderByWithRelationInput[]
+  cursor?: Prisma.ProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProductScalarFieldEnum | Prisma.ProductScalarFieldEnum[]
+}
+
+/**
+ * Company.promotions
+ */
+export type Company$promotionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Promotion
+   */
+  select?: Prisma.PromotionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Promotion
+   */
+  omit?: Prisma.PromotionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromotionInclude<ExtArgs> | null
+  where?: Prisma.PromotionWhereInput
+  orderBy?: Prisma.PromotionOrderByWithRelationInput | Prisma.PromotionOrderByWithRelationInput[]
+  cursor?: Prisma.PromotionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PromotionScalarFieldEnum | Prisma.PromotionScalarFieldEnum[]
+}
+
+/**
+ * Company.suppliers
+ */
+export type Company$suppliersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Supplier
+   */
+  select?: Prisma.SupplierSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Supplier
+   */
+  omit?: Prisma.SupplierOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SupplierInclude<ExtArgs> | null
+  where?: Prisma.SupplierWhereInput
+  orderBy?: Prisma.SupplierOrderByWithRelationInput | Prisma.SupplierOrderByWithRelationInput[]
+  cursor?: Prisma.SupplierWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SupplierScalarFieldEnum | Prisma.SupplierScalarFieldEnum[]
+}
+
+/**
+ * Company.inventoryItems
+ */
+export type Company$inventoryItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryItem
+   */
+  select?: Prisma.InventoryItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryItem
+   */
+  omit?: Prisma.InventoryItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryItemInclude<ExtArgs> | null
+  where?: Prisma.InventoryItemWhereInput
+  orderBy?: Prisma.InventoryItemOrderByWithRelationInput | Prisma.InventoryItemOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryItemScalarFieldEnum | Prisma.InventoryItemScalarFieldEnum[]
+}
+
+/**
+ * Company.stockMovements
+ */
+export type Company$stockMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockMovement
+   */
+  select?: Prisma.StockMovementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockMovement
+   */
+  omit?: Prisma.StockMovementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockMovementInclude<ExtArgs> | null
+  where?: Prisma.StockMovementWhereInput
+  orderBy?: Prisma.StockMovementOrderByWithRelationInput | Prisma.StockMovementOrderByWithRelationInput[]
+  cursor?: Prisma.StockMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockMovementScalarFieldEnum | Prisma.StockMovementScalarFieldEnum[]
+}
+
+/**
+ * Company.inventoryCounts
+ */
+export type Company$inventoryCountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the InventoryCount
+   */
+  select?: Prisma.InventoryCountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the InventoryCount
+   */
+  omit?: Prisma.InventoryCountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InventoryCountInclude<ExtArgs> | null
+  where?: Prisma.InventoryCountWhereInput
+  orderBy?: Prisma.InventoryCountOrderByWithRelationInput | Prisma.InventoryCountOrderByWithRelationInput[]
+  cursor?: Prisma.InventoryCountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InventoryCountScalarFieldEnum | Prisma.InventoryCountScalarFieldEnum[]
+}
+
+/**
+ * Company.stockReceipts
+ */
+export type Company$stockReceiptsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockReceipt
+   */
+  select?: Prisma.StockReceiptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockReceipt
+   */
+  omit?: Prisma.StockReceiptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockReceiptInclude<ExtArgs> | null
+  where?: Prisma.StockReceiptWhereInput
+  orderBy?: Prisma.StockReceiptOrderByWithRelationInput | Prisma.StockReceiptOrderByWithRelationInput[]
+  cursor?: Prisma.StockReceiptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockReceiptScalarFieldEnum | Prisma.StockReceiptScalarFieldEnum[]
+}
+
+/**
+ * Company.orders
+ */
+export type Company$ordersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Order
+   */
+  select?: Prisma.OrderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Order
+   */
+  omit?: Prisma.OrderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderInclude<ExtArgs> | null
+  where?: Prisma.OrderWhereInput
+  orderBy?: Prisma.OrderOrderByWithRelationInput | Prisma.OrderOrderByWithRelationInput[]
+  cursor?: Prisma.OrderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderScalarFieldEnum | Prisma.OrderScalarFieldEnum[]
+}
+
+/**
+ * Company.payments
+ */
+export type Company$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
+}
+
+/**
+ * Company.diningTables
+ */
+export type Company$diningTablesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DiningTable
+   */
+  select?: Prisma.DiningTableSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DiningTable
+   */
+  omit?: Prisma.DiningTableOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DiningTableInclude<ExtArgs> | null
+  where?: Prisma.DiningTableWhereInput
+  orderBy?: Prisma.DiningTableOrderByWithRelationInput | Prisma.DiningTableOrderByWithRelationInput[]
+  cursor?: Prisma.DiningTableWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DiningTableScalarFieldEnum | Prisma.DiningTableScalarFieldEnum[]
+}
+
+/**
+ * Company.orderSplits
+ */
+export type Company$orderSplitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderSplit
+   */
+  select?: Prisma.OrderSplitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderSplit
+   */
+  omit?: Prisma.OrderSplitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderSplitInclude<ExtArgs> | null
+  where?: Prisma.OrderSplitWhereInput
+  orderBy?: Prisma.OrderSplitOrderByWithRelationInput | Prisma.OrderSplitOrderByWithRelationInput[]
+  cursor?: Prisma.OrderSplitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderSplitScalarFieldEnum | Prisma.OrderSplitScalarFieldEnum[]
 }
 
 /**
