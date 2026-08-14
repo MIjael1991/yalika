@@ -27,6 +27,7 @@ import { PaymentModule } from './core/payment/payment.module';
 import { ReturnModule } from './core/return/return.module';
 import { DiningTableModule } from './core/dining-table/dining-table.module';
 import { OrderSplitModule } from './core/order-split/order-split.module';
+import { OrderDiscountModule } from './core/order-discount/order-discount.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { OrderSplitModule } from './core/order-split/order-split.module';
     ReturnModule,
     DiningTableModule,
     OrderSplitModule,
+    OrderDiscountModule,
 
     IncidentModule,
     AlternativeModule,

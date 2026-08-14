@@ -211,6 +211,8 @@ export type UserWhereInput = {
   tasks?: Prisma.TaskListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
+  authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
+  voidedDiscounts?: Prisma.OrderDiscountListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -227,6 +229,8 @@ export type UserOrderByWithRelationInput = {
   tasks?: Prisma.TaskOrderByRelationAggregateInput
   authorizedReturns?: Prisma.ReturnOrderByRelationAggregateInput
   processedRefunds?: Prisma.RefundOrderByRelationAggregateInput
+  authorizedDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
+  voidedDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +250,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   tasks?: Prisma.TaskListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
+  authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
+  voidedDiscounts?: Prisma.OrderDiscountListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -288,6 +294,8 @@ export type UserCreateInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -302,6 +310,8 @@ export type UserUncheckedCreateInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUpdateInput = {
@@ -316,6 +326,8 @@ export type UserUpdateInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -330,6 +342,8 @@ export type UserUncheckedUpdateInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -520,6 +534,36 @@ export type UserUpdateOneWithoutTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTasksInput, Prisma.UserUpdateWithoutTasksInput>, Prisma.UserUncheckedUpdateWithoutTasksInput>
 }
 
+export type UserCreateNestedOneWithoutAuthorizedDiscountsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedCreateWithoutAuthorizedDiscountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthorizedDiscountsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutVoidedDiscountsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVoidedDiscountsInput, Prisma.UserUncheckedCreateWithoutVoidedDiscountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVoidedDiscountsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAuthorizedDiscountsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedCreateWithoutAuthorizedDiscountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthorizedDiscountsInput
+  upsert?: Prisma.UserUpsertWithoutAuthorizedDiscountsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthorizedDiscountsInput, Prisma.UserUpdateWithoutAuthorizedDiscountsInput>, Prisma.UserUncheckedUpdateWithoutAuthorizedDiscountsInput>
+}
+
+export type UserUpdateOneWithoutVoidedDiscountsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVoidedDiscountsInput, Prisma.UserUncheckedCreateWithoutVoidedDiscountsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVoidedDiscountsInput
+  upsert?: Prisma.UserUpsertWithoutVoidedDiscountsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVoidedDiscountsInput, Prisma.UserUpdateWithoutVoidedDiscountsInput>, Prisma.UserUncheckedUpdateWithoutVoidedDiscountsInput>
+}
+
 export type UserCreateNestedOneWithoutAuthorizedReturnsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAuthorizedReturnsInput, Prisma.UserUncheckedCreateWithoutAuthorizedReturnsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthorizedReturnsInput
@@ -559,6 +603,8 @@ export type UserCreateWithoutCompanyInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateWithoutCompanyInput = {
@@ -572,6 +618,8 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserCreateOrConnectWithoutCompanyInput = {
@@ -625,6 +673,8 @@ export type UserCreateWithoutRoleInput = {
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateWithoutRoleInput = {
@@ -638,6 +688,8 @@ export type UserUncheckedCreateWithoutRoleInput = {
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserCreateOrConnectWithoutRoleInput = {
@@ -677,6 +729,8 @@ export type UserCreateWithoutTasksInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateWithoutTasksInput = {
@@ -690,6 +744,8 @@ export type UserUncheckedCreateWithoutTasksInput = {
   roleId?: string | null
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserCreateOrConnectWithoutTasksInput = {
@@ -719,6 +775,8 @@ export type UserUpdateWithoutTasksInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTasksInput = {
@@ -732,6 +790,160 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserCreateWithoutAuthorizedDiscountsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutAuthorizedDiscountsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutAuthorizedDiscountsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedCreateWithoutAuthorizedDiscountsInput>
+}
+
+export type UserCreateWithoutVoidedDiscountsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+}
+
+export type UserUncheckedCreateWithoutVoidedDiscountsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+}
+
+export type UserCreateOrConnectWithoutVoidedDiscountsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVoidedDiscountsInput, Prisma.UserUncheckedCreateWithoutVoidedDiscountsInput>
+}
+
+export type UserUpsertWithoutAuthorizedDiscountsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedUpdateWithoutAuthorizedDiscountsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedCreateWithoutAuthorizedDiscountsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuthorizedDiscountsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthorizedDiscountsInput, Prisma.UserUncheckedUpdateWithoutAuthorizedDiscountsInput>
+}
+
+export type UserUpdateWithoutAuthorizedDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuthorizedDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUpsertWithoutVoidedDiscountsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVoidedDiscountsInput, Prisma.UserUncheckedUpdateWithoutVoidedDiscountsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVoidedDiscountsInput, Prisma.UserUncheckedCreateWithoutVoidedDiscountsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVoidedDiscountsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVoidedDiscountsInput, Prisma.UserUncheckedUpdateWithoutVoidedDiscountsInput>
+}
+
+export type UserUpdateWithoutVoidedDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVoidedDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
 }
 
 export type UserCreateWithoutAuthorizedReturnsInput = {
@@ -745,6 +957,8 @@ export type UserCreateWithoutAuthorizedReturnsInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
@@ -758,6 +972,8 @@ export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserCreateOrConnectWithoutAuthorizedReturnsInput = {
@@ -787,6 +1003,8 @@ export type UserUpdateWithoutAuthorizedReturnsInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
@@ -800,6 +1018,8 @@ export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserCreateWithoutProcessedRefundsInput = {
@@ -813,6 +1033,8 @@ export type UserCreateWithoutProcessedRefundsInput = {
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserUncheckedCreateWithoutProcessedRefundsInput = {
@@ -826,6 +1048,8 @@ export type UserUncheckedCreateWithoutProcessedRefundsInput = {
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
 }
 
 export type UserCreateOrConnectWithoutProcessedRefundsInput = {
@@ -855,6 +1079,8 @@ export type UserUpdateWithoutProcessedRefundsInput = {
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
@@ -868,6 +1094,8 @@ export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserCreateManyCompanyInput = {
@@ -891,6 +1119,8 @@ export type UserUpdateWithoutCompanyInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCompanyInput = {
@@ -904,6 +1134,8 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutCompanyInput = {
@@ -937,6 +1169,8 @@ export type UserUpdateWithoutRoleInput = {
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoleInput = {
@@ -950,6 +1184,8 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutRoleInput = {
@@ -971,12 +1207,16 @@ export type UserCountOutputType = {
   tasks: number
   authorizedReturns: number
   processedRefunds: number
+  authorizedDiscounts: number
+  voidedDiscounts: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | UserCountOutputTypeCountTasksArgs
   authorizedReturns?: boolean | UserCountOutputTypeCountAuthorizedReturnsArgs
   processedRefunds?: boolean | UserCountOutputTypeCountProcessedRefundsArgs
+  authorizedDiscounts?: boolean | UserCountOutputTypeCountAuthorizedDiscountsArgs
+  voidedDiscounts?: boolean | UserCountOutputTypeCountVoidedDiscountsArgs
 }
 
 /**
@@ -1010,6 +1250,20 @@ export type UserCountOutputTypeCountProcessedRefundsArgs<ExtArgs extends runtime
   where?: Prisma.RefundWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAuthorizedDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderDiscountWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVoidedDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderDiscountWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1025,6 +1279,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
+  authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
+  voidedDiscounts?: boolean | Prisma.User$voidedDiscountsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1072,6 +1328,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
+  authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
+  voidedDiscounts?: boolean | Prisma.User$voidedDiscountsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1091,6 +1349,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     tasks: Prisma.$TaskPayload<ExtArgs>[]
     authorizedReturns: Prisma.$ReturnPayload<ExtArgs>[]
     processedRefunds: Prisma.$RefundPayload<ExtArgs>[]
+    authorizedDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
+    voidedDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1500,6 +1760,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   tasks<T extends Prisma.User$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedReturns<T extends Prisma.User$authorizedReturnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   processedRefunds<T extends Prisma.User$processedRefundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$processedRefundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  authorizedDiscounts<T extends Prisma.User$authorizedDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  voidedDiscounts<T extends Prisma.User$voidedDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$voidedDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2026,6 +2288,54 @@ export type User$processedRefundsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.RefundScalarFieldEnum | Prisma.RefundScalarFieldEnum[]
+}
+
+/**
+ * User.authorizedDiscounts
+ */
+export type User$authorizedDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderDiscount
+   */
+  select?: Prisma.OrderDiscountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderDiscount
+   */
+  omit?: Prisma.OrderDiscountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderDiscountInclude<ExtArgs> | null
+  where?: Prisma.OrderDiscountWhereInput
+  orderBy?: Prisma.OrderDiscountOrderByWithRelationInput | Prisma.OrderDiscountOrderByWithRelationInput[]
+  cursor?: Prisma.OrderDiscountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderDiscountScalarFieldEnum | Prisma.OrderDiscountScalarFieldEnum[]
+}
+
+/**
+ * User.voidedDiscounts
+ */
+export type User$voidedDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderDiscount
+   */
+  select?: Prisma.OrderDiscountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderDiscount
+   */
+  omit?: Prisma.OrderDiscountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderDiscountInclude<ExtArgs> | null
+  where?: Prisma.OrderDiscountWhereInput
+  orderBy?: Prisma.OrderDiscountOrderByWithRelationInput | Prisma.OrderDiscountOrderByWithRelationInput[]
+  cursor?: Prisma.OrderDiscountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderDiscountScalarFieldEnum | Prisma.OrderDiscountScalarFieldEnum[]
 }
 
 /**

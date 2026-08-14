@@ -431,6 +431,7 @@ export const ModelName = {
   ProductRecipeComponent: 'ProductRecipeComponent',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  OrderDiscount: 'OrderDiscount',
   Payment: 'Payment',
   DiningTable: 'DiningTable',
   OrderSplit: 'OrderSplit',
@@ -453,7 +454,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "role" | "task" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
+    modelProps: "company" | "user" | "role" | "task" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "orderDiscount" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2973,6 +2974,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OrderDiscount: {
+      payload: Prisma.$OrderDiscountPayload<ExtArgs>
+      fields: Prisma.OrderDiscountFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OrderDiscountFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OrderDiscountFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        findFirst: {
+          args: Prisma.OrderDiscountFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OrderDiscountFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        findMany: {
+          args: Prisma.OrderDiscountFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>[]
+        }
+        create: {
+          args: Prisma.OrderDiscountCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        createMany: {
+          args: Prisma.OrderDiscountCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OrderDiscountCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>[]
+        }
+        delete: {
+          args: Prisma.OrderDiscountDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        update: {
+          args: Prisma.OrderDiscountUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        deleteMany: {
+          args: Prisma.OrderDiscountDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OrderDiscountUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OrderDiscountUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>[]
+        }
+        upsert: {
+          args: Prisma.OrderDiscountUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OrderDiscountPayload>
+        }
+        aggregate: {
+          args: Prisma.OrderDiscountAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOrderDiscount>
+        }
+        groupBy: {
+          args: Prisma.OrderDiscountGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderDiscountGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OrderDiscountCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OrderDiscountCountAggregateOutputType> | number
+        }
+      }
+    }
     Payment: {
       payload: Prisma.$PaymentPayload<ExtArgs>
       fields: Prisma.PaymentFieldRefs
@@ -4096,6 +4171,8 @@ export const OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   lineTotal: 'lineTotal',
+  discount: 'discount',
+  total: 'total',
   createdAt: 'createdAt',
   orderId: 'orderId',
   productId: 'productId',
@@ -4103,6 +4180,31 @@ export const OrderItemScalarFieldEnum = {
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const OrderDiscountScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  source: 'source',
+  type: 'type',
+  value: 'value',
+  amount: 'amount',
+  reason: 'reason',
+  notes: 'notes',
+  status: 'status',
+  operationId: 'operationId',
+  appliedAt: 'appliedAt',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  companyId: 'companyId',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  promotionId: 'promotionId',
+  authorizedById: 'authorizedById',
+  voidedById: 'voidedById'
+} as const
+
+export type OrderDiscountScalarFieldEnum = (typeof OrderDiscountScalarFieldEnum)[keyof typeof OrderDiscountScalarFieldEnum]
 
 
 export const PaymentScalarFieldEnum = {
@@ -4538,6 +4640,7 @@ export type GlobalOmitConfig = {
   productRecipeComponent?: Prisma.ProductRecipeComponentOmit
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
+  orderDiscount?: Prisma.OrderDiscountOmit
   payment?: Prisma.PaymentOmit
   diningTable?: Prisma.DiningTableOmit
   orderSplit?: Prisma.OrderSplitOmit

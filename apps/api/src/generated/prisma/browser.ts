@@ -188,6 +188,11 @@ export type Order = Prisma.OrderModel
  */
 export type OrderItem = Prisma.OrderItemModel
 /**
+ * Model OrderDiscount
+ * 
+ */
+export type OrderDiscount = Prisma.OrderDiscountModel
+/**
  * Model Payment
  * 
  */

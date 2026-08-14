@@ -206,6 +206,7 @@ export type CompanyWhereInput = {
   payments?: Prisma.PaymentListRelationFilter
   diningTables?: Prisma.DiningTableListRelationFilter
   orderSplits?: Prisma.OrderSplitListRelationFilter
+  orderDiscounts?: Prisma.OrderDiscountListRelationFilter
   returns?: Prisma.ReturnListRelationFilter
   refunds?: Prisma.RefundListRelationFilter
 }
@@ -240,6 +241,7 @@ export type CompanyOrderByWithRelationInput = {
   payments?: Prisma.PaymentOrderByRelationAggregateInput
   diningTables?: Prisma.DiningTableOrderByRelationAggregateInput
   orderSplits?: Prisma.OrderSplitOrderByRelationAggregateInput
+  orderDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
   returns?: Prisma.ReturnOrderByRelationAggregateInput
   refunds?: Prisma.RefundOrderByRelationAggregateInput
 }
@@ -277,6 +279,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   payments?: Prisma.PaymentListRelationFilter
   diningTables?: Prisma.DiningTableListRelationFilter
   orderSplits?: Prisma.OrderSplitListRelationFilter
+  orderDiscounts?: Prisma.OrderDiscountListRelationFilter
   returns?: Prisma.ReturnListRelationFilter
   refunds?: Prisma.RefundListRelationFilter
 }, "id" | "name">
@@ -333,6 +336,7 @@ export type CompanyCreateInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -367,6 +371,7 @@ export type CompanyUncheckedCreateInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -401,6 +406,7 @@ export type CompanyUpdateInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -435,6 +441,7 @@ export type CompanyUncheckedUpdateInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -794,6 +801,20 @@ export type CompanyUpdateOneRequiredWithoutOrdersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutOrdersInput, Prisma.CompanyUpdateWithoutOrdersInput>, Prisma.CompanyUncheckedUpdateWithoutOrdersInput>
 }
 
+export type CompanyCreateNestedOneWithoutOrderDiscountsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedCreateWithoutOrderDiscountsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrderDiscountsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutOrderDiscountsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedCreateWithoutOrderDiscountsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOrderDiscountsInput
+  upsert?: Prisma.CompanyUpsertWithoutOrderDiscountsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutOrderDiscountsInput, Prisma.CompanyUpdateWithoutOrderDiscountsInput>, Prisma.CompanyUncheckedUpdateWithoutOrderDiscountsInput>
+}
+
 export type CompanyCreateNestedOneWithoutPaymentsInput = {
   create?: Prisma.XOR<Prisma.CompanyCreateWithoutPaymentsInput, Prisma.CompanyUncheckedCreateWithoutPaymentsInput>
   connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutPaymentsInput
@@ -893,6 +914,7 @@ export type CompanyCreateWithoutUsersInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -926,6 +948,7 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -975,6 +998,7 @@ export type CompanyUpdateWithoutUsersInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1008,6 +1032,7 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1041,6 +1066,7 @@ export type CompanyCreateWithoutRolesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1074,6 +1100,7 @@ export type CompanyUncheckedCreateWithoutRolesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1123,6 +1150,7 @@ export type CompanyUpdateWithoutRolesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1156,6 +1184,7 @@ export type CompanyUncheckedUpdateWithoutRolesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1189,6 +1218,7 @@ export type CompanyCreateWithoutTasksInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1222,6 +1252,7 @@ export type CompanyUncheckedCreateWithoutTasksInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1271,6 +1302,7 @@ export type CompanyUpdateWithoutTasksInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1304,6 +1336,7 @@ export type CompanyUncheckedUpdateWithoutTasksInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1337,6 +1370,7 @@ export type CompanyCreateWithoutIncidentsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1370,6 +1404,7 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1419,6 +1454,7 @@ export type CompanyUpdateWithoutIncidentsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1452,6 +1488,7 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1485,6 +1522,7 @@ export type CompanyCreateWithoutEventsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1518,6 +1556,7 @@ export type CompanyUncheckedCreateWithoutEventsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1567,6 +1606,7 @@ export type CompanyUpdateWithoutEventsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1600,6 +1640,7 @@ export type CompanyUncheckedUpdateWithoutEventsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1633,6 +1674,7 @@ export type CompanyCreateWithoutWorkflowsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1666,6 +1708,7 @@ export type CompanyUncheckedCreateWithoutWorkflowsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1715,6 +1758,7 @@ export type CompanyUpdateWithoutWorkflowsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1748,6 +1792,7 @@ export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1781,6 +1826,7 @@ export type CompanyCreateWithoutExperiencesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1814,6 +1860,7 @@ export type CompanyUncheckedCreateWithoutExperiencesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -1863,6 +1910,7 @@ export type CompanyUpdateWithoutExperiencesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -1896,6 +1944,7 @@ export type CompanyUncheckedUpdateWithoutExperiencesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -1929,6 +1978,7 @@ export type CompanyCreateWithoutCustomersInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -1962,6 +2012,7 @@ export type CompanyUncheckedCreateWithoutCustomersInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2011,6 +2062,7 @@ export type CompanyUpdateWithoutCustomersInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2044,6 +2096,7 @@ export type CompanyUncheckedUpdateWithoutCustomersInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2077,6 +2130,7 @@ export type CompanyCreateWithoutVisitsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2110,6 +2164,7 @@ export type CompanyUncheckedCreateWithoutVisitsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2159,6 +2214,7 @@ export type CompanyUpdateWithoutVisitsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2192,6 +2248,7 @@ export type CompanyUncheckedUpdateWithoutVisitsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2225,6 +2282,7 @@ export type CompanyCreateWithoutLoyaltyProgramsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2258,6 +2316,7 @@ export type CompanyUncheckedCreateWithoutLoyaltyProgramsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2307,6 +2366,7 @@ export type CompanyUpdateWithoutLoyaltyProgramsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2340,6 +2400,7 @@ export type CompanyUncheckedUpdateWithoutLoyaltyProgramsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2373,6 +2434,7 @@ export type CompanyCreateWithoutCustomerRewardsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2406,6 +2468,7 @@ export type CompanyUncheckedCreateWithoutCustomerRewardsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2455,6 +2518,7 @@ export type CompanyUpdateWithoutCustomerRewardsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2488,6 +2552,7 @@ export type CompanyUncheckedUpdateWithoutCustomerRewardsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2521,6 +2586,7 @@ export type CompanyCreateWithoutProductCategoriesInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2554,6 +2620,7 @@ export type CompanyUncheckedCreateWithoutProductCategoriesInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2603,6 +2670,7 @@ export type CompanyUpdateWithoutProductCategoriesInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2636,6 +2704,7 @@ export type CompanyUncheckedUpdateWithoutProductCategoriesInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2669,6 +2738,7 @@ export type CompanyCreateWithoutProductsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2702,6 +2772,7 @@ export type CompanyUncheckedCreateWithoutProductsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2751,6 +2822,7 @@ export type CompanyUpdateWithoutProductsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2784,6 +2856,7 @@ export type CompanyUncheckedUpdateWithoutProductsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2817,6 +2890,7 @@ export type CompanyCreateWithoutPromotionsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2850,6 +2924,7 @@ export type CompanyUncheckedCreateWithoutPromotionsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -2899,6 +2974,7 @@ export type CompanyUpdateWithoutPromotionsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -2932,6 +3008,7 @@ export type CompanyUncheckedUpdateWithoutPromotionsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -2965,6 +3042,7 @@ export type CompanyCreateWithoutSiteInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -2998,6 +3076,7 @@ export type CompanyUncheckedCreateWithoutSiteInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3047,6 +3126,7 @@ export type CompanyUpdateWithoutSiteInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3080,6 +3160,7 @@ export type CompanyUncheckedUpdateWithoutSiteInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3113,6 +3194,7 @@ export type CompanyCreateWithoutSuppliersInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3146,6 +3228,7 @@ export type CompanyUncheckedCreateWithoutSuppliersInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3195,6 +3278,7 @@ export type CompanyUpdateWithoutSuppliersInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3228,6 +3312,7 @@ export type CompanyUncheckedUpdateWithoutSuppliersInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3261,6 +3346,7 @@ export type CompanyCreateWithoutInventoryItemsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3294,6 +3380,7 @@ export type CompanyUncheckedCreateWithoutInventoryItemsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3343,6 +3430,7 @@ export type CompanyUpdateWithoutInventoryItemsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3376,6 +3464,7 @@ export type CompanyUncheckedUpdateWithoutInventoryItemsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3409,6 +3498,7 @@ export type CompanyCreateWithoutStockMovementsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3442,6 +3532,7 @@ export type CompanyUncheckedCreateWithoutStockMovementsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3491,6 +3582,7 @@ export type CompanyUpdateWithoutStockMovementsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3524,6 +3616,7 @@ export type CompanyUncheckedUpdateWithoutStockMovementsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3557,6 +3650,7 @@ export type CompanyCreateWithoutInventoryCountsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3590,6 +3684,7 @@ export type CompanyUncheckedCreateWithoutInventoryCountsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3639,6 +3734,7 @@ export type CompanyUpdateWithoutInventoryCountsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3672,6 +3768,7 @@ export type CompanyUncheckedUpdateWithoutInventoryCountsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3705,6 +3802,7 @@ export type CompanyCreateWithoutStockReceiptsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3738,6 +3836,7 @@ export type CompanyUncheckedCreateWithoutStockReceiptsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3787,6 +3886,7 @@ export type CompanyUpdateWithoutStockReceiptsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3820,6 +3920,7 @@ export type CompanyUncheckedUpdateWithoutStockReceiptsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -3853,6 +3954,7 @@ export type CompanyCreateWithoutOrdersInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -3886,6 +3988,7 @@ export type CompanyUncheckedCreateWithoutOrdersInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -3935,6 +4038,7 @@ export type CompanyUpdateWithoutOrdersInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -3965,6 +4069,159 @@ export type CompanyUncheckedUpdateWithoutOrdersInput = {
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
   inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
   stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
+  returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutOrderDiscountsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutOrderDiscountsInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutOrderDiscountsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedCreateWithoutOrderDiscountsInput>
+}
+
+export type CompanyUpsertWithoutOrderDiscountsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedUpdateWithoutOrderDiscountsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedCreateWithoutOrderDiscountsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutOrderDiscountsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutOrderDiscountsInput, Prisma.CompanyUncheckedUpdateWithoutOrderDiscountsInput>
+}
+
+export type CompanyUpdateWithoutOrderDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutOrderDiscountsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
@@ -4001,6 +4258,7 @@ export type CompanyCreateWithoutPaymentsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -4034,6 +4292,7 @@ export type CompanyUncheckedCreateWithoutPaymentsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -4083,6 +4342,7 @@ export type CompanyUpdateWithoutPaymentsInput = {
   orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -4116,6 +4376,7 @@ export type CompanyUncheckedUpdateWithoutPaymentsInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -4149,6 +4410,7 @@ export type CompanyCreateWithoutDiningTablesInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -4182,6 +4444,7 @@ export type CompanyUncheckedCreateWithoutDiningTablesInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -4231,6 +4494,7 @@ export type CompanyUpdateWithoutDiningTablesInput = {
   orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -4264,6 +4528,7 @@ export type CompanyUncheckedUpdateWithoutDiningTablesInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -4297,6 +4562,7 @@ export type CompanyCreateWithoutOrderSplitsInput = {
   orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
@@ -4330,6 +4596,7 @@ export type CompanyUncheckedCreateWithoutOrderSplitsInput = {
   orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
@@ -4379,6 +4646,7 @@ export type CompanyUpdateWithoutOrderSplitsInput = {
   orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
@@ -4412,6 +4680,7 @@ export type CompanyUncheckedUpdateWithoutOrderSplitsInput = {
   orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
@@ -4446,6 +4715,7 @@ export type CompanyCreateWithoutReturnsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
 }
 
@@ -4479,6 +4749,7 @@ export type CompanyUncheckedCreateWithoutReturnsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
 }
 
@@ -4528,6 +4799,7 @@ export type CompanyUpdateWithoutReturnsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
 }
 
@@ -4561,6 +4833,7 @@ export type CompanyUncheckedUpdateWithoutReturnsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
@@ -4594,6 +4867,7 @@ export type CompanyCreateWithoutRefundsInput = {
   payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
 }
 
@@ -4627,6 +4901,7 @@ export type CompanyUncheckedCreateWithoutRefundsInput = {
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
   diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
 }
 
@@ -4676,6 +4951,7 @@ export type CompanyUpdateWithoutRefundsInput = {
   payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
 }
 
@@ -4709,6 +4985,7 @@ export type CompanyUncheckedUpdateWithoutRefundsInput = {
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
   diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
@@ -4741,6 +5018,7 @@ export type CompanyCountOutputType = {
   payments: number
   diningTables: number
   orderSplits: number
+  orderDiscounts: number
   returns: number
   refunds: number
 }
@@ -4769,6 +5047,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   payments?: boolean | CompanyCountOutputTypeCountPaymentsArgs
   diningTables?: boolean | CompanyCountOutputTypeCountDiningTablesArgs
   orderSplits?: boolean | CompanyCountOutputTypeCountOrderSplitsArgs
+  orderDiscounts?: boolean | CompanyCountOutputTypeCountOrderDiscountsArgs
   returns?: boolean | CompanyCountOutputTypeCountReturnsArgs
   refunds?: boolean | CompanyCountOutputTypeCountRefundsArgs
 }
@@ -4947,6 +5226,13 @@ export type CompanyCountOutputTypeCountOrderSplitsArgs<ExtArgs extends runtime.T
 /**
  * CompanyCountOutputType without action
  */
+export type CompanyCountOutputTypeCountOrderDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OrderDiscountWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
 export type CompanyCountOutputTypeCountReturnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReturnWhereInput
 }
@@ -4989,6 +5275,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
   diningTables?: boolean | Prisma.Company$diningTablesArgs<ExtArgs>
   orderSplits?: boolean | Prisma.Company$orderSplitsArgs<ExtArgs>
+  orderDiscounts?: boolean | Prisma.Company$orderDiscountsArgs<ExtArgs>
   returns?: boolean | Prisma.Company$returnsArgs<ExtArgs>
   refunds?: boolean | Prisma.Company$refundsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
@@ -5044,6 +5331,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   payments?: boolean | Prisma.Company$paymentsArgs<ExtArgs>
   diningTables?: boolean | Prisma.Company$diningTablesArgs<ExtArgs>
   orderSplits?: boolean | Prisma.Company$orderSplitsArgs<ExtArgs>
+  orderDiscounts?: boolean | Prisma.Company$orderDiscountsArgs<ExtArgs>
   returns?: boolean | Prisma.Company$returnsArgs<ExtArgs>
   refunds?: boolean | Prisma.Company$refundsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
@@ -5078,6 +5366,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     payments: Prisma.$PaymentPayload<ExtArgs>[]
     diningTables: Prisma.$DiningTablePayload<ExtArgs>[]
     orderSplits: Prisma.$OrderSplitPayload<ExtArgs>[]
+    orderDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
     returns: Prisma.$ReturnPayload<ExtArgs>[]
     refunds: Prisma.$RefundPayload<ExtArgs>[]
   }
@@ -5505,6 +5794,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   payments<T extends Prisma.Company$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   diningTables<T extends Prisma.Company$diningTablesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$diningTablesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiningTablePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   orderSplits<T extends Prisma.Company$orderSplitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$orderSplitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderSplitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  orderDiscounts<T extends Prisma.Company$orderDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$orderDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   returns<T extends Prisma.Company$returnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$returnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refunds<T extends Prisma.Company$refundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$refundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -6502,6 +6792,30 @@ export type Company$orderSplitsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.OrderSplitScalarFieldEnum | Prisma.OrderSplitScalarFieldEnum[]
+}
+
+/**
+ * Company.orderDiscounts
+ */
+export type Company$orderDiscountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OrderDiscount
+   */
+  select?: Prisma.OrderDiscountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OrderDiscount
+   */
+  omit?: Prisma.OrderDiscountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OrderDiscountInclude<ExtArgs> | null
+  where?: Prisma.OrderDiscountWhereInput
+  orderBy?: Prisma.OrderDiscountOrderByWithRelationInput | Prisma.OrderDiscountOrderByWithRelationInput[]
+  cursor?: Prisma.OrderDiscountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OrderDiscountScalarFieldEnum | Prisma.OrderDiscountScalarFieldEnum[]
 }
 
 /**

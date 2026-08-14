@@ -37,6 +37,19 @@ export class OrderService {
       include: {
         customer: true,
 
+        discounts: {
+          include: {
+            orderItem: true,
+            promotion: true,
+            authorizedBy: true,
+            voidedBy: true,
+          },
+
+          orderBy: {
+            appliedAt: 'asc',
+          },
+        },
+
         items: {
           include: {
             product: true,
@@ -69,6 +82,19 @@ export class OrderService {
           company: true,
           customer: true,
           loyaltyProgram: true,
+
+          discounts: {
+            include: {
+              orderItem: true,
+              promotion: true,
+              authorizedBy: true,
+              voidedBy: true,
+            },
+
+            orderBy: {
+              appliedAt: 'asc',
+            },
+          },
 
           items: {
             include: {
@@ -193,6 +219,8 @@ export class OrderService {
       quantity: number;
       unitPrice: number;
       lineTotal: number;
+      discount: number;
+      total: number;
     }> = [];
 
     let subtotal = 0;
@@ -291,11 +319,19 @@ export class OrderService {
       }
 
       const lineTotal =
-        unitPrice *
-        requestedItem.quantity;
+        Math.round(
+          unitPrice *
+            requestedItem.quantity *
+            100,
+        ) / 100;
 
-      subtotal +=
-        lineTotal;
+      subtotal =
+        Math.round(
+          (
+            subtotal +
+            lineTotal
+          ) * 100,
+        ) / 100;
 
       preparedItems.push({
         productId:
@@ -315,6 +351,10 @@ export class OrderService {
         unitPrice,
 
         lineTotal,
+
+        discount: 0,
+
+        total: lineTotal,
       });
     }
 
@@ -403,6 +443,12 @@ export class OrderService {
 
                 lineTotal:
                   item.lineTotal,
+
+                discount:
+                  item.discount,
+
+                total:
+                  item.total,
               }),
             ),
         },
@@ -493,6 +539,86 @@ export class OrderService {
         ) {
           throw new BadRequestException(
             'Este pedido ya está siendo procesado o ya fue confirmado',
+          );
+        }
+
+        const pricedOrder =
+          await tx.order.findUniqueOrThrow({
+            where: {
+              id:
+                order.id,
+            },
+
+            include: {
+              items:
+                true,
+            },
+          });
+
+        const subtotalCents =
+          pricedOrder.items.reduce(
+            (
+              total,
+              item,
+            ) =>
+              total +
+              Math.round(
+                item.lineTotal *
+                  100,
+              ),
+            0,
+          );
+
+        const discountCents =
+          pricedOrder.items.reduce(
+            (
+              total,
+              item,
+            ) =>
+              total +
+              Math.round(
+                item.discount *
+                  100,
+              ),
+            0,
+          );
+
+        const totalCents =
+          pricedOrder.items.reduce(
+            (
+              total,
+              item,
+            ) =>
+              total +
+              Math.round(
+                item.total *
+                  100,
+              ),
+            0,
+          );
+
+        if (
+          subtotalCents !==
+            Math.round(
+              pricedOrder.subtotal *
+                100,
+            ) ||
+          discountCents !==
+            Math.round(
+              pricedOrder.discount *
+                100,
+            ) ||
+          totalCents !==
+            Math.round(
+              pricedOrder.total *
+                100,
+            ) ||
+          subtotalCents -
+              discountCents !==
+            totalCents
+        ) {
+          throw new BadRequestException(
+            'Los totales del pedido no coinciden con sus descuentos',
           );
         }
 
@@ -1050,6 +1176,19 @@ export class OrderService {
           },
         },
 
+        discounts: {
+          include: {
+            orderItem: true,
+            promotion: true,
+            authorizedBy: true,
+            voidedBy: true,
+          },
+
+          orderBy: {
+            appliedAt: 'asc',
+          },
+        },
+
         payments: {
           where: {
             status: 'completed',
@@ -1158,8 +1297,58 @@ export class OrderService {
             unitPrice:
               item.unitPrice,
 
-            total:
+            subtotal:
               item.lineTotal,
+
+            discount:
+              item.discount,
+
+            total:
+              item.total,
+          }),
+        ),
+
+      discounts:
+        order.discounts.map(
+          (discount) => ({
+            id:
+              discount.id,
+
+            scope:
+              discount.scope,
+
+            source:
+              discount.source,
+
+            type:
+              discount.type,
+
+            value:
+              discount.value,
+
+            amount:
+              discount.amount,
+
+            reason:
+              discount.reason,
+
+            status:
+              discount.status,
+
+            product:
+              discount.orderItem?.productName ??
+              null,
+
+            promotion:
+              discount.promotion?.title ??
+              null,
+
+            authorizedBy:
+              discount.authorizedBy.name,
+
+            voidedBy:
+              discount.voidedBy?.name ??
+              null,
           }),
         ),
 

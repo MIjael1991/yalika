@@ -5,6 +5,11 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  allocateCents,
+  fromCents,
+  toCents,
+} from '../order-discount/discount-calculator';
 
 import { CreateEqualSplitDto } from './dto/create-equal-split.dto';
 import { CreateCustomSplitDto } from './dto/create-custom-split.dto';
@@ -126,6 +131,33 @@ export class OrderSplitService {
       totalCents %
       dto.parts;
 
+    const splitTotalsCents =
+      Array.from(
+        {
+          length:
+            dto.parts,
+        },
+        (
+          _,
+          index,
+        ) =>
+          baseCents +
+          (
+            index <
+            remainder
+              ? 1
+              : 0
+          ),
+      );
+
+    const splitDiscountsCents =
+      allocateCents(
+        toCents(
+          order.discount,
+        ),
+        splitTotalsCents,
+      );
+
     return this.prisma.$transaction(
       async (tx) => {
         /*
@@ -154,17 +186,27 @@ export class OrderSplitService {
           index < dto.parts;
           index++
         ) {
-          const cents =
-            baseCents +
-            (
-              index <
-              remainder
-                ? 1
-                : 0
+          const totalCentsForSplit =
+            splitTotalsCents[index];
+
+          const discountCentsForSplit =
+            splitDiscountsCents[index];
+
+          const total =
+            fromCents(
+              totalCentsForSplit,
             );
 
-          const amount =
-            cents / 100;
+          const discount =
+            fromCents(
+              discountCentsForSplit,
+            );
+
+          const subtotal =
+            fromCents(
+              totalCentsForSplit +
+                discountCentsForSplit,
+            );
 
           const split =
             await tx.orderSplit.create({
@@ -179,13 +221,13 @@ export class OrderSplitService {
                   'open',
 
                 subtotal:
-                  amount,
+                  subtotal,
 
                 discount:
-                  0,
+                  discount,
 
                 total:
-                  amount,
+                  total,
 
                 orderId:
                   order.id,
@@ -239,17 +281,22 @@ export class OrderSplitService {
         order.total * 100,
       );
 
+    const requestedTotalsCents =
+      dto.splits.map(
+        (split) =>
+          toCents(
+            split.amount,
+          ),
+      );
+
     const splitCents =
-      dto.splits.reduce(
+      requestedTotalsCents.reduce(
         (
           accumulator,
-          split,
+          value,
         ) =>
           accumulator +
-          Math.round(
-            split.amount *
-              100,
-          ),
+          value,
         0,
       );
 
@@ -261,6 +308,14 @@ export class OrderSplitService {
         `Las partes deben sumar exactamente $${order.total.toFixed(2)}`,
       );
     }
+
+    const requestedDiscountsCents =
+      allocateCents(
+        toCents(
+          order.discount,
+        ),
+        requestedTotalsCents,
+      );
 
     return this.prisma.$transaction(
       async (tx) => {
@@ -282,14 +337,34 @@ export class OrderSplitService {
         }> = [];
 
         for (
-          const requestedSplit
-          of dto.splits
+          let index = 0;
+          index < dto.splits.length;
+          index++
         ) {
-          const amount =
-            Math.round(
-              requestedSplit.amount *
-                100,
-            ) / 100;
+          const requestedSplit =
+            dto.splits[index];
+
+          const totalCentsForSplit =
+            requestedTotalsCents[index];
+
+          const discountCentsForSplit =
+            requestedDiscountsCents[index];
+
+          const total =
+            fromCents(
+              totalCentsForSplit,
+            );
+
+          const discount =
+            fromCents(
+              discountCentsForSplit,
+            );
+
+          const subtotal =
+            fromCents(
+              totalCentsForSplit +
+                discountCentsForSplit,
+            );
 
           const split =
             await tx.orderSplit.create({
@@ -304,13 +379,13 @@ export class OrderSplitService {
                   'open',
 
                 subtotal:
-                  amount,
+                  subtotal,
 
                 discount:
-                  0,
+                  discount,
 
                 total:
-                  amount,
+                  total,
 
                 orderId:
                   order.id,
@@ -370,10 +445,27 @@ export class OrderSplitService {
       const split
       of dto.splits
     ) {
+      const repeatedItems =
+        new Set<string>();
+
       for (
         const allocation
         of split.items
       ) {
+        if (
+          repeatedItems.has(
+            allocation.orderItemId,
+          )
+        ) {
+          throw new BadRequestException(
+            'Un producto no puede repetirse dentro de la misma cuenta',
+          );
+        }
+
+        repeatedItems.add(
+          allocation.orderItemId,
+        );
+
         const orderItem =
           order.items.find(
             (item) =>
@@ -439,6 +531,87 @@ export class OrderSplitService {
       }
     }
 
+    const pricedAllocations =
+      new Map<
+        string,
+        {
+          subtotalCents: number;
+          totalCents: number;
+        }
+      >();
+
+    for (
+      const orderItem
+      of order.items
+    ) {
+      const itemAllocations: Array<{
+        key: string;
+        quantity: number;
+      }> = [];
+
+      for (
+        let splitIndex = 0;
+        splitIndex < dto.splits.length;
+        splitIndex++
+      ) {
+        const allocation =
+          dto.splits[splitIndex].items.find(
+            (item) =>
+              item.orderItemId ===
+              orderItem.id,
+          );
+
+        if (allocation) {
+          itemAllocations.push({
+            key:
+              `${splitIndex}:${orderItem.id}`,
+
+            quantity:
+              allocation.quantity,
+          });
+        }
+      }
+
+      const subtotalAllocations =
+        allocateCents(
+          toCents(
+            orderItem.lineTotal,
+          ),
+          itemAllocations.map(
+            (allocation) =>
+              allocation.quantity,
+          ),
+        );
+
+      const totalAllocations =
+        allocateCents(
+          toCents(
+            orderItem.total,
+          ),
+          itemAllocations.map(
+            (allocation) =>
+              allocation.quantity,
+          ),
+        );
+
+      for (
+        let allocationIndex = 0;
+        allocationIndex < itemAllocations.length;
+        allocationIndex++
+      ) {
+        pricedAllocations.set(
+          itemAllocations[allocationIndex].key,
+          {
+            subtotalCents:
+              subtotalAllocations[allocationIndex],
+
+            totalCents:
+              totalAllocations[allocationIndex],
+          },
+        );
+      }
+    }
+
     return this.prisma.$transaction(
       async (tx) => {
         await tx.orderSplit.deleteMany({
@@ -457,11 +630,21 @@ export class OrderSplitService {
         let calculatedGrandTotalCents =
           0;
 
+        let calculatedGrandSubtotalCents =
+          0;
+
         for (
-          const requestedSplit
-          of dto.splits
+          let splitIndex = 0;
+          splitIndex < dto.splits.length;
+          splitIndex++
         ) {
+          const requestedSplit =
+            dto.splits[splitIndex];
+
           let splitSubtotalCents =
+            0;
+
+          let splitTotalCents =
             0;
 
           const preparedItems: Array<{
@@ -487,19 +670,22 @@ export class OrderSplitService {
               );
             }
 
-            const amount =
-              Math.round(
-                (
-                  orderItem.unitPrice *
-                  allocation.quantity
-                ) *
-                  100,
-              ) / 100;
+            const pricedAllocation =
+              pricedAllocations.get(
+                `${splitIndex}:${orderItem.id}`,
+              );
+
+            if (!pricedAllocation) {
+              throw new BadRequestException(
+                'No fue posible calcular el importe del producto dividido',
+              );
+            }
 
             splitSubtotalCents +=
-              Math.round(
-                amount * 100,
-              );
+              pricedAllocation.subtotalCents;
+
+            splitTotalCents +=
+              pricedAllocation.totalCents;
 
             preparedItems.push({
               orderItemId:
@@ -508,16 +694,34 @@ export class OrderSplitService {
               quantity:
                 allocation.quantity,
 
-              amount,
+              amount:
+                fromCents(
+                  pricedAllocation.totalCents,
+                ),
             });
           }
 
-          calculatedGrandTotalCents +=
+          calculatedGrandSubtotalCents +=
             splitSubtotalCents;
 
+          calculatedGrandTotalCents +=
+            splitTotalCents;
+
           const splitSubtotal =
-            splitSubtotalCents /
-            100;
+            fromCents(
+              splitSubtotalCents,
+            );
+
+          const splitTotal =
+            fromCents(
+              splitTotalCents,
+            );
+
+          const splitDiscount =
+            fromCents(
+              splitSubtotalCents -
+                splitTotalCents,
+            );
 
           const split =
             await tx.orderSplit.create({
@@ -535,10 +739,10 @@ export class OrderSplitService {
                   splitSubtotal,
 
                 discount:
-                  0,
+                  splitDiscount,
 
                 total:
-                  splitSubtotal,
+                  splitTotal,
 
                 orderId:
                   order.id,
@@ -585,25 +789,29 @@ export class OrderSplitService {
           });
         }
 
-        /*
-         * Por ahora todavía no aplicamos
-         * descuentos. Por eso la división
-         * por artículos debe igualar el total.
-         *
-         * En el siguiente bloque distribuiremos
-         * promociones/descuentos entre cuentas.
-         */
         const orderTotalCents =
-          Math.round(
-            order.total * 100,
+          toCents(
+            order.total,
+          );
+
+        const orderSubtotalCents =
+          toCents(
+            order.subtotal,
           );
 
         if (
           calculatedGrandTotalCents !==
-          orderTotalCents
+            orderTotalCents ||
+          calculatedGrandSubtotalCents !==
+            orderSubtotalCents ||
+          calculatedGrandSubtotalCents -
+              calculatedGrandTotalCents !==
+            toCents(
+              order.discount,
+            )
         ) {
           throw new BadRequestException(
-            'El total de los productos divididos no coincide con el total del pedido',
+            'La división por productos no coincide con los totales y descuentos del pedido',
           );
         }
 

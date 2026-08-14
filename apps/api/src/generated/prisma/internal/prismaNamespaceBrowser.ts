@@ -85,6 +85,7 @@ export const ModelName = {
   ProductRecipeComponent: 'ProductRecipeComponent',
   Order: 'Order',
   OrderItem: 'OrderItem',
+  OrderDiscount: 'OrderDiscount',
   Payment: 'Payment',
   DiningTable: 'DiningTable',
   OrderSplit: 'OrderSplit',
@@ -676,6 +677,8 @@ export const OrderItemScalarFieldEnum = {
   quantity: 'quantity',
   unitPrice: 'unitPrice',
   lineTotal: 'lineTotal',
+  discount: 'discount',
+  total: 'total',
   createdAt: 'createdAt',
   orderId: 'orderId',
   productId: 'productId',
@@ -683,6 +686,31 @@ export const OrderItemScalarFieldEnum = {
 } as const
 
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
+
+
+export const OrderDiscountScalarFieldEnum = {
+  id: 'id',
+  scope: 'scope',
+  source: 'source',
+  type: 'type',
+  value: 'value',
+  amount: 'amount',
+  reason: 'reason',
+  notes: 'notes',
+  status: 'status',
+  operationId: 'operationId',
+  appliedAt: 'appliedAt',
+  voidedAt: 'voidedAt',
+  voidReason: 'voidReason',
+  companyId: 'companyId',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  promotionId: 'promotionId',
+  authorizedById: 'authorizedById',
+  voidedById: 'voidedById'
+} as const
+
+export type OrderDiscountScalarFieldEnum = (typeof OrderDiscountScalarFieldEnum)[keyof typeof OrderDiscountScalarFieldEnum]
 
 
 export const PaymentScalarFieldEnum = {

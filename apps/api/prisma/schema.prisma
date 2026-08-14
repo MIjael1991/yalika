@@ -39,6 +39,7 @@ model Company {
   payments          Payment[]
   diningTables      DiningTable[]
   orderSplits       OrderSplit[]
+  orderDiscounts    OrderDiscount[]
   returns           Return[]
   refunds           Refund[]
 
@@ -59,9 +60,11 @@ model User {
   roleId String?
   role   Role?   @relation(fields: [roleId], references: [id])
 
-  tasks             Task[]
-  authorizedReturns Return[] @relation("ReturnAuthorizedBy")
-  processedRefunds  Refund[] @relation("RefundProcessedBy")
+  tasks               Task[]
+  authorizedReturns   Return[]        @relation("ReturnAuthorizedBy")
+  processedRefunds    Refund[]        @relation("RefundProcessedBy")
+  authorizedDiscounts OrderDiscount[] @relation("DiscountAuthorizedBy")
+  voidedDiscounts     OrderDiscount[] @relation("DiscountVoidedBy")
 
   @@map("users")
 }
@@ -546,7 +549,8 @@ model Promotion {
   companyId String
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  products PromotionProduct[]
+  products  PromotionProduct[]
+  discounts OrderDiscount[]
 
   @@index([companyId])
   @@index([companyId, status])
@@ -893,8 +897,9 @@ model Order {
   items           OrderItem[]
   payments        Payment[]
   splits          OrderSplit[]
-  returns         Return[]     @relation("OriginalOrderReturns")
-  exchangeReturns Return[]     @relation("ExchangeOrderReturns")
+  discounts       OrderDiscount[]
+  returns         Return[]        @relation("OriginalOrderReturns")
+  exchangeReturns Return[]        @relation("ExchangeOrderReturns")
 
   diningTableId String?
   diningTable   DiningTable? @relation(fields: [diningTableId], references: [id], onDelete: SetNull)
@@ -917,6 +922,8 @@ model OrderItem {
   quantity  Float
   unitPrice Float
   lineTotal Float
+  discount  Float @default(0)
+  total     Float @default(0)
 
   createdAt DateTime @default(now())
 
@@ -931,11 +938,63 @@ model OrderItem {
 
   splitItems  OrderSplitItem[]
   returnItems ReturnItem[]
+  discounts   OrderDiscount[]
 
   @@index([orderId])
   @@index([productId])
   @@index([variantId])
   @@map("order_items")
+}
+
+model OrderDiscount {
+  id String @id @default(uuid())
+
+  scope  String
+  source String @default("manual")
+  type   String
+
+  value  Float
+  amount Float @default(0)
+
+  reason String
+  notes  String?
+
+  status String @default("applied")
+
+  operationId String?
+
+  appliedAt  DateTime  @default(now())
+  voidedAt   DateTime?
+  voidReason String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  orderItemId String?
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  promotionId String?
+  promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+
+  authorizedById String
+  authorizedBy   User   @relation("DiscountAuthorizedBy", fields: [authorizedById], references: [id], onDelete: Restrict)
+
+  voidedById String?
+  voidedBy   User?   @relation("DiscountVoidedBy", fields: [voidedById], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([orderId])
+  @@index([orderItemId])
+  @@index([promotionId])
+  @@index([authorizedById])
+  @@index([voidedById])
+  @@index([status])
+  @@index([appliedAt])
+  @@map("order_discounts")
 }
 
 model Payment {

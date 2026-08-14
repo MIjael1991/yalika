@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { fromCents, toCents } from '../order-discount/discount-calculator';
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { CreateReturnDto } from './dto/create-return.dto';
 
@@ -345,8 +346,20 @@ export class ReturnService {
           }
         }
 
-        const lineTotal = this.roundMoney(
-          orderItem.unitPrice * requestedItem.quantity,
+        const fullNetCents = toCents(orderItem.total);
+        const returnedAfter = returnedBefore + requestedItem.quantity;
+        const beforeCents = Math.round(
+          (fullNetCents * returnedBefore) / orderItem.quantity,
+        );
+        const afterCents =
+          returnedAfter >= orderItem.quantity - 0.000001
+            ? fullNetCents
+            : Math.round(
+                (fullNetCents * returnedAfter) / orderItem.quantity,
+              );
+        const lineTotal = fromCents(afterCents - beforeCents);
+        const netUnitPrice = this.roundMoney(
+          orderItem.total / orderItem.quantity,
         );
 
         totalAmount = this.roundMoney(totalAmount + lineTotal);
@@ -354,7 +367,7 @@ export class ReturnService {
         preparedItems.push({
           orderItemId: orderItem.id,
           quantity: requestedItem.quantity,
-          unitPrice: orderItem.unitPrice,
+          unitPrice: netUnitPrice,
           lineTotal,
           refundAmount: lineTotal,
           condition: requestedItem.condition,
