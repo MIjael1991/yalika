@@ -750,3 +750,124 @@ Después de cada bloque importante:
 - npm run build
 - prueba de endpoint
 - git commit
+
+---
+
+# AVANCE RETURN ENGINE BACKEND — 14 DE AGOSTO DE 2026
+
+Estado actual:
+
+RETURN ENGINE funcional y probado en API real con PostgreSQL.
+
+## IMPLEMENTADO
+
+Modelos Prisma:
+
+- Return
+- ReturnItem
+- Refund
+- relación de crédito de devolución con Payment
+- relaciones con Company, Order, OrderItem y User
+
+Migración aplicada:
+
+- `20260813201235_add_return_engine`
+
+Módulo:
+
+- `apps/api/src/core/return/return.module.ts`
+- `apps/api/src/core/return/return.controller.ts`
+- `apps/api/src/core/return/return.service.ts`
+- DTO de creación de devolución
+- DTO de creación de reembolso
+- registrado en `apps/api/src/app.module.ts`
+
+Endpoints actuales:
+
+- `POST /return`
+- `GET /return/company/:companyId`
+- `GET /return/:id`
+- `POST /return/:id/confirm`
+- `POST /return/:id/cancel`
+- `POST /return/:id/refund`
+
+## REGLAS FUNCIONALES CONFIRMADAS
+
+- La venta original se conserva y nunca se borra.
+- Solo se permiten devoluciones de ventas confirmadas y pagadas.
+- Una devolución empieza como `draft`.
+- Solo un borrador puede confirmarse o cancelarse.
+- Una devolución completada no puede cancelarse.
+- Una devolución vendible con `restock` regresa al inventario.
+- Un producto dañado con `no_restock` no regresa al inventario disponible.
+- Un producto con receta activa no repone ingredientes automáticamente.
+- No puede devolverse más cantidad de la comprada, considerando devoluciones anteriores.
+- No puede existir más de una devolución activa para la misma venta.
+- El reembolso no puede superar el saldo de la devolución.
+- Una devolución completamente reembolsada no puede reembolsarse nuevamente.
+- Un cambio aplica crédito a una orden nueva y calcula la diferencia pendiente.
+- `operationId` permite idempotencia para devoluciones y reembolsos.
+
+## PRUEBAS REALES COMPLETADAS
+
+1. Devolución parcial vendible:
+   - una unidad de Refresco Demo
+   - monto de devolución: $35
+   - stock aumentó de 8 a 9
+   - venta original permaneció `confirmed` y `paid`
+
+2. Reembolso:
+   - reembolso en efectivo por $35
+   - estado `completed`
+   - segundo intento rechazado por falta de saldo
+
+3. Producto dañado:
+   - condición `damaged`
+   - disposición `no_restock`
+   - stock permaneció en 9
+
+4. Protección de cantidades:
+   - después de devolver las dos unidades vendidas, una tercera devolución fue rechazada
+   - saldo disponible para devolución: 0
+
+5. Cancelación de borrador:
+   - borrador cancelado con estado `cancelled`
+   - `cancelledAt` registrado
+   - inventario no fue modificado
+   - cancelar una devolución completada fue rechazado correctamente
+   - la venta quedó liberada para crear otra devolución o cambio
+
+6. Cambio con diferencia:
+   - devolución/crédito aplicado: $35
+   - nueva orden: $70
+   - diferencia calculada: $35
+   - crédito registrado como pago `return_credit`
+   - diferencia registrada como pago `cash`
+   - nueva orden terminó `paid`
+   - stock final verificado: 7
+
+## VALIDACIÓN TÉCNICA REALIZADA
+
+- `npx prisma format`
+- `npx prisma validate`
+- `npx prisma migrate status`
+- base de datos al día con 27 migraciones
+- `npm run build`
+- `npx prettier --check "src/core/return/**/*.ts"`
+- pruebas manuales de endpoints con `curl`
+- verificaciones directas en PostgreSQL
+
+## PENDIENTES ANTES DE PRODUCCIÓN
+
+- agregar pruebas automatizadas unitarias y e2e
+- aplicar autenticación, permisos y auditoría fina a endpoints
+- probar variantes de producto y casos de receta con datos dedicados
+- revisar la estrategia global de dinero almacenado como Float
+- integrar las pantallas frontend para devolución, cambio y reembolso
+
+## SIGUIENTE BLOQUE RECOMENDADO
+
+1. cerrar revisión Git y crear checkpoint del Return Engine
+2. implementar descuentos
+3. implementar propinas separadas de descuentos
+4. continuar con Checkout Engine, barcode y POS frontend

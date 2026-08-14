@@ -39,6 +39,8 @@ model Company {
   payments          Payment[]
   diningTables      DiningTable[]
   orderSplits       OrderSplit[]
+  returns           Return[]
+  refunds           Refund[]
 
   @@map("companies")
 }
@@ -57,7 +59,9 @@ model User {
   roleId String?
   role   Role?   @relation(fields: [roleId], references: [id])
 
-  tasks Task[]
+  tasks             Task[]
+  authorizedReturns Return[] @relation("ReturnAuthorizedBy")
+  processedRefunds  Refund[] @relation("RefundProcessedBy")
 
   @@map("users")
 }
@@ -886,9 +890,11 @@ model Order {
   loyaltyProgramId String?
   loyaltyProgram   LoyaltyProgram? @relation(fields: [loyaltyProgramId], references: [id], onDelete: SetNull)
 
-  items    OrderItem[]
-  payments Payment[]
-  splits   OrderSplit[]
+  items           OrderItem[]
+  payments        Payment[]
+  splits          OrderSplit[]
+  returns         Return[]     @relation("OriginalOrderReturns")
+  exchangeReturns Return[]     @relation("ExchangeOrderReturns")
 
   diningTableId String?
   diningTable   DiningTable? @relation(fields: [diningTableId], references: [id], onDelete: SetNull)
@@ -923,7 +929,8 @@ model OrderItem {
   variantId String?
   variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 
-  splitItems OrderSplitItem[]
+  splitItems  OrderSplitItem[]
+  returnItems ReturnItem[]
 
   @@index([orderId])
   @@index([productId])
@@ -952,6 +959,11 @@ model Payment {
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  refunds Refund[]
+
+  sourceReturnId String? @unique
+  sourceReturn   Return? @relation("ReturnCreditPayment", fields: [sourceReturnId], references: [id], onDelete: Restrict)
 
   @@index([orderId])
   @@index([companyId])
@@ -1033,4 +1045,122 @@ model OrderSplitItem {
   @@index([orderSplitId])
   @@index([orderItemId])
   @@map("order_split_items")
+}
+
+model Return {
+  id String @id @default(uuid())
+
+  returnNumber String
+
+  type   String @default("return")
+  status String @default("draft")
+
+  reason String
+  notes  String?
+
+  totalAmount Float @default(0)
+
+  operationId String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  orderId String
+  order   Order  @relation("OriginalOrderReturns", fields: [orderId], references: [id], onDelete: Restrict)
+
+  exchangeOrderId String?
+  exchangeOrder   Order?  @relation("ExchangeOrderReturns", fields: [exchangeOrderId], references: [id], onDelete: Restrict)
+
+  authorizedById String
+  authorizedBy   User   @relation("ReturnAuthorizedBy", fields: [authorizedById], references: [id], onDelete: Restrict)
+
+  items         ReturnItem[]
+  refunds       Refund[]
+  creditPayment Payment?     @relation("ReturnCreditPayment")
+
+  @@unique([companyId, returnNumber])
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([orderId])
+  @@index([exchangeOrderId])
+  @@index([authorizedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("returns")
+}
+
+model ReturnItem {
+  id String @id @default(uuid())
+
+  quantity     Float
+  unitPrice    Float
+  lineTotal    Float
+  refundAmount Float
+
+  condition         String @default("sellable")
+  disposition       String @default("no_restock")
+  restockedQuantity Float  @default(0)
+
+  reason String?
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  returnId     String
+  returnRecord Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@unique([returnId, orderItemId])
+  @@index([returnId])
+  @@index([orderItemId])
+  @@index([condition])
+  @@index([disposition])
+  @@map("return_items")
+}
+
+model Refund {
+  id String @id @default(uuid())
+
+  method String
+  status String @default("completed")
+
+  amount Float
+
+  reference String?
+  notes     String?
+
+  operationId String?
+
+  refundedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  returnId     String
+  returnRecord Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  processedById String
+  processedBy   User   @relation("RefundProcessedBy", fields: [processedById], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([returnId])
+  @@index([paymentId])
+  @@index([processedById])
+  @@index([status])
+  @@index([refundedAt])
+  @@map("refunds")
 }

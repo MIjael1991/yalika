@@ -207,3 +207,18 @@ export type OrderSplit = Prisma.OrderSplitModel
  * 
  */
 export type OrderSplitItem = Prisma.OrderSplitItemModel
+/**
+ * Model Return
+ * 
+ */
+export type Return = Prisma.ReturnModel
+/**
+ * Model ReturnItem
+ * 
+ */
+export type ReturnItem = Prisma.ReturnItemModel
+/**
+ * Model Refund
+ * 
+ */
+export type Refund = Prisma.RefundModel

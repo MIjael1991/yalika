@@ -88,7 +88,10 @@ export const ModelName = {
   Payment: 'Payment',
   DiningTable: 'DiningTable',
   OrderSplit: 'OrderSplit',
-  OrderSplitItem: 'OrderSplitItem'
+  OrderSplitItem: 'OrderSplitItem',
+  Return: 'Return',
+  ReturnItem: 'ReturnItem',
+  Refund: 'Refund'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -694,7 +697,8 @@ export const PaymentScalarFieldEnum = {
   paidAt: 'paidAt',
   createdAt: 'createdAt',
   orderId: 'orderId',
-  companyId: 'companyId'
+  companyId: 'companyId',
+  sourceReturnId: 'sourceReturnId'
 } as const
 
 export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
@@ -742,6 +746,68 @@ export const OrderSplitItemScalarFieldEnum = {
 } as const
 
 export type OrderSplitItemScalarFieldEnum = (typeof OrderSplitItemScalarFieldEnum)[keyof typeof OrderSplitItemScalarFieldEnum]
+
+
+export const ReturnScalarFieldEnum = {
+  id: 'id',
+  returnNumber: 'returnNumber',
+  type: 'type',
+  status: 'status',
+  reason: 'reason',
+  notes: 'notes',
+  totalAmount: 'totalAmount',
+  operationId: 'operationId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt',
+  cancelledAt: 'cancelledAt',
+  companyId: 'companyId',
+  orderId: 'orderId',
+  exchangeOrderId: 'exchangeOrderId',
+  authorizedById: 'authorizedById'
+} as const
+
+export type ReturnScalarFieldEnum = (typeof ReturnScalarFieldEnum)[keyof typeof ReturnScalarFieldEnum]
+
+
+export const ReturnItemScalarFieldEnum = {
+  id: 'id',
+  quantity: 'quantity',
+  unitPrice: 'unitPrice',
+  lineTotal: 'lineTotal',
+  refundAmount: 'refundAmount',
+  condition: 'condition',
+  disposition: 'disposition',
+  restockedQuantity: 'restockedQuantity',
+  reason: 'reason',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  returnId: 'returnId',
+  orderItemId: 'orderItemId'
+} as const
+
+export type ReturnItemScalarFieldEnum = (typeof ReturnItemScalarFieldEnum)[keyof typeof ReturnItemScalarFieldEnum]
+
+
+export const RefundScalarFieldEnum = {
+  id: 'id',
+  method: 'method',
+  status: 'status',
+  amount: 'amount',
+  reference: 'reference',
+  notes: 'notes',
+  operationId: 'operationId',
+  refundedAt: 'refundedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  returnId: 'returnId',
+  paymentId: 'paymentId',
+  processedById: 'processedById'
+} as const
+
+export type RefundScalarFieldEnum = (typeof RefundScalarFieldEnum)[keyof typeof RefundScalarFieldEnum]
 
 
 export const SortOrder = {

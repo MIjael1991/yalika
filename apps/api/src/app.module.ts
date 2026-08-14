@@ -24,6 +24,7 @@ import { InventoryModule } from './core/inventory/inventory.module';
 import { RecipeModule } from './core/recipe/recipe.module';
 import { OrderModule } from './core/order/order.module';
 import { PaymentModule } from './core/payment/payment.module';
+import { ReturnModule } from './core/return/return.module';
 import { DiningTableModule } from './core/dining-table/dining-table.module';
 import { OrderSplitModule } from './core/order-split/order-split.module';
 
@@ -51,6 +52,7 @@ import { OrderSplitModule } from './core/order-split/order-split.module';
     RecipeModule,
     OrderModule,
     PaymentModule,
+    ReturnModule,
     DiningTableModule,
     OrderSplitModule,
 
