@@ -14,7 +14,24 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
+
+## ORION Punto de Venta
+
+The commercial checkout is available at `/pos`. It connects to ORION API on
+port `3000` through a same-origin server route, so the browser does not need
+direct API access.
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+ORION_API_URL=http://localhost:3000
+ORION_COMPANY_ID=your-company-uuid
+ORION_AUTHORIZED_USER_ID=your-active-user-uuid
+```
+
+The company identifies the catalog and the active user records who authorized
+each discount.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

@@ -30,10 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex min-h-screen bg-slate-950">
+        <div className="min-h-screen bg-slate-950">
           <OrionSidebar />
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 lg:pl-64">
             {children}
           </div>
         </div>
