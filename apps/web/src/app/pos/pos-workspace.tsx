@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 import {
   FormEvent,
   useMemo,
@@ -103,6 +105,44 @@ type PaymentResult = {
     remaining: number;
     changeAmount: number;
   };
+  split: {
+    id: string;
+    label: string;
+    total: number;
+    totalPaid: number;
+    remaining: number;
+    status: string;
+  } | null;
+};
+
+type OrderSplit = {
+  id: string;
+  label: string;
+  mode: string;
+  status: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+};
+
+type EqualSplitResult = {
+  orderId: string;
+  orderTotal: number;
+  mode: string;
+  parts: number;
+  splits: OrderSplit[];
+};
+
+type SplitEditor = {
+  parts: string;
+  error: string;
+};
+
+type SplitCheckout = {
+  order: Order;
+  items: CartItem[];
+  splits: OrderSplit[];
+  payments: PaymentResult[];
 };
 
 type DiscountResult = {
@@ -166,7 +206,16 @@ async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
     },
     cache: 'no-store',
   });
-  const payload = (await response.json()) as unknown;
+  const body = await response.text();
+  let payload: unknown = {};
+
+  if (body) {
+    try {
+      payload = JSON.parse(body) as unknown;
+    } catch {
+      payload = { message: body };
+    }
+  }
 
   if (!response.ok) {
     throw new Error(getErrorMessage(payload));
@@ -263,6 +312,20 @@ function getCartTotals(cart: CartItem[], orderDiscount?: CartDiscount) {
   };
 }
 
+function getEqualSplitTotals(total: number, parts: number) {
+  if (!Number.isInteger(parts) || parts < 2) {
+    return [];
+  }
+
+  const totalCents = toCents(total);
+  const baseCents = Math.floor(totalCents / parts);
+  const remainder = totalCents % parts;
+
+  return Array.from({ length: parts }, (_, index) =>
+    fromCents(baseCents + (index < remainder ? 1 : 0)),
+  );
+}
+
 export function PosWorkspace({
   initialCompanyId,
   initialAuthorizedUserId,
@@ -300,6 +363,13 @@ export function PosWorkspace({
   const [checkoutError, setCheckoutError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [receipt, setReceipt] = useState<Receipt>();
+  const [splitEditor, setSplitEditor] = useState<SplitEditor>();
+  const [splitCheckout, setSplitCheckout] = useState<SplitCheckout>();
+  const [splitPaymentMethod, setSplitPaymentMethod] = useState('cash');
+  const [splitReceivedAmount, setSplitReceivedAmount] = useState('');
+  const [splitPaymentReference, setSplitPaymentReference] = useState('');
+  const [splitPaymentError, setSplitPaymentError] = useState('');
+  const [processingSplit, setProcessingSplit] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   async function loadProducts(targetCompanyId = companyId) {
@@ -362,7 +432,12 @@ export function PosWorkspace({
     () => getCartTotals(cart, orderDiscount),
     [cart, orderDiscount],
   );
-  const cartLocked = Boolean(checkoutSession);
+  const cartLocked = Boolean(checkoutSession || splitCheckout);
+  const activeSplit = splitCheckout?.splits.find(
+    (split) => split.status !== 'paid',
+  );
+  const paidSplitCount =
+    splitCheckout?.splits.filter((split) => split.status === 'paid').length ?? 0;
 
   function addOption(option: SaleOption) {
     if (cartLocked || (option.trackInventory && option.stock <= 0)) {
@@ -752,6 +827,335 @@ export function PosWorkspace({
     }
   }
 
+  async function startSplitCheckout(event: FormEvent) {
+    event.preventDefault();
+
+    if (!splitEditor) {
+      return;
+    }
+
+    if (!companyId || !authorizedUserId) {
+      setSplitEditor({
+        ...splitEditor,
+        error: 'Configura la empresa y el usuario autorizador',
+      });
+      return;
+    }
+
+    if (cart.length === 0) {
+      setSplitEditor({
+        ...splitEditor,
+        error: 'Agrega al menos un producto',
+      });
+      return;
+    }
+
+    const parts = Number(splitEditor.parts);
+
+    if (!Number.isInteger(parts) || parts < 2 || parts > 10) {
+      setSplitEditor({
+        ...splitEditor,
+        error: 'Selecciona entre 2 y 10 cuentas',
+      });
+      return;
+    }
+
+    setCheckingOut(true);
+    setCheckoutError('');
+    setSplitEditor({
+      ...splitEditor,
+      error: '',
+    });
+
+    let session = checkoutSession;
+
+    try {
+      if (!session) {
+        const order = await apiRequest<Order>('order', {
+          method: 'POST',
+          body: JSON.stringify({
+            companyId,
+            source: 'counter',
+            orderType: 'counter',
+            notes: 'Venta dividida desde ORION Punto de Venta',
+            items: cart.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+            })),
+          }),
+        });
+
+        session = {
+          order,
+          appliedDiscountKeys: [],
+          discountOperationIds: {},
+          confirmed: false,
+        };
+        setCheckoutSession(session);
+      }
+
+      for (const cartItem of cart) {
+        if (
+          !cartItem.discount ||
+          session.appliedDiscountKeys.includes(cartItem.key)
+        ) {
+          continue;
+        }
+
+        const orderItem = session.order.items.find(
+          (item) =>
+            item.productId === cartItem.productId &&
+            (item.variantId ?? undefined) === cartItem.variantId,
+        );
+
+        if (!orderItem) {
+          throw new Error('No fue posible relacionar un producto del pedido');
+        }
+
+        let operationId: string | undefined =
+          session.discountOperationIds[cartItem.key];
+
+        if (!operationId) {
+          operationId = crypto.randomUUID();
+          session = {
+            ...session,
+            discountOperationIds: {
+              ...session.discountOperationIds,
+              [cartItem.key]: operationId,
+            },
+          };
+          setCheckoutSession(session);
+        }
+
+        const discountResult: DiscountResult = await apiRequest<DiscountResult>(
+          `discount/order/${session.order.id}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              companyId,
+              authorizedById: authorizedUserId,
+              scope: 'item',
+              orderItemId: orderItem.id,
+              source: 'manual',
+              type: cartItem.discount.type,
+              value: cartItem.discount.value,
+              reason: cartItem.discount.reason,
+              operationId,
+            }),
+          },
+        );
+
+        session = {
+          ...session,
+          order: discountResult.order,
+          appliedDiscountKeys: [
+            ...session.appliedDiscountKeys,
+            cartItem.key,
+          ],
+        };
+        setCheckoutSession(session);
+      }
+
+      if (orderDiscount && !session.appliedDiscountKeys.includes('order')) {
+        let operationId: string | undefined =
+          session.discountOperationIds.order;
+
+        if (!operationId) {
+          operationId = crypto.randomUUID();
+          session = {
+            ...session,
+            discountOperationIds: {
+              ...session.discountOperationIds,
+              order: operationId,
+            },
+          };
+          setCheckoutSession(session);
+        }
+
+        const discountResult: DiscountResult = await apiRequest<DiscountResult>(
+          `discount/order/${session.order.id}`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              companyId,
+              authorizedById: authorizedUserId,
+              scope: 'order',
+              source: 'manual',
+              type: orderDiscount.type,
+              value: orderDiscount.value,
+              reason: orderDiscount.reason,
+              operationId,
+            }),
+          },
+        );
+
+        session = {
+          ...session,
+          order: discountResult.order,
+          appliedDiscountKeys: [...session.appliedDiscountKeys, 'order'],
+        };
+        setCheckoutSession(session);
+      }
+
+      if (!session.confirmed) {
+        const confirmation = await apiRequest<ConfirmationResult>(
+          `order/${session.order.id}/confirm`,
+          { method: 'POST' },
+        );
+
+        session = {
+          ...session,
+          order: confirmation.order,
+          confirmed: true,
+        };
+        setCheckoutSession(session);
+      }
+
+      const splitResult = await apiRequest<EqualSplitResult>(
+        `order-split/order/${session.order.id}/equal`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ parts }),
+        },
+      );
+
+      setSplitCheckout({
+        order: session.order,
+        items: [...cart],
+        splits: splitResult.splits,
+        payments: [],
+      });
+      setSplitEditor(undefined);
+      setSplitReceivedAmount('');
+      setSplitPaymentReference('');
+      setSplitPaymentError('');
+    } catch (error) {
+      setSplitEditor((current) =>
+        current
+          ? {
+              ...current,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'No fue posible dividir la cuenta',
+            }
+          : current,
+      );
+    } finally {
+      setCheckingOut(false);
+    }
+  }
+
+  async function payCurrentSplit() {
+    if (!splitCheckout) {
+      return;
+    }
+
+    const currentSplit = splitCheckout.splits.find(
+      (split) => split.status !== 'paid',
+    );
+
+    if (!currentSplit) {
+      return;
+    }
+
+    const received = splitReceivedAmount
+      ? Number(splitReceivedAmount)
+      : undefined;
+
+    if (
+      splitPaymentMethod === 'cash' &&
+      received !== undefined &&
+      (!Number.isFinite(received) || received < currentSplit.total)
+    ) {
+      setSplitPaymentError('El efectivo recibido no cubre esta cuenta');
+      return;
+    }
+
+    setProcessingSplit(true);
+    setSplitPaymentError('');
+
+    try {
+      const payment = await apiRequest<PaymentResult>(
+        `payment/order/${splitCheckout.order.id}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            method: splitPaymentMethod,
+            amount: currentSplit.total,
+            orderSplitId: currentSplit.id,
+            receivedAmount:
+              splitPaymentMethod === 'cash' && received !== undefined
+                ? received
+                : undefined,
+            reference:
+              splitPaymentMethod !== 'cash' &&
+              splitPaymentReference.trim()
+                ? splitPaymentReference.trim()
+                : undefined,
+          }),
+        },
+      );
+
+      const payments = [...splitCheckout.payments, payment];
+      const splits = splitCheckout.splits.map((split) =>
+        split.id === currentSplit.id
+          ? {
+              ...split,
+              status: payment.split?.status ?? 'paid',
+            }
+          : split,
+      );
+
+      if (payment.order.paymentStatus === 'paid') {
+        const totalChange = payments.reduce(
+          (total, result) => total + result.summary.changeAmount,
+          0,
+        );
+
+        setReceipt({
+          order: {
+            ...splitCheckout.order,
+            paymentStatus: 'paid',
+          },
+          payment: {
+            ...payment,
+            summary: {
+              ...payment.summary,
+              changeAmount: totalChange,
+            },
+          },
+          items: splitCheckout.items,
+        });
+        setSplitCheckout(undefined);
+        setCheckoutSession(undefined);
+        setCart([]);
+        setOrderDiscount(undefined);
+        setSplitReceivedAmount('');
+        setSplitPaymentReference('');
+        await loadProducts();
+        return;
+      }
+
+      setSplitCheckout({
+        ...splitCheckout,
+        splits,
+        payments,
+      });
+      setSplitReceivedAmount('');
+      setSplitPaymentReference('');
+    } catch (error) {
+      setSplitPaymentError(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible cobrar esta cuenta',
+      );
+    } finally {
+      setProcessingSplit(false);
+    }
+  }
+
   function saveSettings(event: FormEvent) {
     event.preventDefault();
 
@@ -770,6 +1174,9 @@ export function PosWorkspace({
   function newSale() {
     setReceipt(undefined);
     setCheckoutError('');
+    setSplitEditor(undefined);
+    setSplitCheckout(undefined);
+    setSplitPaymentError('');
     setTimeout(() => searchRef.current?.focus(), 0);
   }
 
@@ -791,6 +1198,18 @@ export function PosWorkspace({
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
               Caja lista
             </div>
+            <Link
+              href="/pos/devoluciones"
+              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800"
+            >
+              Devoluciones
+            </Link>
+            <Link
+              href="/pos/cuentas"
+              className="hidden rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800 md:block"
+            >
+              Cuentas pendientes
+            </Link>
             <button
               type="button"
               onClick={() => setShowSettings(true)}
@@ -1169,21 +1588,279 @@ export function PosWorkspace({
               </div>
             ) : null}
 
-            <button
-              type="button"
-              disabled={checkingOut || cart.length === 0}
-              onClick={() => void checkout()}
-              className="mt-5 h-14 w-full rounded-2xl bg-cyan-400 text-base font-bold text-slate-950 shadow-lg shadow-cyan-950/30 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
-            >
-              {checkingOut
-                ? 'Procesando venta…'
-                : checkoutSession
-                  ? 'Reintentar cobro'
-                  : `Cobrar ${money.format(totals.total)}`}
-            </button>
+            <div className="mt-5 grid grid-cols-[0.85fr_1.15fr] gap-2">
+              <button
+                type="button"
+                disabled={checkingOut || cart.length === 0 || Boolean(splitCheckout)}
+                onClick={() =>
+                  setSplitEditor({
+                    parts: '2',
+                    error: '',
+                  })
+                }
+                className="h-14 rounded-2xl border border-cyan-400/40 bg-cyan-400/5 px-3 text-sm font-bold text-cyan-300 transition hover:bg-cyan-400/10 disabled:cursor-not-allowed disabled:border-slate-700 disabled:text-slate-600"
+              >
+                Dividir cuenta
+              </button>
+
+              <button
+                type="button"
+                disabled={checkingOut || cart.length === 0 || Boolean(splitCheckout)}
+                onClick={() => void checkout()}
+                className="h-14 rounded-2xl bg-cyan-400 px-3 text-base font-bold text-slate-950 shadow-lg shadow-cyan-950/30 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
+              >
+                {checkingOut
+                  ? 'Procesando…'
+                  : checkoutSession
+                    ? 'Reintentar cobro'
+                    : `Cobrar ${money.format(totals.total)}`}
+              </button>
+            </div>
           </div>
         </aside>
       </div>
+
+      {splitEditor ? (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={(event) => void startSplitCheckout(event)}
+            className="w-full max-w-md rounded-3xl border border-cyan-400/30 bg-slate-900 p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                  Cuenta dividida
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Dividir {money.format(totals.total)}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  ORION conservará cada centavo y permitirá cobrar cada cuenta por separado.
+                </p>
+              </div>
+
+              {!checkoutSession ? (
+                <button
+                  type="button"
+                  onClick={() => setSplitEditor(undefined)}
+                  className="text-2xl text-slate-500 hover:text-white"
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
+
+            <label className="mt-6 block text-sm font-medium text-slate-300" htmlFor="splitParts">
+              Número de cuentas
+            </label>
+            <select
+              id="splitParts"
+              value={splitEditor.parts}
+              disabled={checkingOut}
+              onChange={(event) =>
+                setSplitEditor({
+                  parts: event.target.value,
+                  error: '',
+                })
+              }
+              className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-sm outline-none focus:border-cyan-400 disabled:opacity-50"
+            >
+              {Array.from({ length: 9 }, (_, index) => index + 2).map((parts) => (
+                <option key={parts} value={parts}>
+                  {parts} cuentas
+                </option>
+              ))}
+            </select>
+
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {getEqualSplitTotals(totals.total, Number(splitEditor.parts)).map(
+                (amount, index) => (
+                  <div
+                    key={`${index}-${amount}`}
+                    className="rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-3"
+                  >
+                    <p className="text-xs text-slate-500">Cuenta {index + 1}</p>
+                    <p className="mt-1 font-semibold text-cyan-300">
+                      {money.format(amount)}
+                    </p>
+                  </div>
+                ),
+              )}
+            </div>
+
+            {splitEditor.error ? (
+              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                {splitEditor.error}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={checkingOut}
+              className="mt-6 h-12 w-full rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500"
+            >
+              {checkingOut ? 'Preparando cuentas…' : 'Confirmar división'}
+            </button>
+
+            {checkoutSession ? (
+              <p className="mt-3 text-center text-xs text-amber-300/80">
+                La venta ya fue confirmada. Reintenta la división para continuar el cobro.
+              </p>
+            ) : null}
+          </form>
+        </div>
+      ) : null}
+
+      {splitCheckout && activeSplit ? (
+        <div className="fixed inset-0 z-[85] flex items-center justify-center overflow-y-auto bg-slate-950/90 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-2xl rounded-3xl border border-cyan-400/30 bg-slate-900 p-6 shadow-2xl">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">
+                  Cobro por cuentas
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  {splitCheckout.order.orderNumber}
+                </h2>
+                <p className="mt-2 text-sm text-slate-400">
+                  {paidSplitCount} de {splitCheckout.splits.length} cuentas pagadas
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-slate-950 px-5 py-3 text-right">
+                <p className="text-xs text-slate-500">Cobrar ahora</p>
+                <p className="mt-1 text-2xl font-bold text-cyan-300">
+                  {money.format(activeSplit.total)}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-2 sm:grid-cols-2">
+              {splitCheckout.splits.map((split) => (
+                <div
+                  key={split.id}
+                  className={`rounded-2xl border px-4 py-3 ${
+                    split.status === 'paid'
+                      ? 'border-emerald-500/30 bg-emerald-500/10'
+                      : split.id === activeSplit.id
+                        ? 'border-cyan-400/50 bg-cyan-400/10'
+                        : 'border-slate-800 bg-slate-950/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{split.label}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Descuento: {money.format(split.discount)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{money.format(split.total)}</p>
+                      <p
+                        className={`mt-1 text-xs font-semibold ${
+                          split.status === 'paid'
+                            ? 'text-emerald-300'
+                            : 'text-slate-500'
+                        }`}
+                      >
+                        {split.status === 'paid' ? 'Pagada' : 'Pendiente'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 grid grid-cols-3 gap-2">
+              {[
+                ['cash', 'Efectivo'],
+                ['card', 'Tarjeta'],
+                ['transfer', 'Transferencia'],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  disabled={processingSplit}
+                  onClick={() => {
+                    setSplitPaymentMethod(value);
+                    setSplitPaymentError('');
+                  }}
+                  className={`rounded-xl border px-2 py-3 text-xs font-semibold ${
+                    splitPaymentMethod === value
+                      ? 'border-cyan-400 bg-cyan-400/10 text-cyan-300'
+                      : 'border-slate-700 text-slate-400'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {splitPaymentMethod === 'cash' ? (
+              <div className="mt-4">
+                <label className="text-sm font-medium text-slate-300" htmlFor="splitReceivedAmount">
+                  Efectivo recibido (opcional)
+                </label>
+                <input
+                  id="splitReceivedAmount"
+                  inputMode="decimal"
+                  value={splitReceivedAmount}
+                  disabled={processingSplit}
+                  onChange={(event) => {
+                    setSplitReceivedAmount(event.target.value);
+                    setSplitPaymentError('');
+                  }}
+                  placeholder={money.format(activeSplit.total)}
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-cyan-400"
+                />
+                {splitReceivedAmount &&
+                Number(splitReceivedAmount) >= activeSplit.total ? (
+                  <p className="mt-2 text-sm font-medium text-emerald-300">
+                    Cambio: {money.format(Number(splitReceivedAmount) - activeSplit.total)}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="mt-4">
+                <label className="text-sm font-medium text-slate-300" htmlFor="splitPaymentReference">
+                  Referencia (opcional)
+                </label>
+                <input
+                  id="splitPaymentReference"
+                  value={splitPaymentReference}
+                  disabled={processingSplit}
+                  onChange={(event) => {
+                    setSplitPaymentReference(event.target.value);
+                    setSplitPaymentError('');
+                  }}
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-cyan-400"
+                />
+              </div>
+            )}
+
+            {splitPaymentError ? (
+              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+                {splitPaymentError}
+              </p>
+            ) : null}
+
+            <button
+              type="button"
+              disabled={processingSplit}
+              onClick={() => void payCurrentSplit()}
+              className="mt-6 h-14 w-full rounded-2xl bg-cyan-400 text-base font-bold text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500"
+            >
+              {processingSplit
+                ? 'Registrando pago…'
+                : `Cobrar ${activeSplit.label} · ${money.format(activeSplit.total)}`}
+            </button>
+
+            <p className="mt-3 text-center text-xs text-slate-500">
+              Esta ventana se cerrará cuando todas las cuentas estén pagadas.
+            </p>
+          </section>
+        </div>
+      ) : null}
 
       {showSettings ? (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">

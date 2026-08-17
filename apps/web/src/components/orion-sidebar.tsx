@@ -12,6 +12,14 @@ const menu = [
         href: '/pos',
         badge: 'POS',
       },
+      {
+        name: 'Devoluciones',
+        href: '/pos/devoluciones',
+      },
+      {
+        name: 'Cuentas pendientes',
+        href: '/pos/cuentas',
+      },
     ],
   },
   {
@@ -71,6 +79,9 @@ export function OrionSidebar() {
           <Link href="/pos" className="rounded-lg bg-cyan-400 px-3 py-2 font-semibold text-slate-950">
             Venta
           </Link>
+          <Link href="/pos/devoluciones" className="rounded-lg px-3 py-2 text-slate-300">
+            Devoluciones
+          </Link>
         </nav>
       </header>
 
@@ -97,6 +108,8 @@ export function OrionSidebar() {
                   const active =
                     item.href === '/'
                       ? pathname === '/'
+                      : item.href === '/pos'
+                        ? pathname === '/pos'
                       : pathname.startsWith(item.href);
 
                   return (

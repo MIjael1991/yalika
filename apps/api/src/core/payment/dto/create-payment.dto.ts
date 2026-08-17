@@ -3,6 +3,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -32,6 +33,14 @@ export class CreatePaymentDto {
   @IsNumber()
   @Min(0.01)
   amount?: number;
+
+  /*
+   * Cuando la orden tiene una cuenta dividida,
+   * cada pago debe identificar la parte que cubre.
+   */
+  @IsOptional()
+  @IsUUID('4')
+  orderSplitId?: string;
 
   /*
    * Solo es necesario para saber

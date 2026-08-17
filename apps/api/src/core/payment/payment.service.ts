@@ -13,11 +13,6 @@ export class PaymentService {
     private readonly prisma: PrismaService,
   ) {}
 
-  /*
-   * =====================================================
-   * PAGOS DE UN PEDIDO
-   * =====================================================
-   */
   async findByOrder(
     orderId: string,
   ) {
@@ -40,23 +35,29 @@ export class PaymentService {
         status: 'completed',
       },
 
+      include: {
+        orderSplit: true,
+      },
+
       orderBy: {
         paidAt: 'asc',
       },
     });
   }
 
-  /*
-   * =====================================================
-   * REGISTRAR PAGO
-   * =====================================================
-   */
   async createPayment(
     orderId: string,
     dto: CreatePaymentDto,
   ) {
     return this.prisma.$transaction(
       async (tx) => {
+        await tx.$queryRaw<Array<{ id: string }>>`
+          SELECT "id"
+          FROM "orders"
+          WHERE "id" = ${orderId}
+          FOR UPDATE
+        `;
+
         const order =
           await tx.order.findUnique({
             where: {
@@ -70,9 +71,6 @@ export class PaymentService {
           );
         }
 
-        /*
-         * Primero queremos una venta confirmada.
-         */
         if (
           order.status !== 'confirmed'
         ) {
@@ -81,9 +79,6 @@ export class PaymentService {
           );
         }
 
-        /*
-         * Sumamos lo que ya se pagó.
-         */
         const paymentTotals =
           await tx.payment.aggregate({
             where: {
@@ -104,10 +99,6 @@ export class PaymentService {
           paymentTotals._sum.amount ??
           0;
 
-        /*
-         * Redondeamos a dos decimales
-         * para las operaciones del MVP.
-         */
         const remaining =
           Math.round(
             (
@@ -123,13 +114,117 @@ export class PaymentService {
           );
         }
 
-        /*
-         * Si amount no viene,
-         * cobramos exactamente lo restante.
-         */
+        const orderSplitCount =
+          await tx.orderSplit.count({
+            where: {
+              orderId:
+                order.id,
+            },
+          });
+
+        if (
+          orderSplitCount > 0 &&
+          !dto.orderSplitId
+        ) {
+          throw new BadRequestException(
+            'Selecciona una de las cuentas divididas para registrar el pago',
+          );
+        }
+
+        let orderSplit:
+          | {
+              id: string;
+              label: string;
+              total: number;
+            }
+          | null = null;
+
+        let splitPaidBefore =
+          0;
+
+        let payableRemaining =
+          remaining;
+
+        if (dto.orderSplitId) {
+          const split =
+            await tx.orderSplit.findUnique({
+              where: {
+                id: dto.orderSplitId,
+              },
+
+              include: {
+                payments: {
+                  where: {
+                    status: 'completed',
+                  },
+                },
+              },
+            });
+
+          if (!split) {
+            throw new NotFoundException(
+              'La cuenta dividida no existe',
+            );
+          }
+
+          if (
+            split.orderId !==
+            order.id
+          ) {
+            throw new BadRequestException(
+              'La cuenta dividida no pertenece a este pedido',
+            );
+          }
+
+          splitPaidBefore =
+            Math.round(
+              split.payments.reduce(
+                (
+                  accumulator,
+                  payment,
+                ) =>
+                  accumulator +
+                  payment.amount,
+                0,
+              ) * 100,
+            ) / 100;
+
+          const splitRemaining =
+            Math.max(
+              Math.round(
+                (
+                  split.total -
+                  splitPaidBefore
+                ) * 100,
+              ) / 100,
+              0,
+            );
+
+          if (
+            splitRemaining <=
+            0
+          ) {
+            throw new BadRequestException(
+              'Esta cuenta dividida ya está pagada',
+            );
+          }
+
+          payableRemaining =
+            Math.min(
+              remaining,
+              splitRemaining,
+            );
+
+          orderSplit = {
+            id: split.id,
+            label: split.label,
+            total: split.total,
+          };
+        }
+
         const amount =
           dto.amount ??
-          remaining;
+          payableRemaining;
 
         if (amount <= 0) {
           throw new BadRequestException(
@@ -139,10 +234,10 @@ export class PaymentService {
 
         if (
           amount >
-          remaining + 0.001
+          payableRemaining + 0.001
         ) {
           throw new BadRequestException(
-            `El pago aplicado no puede superar el saldo pendiente de $${remaining}`,
+            `El pago aplicado no puede superar el saldo pendiente de $${payableRemaining}`,
           );
         }
 
@@ -153,9 +248,6 @@ export class PaymentService {
         let changeAmount =
           0;
 
-        /*
-         * EFECTIVO
-         */
         if (
           dto.method === 'cash'
         ) {
@@ -182,11 +274,6 @@ export class PaymentService {
             ) / 100;
         }
 
-        /*
-         * TARJETA / TRANSFERENCIA / OTRO
-         *
-         * No manejan cambio.
-         */
         if (
           dto.method !== 'cash'
         ) {
@@ -220,6 +307,9 @@ export class PaymentService {
 
               orderId:
                 order.id,
+
+              orderSplitId:
+                orderSplit?.id,
 
               companyId:
                 order.companyId,
@@ -264,6 +354,64 @@ export class PaymentService {
             },
           });
 
+        let splitSummary:
+          | {
+              id: string;
+              label: string;
+              total: number;
+              totalPaid: number;
+              remaining: number;
+              status: string;
+            }
+          | null = null;
+
+        if (orderSplit) {
+          const splitTotalPaid =
+            Math.round(
+              (
+                splitPaidBefore +
+                amount
+              ) * 100,
+            ) / 100;
+
+          const splitRemaining =
+            Math.max(
+              Math.round(
+                (
+                  orderSplit.total -
+                  splitTotalPaid
+                ) * 100,
+              ) / 100,
+              0,
+            );
+
+          const splitStatus =
+            splitRemaining <= 0
+              ? 'paid'
+              : 'partial';
+
+          await tx.orderSplit.update({
+            where: {
+              id:
+                orderSplit.id,
+            },
+
+            data: {
+              status:
+                splitStatus,
+            },
+          });
+
+          splitSummary = {
+            id: orderSplit.id,
+            label: orderSplit.label,
+            total: orderSplit.total,
+            totalPaid: splitTotalPaid,
+            remaining: splitRemaining,
+            status: splitStatus,
+          };
+        }
+
         return {
           payment,
 
@@ -298,6 +446,9 @@ export class PaymentService {
 
             changeAmount,
           },
+
+          split:
+            splitSummary,
         };
       },
     );

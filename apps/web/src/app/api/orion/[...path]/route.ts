@@ -13,6 +13,7 @@ const allowedRoots = new Set([
   'order',
   'order-split',
   'payment',
+  'return',
 ]);
 
 function getTargetUrl(request: NextRequest, path: string[]) {

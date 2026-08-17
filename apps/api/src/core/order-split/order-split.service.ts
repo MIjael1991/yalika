@@ -85,6 +85,16 @@ export class OrderSplitService {
             orderItem: true,
           },
         },
+
+        payments: {
+          where: {
+            status: 'completed',
+          },
+
+          orderBy: {
+            paidAt: 'asc',
+          },
+        },
       },
 
       orderBy: {

@@ -33,6 +33,12 @@ ORION_AUTHORIZED_USER_ID=your-active-user-uuid
 The company identifies the catalog and the active user records who authorized
 each discount.
 
+The checkout supports auditable discounts, cash change, printable receipts and
+equal account splitting with one recoverable payment status per part. Returns
+are available at `/pos/devoluciones`, including remaining-quantity control,
+inventory disposition and refunds through the original commercial flow.
+Interrupted split payments can be resumed at `/pos/cuentas`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

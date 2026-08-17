@@ -1024,7 +1024,11 @@ model Payment {
   sourceReturnId String? @unique
   sourceReturn   Return? @relation("ReturnCreditPayment", fields: [sourceReturnId], references: [id], onDelete: Restrict)
 
+  orderSplitId String?
+  orderSplit   OrderSplit? @relation(fields: [orderSplitId], references: [id], onDelete: Restrict)
+
   @@index([orderId])
+  @@index([orderSplitId])
   @@index([companyId])
   @@index([method])
   @@index([paidAt])
@@ -1079,6 +1083,7 @@ model OrderSplit {
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   items OrderSplitItem[]
+  payments Payment[]
 
   @@index([orderId])
   @@index([companyId])

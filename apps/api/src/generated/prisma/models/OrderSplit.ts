@@ -275,6 +275,7 @@ export type OrderSplitWhereInput = {
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   items?: Prisma.OrderSplitItemListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type OrderSplitOrderByWithRelationInput = {
@@ -292,6 +293,7 @@ export type OrderSplitOrderByWithRelationInput = {
   order?: Prisma.OrderOrderByWithRelationInput
   company?: Prisma.CompanyOrderByWithRelationInput
   items?: Prisma.OrderSplitItemOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type OrderSplitWhereUniqueInput = Prisma.AtLeast<{
@@ -312,6 +314,7 @@ export type OrderSplitWhereUniqueInput = Prisma.AtLeast<{
   order?: Prisma.XOR<Prisma.OrderScalarRelationFilter, Prisma.OrderWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   items?: Prisma.OrderSplitItemListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }, "id">
 
 export type OrderSplitOrderByWithAggregationInput = {
@@ -363,6 +366,7 @@ export type OrderSplitCreateInput = {
   order: Prisma.OrderCreateNestedOneWithoutSplitsInput
   company: Prisma.CompanyCreateNestedOneWithoutOrderSplitsInput
   items?: Prisma.OrderSplitItemCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitUncheckedCreateInput = {
@@ -378,6 +382,7 @@ export type OrderSplitUncheckedCreateInput = {
   orderId: string
   companyId: string
   items?: Prisma.OrderSplitItemUncheckedCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitUpdateInput = {
@@ -393,6 +398,7 @@ export type OrderSplitUpdateInput = {
   order?: Prisma.OrderUpdateOneRequiredWithoutSplitsNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutOrderSplitsNestedInput
   items?: Prisma.OrderSplitItemUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateInput = {
@@ -408,6 +414,7 @@ export type OrderSplitUncheckedUpdateInput = {
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   items?: Prisma.OrderSplitItemUncheckedUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitCreateManyInput = {
@@ -458,6 +465,11 @@ export type OrderSplitListRelationFilter = {
 
 export type OrderSplitOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type OrderSplitNullableScalarRelationFilter = {
+  is?: Prisma.OrderSplitWhereInput | null
+  isNot?: Prisma.OrderSplitWhereInput | null
 }
 
 export type OrderSplitCountOrderByAggregateInput = {
@@ -603,6 +615,22 @@ export type OrderSplitUncheckedUpdateManyWithoutOrderNestedInput = {
   deleteMany?: Prisma.OrderSplitScalarWhereInput | Prisma.OrderSplitScalarWhereInput[]
 }
 
+export type OrderSplitCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.OrderSplitCreateWithoutPaymentsInput, Prisma.OrderSplitUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.OrderSplitCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.OrderSplitWhereUniqueInput
+}
+
+export type OrderSplitUpdateOneWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.OrderSplitCreateWithoutPaymentsInput, Prisma.OrderSplitUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.OrderSplitCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.OrderSplitUpsertWithoutPaymentsInput
+  disconnect?: Prisma.OrderSplitWhereInput | boolean
+  delete?: Prisma.OrderSplitWhereInput | boolean
+  connect?: Prisma.OrderSplitWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.OrderSplitUpdateToOneWithWhereWithoutPaymentsInput, Prisma.OrderSplitUpdateWithoutPaymentsInput>, Prisma.OrderSplitUncheckedUpdateWithoutPaymentsInput>
+}
+
 export type OrderSplitCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.OrderSplitCreateWithoutItemsInput, Prisma.OrderSplitUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.OrderSplitCreateOrConnectWithoutItemsInput
@@ -629,6 +657,7 @@ export type OrderSplitCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutSplitsInput
   items?: Prisma.OrderSplitItemCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitUncheckedCreateWithoutCompanyInput = {
@@ -643,6 +672,7 @@ export type OrderSplitUncheckedCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   orderId: string
   items?: Prisma.OrderSplitItemUncheckedCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitCreateOrConnectWithoutCompanyInput = {
@@ -700,6 +730,7 @@ export type OrderSplitCreateWithoutOrderInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutOrderSplitsInput
   items?: Prisma.OrderSplitItemCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitUncheckedCreateWithoutOrderInput = {
@@ -714,6 +745,7 @@ export type OrderSplitUncheckedCreateWithoutOrderInput = {
   updatedAt?: Date | string
   companyId: string
   items?: Prisma.OrderSplitItemUncheckedCreateNestedManyWithoutOrderSplitInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitCreateOrConnectWithoutOrderInput = {
@@ -742,6 +774,82 @@ export type OrderSplitUpdateManyWithWhereWithoutOrderInput = {
   data: Prisma.XOR<Prisma.OrderSplitUpdateManyMutationInput, Prisma.OrderSplitUncheckedUpdateManyWithoutOrderInput>
 }
 
+export type OrderSplitCreateWithoutPaymentsInput = {
+  id?: string
+  label: string
+  mode: string
+  status?: string
+  subtotal?: number
+  discount?: number
+  total?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  order: Prisma.OrderCreateNestedOneWithoutSplitsInput
+  company: Prisma.CompanyCreateNestedOneWithoutOrderSplitsInput
+  items?: Prisma.OrderSplitItemCreateNestedManyWithoutOrderSplitInput
+}
+
+export type OrderSplitUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  label: string
+  mode: string
+  status?: string
+  subtotal?: number
+  discount?: number
+  total?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  orderId: string
+  companyId: string
+  items?: Prisma.OrderSplitItemUncheckedCreateNestedManyWithoutOrderSplitInput
+}
+
+export type OrderSplitCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.OrderSplitWhereUniqueInput
+  create: Prisma.XOR<Prisma.OrderSplitCreateWithoutPaymentsInput, Prisma.OrderSplitUncheckedCreateWithoutPaymentsInput>
+}
+
+export type OrderSplitUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.OrderSplitUpdateWithoutPaymentsInput, Prisma.OrderSplitUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.OrderSplitCreateWithoutPaymentsInput, Prisma.OrderSplitUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.OrderSplitWhereInput
+}
+
+export type OrderSplitUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.OrderSplitWhereInput
+  data: Prisma.XOR<Prisma.OrderSplitUpdateWithoutPaymentsInput, Prisma.OrderSplitUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type OrderSplitUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  total?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  order?: Prisma.OrderUpdateOneRequiredWithoutSplitsNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutOrderSplitsNestedInput
+  items?: Prisma.OrderSplitItemUpdateManyWithoutOrderSplitNestedInput
+}
+
+export type OrderSplitUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.StringFieldUpdateOperationsInput | string
+  mode?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  subtotal?: Prisma.FloatFieldUpdateOperationsInput | number
+  discount?: Prisma.FloatFieldUpdateOperationsInput | number
+  total?: Prisma.FloatFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  orderId?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  items?: Prisma.OrderSplitItemUncheckedUpdateManyWithoutOrderSplitNestedInput
+}
+
 export type OrderSplitCreateWithoutItemsInput = {
   id?: string
   label: string
@@ -754,6 +862,7 @@ export type OrderSplitCreateWithoutItemsInput = {
   updatedAt?: Date | string
   order: Prisma.OrderCreateNestedOneWithoutSplitsInput
   company: Prisma.CompanyCreateNestedOneWithoutOrderSplitsInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitUncheckedCreateWithoutItemsInput = {
@@ -768,6 +877,7 @@ export type OrderSplitUncheckedCreateWithoutItemsInput = {
   updatedAt?: Date | string
   orderId: string
   companyId: string
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutOrderSplitInput
 }
 
 export type OrderSplitCreateOrConnectWithoutItemsInput = {
@@ -798,6 +908,7 @@ export type OrderSplitUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutSplitsNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutOrderSplitsNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateWithoutItemsInput = {
@@ -812,6 +923,7 @@ export type OrderSplitUncheckedUpdateWithoutItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitCreateManyCompanyInput = {
@@ -839,6 +951,7 @@ export type OrderSplitUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   order?: Prisma.OrderUpdateOneRequiredWithoutSplitsNestedInput
   items?: Prisma.OrderSplitItemUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateWithoutCompanyInput = {
@@ -853,6 +966,7 @@ export type OrderSplitUncheckedUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   orderId?: Prisma.StringFieldUpdateOperationsInput | string
   items?: Prisma.OrderSplitItemUncheckedUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateManyWithoutCompanyInput = {
@@ -893,6 +1007,7 @@ export type OrderSplitUpdateWithoutOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutOrderSplitsNestedInput
   items?: Prisma.OrderSplitItemUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateWithoutOrderInput = {
@@ -907,6 +1022,7 @@ export type OrderSplitUncheckedUpdateWithoutOrderInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   items?: Prisma.OrderSplitItemUncheckedUpdateManyWithoutOrderSplitNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutOrderSplitNestedInput
 }
 
 export type OrderSplitUncheckedUpdateManyWithoutOrderInput = {
@@ -929,10 +1045,12 @@ export type OrderSplitUncheckedUpdateManyWithoutOrderInput = {
 
 export type OrderSplitCountOutputType = {
   items: number
+  payments: number
 }
 
 export type OrderSplitCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | OrderSplitCountOutputTypeCountItemsArgs
+  payments?: boolean | OrderSplitCountOutputTypeCountPaymentsArgs
 }
 
 /**
@@ -952,6 +1070,13 @@ export type OrderSplitCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Type
   where?: Prisma.OrderSplitItemWhereInput
 }
 
+/**
+ * OrderSplitCountOutputType without action
+ */
+export type OrderSplitCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 
 export type OrderSplitSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -968,6 +1093,7 @@ export type OrderSplitSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   items?: boolean | Prisma.OrderSplit$itemsArgs<ExtArgs>
+  payments?: boolean | Prisma.OrderSplit$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrderSplitCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["orderSplit"]>
 
@@ -1022,6 +1148,7 @@ export type OrderSplitInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   order?: boolean | Prisma.OrderDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   items?: boolean | Prisma.OrderSplit$itemsArgs<ExtArgs>
+  payments?: boolean | Prisma.OrderSplit$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.OrderSplitCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type OrderSplitIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1039,6 +1166,7 @@ export type $OrderSplitPayload<ExtArgs extends runtime.Types.Extensions.Internal
     order: Prisma.$OrderPayload<ExtArgs>
     company: Prisma.$CompanyPayload<ExtArgs>
     items: Prisma.$OrderSplitItemPayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1449,6 +1577,7 @@ export interface Prisma__OrderSplitClient<T, Null = never, ExtArgs extends runti
   order<T extends Prisma.OrderDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderDefaultArgs<ExtArgs>>): Prisma.Prisma__OrderClient<runtime.Types.Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.OrderSplit$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderSplit$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderSplitItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payments<T extends Prisma.OrderSplit$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OrderSplit$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1911,6 +2040,30 @@ export type OrderSplit$itemsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.OrderSplitItemScalarFieldEnum | Prisma.OrderSplitItemScalarFieldEnum[]
+}
+
+/**
+ * OrderSplit.payments
+ */
+export type OrderSplit$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**
