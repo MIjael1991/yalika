@@ -1,10 +1,50 @@
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
 import { LifeWorkspace } from './life-workspace';
 
 export const dynamic = 'force-dynamic';
 
-export default function LifePage() {
-  const companyId = process.env.ORION_COMPANY_ID ?? '';
-  const userId = process.env.ORION_AUTHORIZED_USER_ID ?? '';
+type SessionResponse = {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    companyId: string;
+    role: {
+      id: string;
+      name: string;
+    } | null;
+  };
+};
 
-  return <LifeWorkspace companyId={companyId} userId={userId} />;
+async function getCurrentUser() {
+  const apiUrl = (
+    process.env.ORION_API_URL ?? 'http://localhost:3000'
+  ).replace(/\/+$/, '');
+  const cookieHeader = (await cookies()).toString();
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiUrl}/auth/me`, {
+      headers: {
+        cookie: cookieHeader,
+      },
+      cache: 'no-store',
+    });
+  } catch {
+    redirect('/login');
+  }
+
+  if (!response.ok) {
+    redirect('/login');
+  }
+
+  return ((await response.json()) as SessionResponse).user;
+}
+
+export default async function LifePage() {
+  const currentUser = await getCurrentUser();
+
+  return <LifeWorkspace currentUser={currentUser} />;
 }

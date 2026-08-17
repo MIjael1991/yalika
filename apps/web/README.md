@@ -31,14 +31,24 @@ ORION_AUTHORIZED_USER_ID=your-active-user-uuid
 ```
 
 The company identifies the catalog and the active user records who authorized
-each discount.
+each discount. These two identifiers are still used by the POS pilot; ORION
+Life now obtains its identity from an authenticated session.
 
 ORION Life is available at `/life`. Its first pilot adds personal, family,
 business and school spaces on top of the shared core task engine. Tasks can be
 assigned, claimed, completed, reopened and postponed with an auditable activity
-history. The browser refreshes shared work every five seconds while the screen
-is open; device alarms and production real-time delivery require the future
-notification and authentication layers.
+history. ORION Life is protected by an opaque, revocable session stored in
+PostgreSQL and delivered through an HttpOnly cookie. Before the first login, an
+administrator sets a password without exposing it in command history:
+
+```bash
+cd ../api
+npm run auth:set-password -- return-test@orion.local
+```
+
+Then open `/login`. The browser refreshes shared work every five seconds while
+the screen is open; device alarms and production real-time delivery require the
+future notification layer.
 
 The checkout supports auditable discounts, cash change, printable receipts and
 equal account splitting with one recoverable payment status per part. Returns
@@ -48,7 +58,8 @@ Interrupted split payments can be resumed at `/pos/cuentas`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The interface uses local system fonts so production builds do not depend on a
+Google Fonts connection.
 
 ## Learn More
 

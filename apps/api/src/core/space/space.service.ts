@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import type { AuthenticatedUser } from '../../auth/auth.types';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AddSpaceMemberDto } from './dto/add-space-member.dto';
 import { CreateSpaceDto } from './dto/create-space.dto';
@@ -59,12 +60,23 @@ export class SpaceService {
     return this.prisma.space.findMany({
       where: {
         status: 'active',
-        members: {
-          some: {
-            userId,
-            status: 'active',
+        OR: [
+          {
+            type: 'personal',
+            ownerUserId: userId,
           },
-        },
+          {
+            type: {
+              not: 'personal',
+            },
+            members: {
+              some: {
+                userId,
+                status: 'active',
+              },
+            },
+          },
+        ],
       },
       include: spaceInclude,
       orderBy: [
@@ -78,41 +90,14 @@ export class SpaceService {
     });
   }
 
-  async create(dto: CreateSpaceDto) {
-    const [company, owner] = await Promise.all([
-      this.prisma.company.findUnique({
-        where: {
-          id: dto.companyId,
-        },
-      }),
-      this.prisma.user.findUnique({
-        where: {
-          id: dto.ownerUserId,
-        },
-      }),
-    ]);
-
-    if (!company) {
-      throw new NotFoundException('La empresa no existe');
-    }
-
-    if (!owner || owner.status !== 'active') {
-      throw new NotFoundException('El propietario no está activo en ORION');
-    }
-
-    if (owner.companyId !== company.id) {
-      throw new BadRequestException(
-        'El propietario no pertenece a la organización que crea el espacio',
-      );
-    }
-
+  async create(dto: CreateSpaceDto, owner: AuthenticatedUser) {
     return this.prisma.space.create({
       data: {
         name: dto.name.trim(),
         description: dto.description?.trim() || undefined,
         type: dto.type,
         timezone: dto.timezone?.trim() || 'UTC',
-        companyId: company.id,
+        companyId: owner.companyId,
         ownerUserId: owner.id,
         members: {
           create: {
@@ -125,7 +110,11 @@ export class SpaceService {
     });
   }
 
-  async addMember(spaceId: string, dto: AddSpaceMemberDto) {
+  async addMember(
+    spaceId: string,
+    dto: AddSpaceMemberDto,
+    actorUserId: string,
+  ) {
     const space = await this.prisma.space.findUnique({
       where: {
         id: spaceId,
@@ -133,7 +122,7 @@ export class SpaceService {
       include: {
         members: {
           where: {
-            userId: dto.actorUserId,
+            userId: actorUserId,
             status: 'active',
           },
         },
@@ -142,6 +131,12 @@ export class SpaceService {
 
     if (!space || space.status !== 'active') {
       throw new NotFoundException('El espacio no existe o está archivado');
+    }
+
+    if (space.type === 'personal') {
+      throw new BadRequestException(
+        'Un espacio personal no puede compartirse. Usa un espacio familiar.',
+      );
     }
 
     const actorMembership = space.members[0];

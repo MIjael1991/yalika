@@ -98,8 +98,10 @@ duplicadas. Cada tarea conservará:
 - cambios y evidencias;
 - permisos del espacio.
 
-El primer piloto sincroniza periódicamente mientras está abierto. La versión de
-producción debe usar autenticación real y eventos en tiempo real.
+El primer piloto sincroniza periódicamente mientras está abierto. La identidad
+ya se obtiene de una sesión revocable en el servidor; la versión de producción
+también requerirá recuperación de cuenta, segundo factor opcional, monitoreo y
+eventos en tiempo real.
 
 ## Pagos, recibos y memoria predictiva
 
@@ -176,7 +178,8 @@ actuar, medir, aprender y recordar.
 - Los permisos deben validarse en el servidor y quedar auditados.
 - No habrá vigilancia secreta, acusaciones automáticas ni perfilamiento injusto.
 - Las notificaciones respetarán horarios, frecuencia, consentimiento y silencio.
-- Antes de datos escolares o personales reales debe existir autenticación robusta.
+- Antes de datos escolares o personales reales deben completarse recuperación de
+  cuenta, políticas administrativas, segundo factor opcional y auditoría operativa.
 
 ## Funciones futuras que deben permanecer en el backlog
 
@@ -210,9 +213,13 @@ Antes de programar una idea se debe preguntar:
 
 ## Estado del primer piloto de ORION Life
 
-Este checkpoint inicia la base de espacios y tareas compartidas. Incluye roles,
-historial, asignación, toma atómica de tareas, terminación, reapertura, posposición y
-una pantalla Mi día. No incluye todavía autenticación, invitaciones externas,
-WebSockets, alarmas del dispositivo, recurrencias automáticas, OCR, rutas ni IA de
-reorganización. Esos componentes deben construirse sobre esta base y no simularse
-como si ya fueran funciones de producción.
+El primer checkpoint inició la base de espacios y tareas compartidas. El siguiente
+bloque agrega contraseña cifrada con scrypt, bloqueo temporal por intentos fallidos,
+sesiones opacas y revocables en PostgreSQL, cookie HttpOnly, identidad derivada en
+el servidor, cierre de sesión y protección de espacios y tareas. Los espacios
+personales ya no admiten integrantes.
+
+Todavía no incluye alta pública de cuentas, recuperación de contraseña, segundo
+factor, invitaciones externas, WebSockets, alarmas del dispositivo, recurrencias
+automáticas, OCR, rutas ni IA de reorganización. Esos componentes deben construirse
+sobre esta base y no simularse como si ya fueran funciones de producción.

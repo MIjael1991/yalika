@@ -10,6 +10,7 @@
  */
 export type * from './models/Company.js'
 export type * from './models/User.js'
+export type * from './models/AuthSession.js'
 export type * from './models/Role.js'
 export type * from './models/Space.js'
 export type * from './models/SpaceMember.js'

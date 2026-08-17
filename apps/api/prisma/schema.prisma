@@ -48,12 +48,17 @@ model Company {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  status    String   @default("active")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String    @id @default(uuid())
+  name                String
+  email               String    @unique
+  status              String    @default("active")
+  passwordHash        String?
+  passwordChangedAt   DateTime?
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   companyId String
   company   Company @relation(fields: [companyId], references: [id])
@@ -68,12 +73,31 @@ model User {
   claimedTasks        Task[]          @relation("TaskClaimer")
   completedTasks      Task[]          @relation("TaskCompleter")
   taskActivities      TaskActivity[]  @relation("TaskActivityActor")
+  authSessions        AuthSession[]
   authorizedReturns   Return[]        @relation("ReturnAuthorizedBy")
   processedRefunds    Refund[]        @relation("RefundProcessedBy")
   authorizedDiscounts OrderDiscount[] @relation("DiscountAuthorizedBy")
   voidedDiscounts     OrderDiscount[] @relation("DiscountVoidedBy")
 
   @@map("users")
+}
+
+model AuthSession {
+  id         String    @id @default(uuid())
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastSeenAt DateTime  @default(now())
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@index([expiresAt, revokedAt])
+  @@map("auth_sessions")
 }
 
 model Role {

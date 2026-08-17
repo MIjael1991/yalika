@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { OrionSidebar } from '@/components/orion-sidebar';
+import { OrionShell } from '@/components/orion-shell';
 
 import './globals.css';
 
@@ -17,13 +17,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased">
-        <div className="min-h-screen bg-slate-950">
-          <OrionSidebar />
-
-          <div className="min-w-0 lg:pl-64">
-            {children}
-          </div>
-        </div>
+        <OrionShell>{children}</OrionShell>
       </body>
     </html>
   );

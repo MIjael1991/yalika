@@ -20,8 +20,18 @@ export type UserModel = runtime.Types.Result.DefaultSelection<Prisma.$UserPayloa
 
 export type AggregateUser = {
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
+}
+
+export type UserAvgAggregateOutputType = {
+  failedLoginAttempts: number | null
+}
+
+export type UserSumAggregateOutputType = {
+  failedLoginAttempts: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -29,6 +39,11 @@ export type UserMinAggregateOutputType = {
   name: string | null
   email: string | null
   status: string | null
+  passwordHash: string | null
+  passwordChangedAt: Date | null
+  lastLoginAt: Date | null
+  failedLoginAttempts: number | null
+  lockedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   companyId: string | null
@@ -40,6 +55,11 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   email: string | null
   status: string | null
+  passwordHash: string | null
+  passwordChangedAt: Date | null
+  lastLoginAt: Date | null
+  failedLoginAttempts: number | null
+  lockedUntil: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   companyId: string | null
@@ -51,6 +71,11 @@ export type UserCountAggregateOutputType = {
   name: number
   email: number
   status: number
+  passwordHash: number
+  passwordChangedAt: number
+  lastLoginAt: number
+  failedLoginAttempts: number
+  lockedUntil: number
   createdAt: number
   updatedAt: number
   companyId: number
@@ -59,11 +84,24 @@ export type UserCountAggregateOutputType = {
 }
 
 
+export type UserAvgAggregateInputType = {
+  failedLoginAttempts?: true
+}
+
+export type UserSumAggregateInputType = {
+  failedLoginAttempts?: true
+}
+
 export type UserMinAggregateInputType = {
   id?: true
   name?: true
   email?: true
   status?: true
+  passwordHash?: true
+  passwordChangedAt?: true
+  lastLoginAt?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -75,6 +113,11 @@ export type UserMaxAggregateInputType = {
   name?: true
   email?: true
   status?: true
+  passwordHash?: true
+  passwordChangedAt?: true
+  lastLoginAt?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -86,6 +129,11 @@ export type UserCountAggregateInputType = {
   name?: true
   email?: true
   status?: true
+  passwordHash?: true
+  passwordChangedAt?: true
+  lastLoginAt?: true
+  failedLoginAttempts?: true
+  lockedUntil?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -131,6 +179,18 @@ export type UserAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: UserAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: UserSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: UserMinAggregateInputType
@@ -161,6 +221,8 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: UserCountAggregateInputType | true
+  _avg?: UserAvgAggregateInputType
+  _sum?: UserSumAggregateInputType
   _min?: UserMinAggregateInputType
   _max?: UserMaxAggregateInputType
 }
@@ -170,11 +232,18 @@ export type UserGroupByOutputType = {
   name: string
   email: string
   status: string
+  passwordHash: string | null
+  passwordChangedAt: Date | null
+  lastLoginAt: Date | null
+  failedLoginAttempts: number
+  lockedUntil: Date | null
   createdAt: Date
   updatedAt: Date
   companyId: string
   roleId: string | null
   _count: UserCountAggregateOutputType | null
+  _avg: UserAvgAggregateOutputType | null
+  _sum: UserSumAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
 }
@@ -202,6 +271,11 @@ export type UserWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   companyId?: Prisma.StringFilter<"User"> | string
@@ -215,6 +289,7 @@ export type UserWhereInput = {
   claimedTasks?: Prisma.TaskListRelationFilter
   completedTasks?: Prisma.TaskListRelationFilter
   taskActivities?: Prisma.TaskActivityListRelationFilter
+  authSessions?: Prisma.AuthSessionListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
   authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
@@ -226,6 +301,11 @@ export type UserOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -239,6 +319,7 @@ export type UserOrderByWithRelationInput = {
   claimedTasks?: Prisma.TaskOrderByRelationAggregateInput
   completedTasks?: Prisma.TaskOrderByRelationAggregateInput
   taskActivities?: Prisma.TaskActivityOrderByRelationAggregateInput
+  authSessions?: Prisma.AuthSessionOrderByRelationAggregateInput
   authorizedReturns?: Prisma.ReturnOrderByRelationAggregateInput
   processedRefunds?: Prisma.RefundOrderByRelationAggregateInput
   authorizedDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
@@ -253,6 +334,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   companyId?: Prisma.StringFilter<"User"> | string
@@ -266,6 +352,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   claimedTasks?: Prisma.TaskListRelationFilter
   completedTasks?: Prisma.TaskListRelationFilter
   taskActivities?: Prisma.TaskActivityListRelationFilter
+  authSessions?: Prisma.AuthSessionListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
   authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
@@ -277,13 +364,20 @@ export type UserOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordChangedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   roleId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
+  _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
+  _sum?: Prisma.UserSumOrderByAggregateInput
 }
 
 export type UserScalarWhereWithAggregatesInput = {
@@ -294,6 +388,11 @@ export type UserScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
   status?: Prisma.StringWithAggregatesFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  passwordChangedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  lastLoginAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  failedLoginAttempts?: Prisma.IntWithAggregatesFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   companyId?: Prisma.StringWithAggregatesFilter<"User"> | string
@@ -305,6 +404,11 @@ export type UserCreateInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -316,6 +420,7 @@ export type UserCreateInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -327,6 +432,11 @@ export type UserUncheckedCreateInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -338,6 +448,7 @@ export type UserUncheckedCreateInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -349,6 +460,11 @@ export type UserUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -360,6 +476,7 @@ export type UserUpdateInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -371,6 +488,11 @@ export type UserUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -382,6 +504,7 @@ export type UserUncheckedUpdateInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -393,6 +516,11 @@ export type UserCreateManyInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -404,6 +532,11 @@ export type UserUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -413,6 +546,11 @@ export type UserUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -434,10 +572,19 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordChangedAt?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
+}
+
+export type UserAvgOrderByAggregateInput = {
+  failedLoginAttempts?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -445,6 +592,11 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordChangedAt?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -456,10 +608,19 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
+  passwordChangedAt?: Prisma.SortOrder
+  lastLoginAt?: Prisma.SortOrder
+  failedLoginAttempts?: Prisma.SortOrder
+  lockedUntil?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
+}
+
+export type UserSumOrderByAggregateInput = {
+  failedLoginAttempts?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -516,6 +677,32 @@ export type UserUncheckedUpdateManyWithoutCompanyNestedInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type UserCreateNestedOneWithoutAuthSessionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAuthSessionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAuthSessionsInput
+  upsert?: Prisma.UserUpsertWithoutAuthSessionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAuthSessionsInput, Prisma.UserUpdateWithoutAuthSessionsInput>, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
 }
 
 export type UserCreateNestedManyWithoutRoleInput = {
@@ -731,6 +918,11 @@ export type UserCreateWithoutCompanyInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
@@ -741,6 +933,7 @@ export type UserCreateWithoutCompanyInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -752,6 +945,11 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   roleId?: string | null
@@ -762,6 +960,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -802,20 +1001,31 @@ export type UserScalarWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
   status?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  passwordChangedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  lastLoginAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  failedLoginAttempts?: Prisma.IntFilter<"User"> | number
+  lockedUntil?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   companyId?: Prisma.StringFilter<"User"> | string
   roleId?: Prisma.StringNullableFilter<"User"> | string | null
 }
 
-export type UserCreateWithoutRoleInput = {
+export type UserCreateWithoutAuthSessionsInput = {
   id?: string
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
   ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
   spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
@@ -829,11 +1039,140 @@ export type UserCreateWithoutRoleInput = {
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
 }
 
+export type UserUncheckedCreateWithoutAuthSessionsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutAuthSessionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
+}
+
+export type UserUpsertWithoutAuthSessionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAuthSessionsInput, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAuthSessionsInput, Prisma.UserUncheckedCreateWithoutAuthSessionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAuthSessionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAuthSessionsInput, Prisma.UserUncheckedUpdateWithoutAuthSessionsInput>
+}
+
+export type UserUpdateWithoutAuthSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAuthSessionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserCreateWithoutRoleInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
 export type UserUncheckedCreateWithoutRoleInput = {
   id?: string
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -844,6 +1183,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -881,6 +1221,11 @@ export type UserCreateWithoutOwnedSpacesInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -891,6 +1236,7 @@ export type UserCreateWithoutOwnedSpacesInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -902,6 +1248,11 @@ export type UserUncheckedCreateWithoutOwnedSpacesInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -912,6 +1263,7 @@ export type UserUncheckedCreateWithoutOwnedSpacesInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -939,6 +1291,11 @@ export type UserUpdateWithoutOwnedSpacesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -949,6 +1306,7 @@ export type UserUpdateWithoutOwnedSpacesInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -960,6 +1318,11 @@ export type UserUncheckedUpdateWithoutOwnedSpacesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -970,6 +1333,7 @@ export type UserUncheckedUpdateWithoutOwnedSpacesInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -981,6 +1345,11 @@ export type UserCreateWithoutSpaceMembershipsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -991,6 +1360,7 @@ export type UserCreateWithoutSpaceMembershipsInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1002,6 +1372,11 @@ export type UserUncheckedCreateWithoutSpaceMembershipsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1012,6 +1387,7 @@ export type UserUncheckedCreateWithoutSpaceMembershipsInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1039,6 +1415,11 @@ export type UserUpdateWithoutSpaceMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1049,6 +1430,7 @@ export type UserUpdateWithoutSpaceMembershipsInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1060,6 +1442,11 @@ export type UserUncheckedUpdateWithoutSpaceMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1070,6 +1457,7 @@ export type UserUncheckedUpdateWithoutSpaceMembershipsInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1081,6 +1469,11 @@ export type UserCreateWithoutTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1091,6 +1484,7 @@ export type UserCreateWithoutTasksInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1102,6 +1496,11 @@ export type UserUncheckedCreateWithoutTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1112,6 +1511,7 @@ export type UserUncheckedCreateWithoutTasksInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1128,6 +1528,11 @@ export type UserCreateWithoutCreatedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1138,6 +1543,7 @@ export type UserCreateWithoutCreatedTasksInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1149,6 +1555,11 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1159,6 +1570,7 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1175,6 +1587,11 @@ export type UserCreateWithoutClaimedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1185,6 +1602,7 @@ export type UserCreateWithoutClaimedTasksInput = {
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1196,6 +1614,11 @@ export type UserUncheckedCreateWithoutClaimedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1206,6 +1629,7 @@ export type UserUncheckedCreateWithoutClaimedTasksInput = {
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1222,6 +1646,11 @@ export type UserCreateWithoutCompletedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1232,6 +1661,7 @@ export type UserCreateWithoutCompletedTasksInput = {
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1243,6 +1673,11 @@ export type UserUncheckedCreateWithoutCompletedTasksInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1253,6 +1688,7 @@ export type UserUncheckedCreateWithoutCompletedTasksInput = {
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1280,6 +1716,11 @@ export type UserUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1290,6 +1731,7 @@ export type UserUpdateWithoutTasksInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1301,6 +1743,11 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1311,6 +1758,7 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1333,6 +1781,11 @@ export type UserUpdateWithoutCreatedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1343,6 +1796,7 @@ export type UserUpdateWithoutCreatedTasksInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1354,6 +1808,11 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1364,6 +1823,7 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1386,6 +1846,11 @@ export type UserUpdateWithoutClaimedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1396,6 +1861,7 @@ export type UserUpdateWithoutClaimedTasksInput = {
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1407,6 +1873,11 @@ export type UserUncheckedUpdateWithoutClaimedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1417,6 +1888,7 @@ export type UserUncheckedUpdateWithoutClaimedTasksInput = {
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1439,6 +1911,11 @@ export type UserUpdateWithoutCompletedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1449,6 +1926,7 @@ export type UserUpdateWithoutCompletedTasksInput = {
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1460,6 +1938,11 @@ export type UserUncheckedUpdateWithoutCompletedTasksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1470,6 +1953,7 @@ export type UserUncheckedUpdateWithoutCompletedTasksInput = {
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1481,6 +1965,11 @@ export type UserCreateWithoutTaskActivitiesInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1491,6 +1980,7 @@ export type UserCreateWithoutTaskActivitiesInput = {
   createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1502,6 +1992,11 @@ export type UserUncheckedCreateWithoutTaskActivitiesInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1512,6 +2007,7 @@ export type UserUncheckedCreateWithoutTaskActivitiesInput = {
   createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1539,6 +2035,11 @@ export type UserUpdateWithoutTaskActivitiesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1549,6 +2050,7 @@ export type UserUpdateWithoutTaskActivitiesInput = {
   createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1560,6 +2062,11 @@ export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1570,6 +2077,7 @@ export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
   createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1581,6 +2089,11 @@ export type UserCreateWithoutAuthorizedDiscountsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1592,6 +2105,7 @@ export type UserCreateWithoutAuthorizedDiscountsInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -1602,6 +2116,11 @@ export type UserUncheckedCreateWithoutAuthorizedDiscountsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1613,6 +2132,7 @@ export type UserUncheckedCreateWithoutAuthorizedDiscountsInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -1628,6 +2148,11 @@ export type UserCreateWithoutVoidedDiscountsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1639,6 +2164,7 @@ export type UserCreateWithoutVoidedDiscountsInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1649,6 +2175,11 @@ export type UserUncheckedCreateWithoutVoidedDiscountsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1660,6 +2191,7 @@ export type UserUncheckedCreateWithoutVoidedDiscountsInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1686,6 +2218,11 @@ export type UserUpdateWithoutAuthorizedDiscountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1697,6 +2234,7 @@ export type UserUpdateWithoutAuthorizedDiscountsInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -1707,6 +2245,11 @@ export type UserUncheckedUpdateWithoutAuthorizedDiscountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1718,6 +2261,7 @@ export type UserUncheckedUpdateWithoutAuthorizedDiscountsInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -1739,6 +2283,11 @@ export type UserUpdateWithoutVoidedDiscountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1750,6 +2299,7 @@ export type UserUpdateWithoutVoidedDiscountsInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1760,6 +2310,11 @@ export type UserUncheckedUpdateWithoutVoidedDiscountsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1771,6 +2326,7 @@ export type UserUncheckedUpdateWithoutVoidedDiscountsInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1781,6 +2337,11 @@ export type UserCreateWithoutAuthorizedReturnsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1792,6 +2353,7 @@ export type UserCreateWithoutAuthorizedReturnsInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -1802,6 +2364,11 @@ export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1813,6 +2380,7 @@ export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -1839,6 +2407,11 @@ export type UserUpdateWithoutAuthorizedReturnsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1850,6 +2423,7 @@ export type UserUpdateWithoutAuthorizedReturnsInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -1860,6 +2434,11 @@ export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1871,6 +2450,7 @@ export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -1881,6 +2461,11 @@ export type UserCreateWithoutProcessedRefundsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
@@ -1892,6 +2477,7 @@ export type UserCreateWithoutProcessedRefundsInput = {
   claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -1902,6 +2488,11 @@ export type UserUncheckedCreateWithoutProcessedRefundsInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1913,6 +2504,7 @@ export type UserUncheckedCreateWithoutProcessedRefundsInput = {
   claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -1939,6 +2531,11 @@ export type UserUpdateWithoutProcessedRefundsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -1950,6 +2547,7 @@ export type UserUpdateWithoutProcessedRefundsInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -1960,6 +2558,11 @@ export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1971,6 +2574,7 @@ export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -1981,6 +2585,11 @@ export type UserCreateManyCompanyInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   roleId?: string | null
@@ -1991,6 +2600,11 @@ export type UserUpdateWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
@@ -2001,6 +2615,7 @@ export type UserUpdateWithoutCompanyInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -2012,6 +2627,11 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2022,6 +2642,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -2033,6 +2654,11 @@ export type UserUncheckedUpdateManyWithoutCompanyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2043,6 +2669,11 @@ export type UserCreateManyRoleInput = {
   name: string
   email: string
   status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2053,6 +2684,11 @@ export type UserUpdateWithoutRoleInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
@@ -2063,6 +2699,7 @@ export type UserUpdateWithoutRoleInput = {
   claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -2074,6 +2711,11 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2084,6 +2726,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -2095,6 +2738,11 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2113,6 +2761,7 @@ export type UserCountOutputType = {
   claimedTasks: number
   completedTasks: number
   taskActivities: number
+  authSessions: number
   authorizedReturns: number
   processedRefunds: number
   authorizedDiscounts: number
@@ -2127,6 +2776,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   claimedTasks?: boolean | UserCountOutputTypeCountClaimedTasksArgs
   completedTasks?: boolean | UserCountOutputTypeCountCompletedTasksArgs
   taskActivities?: boolean | UserCountOutputTypeCountTaskActivitiesArgs
+  authSessions?: boolean | UserCountOutputTypeCountAuthSessionsArgs
   authorizedReturns?: boolean | UserCountOutputTypeCountAuthorizedReturnsArgs
   processedRefunds?: boolean | UserCountOutputTypeCountProcessedRefundsArgs
   authorizedDiscounts?: boolean | UserCountOutputTypeCountAuthorizedDiscountsArgs
@@ -2195,6 +2845,13 @@ export type UserCountOutputTypeCountTaskActivitiesArgs<ExtArgs extends runtime.T
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountAuthSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuthSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountAuthorizedReturnsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ReturnWhereInput
 }
@@ -2226,6 +2883,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   email?: boolean
   status?: boolean
+  passwordHash?: boolean
+  passwordChangedAt?: boolean
+  lastLoginAt?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2239,6 +2901,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   claimedTasks?: boolean | Prisma.User$claimedTasksArgs<ExtArgs>
   completedTasks?: boolean | Prisma.User$completedTasksArgs<ExtArgs>
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
+  authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
   authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
@@ -2251,6 +2914,11 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   email?: boolean
   status?: boolean
+  passwordHash?: boolean
+  passwordChangedAt?: boolean
+  lastLoginAt?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2264,6 +2932,11 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   email?: boolean
   status?: boolean
+  passwordHash?: boolean
+  passwordChangedAt?: boolean
+  lastLoginAt?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2277,13 +2950,18 @@ export type UserSelectScalar = {
   name?: boolean
   email?: boolean
   status?: boolean
+  passwordHash?: boolean
+  passwordChangedAt?: boolean
+  lastLoginAt?: boolean
+  failedLoginAttempts?: boolean
+  lockedUntil?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
   roleId?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "status" | "createdAt" | "updatedAt" | "companyId" | "roleId", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "status" | "passwordHash" | "passwordChangedAt" | "lastLoginAt" | "failedLoginAttempts" | "lockedUntil" | "createdAt" | "updatedAt" | "companyId" | "roleId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
@@ -2294,6 +2972,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   claimedTasks?: boolean | Prisma.User$claimedTasksArgs<ExtArgs>
   completedTasks?: boolean | Prisma.User$completedTasksArgs<ExtArgs>
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
+  authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
   authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
@@ -2321,6 +3000,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     claimedTasks: Prisma.$TaskPayload<ExtArgs>[]
     completedTasks: Prisma.$TaskPayload<ExtArgs>[]
     taskActivities: Prisma.$TaskActivityPayload<ExtArgs>[]
+    authSessions: Prisma.$AuthSessionPayload<ExtArgs>[]
     authorizedReturns: Prisma.$ReturnPayload<ExtArgs>[]
     processedRefunds: Prisma.$RefundPayload<ExtArgs>[]
     authorizedDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
@@ -2331,6 +3011,11 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     name: string
     email: string
     status: string
+    passwordHash: string | null
+    passwordChangedAt: Date | null
+    lastLoginAt: Date | null
+    failedLoginAttempts: number
+    lockedUntil: Date | null
     createdAt: Date
     updatedAt: Date
     companyId: string
@@ -2738,6 +3423,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   claimedTasks<T extends Prisma.User$claimedTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$claimedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   completedTasks<T extends Prisma.User$completedTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$completedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   taskActivities<T extends Prisma.User$taskActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  authSessions<T extends Prisma.User$authSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedReturns<T extends Prisma.User$authorizedReturnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   processedRefunds<T extends Prisma.User$processedRefundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$processedRefundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedDiscounts<T extends Prisma.User$authorizedDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2775,6 +3461,11 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly status: Prisma.FieldRef<"User", 'String'>
+  readonly passwordHash: Prisma.FieldRef<"User", 'String'>
+  readonly passwordChangedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly lastLoginAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly failedLoginAttempts: Prisma.FieldRef<"User", 'Int'>
+  readonly lockedUntil: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly companyId: Prisma.FieldRef<"User", 'String'>
@@ -3364,6 +4055,30 @@ export type User$taskActivitiesArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.TaskActivityScalarFieldEnum | Prisma.TaskActivityScalarFieldEnum[]
+}
+
+/**
+ * User.authSessions
+ */
+export type User$authSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuthSession
+   */
+  select?: Prisma.AuthSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuthSession
+   */
+  omit?: Prisma.AuthSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuthSessionInclude<ExtArgs> | null
+  where?: Prisma.AuthSessionWhereInput
+  orderBy?: Prisma.AuthSessionOrderByWithRelationInput | Prisma.AuthSessionOrderByWithRelationInput[]
+  cursor?: Prisma.AuthSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuthSessionScalarFieldEnum | Prisma.AuthSessionScalarFieldEnum[]
 }
 
 /**

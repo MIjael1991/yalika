@@ -11,7 +11,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import {
   CompleteTaskDto,
   PostponeTaskDto,
-  TaskActorDto,
 } from './dto/task-action.dto';
 
 const activeStatuses = [
@@ -72,8 +71,11 @@ type TaskAccessRecord = {
 export class TaskService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.task.findMany({
+      where: {
+        companyId,
+      },
       include: {
         company: true,
         user: true,
@@ -84,11 +86,12 @@ export class TaskService {
     });
   }
 
-  async findToday() {
+  async findToday(companyId: string) {
     const { startOfDay, endOfDay } = this.getTodayRange();
 
     return this.prisma.task.findMany({
       where: {
+        companyId,
         dueAt: {
           gte: startOfDay,
           lte: endOfDay,
@@ -103,11 +106,12 @@ export class TaskService {
     });
   }
 
-  async findTodayByPriority(priority: string) {
+  async findTodayByPriority(priority: string, companyId: string) {
     const { startOfDay, endOfDay } = this.getTodayRange();
 
     return this.prisma.task.findMany({
       where: {
+        companyId,
         dueAt: {
           gte: startOfDay,
           lte: endOfDay,
@@ -145,10 +149,14 @@ export class TaskService {
     });
   }
 
-  async create(dto: CreateTaskDto) {
+  async create(
+    dto: CreateTaskDto,
+    actorUserId: string,
+    companyId: string,
+  ) {
     const company = await this.prisma.company.findUnique({
       where: {
-        id: dto.companyId,
+        id: companyId,
       },
     });
 
@@ -157,12 +165,6 @@ export class TaskService {
     }
 
     if (dto.spaceId) {
-      if (!dto.createdById) {
-        throw new BadRequestException(
-          'Indica quién está creando la tarea compartida',
-        );
-      }
-
       const space = await this.prisma.space.findUnique({
         where: {
           id: dto.spaceId,
@@ -173,13 +175,18 @@ export class TaskService {
         throw new NotFoundException('El espacio no existe o está archivado');
       }
 
-      if (space.companyId !== dto.companyId) {
+      if (space.companyId !== companyId) {
         throw new BadRequestException(
           'El espacio no pertenece a la organización indicada',
         );
       }
 
-      await this.requireSpaceMembership(dto.spaceId, dto.createdById);
+      const membership = await this.requireSpaceMembership(
+        dto.spaceId,
+        actorUserId,
+      );
+
+      this.requireEditorRole(membership.role);
     }
 
     if (dto.userId) {
@@ -195,7 +202,7 @@ export class TaskService {
 
       if (dto.spaceId) {
         await this.requireSpaceMembership(dto.spaceId, dto.userId);
-      } else if (user.companyId !== dto.companyId) {
+      } else if (user.companyId !== companyId) {
         throw new BadRequestException(
           'El usuario no pertenece a esta empresa',
         );
@@ -211,27 +218,25 @@ export class TaskService {
         status: dto.userId ? 'assigned' : 'pending',
         dueAt: dto.dueAt ? new Date(dto.dueAt) : undefined,
         estimatedMinutes: dto.estimatedMinutes,
-        companyId: dto.companyId,
+        companyId,
         userId: dto.userId,
         spaceId: dto.spaceId,
-        createdById: dto.createdById,
-        activities: dto.createdById
-          ? {
-              create: {
-                action: 'created',
-                toStatus: dto.userId ? 'assigned' : 'pending',
-                actorUserId: dto.createdById,
-              },
-            }
-          : undefined,
+        createdById: actorUserId,
+        activities: {
+          create: {
+            action: 'created',
+            toStatus: dto.userId ? 'assigned' : 'pending',
+            actorUserId,
+          },
+        },
       },
       include: taskInclude,
     });
   }
 
-  async claim(taskId: string, dto: TaskActorDto) {
+  async claim(taskId: string, actorUserId: string) {
     const task = await this.getTask(taskId);
-    const role = await this.requireActorAccess(task, dto.actorUserId);
+    const role = await this.requireActorAccess(task, actorUserId);
 
     this.requireEditorRole(role);
 
@@ -241,7 +246,7 @@ export class TaskService {
       );
     }
 
-    if (task.claimedById === dto.actorUserId) {
+    if (task.claimedById === actorUserId) {
       return this.prisma.task.findUnique({
         where: {
           id: taskId,
@@ -252,7 +257,7 @@ export class TaskService {
 
     if (
       task.userId &&
-      task.userId !== dto.actorUserId &&
+      task.userId !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
       throw new ForbiddenException(
@@ -270,8 +275,8 @@ export class TaskService {
           },
         },
         data: {
-          userId: dto.actorUserId,
-          claimedById: dto.actorUserId,
+          userId: actorUserId,
+          claimedById: actorUserId,
           status: 'in_progress',
           postponedUntil: null,
           version: {
@@ -289,7 +294,7 @@ export class TaskService {
       await tx.taskActivity.create({
         data: {
           taskId,
-          actorUserId: dto.actorUserId,
+          actorUserId,
           action: 'claimed',
           fromStatus: task.status,
           toStatus: 'in_progress',
@@ -305,31 +310,23 @@ export class TaskService {
     });
   }
 
-  async complete(taskId: string, dto: CompleteTaskDto = {}) {
+  async complete(
+    taskId: string,
+    actorUserId: string,
+    dto: CompleteTaskDto = {},
+  ) {
     const task = await this.getTask(taskId);
-    let role = 'member';
+    const role = await this.requireActorAccess(task, actorUserId);
 
-    if (task.spaceId) {
-      if (!dto.actorUserId) {
-        throw new BadRequestException(
-          'Indica quién completó la tarea compartida',
-        );
-      }
-
-      role = await this.requireActorAccess(task, dto.actorUserId);
-      this.requireEditorRole(role);
-    } else if (dto.actorUserId) {
-      role = await this.requireActorAccess(task, dto.actorUserId);
-    }
+    this.requireEditorRole(role);
 
     if (task.status === 'completed') {
       throw new BadRequestException('La tarea ya fue completada');
     }
 
     if (
-      dto.actorUserId &&
       task.claimedById &&
-      task.claimedById !== dto.actorUserId &&
+      task.claimedById !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
       throw new ForbiddenException(
@@ -338,9 +335,8 @@ export class TaskService {
     }
 
     if (
-      dto.actorUserId &&
       task.userId &&
-      task.userId !== dto.actorUserId &&
+      task.userId !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
       throw new ForbiddenException(
@@ -356,7 +352,7 @@ export class TaskService {
         data: {
           status: 'completed',
           completedAt: new Date(),
-          completedById: dto.actorUserId,
+          completedById: actorUserId,
           version: {
             increment: 1,
           },
@@ -366,7 +362,7 @@ export class TaskService {
       await tx.taskActivity.create({
         data: {
           taskId,
-          actorUserId: dto.actorUserId,
+          actorUserId,
           action: 'completed',
           fromStatus: task.status,
           toStatus: 'completed',
@@ -383,9 +379,13 @@ export class TaskService {
     });
   }
 
-  async postpone(taskId: string, dto: PostponeTaskDto) {
+  async postpone(
+    taskId: string,
+    actorUserId: string,
+    dto: PostponeTaskDto,
+  ) {
     const task = await this.getTask(taskId);
-    const role = await this.requireActorAccess(task, dto.actorUserId);
+    const role = await this.requireActorAccess(task, actorUserId);
 
     this.requireEditorRole(role);
 
@@ -430,7 +430,7 @@ export class TaskService {
       await tx.taskActivity.create({
         data: {
           taskId,
-          actorUserId: dto.actorUserId,
+          actorUserId,
           action: 'postponed',
           fromStatus: task.status,
           toStatus: 'postponed',
@@ -451,9 +451,9 @@ export class TaskService {
     });
   }
 
-  async reopen(taskId: string, dto: TaskActorDto) {
+  async reopen(taskId: string, actorUserId: string) {
     const task = await this.getTask(taskId);
-    const role = await this.requireActorAccess(task, dto.actorUserId);
+    const role = await this.requireActorAccess(task, actorUserId);
 
     this.requireEditorRole(role);
 
@@ -485,7 +485,7 @@ export class TaskService {
       await tx.taskActivity.create({
         data: {
           taskId,
-          actorUserId: dto.actorUserId,
+          actorUserId,
           action: 'reopened',
           fromStatus: task.status,
           toStatus: nextStatus,
@@ -568,11 +568,28 @@ export class TaskService {
           userId,
         },
       },
+      include: {
+        space: {
+          select: {
+            type: true,
+            ownerUserId: true,
+          },
+        },
+      },
     });
 
     if (!membership || membership.status !== 'active') {
       throw new ForbiddenException(
         'La persona no tiene acceso a este espacio de ORION',
+      );
+    }
+
+    if (
+      membership.space.type === 'personal' &&
+      membership.space.ownerUserId !== userId
+    ) {
+      throw new ForbiddenException(
+        'Este espacio personal solamente puede verlo su propietario',
       );
     }
 

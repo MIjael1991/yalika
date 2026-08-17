@@ -1,11 +1,6 @@
-import { IsEmail, IsIn, IsUUID, MaxLength } from 'class-validator';
+import { IsEmail, IsIn, MaxLength } from 'class-validator';
 
 export class AddSpaceMemberDto {
-  @IsUUID('4', {
-    message: 'El identificador de quien invita no es válido',
-  })
-  actorUserId: string;
-
   @IsEmail({}, {
     message: 'El correo de la persona no es válido',
   })

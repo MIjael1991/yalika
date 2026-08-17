@@ -3,7 +3,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
 } from 'class-validator';
 
@@ -30,13 +29,4 @@ export class CreateSpaceDto {
   @MaxLength(100)
   timezone?: string;
 
-  @IsUUID('4', {
-    message: 'El identificador de la empresa no es válido',
-  })
-  companyId: string;
-
-  @IsUUID('4', {
-    message: 'El identificador del propietario no es válido',
-  })
-  ownerUserId: string;
 }

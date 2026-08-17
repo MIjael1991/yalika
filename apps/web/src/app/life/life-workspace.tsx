@@ -7,11 +7,21 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { useRouter } from 'next/navigation';
 
 type UserSummary = {
   id: string;
   name: string;
   email?: string;
+};
+
+type CurrentUser = UserSummary & {
+  email: string;
+  companyId: string;
+  role: {
+    id: string;
+    name: string;
+  } | null;
 };
 
 type SpaceMember = {
@@ -73,6 +83,8 @@ type ApiErrorPayload = {
   message?: string | string[];
   error?: string;
 };
+
+const sessionExpiredEvent = 'orion-session-expired';
 
 const activeStatuses = new Set([
   'pending',
@@ -144,6 +156,10 @@ async function apiRequest<T>(path: string, init?: RequestInit) {
   }
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event(sessionExpiredEvent));
+    }
+
     throw new Error(getErrorMessage(payload as ApiErrorPayload | null));
   }
 
@@ -179,13 +195,9 @@ function tomorrowAtNine() {
   return date.toISOString();
 }
 
-export function LifeWorkspace({
-  companyId,
-  userId,
-}: {
-  companyId: string;
-  userId: string;
-}) {
+export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
+  const router = useRouter();
+  const userId = currentUser.id;
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState('');
   const [tasks, setTasks] = useState<LifeTask[]>([]);
@@ -217,6 +229,7 @@ export function LifeWorkspace({
   const [savingSpace, setSavingSpace] = useState(false);
   const [savingTask, setSavingTask] = useState(false);
   const [savingMember, setSavingMember] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const activeSpace = spaces.find((space) => space.id === selectedSpaceId);
   const currentMembership = activeSpace?.members.find(
@@ -225,8 +238,9 @@ export function LifeWorkspace({
   const canEdit = Boolean(
     currentMembership && currentMembership.role !== 'viewer',
   );
-  const canManageMembers = ['owner', 'admin'].includes(
-    currentMembership?.role ?? '',
+  const canManageMembers = Boolean(
+    activeSpace?.type !== 'personal' &&
+      ['owner', 'admin'].includes(currentMembership?.role ?? ''),
   );
 
   const refreshSpaces = useCallback(async () => {
@@ -236,9 +250,7 @@ export function LifeWorkspace({
     }
 
     try {
-      const nextSpaces = await apiRequest<Space[]>(
-        `space/user/${encodeURIComponent(userId)}`,
-      );
+      const nextSpaces = await apiRequest<Space[]>('space');
       setSpaces(nextSpaces);
       setSelectedSpaceId((current) =>
         current && nextSpaces.some((space) => space.id === current)
@@ -270,7 +282,7 @@ export function LifeWorkspace({
 
       try {
         const nextTasks = await apiRequest<LifeTask[]>(
-          `task/space/${encodeURIComponent(selectedSpaceId)}?actorUserId=${encodeURIComponent(userId)}`,
+          `task/space/${encodeURIComponent(selectedSpaceId)}`,
         );
         setTasks(nextTasks);
         setLastSync(new Date());
@@ -289,6 +301,18 @@ export function LifeWorkspace({
     },
     [selectedSpaceId, userId],
   );
+
+  useEffect(() => {
+    const redirectToLogin = () => {
+      router.replace('/login');
+      router.refresh();
+    };
+
+    window.addEventListener(sessionExpiredEvent, redirectToLogin);
+
+    return () =>
+      window.removeEventListener(sessionExpiredEvent, redirectToLogin);
+  }, [router]);
 
   useEffect(() => {
     const initialLoad = window.setTimeout(() => {
@@ -369,8 +393,6 @@ export function LifeWorkspace({
           type: spaceForm.type,
           timezone:
             Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-          companyId,
-          ownerUserId: userId,
         }),
       });
 
@@ -418,10 +440,8 @@ export function LifeWorkspace({
           estimatedMinutes: taskForm.estimatedMinutes
             ? Number(taskForm.estimatedMinutes)
             : undefined,
-          companyId: activeSpace.companyId,
           userId: taskForm.userId || undefined,
           spaceId: activeSpace.id,
-          createdById: userId,
         }),
       });
 
@@ -464,7 +484,6 @@ export function LifeWorkspace({
         {
           method: 'POST',
           body: JSON.stringify({
-            actorUserId: userId,
             email: memberForm.email.trim(),
             role: memberForm.role,
           }),
@@ -505,7 +524,6 @@ export function LifeWorkspace({
         {
           method: 'POST',
           body: JSON.stringify({
-            actorUserId: userId,
             ...extra,
           }),
         },
@@ -523,21 +541,18 @@ export function LifeWorkspace({
     }
   }
 
-  if (!companyId || !userId) {
-    return (
-      <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
-        <section className="mx-auto max-w-2xl rounded-3xl border border-amber-500/30 bg-amber-500/10 p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">
-            ORION Life
-          </p>
-          <h1 className="mt-3 text-2xl font-bold">Falta conectar tu identidad</h1>
-          <p className="mt-3 text-sm leading-6 text-amber-100/80">
-            Configura ORION_COMPANY_ID y ORION_AUTHORIZED_USER_ID en
-            .env.local para separar correctamente tus espacios y tareas.
-          </p>
-        </section>
-      </main>
-    );
+  async function logout() {
+    setLoggingOut(true);
+
+    try {
+      await apiRequest<null>('auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({}),
+      });
+    } finally {
+      router.replace('/login');
+      router.refresh();
+    }
   }
 
   return (
@@ -555,6 +570,14 @@ export function LifeWorkspace({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <div className="mr-1 text-right">
+              <p className="text-xs font-semibold text-slate-200">
+                {currentUser.name}
+              </p>
+              <p className="text-[11px] text-slate-500">
+                {currentUser.email}
+              </p>
+            </div>
             <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-300">
               ● Sincronización cada 5 segundos
             </span>
@@ -564,6 +587,14 @@ export function LifeWorkspace({
               className="rounded-xl border border-violet-400/40 bg-violet-400/10 px-4 py-2 text-sm font-semibold text-violet-200 hover:bg-violet-400/20"
             >
               + Nuevo espacio
+            </button>
+            <button
+              type="button"
+              disabled={loggingOut}
+              onClick={() => void logout()}
+              className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 hover:bg-slate-900 disabled:opacity-50"
+            >
+              {loggingOut ? 'Cerrando…' : 'Salir'}
             </button>
           </div>
         </div>
@@ -1067,7 +1098,9 @@ export function LifeWorkspace({
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-300">
-                          Compartido
+                          {activeSpace.type === 'personal'
+                            ? 'Privado'
+                            : 'Compartido'}
                         </p>
                         <h2 className="mt-1 font-semibold">{activeSpace.name}</h2>
                       </div>

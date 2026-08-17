@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { AuthModule } from './auth/auth.module';
 import { CustomerModule } from './core/customer/customer.module';
 import { EventsModule } from './core/events/events.module';
 import { ExperienceModule } from './core/experience/experience.module';
@@ -37,6 +38,7 @@ import { SpaceModule } from './core/space/space.module';
     }),
 
     PrismaModule,
+    AuthModule,
     HealthModule,
 
     CompanyModule,

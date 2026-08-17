@@ -7,6 +7,7 @@ type RouteParameters = {
 };
 
 const allowedRoots = new Set([
+  'auth',
   'catalog',
   'discount',
   'health',
@@ -55,6 +56,19 @@ async function forward(request: NextRequest, context: RouteParameters) {
     headers.set('content-type', contentType);
   }
 
+  for (const name of [
+    'authorization',
+    'cookie',
+    'user-agent',
+    'x-forwarded-for',
+  ]) {
+    const value = request.headers.get(name);
+
+    if (value) {
+      headers.set(name, value);
+    }
+  }
+
   const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
 
   try {
@@ -69,6 +83,12 @@ async function forward(request: NextRequest, context: RouteParameters) {
 
     if (apiContentType) {
       responseHeaders.set('content-type', apiContentType);
+    }
+
+    const setCookie = apiResponse.headers.get('set-cookie');
+
+    if (setCookie) {
+      responseHeaders.set('set-cookie', setCookie);
     }
 
     return new Response(await apiResponse.arrayBuffer(), {
