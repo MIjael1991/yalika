@@ -33,6 +33,13 @@ ORION_AUTHORIZED_USER_ID=your-active-user-uuid
 The company identifies the catalog and the active user records who authorized
 each discount.
 
+ORION Life is available at `/life`. Its first pilot adds personal, family,
+business and school spaces on top of the shared core task engine. Tasks can be
+assigned, claimed, completed, reopened and postponed with an auditable activity
+history. The browser refreshes shared work every five seconds while the screen
+is open; device alarms and production real-time delivery require the future
+notification and authentication layers.
+
 The checkout supports auditable discounts, cash change, printable receipts and
 equal account splitting with one recoverable payment status per part. Returns
 are available at `/pos/devoluciones`, including remaining-quantity control,

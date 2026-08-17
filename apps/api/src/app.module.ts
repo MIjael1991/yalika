@@ -28,6 +28,7 @@ import { ReturnModule } from './core/return/return.module';
 import { DiningTableModule } from './core/dining-table/dining-table.module';
 import { OrderSplitModule } from './core/order-split/order-split.module';
 import { OrderDiscountModule } from './core/order-discount/order-discount.module';
+import { SpaceModule } from './core/space/space.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { OrderDiscountModule } from './core/order-discount/order-discount.module
     CompanyModule,
     RoleModule,
 
+    SpaceModule,
     TaskModule,
     OperationsModule,
     CustomerModule,

@@ -497,14 +497,6 @@ export type KnowledgeAlternativeTemplateUncheckedUpdateManyWithoutKnowledgeTempl
   deleteMany?: Prisma.KnowledgeAlternativeTemplateScalarWhereInput | Prisma.KnowledgeAlternativeTemplateScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type KnowledgeAlternativeTemplateCreateWithoutKnowledgeTemplateInput = {
   id?: string
   title: string

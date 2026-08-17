@@ -42,6 +42,7 @@ model Company {
   orderDiscounts    OrderDiscount[]
   returns           Return[]
   refunds           Refund[]
+  spaces            Space[]
 
   @@map("companies")
 }
@@ -60,7 +61,13 @@ model User {
   roleId String?
   role   Role?   @relation(fields: [roleId], references: [id])
 
-  tasks               Task[]
+  tasks               Task[]          @relation("TaskAssignee")
+  ownedSpaces         Space[]         @relation("SpaceOwner")
+  spaceMemberships    SpaceMember[]
+  createdTasks        Task[]          @relation("TaskCreator")
+  claimedTasks        Task[]          @relation("TaskClaimer")
+  completedTasks      Task[]          @relation("TaskCompleter")
+  taskActivities      TaskActivity[]  @relation("TaskActivityActor")
   authorizedReturns   Return[]        @relation("ReturnAuthorizedBy")
   processedRefunds    Refund[]        @relation("RefundProcessedBy")
   authorizedDiscounts OrderDiscount[] @relation("DiscountAuthorizedBy")
@@ -86,6 +93,49 @@ model Role {
   @@map("roles")
 }
 
+model Space {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  type        String   @default("personal")
+  timezone    String   @default("UTC")
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  ownerUserId String
+  owner       User   @relation("SpaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+
+  members SpaceMember[]
+  tasks   Task[]
+
+  @@index([companyId, type, status])
+  @@index([ownerUserId, status])
+  @@map("spaces")
+}
+
+model SpaceMember {
+  id       String   @id @default(uuid())
+  role     String   @default("member")
+  status   String   @default("active")
+  joinedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  spaceId String
+  space   Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([spaceId, userId])
+  @@index([userId, status])
+  @@index([spaceId, role, status])
+  @@map("space_members")
+}
+
 model Task {
   id          String    @id @default(uuid())
   title       String
@@ -94,6 +144,10 @@ model Task {
   priority    String    @default("normal")
   status      String    @default("pending")
   dueAt       DateTime?
+  estimatedMinutes Int?
+  postponedUntil DateTime?
+  completedAt DateTime?
+  version     Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -101,9 +155,46 @@ model Task {
   company   Company @relation(fields: [companyId], references: [id])
 
   userId String?
-  user   User?   @relation(fields: [userId], references: [id])
+  user   User?   @relation("TaskAssignee", fields: [userId], references: [id], onDelete: SetNull)
 
+  spaceId String?
+  space   Space?  @relation(fields: [spaceId], references: [id], onDelete: SetNull)
+
+  createdById String?
+  createdBy   User?   @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  claimedById String?
+  claimedBy   User?   @relation("TaskClaimer", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  completedById String?
+  completedBy   User?   @relation("TaskCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+
+  activities TaskActivity[]
+
+  @@index([companyId, status, dueAt])
+  @@index([spaceId, status, dueAt])
+  @@index([userId, status])
   @@map("tasks")
+}
+
+model TaskActivity {
+  id         String   @id @default(uuid())
+  action     String
+  fromStatus String?
+  toStatus   String?
+  note       String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  actorUserId String?
+  actor       User?   @relation("TaskActivityActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("task_activities")
 }
 
 model Incident {

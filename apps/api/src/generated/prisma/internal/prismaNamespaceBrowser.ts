@@ -54,7 +54,10 @@ export const ModelName = {
   Company: 'Company',
   User: 'User',
   Role: 'Role',
+  Space: 'Space',
+  SpaceMember: 'SpaceMember',
   Task: 'Task',
+  TaskActivity: 'TaskActivity',
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
   KnowledgeTemplate: 'KnowledgeTemplate',
@@ -149,6 +152,35 @@ export const RoleScalarFieldEnum = {
 export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
+export const SpaceScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  timezone: 'timezone',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  ownerUserId: 'ownerUserId'
+} as const
+
+export type SpaceScalarFieldEnum = (typeof SpaceScalarFieldEnum)[keyof typeof SpaceScalarFieldEnum]
+
+
+export const SpaceMemberScalarFieldEnum = {
+  id: 'id',
+  role: 'role',
+  status: 'status',
+  joinedAt: 'joinedAt',
+  updatedAt: 'updatedAt',
+  spaceId: 'spaceId',
+  userId: 'userId'
+} as const
+
+export type SpaceMemberScalarFieldEnum = (typeof SpaceMemberScalarFieldEnum)[keyof typeof SpaceMemberScalarFieldEnum]
+
+
 export const TaskScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -157,13 +189,36 @@ export const TaskScalarFieldEnum = {
   priority: 'priority',
   status: 'status',
   dueAt: 'dueAt',
+  estimatedMinutes: 'estimatedMinutes',
+  postponedUntil: 'postponedUntil',
+  completedAt: 'completedAt',
+  version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   companyId: 'companyId',
-  userId: 'userId'
+  userId: 'userId',
+  spaceId: 'spaceId',
+  createdById: 'createdById',
+  claimedById: 'claimedById',
+  completedById: 'completedById'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const TaskActivityScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  taskId: 'taskId',
+  actorUserId: 'actorUserId'
+} as const
+
+export type TaskActivityScalarFieldEnum = (typeof TaskActivityScalarFieldEnum)[keyof typeof TaskActivityScalarFieldEnum]
 
 
 export const IncidentScalarFieldEnum = {

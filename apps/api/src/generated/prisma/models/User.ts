@@ -209,6 +209,12 @@ export type UserWhereInput = {
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   role?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   tasks?: Prisma.TaskListRelationFilter
+  ownedSpaces?: Prisma.SpaceListRelationFilter
+  spaceMemberships?: Prisma.SpaceMemberListRelationFilter
+  createdTasks?: Prisma.TaskListRelationFilter
+  claimedTasks?: Prisma.TaskListRelationFilter
+  completedTasks?: Prisma.TaskListRelationFilter
+  taskActivities?: Prisma.TaskActivityListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
   authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
@@ -227,6 +233,12 @@ export type UserOrderByWithRelationInput = {
   company?: Prisma.CompanyOrderByWithRelationInput
   role?: Prisma.RoleOrderByWithRelationInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
+  ownedSpaces?: Prisma.SpaceOrderByRelationAggregateInput
+  spaceMemberships?: Prisma.SpaceMemberOrderByRelationAggregateInput
+  createdTasks?: Prisma.TaskOrderByRelationAggregateInput
+  claimedTasks?: Prisma.TaskOrderByRelationAggregateInput
+  completedTasks?: Prisma.TaskOrderByRelationAggregateInput
+  taskActivities?: Prisma.TaskActivityOrderByRelationAggregateInput
   authorizedReturns?: Prisma.ReturnOrderByRelationAggregateInput
   processedRefunds?: Prisma.RefundOrderByRelationAggregateInput
   authorizedDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
@@ -248,6 +260,12 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   role?: Prisma.XOR<Prisma.RoleNullableScalarRelationFilter, Prisma.RoleWhereInput> | null
   tasks?: Prisma.TaskListRelationFilter
+  ownedSpaces?: Prisma.SpaceListRelationFilter
+  spaceMemberships?: Prisma.SpaceMemberListRelationFilter
+  createdTasks?: Prisma.TaskListRelationFilter
+  claimedTasks?: Prisma.TaskListRelationFilter
+  completedTasks?: Prisma.TaskListRelationFilter
+  taskActivities?: Prisma.TaskActivityListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
   authorizedDiscounts?: Prisma.OrderDiscountListRelationFilter
@@ -292,6 +310,12 @@ export type UserCreateInput = {
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -308,6 +332,12 @@ export type UserUncheckedCreateInput = {
   companyId: string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -324,6 +354,12 @@ export type UserUpdateInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -340,6 +376,12 @@ export type UserUncheckedUpdateInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -420,14 +462,14 @@ export type UserMinOrderByAggregateInput = {
   roleId?: Prisma.SortOrder
 }
 
-export type UserNullableScalarRelationFilter = {
-  is?: Prisma.UserWhereInput | null
-  isNot?: Prisma.UserWhereInput | null
-}
-
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
+}
+
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
 }
 
 export type UserCreateNestedManyWithoutCompanyInput = {
@@ -518,9 +560,55 @@ export type UserUncheckedUpdateManyWithoutRoleNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserCreateNestedOneWithoutOwnedSpacesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedSpacesInput, Prisma.UserUncheckedCreateWithoutOwnedSpacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedSpacesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutOwnedSpacesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedSpacesInput, Prisma.UserUncheckedCreateWithoutOwnedSpacesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedSpacesInput
+  upsert?: Prisma.UserUpsertWithoutOwnedSpacesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutOwnedSpacesInput, Prisma.UserUpdateWithoutOwnedSpacesInput>, Prisma.UserUncheckedUpdateWithoutOwnedSpacesInput>
+}
+
+export type UserCreateNestedOneWithoutSpaceMembershipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSpaceMembershipsInput, Prisma.UserUncheckedCreateWithoutSpaceMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSpaceMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSpaceMembershipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSpaceMembershipsInput, Prisma.UserUncheckedCreateWithoutSpaceMembershipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSpaceMembershipsInput
+  upsert?: Prisma.UserUpsertWithoutSpaceMembershipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSpaceMembershipsInput, Prisma.UserUpdateWithoutSpaceMembershipsInput>, Prisma.UserUncheckedUpdateWithoutSpaceMembershipsInput>
+}
+
 export type UserCreateNestedOneWithoutTasksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTasksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCreatedTasksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedTasksInput, Prisma.UserUncheckedCreateWithoutCreatedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedTasksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutClaimedTasksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutClaimedTasksInput, Prisma.UserUncheckedCreateWithoutClaimedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutClaimedTasksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutCompletedTasksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCompletedTasksInput, Prisma.UserUncheckedCreateWithoutCompletedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCompletedTasksInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
@@ -532,6 +620,52 @@ export type UserUpdateOneWithoutTasksNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTasksInput, Prisma.UserUpdateWithoutTasksInput>, Prisma.UserUncheckedUpdateWithoutTasksInput>
+}
+
+export type UserUpdateOneWithoutCreatedTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedTasksInput, Prisma.UserUncheckedCreateWithoutCreatedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedTasksInput
+  upsert?: Prisma.UserUpsertWithoutCreatedTasksInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedTasksInput, Prisma.UserUpdateWithoutCreatedTasksInput>, Prisma.UserUncheckedUpdateWithoutCreatedTasksInput>
+}
+
+export type UserUpdateOneWithoutClaimedTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutClaimedTasksInput, Prisma.UserUncheckedCreateWithoutClaimedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutClaimedTasksInput
+  upsert?: Prisma.UserUpsertWithoutClaimedTasksInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutClaimedTasksInput, Prisma.UserUpdateWithoutClaimedTasksInput>, Prisma.UserUncheckedUpdateWithoutClaimedTasksInput>
+}
+
+export type UserUpdateOneWithoutCompletedTasksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCompletedTasksInput, Prisma.UserUncheckedCreateWithoutCompletedTasksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCompletedTasksInput
+  upsert?: Prisma.UserUpsertWithoutCompletedTasksInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCompletedTasksInput, Prisma.UserUpdateWithoutCompletedTasksInput>, Prisma.UserUncheckedUpdateWithoutCompletedTasksInput>
+}
+
+export type UserCreateNestedOneWithoutTaskActivitiesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskActivitiesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutTaskActivitiesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskActivitiesInput
+  upsert?: Prisma.UserUpsertWithoutTaskActivitiesInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTaskActivitiesInput, Prisma.UserUpdateWithoutTaskActivitiesInput>, Prisma.UserUncheckedUpdateWithoutTaskActivitiesInput>
 }
 
 export type UserCreateNestedOneWithoutAuthorizedDiscountsInput = {
@@ -601,6 +735,12 @@ export type UserCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -616,6 +756,12 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   updatedAt?: Date | string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -671,6 +817,12 @@ export type UserCreateWithoutRoleInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -686,6 +838,12 @@ export type UserUncheckedCreateWithoutRoleInput = {
   updatedAt?: Date | string
   companyId: string
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -718,6 +876,206 @@ export type UserUpdateManyWithWhereWithoutRoleInput = {
   data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutRoleInput>
 }
 
+export type UserCreateWithoutOwnedSpacesInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutOwnedSpacesInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutOwnedSpacesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedSpacesInput, Prisma.UserUncheckedCreateWithoutOwnedSpacesInput>
+}
+
+export type UserUpsertWithoutOwnedSpacesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutOwnedSpacesInput, Prisma.UserUncheckedUpdateWithoutOwnedSpacesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutOwnedSpacesInput, Prisma.UserUncheckedCreateWithoutOwnedSpacesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutOwnedSpacesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutOwnedSpacesInput, Prisma.UserUncheckedUpdateWithoutOwnedSpacesInput>
+}
+
+export type UserUpdateWithoutOwnedSpacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutOwnedSpacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserCreateWithoutSpaceMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutSpaceMembershipsInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutSpaceMembershipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSpaceMembershipsInput, Prisma.UserUncheckedCreateWithoutSpaceMembershipsInput>
+}
+
+export type UserUpsertWithoutSpaceMembershipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSpaceMembershipsInput, Prisma.UserUncheckedUpdateWithoutSpaceMembershipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSpaceMembershipsInput, Prisma.UserUncheckedCreateWithoutSpaceMembershipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSpaceMembershipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSpaceMembershipsInput, Prisma.UserUncheckedUpdateWithoutSpaceMembershipsInput>
+}
+
+export type UserUpdateWithoutSpaceMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSpaceMembershipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
 export type UserCreateWithoutTasksInput = {
   id?: string
   name: string
@@ -727,6 +1085,12 @@ export type UserCreateWithoutTasksInput = {
   updatedAt?: Date | string
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -742,6 +1106,12 @@ export type UserUncheckedCreateWithoutTasksInput = {
   updatedAt?: Date | string
   companyId: string
   roleId?: string | null
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -751,6 +1121,147 @@ export type UserUncheckedCreateWithoutTasksInput = {
 export type UserCreateOrConnectWithoutTasksInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutTasksInput, Prisma.UserUncheckedCreateWithoutTasksInput>
+}
+
+export type UserCreateWithoutCreatedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutCreatedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutCreatedTasksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedTasksInput, Prisma.UserUncheckedCreateWithoutCreatedTasksInput>
+}
+
+export type UserCreateWithoutClaimedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutClaimedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutClaimedTasksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutClaimedTasksInput, Prisma.UserUncheckedCreateWithoutClaimedTasksInput>
+}
+
+export type UserCreateWithoutCompletedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutCompletedTasksInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutCompletedTasksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCompletedTasksInput, Prisma.UserUncheckedCreateWithoutCompletedTasksInput>
 }
 
 export type UserUpsertWithoutTasksInput = {
@@ -773,6 +1284,12 @@ export type UserUpdateWithoutTasksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -788,6 +1305,271 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUpsertWithoutCreatedTasksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedTasksInput, Prisma.UserUncheckedUpdateWithoutCreatedTasksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedTasksInput, Prisma.UserUncheckedCreateWithoutCreatedTasksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedTasksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedTasksInput, Prisma.UserUncheckedUpdateWithoutCreatedTasksInput>
+}
+
+export type UserUpdateWithoutCreatedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUpsertWithoutClaimedTasksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutClaimedTasksInput, Prisma.UserUncheckedUpdateWithoutClaimedTasksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutClaimedTasksInput, Prisma.UserUncheckedCreateWithoutClaimedTasksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutClaimedTasksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutClaimedTasksInput, Prisma.UserUncheckedUpdateWithoutClaimedTasksInput>
+}
+
+export type UserUpdateWithoutClaimedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutClaimedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUpsertWithoutCompletedTasksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCompletedTasksInput, Prisma.UserUncheckedUpdateWithoutCompletedTasksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCompletedTasksInput, Prisma.UserUncheckedCreateWithoutCompletedTasksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCompletedTasksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCompletedTasksInput, Prisma.UserUncheckedUpdateWithoutCompletedTasksInput>
+}
+
+export type UserUpdateWithoutCompletedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCompletedTasksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserCreateWithoutTaskActivitiesInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutTaskActivitiesInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutTaskActivitiesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
+}
+
+export type UserUpsertWithoutTaskActivitiesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTaskActivitiesInput, Prisma.UserUncheckedUpdateWithoutTaskActivitiesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTaskActivitiesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTaskActivitiesInput, Prisma.UserUncheckedUpdateWithoutTaskActivitiesInput>
+}
+
+export type UserUpdateWithoutTaskActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -804,6 +1586,12 @@ export type UserCreateWithoutAuthorizedDiscountsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -819,6 +1607,12 @@ export type UserUncheckedCreateWithoutAuthorizedDiscountsInput = {
   companyId: string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -839,6 +1633,12 @@ export type UserCreateWithoutVoidedDiscountsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -854,6 +1654,12 @@ export type UserUncheckedCreateWithoutVoidedDiscountsInput = {
   companyId: string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -885,6 +1691,12 @@ export type UserUpdateWithoutAuthorizedDiscountsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -900,6 +1712,12 @@ export type UserUncheckedUpdateWithoutAuthorizedDiscountsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -926,6 +1744,12 @@ export type UserUpdateWithoutVoidedDiscountsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -941,6 +1765,12 @@ export type UserUncheckedUpdateWithoutVoidedDiscountsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -956,6 +1786,12 @@ export type UserCreateWithoutAuthorizedReturnsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -971,6 +1807,12 @@ export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
   companyId: string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -1002,6 +1844,12 @@ export type UserUpdateWithoutAuthorizedReturnsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -1017,6 +1865,12 @@ export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -1032,6 +1886,12 @@ export type UserCreateWithoutProcessedRefundsInput = {
   company: Prisma.CompanyCreateNestedOneWithoutUsersInput
   role?: Prisma.RoleCreateNestedOneWithoutUsersInput
   tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
@@ -1047,6 +1907,12 @@ export type UserUncheckedCreateWithoutProcessedRefundsInput = {
   companyId: string
   roleId?: string | null
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
@@ -1078,6 +1944,12 @@ export type UserUpdateWithoutProcessedRefundsInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
@@ -1093,6 +1965,12 @@ export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
   voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
@@ -1117,6 +1995,12 @@ export type UserUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1132,6 +2016,12 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1167,6 +2057,12 @@ export type UserUpdateWithoutRoleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1182,6 +2078,12 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1205,6 +2107,12 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
 
 export type UserCountOutputType = {
   tasks: number
+  ownedSpaces: number
+  spaceMemberships: number
+  createdTasks: number
+  claimedTasks: number
+  completedTasks: number
+  taskActivities: number
   authorizedReturns: number
   processedRefunds: number
   authorizedDiscounts: number
@@ -1213,6 +2121,12 @@ export type UserCountOutputType = {
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | UserCountOutputTypeCountTasksArgs
+  ownedSpaces?: boolean | UserCountOutputTypeCountOwnedSpacesArgs
+  spaceMemberships?: boolean | UserCountOutputTypeCountSpaceMembershipsArgs
+  createdTasks?: boolean | UserCountOutputTypeCountCreatedTasksArgs
+  claimedTasks?: boolean | UserCountOutputTypeCountClaimedTasksArgs
+  completedTasks?: boolean | UserCountOutputTypeCountCompletedTasksArgs
+  taskActivities?: boolean | UserCountOutputTypeCountTaskActivitiesArgs
   authorizedReturns?: boolean | UserCountOutputTypeCountAuthorizedReturnsArgs
   processedRefunds?: boolean | UserCountOutputTypeCountProcessedRefundsArgs
   authorizedDiscounts?: boolean | UserCountOutputTypeCountAuthorizedDiscountsArgs
@@ -1234,6 +2148,48 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountOwnedSpacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SpaceWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSpaceMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SpaceMemberWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountClaimedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCompletedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTaskActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskActivityWhereInput
 }
 
 /**
@@ -1277,6 +2233,12 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
+  ownedSpaces?: boolean | Prisma.User$ownedSpacesArgs<ExtArgs>
+  spaceMemberships?: boolean | Prisma.User$spaceMembershipsArgs<ExtArgs>
+  createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
+  claimedTasks?: boolean | Prisma.User$claimedTasksArgs<ExtArgs>
+  completedTasks?: boolean | Prisma.User$completedTasksArgs<ExtArgs>
+  taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
   authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
@@ -1326,6 +2288,12 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   role?: boolean | Prisma.User$roleArgs<ExtArgs>
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
+  ownedSpaces?: boolean | Prisma.User$ownedSpacesArgs<ExtArgs>
+  spaceMemberships?: boolean | Prisma.User$spaceMembershipsArgs<ExtArgs>
+  createdTasks?: boolean | Prisma.User$createdTasksArgs<ExtArgs>
+  claimedTasks?: boolean | Prisma.User$claimedTasksArgs<ExtArgs>
+  completedTasks?: boolean | Prisma.User$completedTasksArgs<ExtArgs>
+  taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
   authorizedDiscounts?: boolean | Prisma.User$authorizedDiscountsArgs<ExtArgs>
@@ -1347,6 +2315,12 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     company: Prisma.$CompanyPayload<ExtArgs>
     role: Prisma.$RolePayload<ExtArgs> | null
     tasks: Prisma.$TaskPayload<ExtArgs>[]
+    ownedSpaces: Prisma.$SpacePayload<ExtArgs>[]
+    spaceMemberships: Prisma.$SpaceMemberPayload<ExtArgs>[]
+    createdTasks: Prisma.$TaskPayload<ExtArgs>[]
+    claimedTasks: Prisma.$TaskPayload<ExtArgs>[]
+    completedTasks: Prisma.$TaskPayload<ExtArgs>[]
+    taskActivities: Prisma.$TaskActivityPayload<ExtArgs>[]
     authorizedReturns: Prisma.$ReturnPayload<ExtArgs>[]
     processedRefunds: Prisma.$RefundPayload<ExtArgs>[]
     authorizedDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
@@ -1758,6 +2732,12 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   company<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   role<T extends Prisma.User$roleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roleArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   tasks<T extends Prisma.User$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedSpaces<T extends Prisma.User$ownedSpacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ownedSpacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  spaceMemberships<T extends Prisma.User$spaceMembershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$spaceMembershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdTasks<T extends Prisma.User$createdTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  claimedTasks<T extends Prisma.User$claimedTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$claimedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  completedTasks<T extends Prisma.User$completedTasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$completedTasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  taskActivities<T extends Prisma.User$taskActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedReturns<T extends Prisma.User$authorizedReturnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   processedRefunds<T extends Prisma.User$processedRefundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$processedRefundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedDiscounts<T extends Prisma.User$authorizedDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2240,6 +3220,150 @@ export type User$tasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
   take?: number
   skip?: number
   distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * User.ownedSpaces
+ */
+export type User$ownedSpacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Space
+   */
+  select?: Prisma.SpaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Space
+   */
+  omit?: Prisma.SpaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SpaceInclude<ExtArgs> | null
+  where?: Prisma.SpaceWhereInput
+  orderBy?: Prisma.SpaceOrderByWithRelationInput | Prisma.SpaceOrderByWithRelationInput[]
+  cursor?: Prisma.SpaceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SpaceScalarFieldEnum | Prisma.SpaceScalarFieldEnum[]
+}
+
+/**
+ * User.spaceMemberships
+ */
+export type User$spaceMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SpaceMember
+   */
+  select?: Prisma.SpaceMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SpaceMember
+   */
+  omit?: Prisma.SpaceMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SpaceMemberInclude<ExtArgs> | null
+  where?: Prisma.SpaceMemberWhereInput
+  orderBy?: Prisma.SpaceMemberOrderByWithRelationInput | Prisma.SpaceMemberOrderByWithRelationInput[]
+  cursor?: Prisma.SpaceMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SpaceMemberScalarFieldEnum | Prisma.SpaceMemberScalarFieldEnum[]
+}
+
+/**
+ * User.createdTasks
+ */
+export type User$createdTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Task
+   */
+  select?: Prisma.TaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Task
+   */
+  omit?: Prisma.TaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskInclude<ExtArgs> | null
+  where?: Prisma.TaskWhereInput
+  orderBy?: Prisma.TaskOrderByWithRelationInput | Prisma.TaskOrderByWithRelationInput[]
+  cursor?: Prisma.TaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * User.claimedTasks
+ */
+export type User$claimedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Task
+   */
+  select?: Prisma.TaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Task
+   */
+  omit?: Prisma.TaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskInclude<ExtArgs> | null
+  where?: Prisma.TaskWhereInput
+  orderBy?: Prisma.TaskOrderByWithRelationInput | Prisma.TaskOrderByWithRelationInput[]
+  cursor?: Prisma.TaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * User.completedTasks
+ */
+export type User$completedTasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Task
+   */
+  select?: Prisma.TaskSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Task
+   */
+  omit?: Prisma.TaskOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskInclude<ExtArgs> | null
+  where?: Prisma.TaskWhereInput
+  orderBy?: Prisma.TaskOrderByWithRelationInput | Prisma.TaskOrderByWithRelationInput[]
+  cursor?: Prisma.TaskWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * User.taskActivities
+ */
+export type User$taskActivitiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaskActivity
+   */
+  select?: Prisma.TaskActivitySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaskActivity
+   */
+  omit?: Prisma.TaskActivityOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskActivityInclude<ExtArgs> | null
+  where?: Prisma.TaskActivityWhereInput
+  orderBy?: Prisma.TaskActivityOrderByWithRelationInput | Prisma.TaskActivityOrderByWithRelationInput[]
+  cursor?: Prisma.TaskActivityWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskActivityScalarFieldEnum | Prisma.TaskActivityScalarFieldEnum[]
 }
 
 /**

@@ -5,6 +5,16 @@ import { usePathname } from 'next/navigation';
 
 const menu = [
   {
+    label: 'ORION Life',
+    items: [
+      {
+        name: 'Mi día',
+        href: '/life',
+        badge: 'LIFE',
+      },
+    ],
+  },
+  {
     label: 'Ventas',
     items: [
       {
@@ -79,8 +89,8 @@ export function OrionSidebar() {
           <Link href="/pos" className="rounded-lg bg-cyan-400 px-3 py-2 font-semibold text-slate-950">
             Venta
           </Link>
-          <Link href="/pos/devoluciones" className="rounded-lg px-3 py-2 text-slate-300">
-            Devoluciones
+          <Link href="/life" className="rounded-lg px-3 py-2 text-slate-300">
+            Mi día
           </Link>
         </nav>
       </header>

@@ -1,0 +1,218 @@
+# ORION: visión de producto y continuidad
+
+Actualizado: 17 de agosto de 2026.
+
+Este documento conserva decisiones de producto que deben sobrevivir a cambios de
+chat, desarrolladores y etapas. No obliga a construir todo inmediatamente. Sirve
+para decidir qué pertenece al núcleo, qué corresponde a un módulo y qué debe
+esperar hasta que exista una base segura.
+
+## Forma de trabajo
+
+ORION es un proyecto de largo plazo. Durante su desarrollo se debe:
+
+- explicar qué se construye, por qué y qué posibilidad abre;
+- recomendar mejoras relevantes aunque no hayan sido solicitadas literalmente;
+- detectar riesgos de arquitectura, seguridad, privacidad y experiencia;
+- distinguir entre un piloto usable y una solución lista para producción;
+- reutilizar motores universales en lugar de duplicarlos por sector;
+- priorizar funciones que ahorren tiempo y reduzcan errores;
+- conservar un backlog claro para no programar todas las ideas a la vez;
+- mantener control humano sobre acciones sensibles de la inteligencia artificial.
+
+## Principio central
+
+ORION no será un sistema diferente para cada giro. Tendrá un núcleo universal:
+
+- identidad, personas, usuarios, roles y permisos;
+- organizaciones, espacios y ubicaciones;
+- tareas, agenda, flujos y reglas;
+- formularios, documentos y evidencias;
+- inventario, activos, transacciones y pagos;
+- notificaciones, auditoría, offline y sincronización;
+- inteligencia, conocimiento, experiencia y analítica.
+
+Los paquetes Business, Retail, Restaurant, Education, Services, Government,
+Agriculture, Transport, Hospitality y otros activarán solamente lo necesario.
+
+## ORION Life
+
+ORION Life será la puerta personal al ecosistema. No será una agenda separada:
+usará el motor universal de espacios, tareas, documentos, notificaciones y
+permisos. Una persona podrá participar en varios contextos sin que sus datos se
+mezclen indebidamente.
+
+Espacios previstos:
+
+- personal;
+- familia o pareja;
+- escuela;
+- negocio;
+- vehículos y otros activos;
+- organizaciones en las que la persona colabora.
+
+La pantalla principal será **Mi día** y combinará solamente la información que
+el usuario autorizó. Un profesor podría ver sus clases, una conversación pendiente
+con un padre, su hora de comida, una compra para su negocio, el servicio de su
+automóvil y una visita familiar. Empleados y organizaciones no podrán consultar
+los detalles de su agenda privada.
+
+## Agenda y reorganización inteligente
+
+Las actividades se clasificarán como:
+
+1. compromisos fijos;
+2. necesidades esenciales como comida, descanso y traslado;
+3. compromisos con otras personas;
+4. actividades laborales o comerciales;
+5. compras y tareas flexibles;
+6. tareas que pueden pasar a otro día.
+
+ORION deberá considerar duración, tráfico, ubicación, horario de establecimientos,
+dependencias y tiempo de traslado. Cuando el usuario posponga una actividad 15,
+30 o 60 minutos, ORION preparará un nuevo orden y solicitará confirmación antes de
+mover compromisos importantes.
+
+Las alarmas futuras tendrán acciones como:
+
+- ya lo hice;
+- comenzar ahora;
+- posponer;
+- mover a mañana;
+- reorganizar mi día.
+
+Para sonar con la aplicación cerrada serán necesarias notificaciones del dispositivo
+y un servicio de recordatorios. Las tareas esenciales deberán conservarse localmente
+cuando no exista Internet.
+
+## Tareas compartidas
+
+Parejas, familias y equipos podrán trabajar sobre la misma lista. Una persona puede
+marcar **Me encargo** y los demás verán el cambio para evitar pagos o compras
+duplicadas. Cada tarea conservará:
+
+- creador;
+- responsable o persona que la tomó;
+- persona que la terminó;
+- fecha, estado y duración estimada;
+- cambios y evidencias;
+- permisos del espacio.
+
+El primer piloto sincroniza periódicamente mientras está abierto. La versión de
+producción debe usar autenticación real y eventos en tiempo real.
+
+## Pagos, recibos y memoria predictiva
+
+El usuario podrá fotografiar un recibo. ORION propondrá, sujeto a confirmación:
+
+- empresa o servicio;
+- número de suscriptor o contrato;
+- referencia, código de barras o QR;
+- importe, periodo y fecha límite;
+- siguiente fecha aproximada.
+
+Después del pago se podrá guardar el comprobante y generar el siguiente recordatorio.
+Una fecha inferida siempre se mostrará como estimación. ORION no realizará pagos ni
+guardará datos bancarios sensibles sin una solución específica y autorización.
+
+## Compras de ORION a ORION
+
+ORION Business podrá transformar faltantes de inventario en una orden de compra y
+asignarla al ORION del trabajador sin transcribir productos. Debe incluir cantidades,
+presentación, proveedor, presupuesto, fecha límite, sustituciones y factura.
+
+El trabajador podrá informar aceptada, en camino, comprando, parcial, terminada o
+no disponible. El ticket se comparará con lo solicitado y la entrada a inventario
+siempre requerirá revisión antes de aplicarse.
+
+## Educación y comunicación
+
+Un profesor podrá registrar observaciones semanales y preparar juntas. Se distinguirá:
+
+- nota privada;
+- seguimiento pendiente;
+- aviso visible para tutores;
+- solicitud de reunión;
+- acuerdo y próxima acción.
+
+Los tutores solamente verán información de sus hijos. La inteligencia organizará y
+resumirá, pero no diagnosticará, etiquetará ni tomará decisiones disciplinarias.
+
+ORION podrá comunicar internamente primero y después, con consentimiento, mediante
+notificaciones del dispositivo, correo, WhatsApp o SMS. No enviará mensajes en nombre
+del usuario sin autorización explícita.
+
+## Activos y mantenimiento
+
+Además de inventario consumible, ORION deberá representar vehículos, computadoras,
+herramientas, maquinaria, mobiliario y equipos. Conservará compra, ubicación,
+responsable, garantía, fallas, mantenimientos, vida útil y documentos relacionados.
+
+Ejemplos personales incluyen servicio del automóvil, antigüedad de llantas y
+renovación de pólizas. Las recomendaciones se basarán en datos registrados y se
+identificarán como aproximadas cuando corresponda.
+
+## Inteligencia ORION
+
+La inteligencia será avanzada para analizar y prudente para actuar:
+
+1. detectar;
+2. explicar;
+3. predecir;
+4. simular;
+5. preparar una acción para revisión humana.
+
+Las respuestas breves mostrarán problema, recomendación, confianza y acciones. El
+usuario podrá abrir por qué, cálculo y simulación. ORION distinguirá hechos,
+predicciones, posibles explicaciones y recomendaciones.
+
+El ciclo futuro será observar, entender, proponer, permitir que el humano decida,
+actuar, medir, aprender y recordar.
+
+## Privacidad y límites
+
+- Una organización nunca obtiene automáticamente la vida completa de una persona.
+- La información personal, familiar, escolar y comercial permanece separada.
+- Los permisos deben validarse en el servidor y quedar auditados.
+- No habrá vigilancia secreta, acusaciones automáticas ni perfilamiento injusto.
+- Las notificaciones respetarán horarios, frecuencia, consentimiento y silencio.
+- Antes de datos escolares o personales reales debe existir autenticación robusta.
+
+## Funciones futuras que deben permanecer en el backlog
+
+- ORION Studio para configurar módulos, menús, permisos, formularios y reglas;
+- motor universal de formularios y campos personalizados;
+- documentos, fotografías, PDFs, garantías y evidencias;
+- motor de reglas y automatizaciones propuestas por IA y aprobadas por humanos;
+- notificaciones del dispositivo y funcionamiento offline-first;
+- tráfico, rutas y horarios verificados de establecimientos;
+- recurrencias mensuales, cumpleaños, mantenimiento y compromisos de largo plazo;
+- lectura inteligente de recibos y tickets;
+- asignación de compras e inventario entre cuentas ORION;
+- resumen de la mañana y cierre del día;
+- medición de tiempo recuperado;
+- salud de la organización en lugar de dashboards saturados;
+- preguntas naturales sustentadas en datos reales;
+- ORION Local Hub para redes internas, cuando la escala lo justifique;
+- importación CSV y Excel e interoperabilidad mediante estándares adecuados.
+
+## Criterio para decidir nuevas funciones
+
+Antes de programar una idea se debe preguntar:
+
+- ¿pertenece al núcleo o a un paquete?
+- ¿se puede generalizar sin volver difícil la experiencia?
+- ¿ahorra tiempo, reduce errores o mejora decisiones?
+- ¿funcionará en teléfono, tableta y computadora?
+- ¿puede recuperarse de falta de Internet o energía?
+- ¿afecta privacidad, seguridad o rendimiento?
+- ¿es necesaria para el piloto actual?
+
+## Estado del primer piloto de ORION Life
+
+Este checkpoint inicia la base de espacios y tareas compartidas. Incluye roles,
+historial, asignación, toma atómica de tareas, terminación, reapertura, posposición y
+una pantalla Mi día. No incluye todavía autenticación, invitaciones externas,
+WebSockets, alarmas del dispositivo, recurrencias automáticas, OCR, rutas ni IA de
+reorganización. Esos componentes deben construirse sobre esta base y no simularse
+como si ya fueran funciones de producción.

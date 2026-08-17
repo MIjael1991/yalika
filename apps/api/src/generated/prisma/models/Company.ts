@@ -209,6 +209,7 @@ export type CompanyWhereInput = {
   orderDiscounts?: Prisma.OrderDiscountListRelationFilter
   returns?: Prisma.ReturnListRelationFilter
   refunds?: Prisma.RefundListRelationFilter
+  spaces?: Prisma.SpaceListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -244,6 +245,7 @@ export type CompanyOrderByWithRelationInput = {
   orderDiscounts?: Prisma.OrderDiscountOrderByRelationAggregateInput
   returns?: Prisma.ReturnOrderByRelationAggregateInput
   refunds?: Prisma.RefundOrderByRelationAggregateInput
+  spaces?: Prisma.SpaceOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -282,6 +284,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   orderDiscounts?: Prisma.OrderDiscountListRelationFilter
   returns?: Prisma.ReturnListRelationFilter
   refunds?: Prisma.RefundListRelationFilter
+  spaces?: Prisma.SpaceListRelationFilter
 }, "id" | "name">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -339,6 +342,7 @@ export type CompanyCreateInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -374,6 +378,7 @@ export type CompanyUncheckedCreateInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -409,6 +414,7 @@ export type CompanyUpdateInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -444,6 +450,7 @@ export type CompanyUncheckedUpdateInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -533,6 +540,20 @@ export type CompanyUpdateOneRequiredWithoutRolesNestedInput = {
   upsert?: Prisma.CompanyUpsertWithoutRolesInput
   connect?: Prisma.CompanyWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutRolesInput, Prisma.CompanyUpdateWithoutRolesInput>, Prisma.CompanyUncheckedUpdateWithoutRolesInput>
+}
+
+export type CompanyCreateNestedOneWithoutSpacesInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSpacesInput, Prisma.CompanyUncheckedCreateWithoutSpacesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSpacesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutSpacesNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutSpacesInput, Prisma.CompanyUncheckedCreateWithoutSpacesInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutSpacesInput
+  upsert?: Prisma.CompanyUpsertWithoutSpacesInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutSpacesInput, Prisma.CompanyUpdateWithoutSpacesInput>, Prisma.CompanyUncheckedUpdateWithoutSpacesInput>
 }
 
 export type CompanyCreateNestedOneWithoutTasksInput = {
@@ -917,6 +938,7 @@ export type CompanyCreateWithoutUsersInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -951,6 +973,7 @@ export type CompanyUncheckedCreateWithoutUsersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -1001,6 +1024,7 @@ export type CompanyUpdateWithoutUsersInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -1035,6 +1059,7 @@ export type CompanyUncheckedUpdateWithoutUsersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRolesInput = {
@@ -1069,6 +1094,7 @@ export type CompanyCreateWithoutRolesInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRolesInput = {
@@ -1103,6 +1129,7 @@ export type CompanyUncheckedCreateWithoutRolesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRolesInput = {
@@ -1153,6 +1180,7 @@ export type CompanyUpdateWithoutRolesInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRolesInput = {
@@ -1163,6 +1191,163 @@ export type CompanyUncheckedUpdateWithoutRolesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUncheckedUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUncheckedUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUncheckedUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUncheckedUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUncheckedUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUncheckedUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUncheckedUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUncheckedUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUncheckedUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
+  returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
+  refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyCreateWithoutSpacesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
+  returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
+  refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutSpacesInput = {
+  id?: string
+  name: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  site?: Prisma.SiteUncheckedCreateNestedOneWithoutCompanyInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCompanyInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutCompanyInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompanyInput
+  incidents?: Prisma.IncidentUncheckedCreateNestedManyWithoutCompanyInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutCompanyInput
+  workflows?: Prisma.WorkflowUncheckedCreateNestedManyWithoutCompanyInput
+  experiences?: Prisma.ExperienceUncheckedCreateNestedManyWithoutCompanyInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutCompanyInput
+  visits?: Prisma.VisitUncheckedCreateNestedManyWithoutCompanyInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUncheckedCreateNestedManyWithoutCompanyInput
+  customerRewards?: Prisma.CustomerRewardUncheckedCreateNestedManyWithoutCompanyInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutCompanyInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutCompanyInput
+  promotions?: Prisma.PromotionUncheckedCreateNestedManyWithoutCompanyInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryItems?: Prisma.InventoryItemUncheckedCreateNestedManyWithoutCompanyInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutCompanyInput
+  inventoryCounts?: Prisma.InventoryCountUncheckedCreateNestedManyWithoutCompanyInput
+  stockReceipts?: Prisma.StockReceiptUncheckedCreateNestedManyWithoutCompanyInput
+  orders?: Prisma.OrderUncheckedCreateNestedManyWithoutCompanyInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutCompanyInput
+  diningTables?: Prisma.DiningTableUncheckedCreateNestedManyWithoutCompanyInput
+  orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
+  orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
+  returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
+  refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutSpacesInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSpacesInput, Prisma.CompanyUncheckedCreateWithoutSpacesInput>
+}
+
+export type CompanyUpsertWithoutSpacesInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutSpacesInput, Prisma.CompanyUncheckedUpdateWithoutSpacesInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutSpacesInput, Prisma.CompanyUncheckedCreateWithoutSpacesInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutSpacesInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutSpacesInput, Prisma.CompanyUncheckedUpdateWithoutSpacesInput>
+}
+
+export type CompanyUpdateWithoutSpacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutCompanyNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutCompanyNestedInput
+  incidents?: Prisma.IncidentUpdateManyWithoutCompanyNestedInput
+  events?: Prisma.EventUpdateManyWithoutCompanyNestedInput
+  workflows?: Prisma.WorkflowUpdateManyWithoutCompanyNestedInput
+  experiences?: Prisma.ExperienceUpdateManyWithoutCompanyNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutCompanyNestedInput
+  visits?: Prisma.VisitUpdateManyWithoutCompanyNestedInput
+  loyaltyPrograms?: Prisma.LoyaltyProgramUpdateManyWithoutCompanyNestedInput
+  customerRewards?: Prisma.CustomerRewardUpdateManyWithoutCompanyNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutCompanyNestedInput
+  products?: Prisma.ProductUpdateManyWithoutCompanyNestedInput
+  promotions?: Prisma.PromotionUpdateManyWithoutCompanyNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutCompanyNestedInput
+  inventoryItems?: Prisma.InventoryItemUpdateManyWithoutCompanyNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutCompanyNestedInput
+  inventoryCounts?: Prisma.InventoryCountUpdateManyWithoutCompanyNestedInput
+  stockReceipts?: Prisma.StockReceiptUpdateManyWithoutCompanyNestedInput
+  orders?: Prisma.OrderUpdateManyWithoutCompanyNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutCompanyNestedInput
+  diningTables?: Prisma.DiningTableUpdateManyWithoutCompanyNestedInput
+  orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
+  orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
+  returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
+  refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutSpacesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  site?: Prisma.SiteUncheckedUpdateOneWithoutCompanyNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutCompanyNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutCompanyNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutCompanyNestedInput
   incidents?: Prisma.IncidentUncheckedUpdateManyWithoutCompanyNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1221,6 +1406,7 @@ export type CompanyCreateWithoutTasksInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutTasksInput = {
@@ -1255,6 +1441,7 @@ export type CompanyUncheckedCreateWithoutTasksInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutTasksInput = {
@@ -1305,6 +1492,7 @@ export type CompanyUpdateWithoutTasksInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutTasksInput = {
@@ -1339,6 +1527,7 @@ export type CompanyUncheckedUpdateWithoutTasksInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutIncidentsInput = {
@@ -1373,6 +1562,7 @@ export type CompanyCreateWithoutIncidentsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutIncidentsInput = {
@@ -1407,6 +1597,7 @@ export type CompanyUncheckedCreateWithoutIncidentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutIncidentsInput = {
@@ -1457,6 +1648,7 @@ export type CompanyUpdateWithoutIncidentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutIncidentsInput = {
@@ -1491,6 +1683,7 @@ export type CompanyUncheckedUpdateWithoutIncidentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutEventsInput = {
@@ -1525,6 +1718,7 @@ export type CompanyCreateWithoutEventsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutEventsInput = {
@@ -1559,6 +1753,7 @@ export type CompanyUncheckedCreateWithoutEventsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutEventsInput = {
@@ -1609,6 +1804,7 @@ export type CompanyUpdateWithoutEventsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutEventsInput = {
@@ -1643,6 +1839,7 @@ export type CompanyUncheckedUpdateWithoutEventsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutWorkflowsInput = {
@@ -1677,6 +1874,7 @@ export type CompanyCreateWithoutWorkflowsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutWorkflowsInput = {
@@ -1711,6 +1909,7 @@ export type CompanyUncheckedCreateWithoutWorkflowsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutWorkflowsInput = {
@@ -1761,6 +1960,7 @@ export type CompanyUpdateWithoutWorkflowsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
@@ -1795,6 +1995,7 @@ export type CompanyUncheckedUpdateWithoutWorkflowsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutExperiencesInput = {
@@ -1829,6 +2030,7 @@ export type CompanyCreateWithoutExperiencesInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutExperiencesInput = {
@@ -1863,6 +2065,7 @@ export type CompanyUncheckedCreateWithoutExperiencesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutExperiencesInput = {
@@ -1913,6 +2116,7 @@ export type CompanyUpdateWithoutExperiencesInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutExperiencesInput = {
@@ -1947,6 +2151,7 @@ export type CompanyUncheckedUpdateWithoutExperiencesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutCustomersInput = {
@@ -1981,6 +2186,7 @@ export type CompanyCreateWithoutCustomersInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutCustomersInput = {
@@ -2015,6 +2221,7 @@ export type CompanyUncheckedCreateWithoutCustomersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutCustomersInput = {
@@ -2065,6 +2272,7 @@ export type CompanyUpdateWithoutCustomersInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutCustomersInput = {
@@ -2099,6 +2307,7 @@ export type CompanyUncheckedUpdateWithoutCustomersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutVisitsInput = {
@@ -2133,6 +2342,7 @@ export type CompanyCreateWithoutVisitsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutVisitsInput = {
@@ -2167,6 +2377,7 @@ export type CompanyUncheckedCreateWithoutVisitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutVisitsInput = {
@@ -2217,6 +2428,7 @@ export type CompanyUpdateWithoutVisitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutVisitsInput = {
@@ -2251,6 +2463,7 @@ export type CompanyUncheckedUpdateWithoutVisitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutLoyaltyProgramsInput = {
@@ -2285,6 +2498,7 @@ export type CompanyCreateWithoutLoyaltyProgramsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutLoyaltyProgramsInput = {
@@ -2319,6 +2533,7 @@ export type CompanyUncheckedCreateWithoutLoyaltyProgramsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutLoyaltyProgramsInput = {
@@ -2369,6 +2584,7 @@ export type CompanyUpdateWithoutLoyaltyProgramsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutLoyaltyProgramsInput = {
@@ -2403,6 +2619,7 @@ export type CompanyUncheckedUpdateWithoutLoyaltyProgramsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutCustomerRewardsInput = {
@@ -2437,6 +2654,7 @@ export type CompanyCreateWithoutCustomerRewardsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutCustomerRewardsInput = {
@@ -2471,6 +2689,7 @@ export type CompanyUncheckedCreateWithoutCustomerRewardsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutCustomerRewardsInput = {
@@ -2521,6 +2740,7 @@ export type CompanyUpdateWithoutCustomerRewardsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutCustomerRewardsInput = {
@@ -2555,6 +2775,7 @@ export type CompanyUncheckedUpdateWithoutCustomerRewardsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutProductCategoriesInput = {
@@ -2589,6 +2810,7 @@ export type CompanyCreateWithoutProductCategoriesInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutProductCategoriesInput = {
@@ -2623,6 +2845,7 @@ export type CompanyUncheckedCreateWithoutProductCategoriesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutProductCategoriesInput = {
@@ -2673,6 +2896,7 @@ export type CompanyUpdateWithoutProductCategoriesInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutProductCategoriesInput = {
@@ -2707,6 +2931,7 @@ export type CompanyUncheckedUpdateWithoutProductCategoriesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutProductsInput = {
@@ -2741,6 +2966,7 @@ export type CompanyCreateWithoutProductsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutProductsInput = {
@@ -2775,6 +3001,7 @@ export type CompanyUncheckedCreateWithoutProductsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutProductsInput = {
@@ -2825,6 +3052,7 @@ export type CompanyUpdateWithoutProductsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutProductsInput = {
@@ -2859,6 +3087,7 @@ export type CompanyUncheckedUpdateWithoutProductsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPromotionsInput = {
@@ -2893,6 +3122,7 @@ export type CompanyCreateWithoutPromotionsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPromotionsInput = {
@@ -2927,6 +3157,7 @@ export type CompanyUncheckedCreateWithoutPromotionsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPromotionsInput = {
@@ -2977,6 +3208,7 @@ export type CompanyUpdateWithoutPromotionsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPromotionsInput = {
@@ -3011,6 +3243,7 @@ export type CompanyUncheckedUpdateWithoutPromotionsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutSiteInput = {
@@ -3045,6 +3278,7 @@ export type CompanyCreateWithoutSiteInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutSiteInput = {
@@ -3079,6 +3313,7 @@ export type CompanyUncheckedCreateWithoutSiteInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutSiteInput = {
@@ -3129,6 +3364,7 @@ export type CompanyUpdateWithoutSiteInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutSiteInput = {
@@ -3163,6 +3399,7 @@ export type CompanyUncheckedUpdateWithoutSiteInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutSuppliersInput = {
@@ -3197,6 +3434,7 @@ export type CompanyCreateWithoutSuppliersInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutSuppliersInput = {
@@ -3231,6 +3469,7 @@ export type CompanyUncheckedCreateWithoutSuppliersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutSuppliersInput = {
@@ -3281,6 +3520,7 @@ export type CompanyUpdateWithoutSuppliersInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutSuppliersInput = {
@@ -3315,6 +3555,7 @@ export type CompanyUncheckedUpdateWithoutSuppliersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutInventoryItemsInput = {
@@ -3349,6 +3590,7 @@ export type CompanyCreateWithoutInventoryItemsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutInventoryItemsInput = {
@@ -3383,6 +3625,7 @@ export type CompanyUncheckedCreateWithoutInventoryItemsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutInventoryItemsInput = {
@@ -3433,6 +3676,7 @@ export type CompanyUpdateWithoutInventoryItemsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutInventoryItemsInput = {
@@ -3467,6 +3711,7 @@ export type CompanyUncheckedUpdateWithoutInventoryItemsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutStockMovementsInput = {
@@ -3501,6 +3746,7 @@ export type CompanyCreateWithoutStockMovementsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutStockMovementsInput = {
@@ -3535,6 +3781,7 @@ export type CompanyUncheckedCreateWithoutStockMovementsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutStockMovementsInput = {
@@ -3585,6 +3832,7 @@ export type CompanyUpdateWithoutStockMovementsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutStockMovementsInput = {
@@ -3619,6 +3867,7 @@ export type CompanyUncheckedUpdateWithoutStockMovementsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutInventoryCountsInput = {
@@ -3653,6 +3902,7 @@ export type CompanyCreateWithoutInventoryCountsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutInventoryCountsInput = {
@@ -3687,6 +3937,7 @@ export type CompanyUncheckedCreateWithoutInventoryCountsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutInventoryCountsInput = {
@@ -3737,6 +3988,7 @@ export type CompanyUpdateWithoutInventoryCountsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutInventoryCountsInput = {
@@ -3771,6 +4023,7 @@ export type CompanyUncheckedUpdateWithoutInventoryCountsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutStockReceiptsInput = {
@@ -3805,6 +4058,7 @@ export type CompanyCreateWithoutStockReceiptsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutStockReceiptsInput = {
@@ -3839,6 +4093,7 @@ export type CompanyUncheckedCreateWithoutStockReceiptsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutStockReceiptsInput = {
@@ -3889,6 +4144,7 @@ export type CompanyUpdateWithoutStockReceiptsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutStockReceiptsInput = {
@@ -3923,6 +4179,7 @@ export type CompanyUncheckedUpdateWithoutStockReceiptsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutOrdersInput = {
@@ -3957,6 +4214,7 @@ export type CompanyCreateWithoutOrdersInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutOrdersInput = {
@@ -3991,6 +4249,7 @@ export type CompanyUncheckedCreateWithoutOrdersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutOrdersInput = {
@@ -4041,6 +4300,7 @@ export type CompanyUpdateWithoutOrdersInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutOrdersInput = {
@@ -4075,6 +4335,7 @@ export type CompanyUncheckedUpdateWithoutOrdersInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutOrderDiscountsInput = {
@@ -4109,6 +4370,7 @@ export type CompanyCreateWithoutOrderDiscountsInput = {
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutOrderDiscountsInput = {
@@ -4143,6 +4405,7 @@ export type CompanyUncheckedCreateWithoutOrderDiscountsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutOrderDiscountsInput = {
@@ -4193,6 +4456,7 @@ export type CompanyUpdateWithoutOrderDiscountsInput = {
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutOrderDiscountsInput = {
@@ -4227,6 +4491,7 @@ export type CompanyUncheckedUpdateWithoutOrderDiscountsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPaymentsInput = {
@@ -4261,6 +4526,7 @@ export type CompanyCreateWithoutPaymentsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPaymentsInput = {
@@ -4295,6 +4561,7 @@ export type CompanyUncheckedCreateWithoutPaymentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPaymentsInput = {
@@ -4345,6 +4612,7 @@ export type CompanyUpdateWithoutPaymentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPaymentsInput = {
@@ -4379,6 +4647,7 @@ export type CompanyUncheckedUpdateWithoutPaymentsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutDiningTablesInput = {
@@ -4413,6 +4682,7 @@ export type CompanyCreateWithoutDiningTablesInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutDiningTablesInput = {
@@ -4447,6 +4717,7 @@ export type CompanyUncheckedCreateWithoutDiningTablesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutDiningTablesInput = {
@@ -4497,6 +4768,7 @@ export type CompanyUpdateWithoutDiningTablesInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutDiningTablesInput = {
@@ -4531,6 +4803,7 @@ export type CompanyUncheckedUpdateWithoutDiningTablesInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutOrderSplitsInput = {
@@ -4565,6 +4838,7 @@ export type CompanyCreateWithoutOrderSplitsInput = {
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutOrderSplitsInput = {
@@ -4599,6 +4873,7 @@ export type CompanyUncheckedCreateWithoutOrderSplitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutOrderSplitsInput = {
@@ -4649,6 +4924,7 @@ export type CompanyUpdateWithoutOrderSplitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutOrderSplitsInput = {
@@ -4683,6 +4959,7 @@ export type CompanyUncheckedUpdateWithoutOrderSplitsInput = {
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutReturnsInput = {
@@ -4717,6 +4994,7 @@ export type CompanyCreateWithoutReturnsInput = {
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutReturnsInput = {
@@ -4751,6 +5029,7 @@ export type CompanyUncheckedCreateWithoutReturnsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   refunds?: Prisma.RefundUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutReturnsInput = {
@@ -4801,6 +5080,7 @@ export type CompanyUpdateWithoutReturnsInput = {
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutReturnsInput = {
@@ -4835,6 +5115,7 @@ export type CompanyUncheckedUpdateWithoutReturnsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   refunds?: Prisma.RefundUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyCreateWithoutRefundsInput = {
@@ -4869,6 +5150,7 @@ export type CompanyCreateWithoutRefundsInput = {
   orderSplits?: Prisma.OrderSplitCreateNestedManyWithoutCompanyInput
   orderDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutRefundsInput = {
@@ -4903,6 +5185,7 @@ export type CompanyUncheckedCreateWithoutRefundsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedCreateNestedManyWithoutCompanyInput
   orderDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutCompanyInput
   returns?: Prisma.ReturnUncheckedCreateNestedManyWithoutCompanyInput
+  spaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutRefundsInput = {
@@ -4953,6 +5236,7 @@ export type CompanyUpdateWithoutRefundsInput = {
   orderSplits?: Prisma.OrderSplitUpdateManyWithoutCompanyNestedInput
   orderDiscounts?: Prisma.OrderDiscountUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUpdateManyWithoutCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutRefundsInput = {
@@ -4987,6 +5271,7 @@ export type CompanyUncheckedUpdateWithoutRefundsInput = {
   orderSplits?: Prisma.OrderSplitUncheckedUpdateManyWithoutCompanyNestedInput
   orderDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutCompanyNestedInput
   returns?: Prisma.ReturnUncheckedUpdateManyWithoutCompanyNestedInput
+  spaces?: Prisma.SpaceUncheckedUpdateManyWithoutCompanyNestedInput
 }
 
 
@@ -5021,6 +5306,7 @@ export type CompanyCountOutputType = {
   orderDiscounts: number
   returns: number
   refunds: number
+  spaces: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5050,6 +5336,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   orderDiscounts?: boolean | CompanyCountOutputTypeCountOrderDiscountsArgs
   returns?: boolean | CompanyCountOutputTypeCountReturnsArgs
   refunds?: boolean | CompanyCountOutputTypeCountRefundsArgs
+  spaces?: boolean | CompanyCountOutputTypeCountSpacesArgs
 }
 
 /**
@@ -5244,6 +5531,13 @@ export type CompanyCountOutputTypeCountRefundsArgs<ExtArgs extends runtime.Types
   where?: Prisma.RefundWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountSpacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SpaceWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5278,6 +5572,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   orderDiscounts?: boolean | Prisma.Company$orderDiscountsArgs<ExtArgs>
   returns?: boolean | Prisma.Company$returnsArgs<ExtArgs>
   refunds?: boolean | Prisma.Company$refundsArgs<ExtArgs>
+  spaces?: boolean | Prisma.Company$spacesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -5334,6 +5629,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   orderDiscounts?: boolean | Prisma.Company$orderDiscountsArgs<ExtArgs>
   returns?: boolean | Prisma.Company$returnsArgs<ExtArgs>
   refunds?: boolean | Prisma.Company$refundsArgs<ExtArgs>
+  spaces?: boolean | Prisma.Company$spacesArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -5369,6 +5665,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     orderDiscounts: Prisma.$OrderDiscountPayload<ExtArgs>[]
     returns: Prisma.$ReturnPayload<ExtArgs>[]
     refunds: Prisma.$RefundPayload<ExtArgs>[]
+    spaces: Prisma.$SpacePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -5797,6 +6094,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   orderDiscounts<T extends Prisma.Company$orderDiscountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$orderDiscountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OrderDiscountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   returns<T extends Prisma.Company$returnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$returnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refunds<T extends Prisma.Company$refundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$refundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  spaces<T extends Prisma.Company$spacesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$spacesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpacePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6864,6 +7162,30 @@ export type Company$refundsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.RefundScalarFieldEnum | Prisma.RefundScalarFieldEnum[]
+}
+
+/**
+ * Company.spaces
+ */
+export type Company$spacesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Space
+   */
+  select?: Prisma.SpaceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Space
+   */
+  omit?: Prisma.SpaceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SpaceInclude<ExtArgs> | null
+  where?: Prisma.SpaceWhereInput
+  orderBy?: Prisma.SpaceOrderByWithRelationInput | Prisma.SpaceOrderByWithRelationInput[]
+  cursor?: Prisma.SpaceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SpaceScalarFieldEnum | Prisma.SpaceScalarFieldEnum[]
 }
 
 /**
