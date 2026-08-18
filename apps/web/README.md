@@ -37,7 +37,9 @@ Life now obtains its identity from an authenticated session.
 ORION Life is available at `/life`. Its first pilot adds personal, family,
 business and school spaces on top of the shared core task engine. Tasks can be
 assigned, claimed, completed, reopened and postponed with an auditable activity
-history. ORION Life is protected by an opaque, revocable session stored in
+history. Daily, weekly, monthly and yearly tasks can also create protected
+occurrences for the next seven days without duplicating them when multiple
+devices refresh together. ORION Life is protected by an opaque, revocable session stored in
 PostgreSQL and delivered through an HttpOnly cookie. Before the first login, an
 administrator sets a password without exposing it in command history:
 
@@ -47,8 +49,9 @@ npm run auth:set-password -- return-test@orion.local
 ```
 
 Then open `/login`. The browser refreshes shared work every five seconds while
-the screen is open; device alarms and production real-time delivery require the
-future notification layer.
+the screen is open. Recurring tasks prepare the schedule, but alarms with the
+application closed and production real-time delivery still require the future
+notification layer.
 
 The checkout supports auditable discounts, cash change, printable receipts and
 equal account splitting with one recoverable payment status per part. Returns

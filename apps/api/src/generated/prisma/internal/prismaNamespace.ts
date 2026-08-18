@@ -404,6 +404,7 @@ export const ModelName = {
   Space: 'Space',
   SpaceMember: 'SpaceMember',
   Task: 'Task',
+  TaskRecurrence: 'TaskRecurrence',
   TaskActivity: 'TaskActivity',
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
@@ -458,7 +459,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "authSession" | "role" | "space" | "spaceMember" | "task" | "taskActivity" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "orderDiscount" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
+    modelProps: "company" | "user" | "authSession" | "role" | "space" | "spaceMember" | "task" | "taskRecurrence" | "taskActivity" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "orderDiscount" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -977,6 +978,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TaskCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TaskCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaskRecurrence: {
+      payload: Prisma.$TaskRecurrencePayload<ExtArgs>
+      fields: Prisma.TaskRecurrenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaskRecurrenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaskRecurrenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        findFirst: {
+          args: Prisma.TaskRecurrenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaskRecurrenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        findMany: {
+          args: Prisma.TaskRecurrenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>[]
+        }
+        create: {
+          args: Prisma.TaskRecurrenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        createMany: {
+          args: Prisma.TaskRecurrenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaskRecurrenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>[]
+        }
+        delete: {
+          args: Prisma.TaskRecurrenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        update: {
+          args: Prisma.TaskRecurrenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        deleteMany: {
+          args: Prisma.TaskRecurrenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaskRecurrenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaskRecurrenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>[]
+        }
+        upsert: {
+          args: Prisma.TaskRecurrenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskRecurrencePayload>
+        }
+        aggregate: {
+          args: Prisma.TaskRecurrenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaskRecurrence>
+        }
+        groupBy: {
+          args: Prisma.TaskRecurrenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaskRecurrenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaskRecurrenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaskRecurrenceCountAggregateOutputType> | number
         }
       }
     }
@@ -4011,10 +4086,37 @@ export const TaskScalarFieldEnum = {
   spaceId: 'spaceId',
   createdById: 'createdById',
   claimedById: 'claimedById',
-  completedById: 'completedById'
+  completedById: 'completedById',
+  recurrenceId: 'recurrenceId',
+  recurrenceOccurrenceAt: 'recurrenceOccurrenceAt'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const TaskRecurrenceScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  priority: 'priority',
+  estimatedMinutes: 'estimatedMinutes',
+  frequency: 'frequency',
+  interval: 'interval',
+  timezone: 'timezone',
+  status: 'status',
+  startsAt: 'startsAt',
+  nextOccurrenceAt: 'nextOccurrenceAt',
+  endsAt: 'endsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  spaceId: 'spaceId',
+  createdById: 'createdById',
+  userId: 'userId'
+} as const
+
+export type TaskRecurrenceScalarFieldEnum = (typeof TaskRecurrenceScalarFieldEnum)[keyof typeof TaskRecurrenceScalarFieldEnum]
 
 
 export const TaskActivityScalarFieldEnum = {
@@ -4986,6 +5088,7 @@ export type GlobalOmitConfig = {
   space?: Prisma.SpaceOmit
   spaceMember?: Prisma.SpaceMemberOmit
   task?: Prisma.TaskOmit
+  taskRecurrence?: Prisma.TaskRecurrenceOmit
   taskActivity?: Prisma.TaskActivityOmit
   incident?: Prisma.IncidentOmit
   incidentAlternative?: Prisma.IncidentAlternativeOmit

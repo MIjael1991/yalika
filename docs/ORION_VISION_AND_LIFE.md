@@ -103,6 +103,19 @@ ya se obtiene de una sesión revocable en el servidor; la versión de producció
 también requerirá recuperación de cuenta, segundo factor opcional, monitoreo y
 eventos en tiempo real.
 
+## Recurrencias del piloto
+
+El núcleo ya puede representar tareas diarias, semanales, mensuales y anuales.
+Cada serie conserva su fecha original, responsable, espacio y fecha final opcional.
+ORION prepara ocurrencias para los siguientes siete días y PostgreSQL impide que
+dos dispositivos generen dos veces la misma actividad. Al detener una serie se
+conservan la tarea actual y el historial.
+
+Esta primera versión crea agenda, no alarmas con la aplicación cerrada. Tampoco
+interpreta todavía expresiones como "el segundo martes" ni ajusta automáticamente
+la hora civil en regiones con cambios estacionales. Esas reglas se incorporarán
+al motor de calendario antes de abrirlo globalmente.
+
 ## Pagos, recibos y memoria predictiva
 
 El usuario podrá fotografiar un recibo. ORION propondrá, sujeto a confirmación:
@@ -189,7 +202,7 @@ actuar, medir, aprender y recordar.
 - motor de reglas y automatizaciones propuestas por IA y aprobadas por humanos;
 - notificaciones del dispositivo y funcionamiento offline-first;
 - tráfico, rutas y horarios verificados de establecimientos;
-- recurrencias mensuales, cumpleaños, mantenimiento y compromisos de largo plazo;
+- recurrencias avanzadas, cumpleaños calculados y mantenimiento por uso o kilometraje;
 - lectura inteligente de recibos y tickets;
 - asignación de compras e inventario entre cuentas ORION;
 - resumen de la mañana y cierre del día;
@@ -213,13 +226,14 @@ Antes de programar una idea se debe preguntar:
 
 ## Estado del primer piloto de ORION Life
 
-El primer checkpoint inició la base de espacios y tareas compartidas. El siguiente
-bloque agrega contraseña cifrada con scrypt, bloqueo temporal por intentos fallidos,
+El primer checkpoint inició la base de espacios y tareas compartidas. El segundo
+bloque agregó contraseña cifrada con scrypt, bloqueo temporal por intentos fallidos,
 sesiones opacas y revocables en PostgreSQL, cookie HttpOnly, identidad derivada en
 el servidor, cierre de sesión y protección de espacios y tareas. Los espacios
-personales ya no admiten integrantes.
+personales ya no admiten integrantes. El bloque actual agrega series recurrentes
+con generación anticipada y protección contra duplicados.
 
 Todavía no incluye alta pública de cuentas, recuperación de contraseña, segundo
 factor, invitaciones externas, WebSockets, alarmas del dispositivo, recurrencias
-automáticas, OCR, rutas ni IA de reorganización. Esos componentes deben construirse
+avanzadas, OCR, rutas ni IA de reorganización. Esos componentes deben construirse
 sobre esta base y no simularse como si ya fueran funciones de producción.

@@ -75,6 +75,11 @@ export type SpaceMember = Prisma.SpaceMemberModel
  */
 export type Task = Prisma.TaskModel
 /**
+ * Model TaskRecurrence
+ * 
+ */
+export type TaskRecurrence = Prisma.TaskRecurrenceModel
+/**
  * Model TaskActivity
  * 
  */

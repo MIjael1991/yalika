@@ -117,4 +117,101 @@ describe('TaskService shared work', () => {
     );
     expect(transaction.task.updateMany).not.toHaveBeenCalled();
   });
+
+  it('scopes legacy task lists to spaces visible to the session user', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const service = new TaskService({
+      task: {
+        findMany,
+      },
+    } as unknown as PrismaService);
+
+    await service.findAll('company-1', 'user-1');
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          companyId: 'company-1',
+          OR: expect.arrayContaining([
+            expect.objectContaining({
+              space: expect.objectContaining({
+                type: 'personal',
+                ownerUserId: 'user-1',
+              }),
+            }),
+          ]),
+        }),
+      }),
+    );
+  });
+});
+
+describe('TaskService recurring work', () => {
+  function createRecurrenceFixture(updateCount: number) {
+    const startsAt = new Date(Date.now() + 60 * 60 * 1000);
+    const recurrence = {
+      id: 'recurrence-1',
+      title: 'Pagar la luz',
+      description: null,
+      category: 'payment',
+      priority: 'normal',
+      estimatedMinutes: 15,
+      frequency: 'monthly',
+      interval: 1,
+      startsAt,
+      nextOccurrenceAt: startsAt,
+      endsAt: null,
+      companyId: 'company-1',
+      spaceId: 'space-1',
+      createdById: 'user-1',
+      userId: null,
+    };
+    const transaction = {
+      taskRecurrence: {
+        updateMany: jest.fn().mockResolvedValue({ count: updateCount }),
+      },
+      task: {
+        create: jest.fn().mockResolvedValue({ id: 'task-recurring-1' }),
+      },
+    };
+    const prisma = {
+      taskRecurrence: {
+        findMany: jest.fn().mockResolvedValue([recurrence]),
+      },
+      $transaction: jest.fn(
+        (callback: (client: typeof transaction) => unknown) =>
+          callback(transaction),
+      ),
+    };
+
+    return {
+      service: new TaskService(prisma as unknown as PrismaService),
+      transaction,
+    };
+  }
+
+  it('creates one protected occurrence when it wins the schedule advance', async () => {
+    const { service, transaction } = createRecurrenceFixture(1);
+
+    await service.materializeDueRecurrences('space-1');
+
+    expect(transaction.taskRecurrence.updateMany).toHaveBeenCalledTimes(1);
+    expect(transaction.task.create).toHaveBeenCalledTimes(1);
+    expect(transaction.task.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          recurrenceId: 'recurrence-1',
+          title: 'Pagar la luz',
+        }),
+      }),
+    );
+  });
+
+  it('does not duplicate an occurrence when another refresh advanced it', async () => {
+    const { service, transaction } = createRecurrenceFixture(0);
+
+    await service.materializeDueRecurrences('space-1');
+
+    expect(transaction.task.create).not.toHaveBeenCalled();
+  });
 });

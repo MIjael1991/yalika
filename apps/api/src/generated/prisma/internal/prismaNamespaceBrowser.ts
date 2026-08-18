@@ -58,6 +58,7 @@ export const ModelName = {
   Space: 'Space',
   SpaceMember: 'SpaceMember',
   Task: 'Task',
+  TaskRecurrence: 'TaskRecurrence',
   TaskActivity: 'TaskActivity',
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
@@ -221,10 +222,37 @@ export const TaskScalarFieldEnum = {
   spaceId: 'spaceId',
   createdById: 'createdById',
   claimedById: 'claimedById',
-  completedById: 'completedById'
+  completedById: 'completedById',
+  recurrenceId: 'recurrenceId',
+  recurrenceOccurrenceAt: 'recurrenceOccurrenceAt'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
+
+
+export const TaskRecurrenceScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  description: 'description',
+  category: 'category',
+  priority: 'priority',
+  estimatedMinutes: 'estimatedMinutes',
+  frequency: 'frequency',
+  interval: 'interval',
+  timezone: 'timezone',
+  status: 'status',
+  startsAt: 'startsAt',
+  nextOccurrenceAt: 'nextOccurrenceAt',
+  endsAt: 'endsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  companyId: 'companyId',
+  spaceId: 'spaceId',
+  createdById: 'createdById',
+  userId: 'userId'
+} as const
+
+export type TaskRecurrenceScalarFieldEnum = (typeof TaskRecurrenceScalarFieldEnum)[keyof typeof TaskRecurrenceScalarFieldEnum]
 
 
 export const TaskActivityScalarFieldEnum = {

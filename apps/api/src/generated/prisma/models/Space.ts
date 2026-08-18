@@ -226,6 +226,7 @@ export type SpaceWhereInput = {
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   members?: Prisma.SpaceMemberListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
+  taskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
 }
 
 export type SpaceOrderByWithRelationInput = {
@@ -243,6 +244,7 @@ export type SpaceOrderByWithRelationInput = {
   owner?: Prisma.UserOrderByWithRelationInput
   members?: Prisma.SpaceMemberOrderByRelationAggregateInput
   tasks?: Prisma.TaskOrderByRelationAggregateInput
+  taskRecurrences?: Prisma.TaskRecurrenceOrderByRelationAggregateInput
 }
 
 export type SpaceWhereUniqueInput = Prisma.AtLeast<{
@@ -263,6 +265,7 @@ export type SpaceWhereUniqueInput = Prisma.AtLeast<{
   owner?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   members?: Prisma.SpaceMemberListRelationFilter
   tasks?: Prisma.TaskListRelationFilter
+  taskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
 }, "id">
 
 export type SpaceOrderByWithAggregationInput = {
@@ -310,6 +313,7 @@ export type SpaceCreateInput = {
   owner: Prisma.UserCreateNestedOneWithoutOwnedSpacesInput
   members?: Prisma.SpaceMemberCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUncheckedCreateInput = {
@@ -325,6 +329,7 @@ export type SpaceUncheckedCreateInput = {
   ownerUserId: string
   members?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUpdateInput = {
@@ -340,6 +345,7 @@ export type SpaceUpdateInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSpacesNestedInput
   members?: Prisma.SpaceMemberUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateInput = {
@@ -355,6 +361,7 @@ export type SpaceUncheckedUpdateInput = {
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.SpaceMemberUncheckedUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceCreateManyInput = {
@@ -567,6 +574,20 @@ export type SpaceUpdateOneWithoutTasksNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SpaceUpdateToOneWithWhereWithoutTasksInput, Prisma.SpaceUpdateWithoutTasksInput>, Prisma.SpaceUncheckedUpdateWithoutTasksInput>
 }
 
+export type SpaceCreateNestedOneWithoutTaskRecurrencesInput = {
+  create?: Prisma.XOR<Prisma.SpaceCreateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedCreateWithoutTaskRecurrencesInput>
+  connectOrCreate?: Prisma.SpaceCreateOrConnectWithoutTaskRecurrencesInput
+  connect?: Prisma.SpaceWhereUniqueInput
+}
+
+export type SpaceUpdateOneRequiredWithoutTaskRecurrencesNestedInput = {
+  create?: Prisma.XOR<Prisma.SpaceCreateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedCreateWithoutTaskRecurrencesInput>
+  connectOrCreate?: Prisma.SpaceCreateOrConnectWithoutTaskRecurrencesInput
+  upsert?: Prisma.SpaceUpsertWithoutTaskRecurrencesInput
+  connect?: Prisma.SpaceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SpaceUpdateToOneWithWhereWithoutTaskRecurrencesInput, Prisma.SpaceUpdateWithoutTaskRecurrencesInput>, Prisma.SpaceUncheckedUpdateWithoutTaskRecurrencesInput>
+}
+
 export type SpaceCreateWithoutCompanyInput = {
   id?: string
   name: string
@@ -579,6 +600,7 @@ export type SpaceCreateWithoutCompanyInput = {
   owner: Prisma.UserCreateNestedOneWithoutOwnedSpacesInput
   members?: Prisma.SpaceMemberCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUncheckedCreateWithoutCompanyInput = {
@@ -593,6 +615,7 @@ export type SpaceUncheckedCreateWithoutCompanyInput = {
   ownerUserId: string
   members?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceCreateOrConnectWithoutCompanyInput = {
@@ -649,6 +672,7 @@ export type SpaceCreateWithoutOwnerInput = {
   company: Prisma.CompanyCreateNestedOneWithoutSpacesInput
   members?: Prisma.SpaceMemberCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUncheckedCreateWithoutOwnerInput = {
@@ -663,6 +687,7 @@ export type SpaceUncheckedCreateWithoutOwnerInput = {
   companyId: string
   members?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutSpaceInput
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceCreateOrConnectWithoutOwnerInput = {
@@ -703,6 +728,7 @@ export type SpaceCreateWithoutMembersInput = {
   company: Prisma.CompanyCreateNestedOneWithoutSpacesInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedSpacesInput
   tasks?: Prisma.TaskCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUncheckedCreateWithoutMembersInput = {
@@ -717,6 +743,7 @@ export type SpaceUncheckedCreateWithoutMembersInput = {
   companyId: string
   ownerUserId: string
   tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceCreateOrConnectWithoutMembersInput = {
@@ -747,6 +774,7 @@ export type SpaceUpdateWithoutMembersInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutSpacesNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSpacesNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateWithoutMembersInput = {
@@ -761,6 +789,7 @@ export type SpaceUncheckedUpdateWithoutMembersInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceCreateWithoutTasksInput = {
@@ -775,6 +804,7 @@ export type SpaceCreateWithoutTasksInput = {
   company: Prisma.CompanyCreateNestedOneWithoutSpacesInput
   owner: Prisma.UserCreateNestedOneWithoutOwnedSpacesInput
   members?: Prisma.SpaceMemberCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceUncheckedCreateWithoutTasksInput = {
@@ -789,6 +819,7 @@ export type SpaceUncheckedCreateWithoutTasksInput = {
   companyId: string
   ownerUserId: string
   members?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutSpaceInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutSpaceInput
 }
 
 export type SpaceCreateOrConnectWithoutTasksInput = {
@@ -819,6 +850,7 @@ export type SpaceUpdateWithoutTasksInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutSpacesNestedInput
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSpacesNestedInput
   members?: Prisma.SpaceMemberUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateWithoutTasksInput = {
@@ -833,6 +865,83 @@ export type SpaceUncheckedUpdateWithoutTasksInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.SpaceMemberUncheckedUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutSpaceNestedInput
+}
+
+export type SpaceCreateWithoutTaskRecurrencesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  type?: string
+  timezone?: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutSpacesInput
+  owner: Prisma.UserCreateNestedOneWithoutOwnedSpacesInput
+  members?: Prisma.SpaceMemberCreateNestedManyWithoutSpaceInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutSpaceInput
+}
+
+export type SpaceUncheckedCreateWithoutTaskRecurrencesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  type?: string
+  timezone?: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  ownerUserId: string
+  members?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutSpaceInput
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutSpaceInput
+}
+
+export type SpaceCreateOrConnectWithoutTaskRecurrencesInput = {
+  where: Prisma.SpaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.SpaceCreateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedCreateWithoutTaskRecurrencesInput>
+}
+
+export type SpaceUpsertWithoutTaskRecurrencesInput = {
+  update: Prisma.XOR<Prisma.SpaceUpdateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedUpdateWithoutTaskRecurrencesInput>
+  create: Prisma.XOR<Prisma.SpaceCreateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedCreateWithoutTaskRecurrencesInput>
+  where?: Prisma.SpaceWhereInput
+}
+
+export type SpaceUpdateToOneWithWhereWithoutTaskRecurrencesInput = {
+  where?: Prisma.SpaceWhereInput
+  data: Prisma.XOR<Prisma.SpaceUpdateWithoutTaskRecurrencesInput, Prisma.SpaceUncheckedUpdateWithoutTaskRecurrencesInput>
+}
+
+export type SpaceUpdateWithoutTaskRecurrencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutSpacesNestedInput
+  owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSpacesNestedInput
+  members?: Prisma.SpaceMemberUpdateManyWithoutSpaceNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutSpaceNestedInput
+}
+
+export type SpaceUncheckedUpdateWithoutTaskRecurrencesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  members?: Prisma.SpaceMemberUncheckedUpdateManyWithoutSpaceNestedInput
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceCreateManyCompanyInput = {
@@ -859,6 +968,7 @@ export type SpaceUpdateWithoutCompanyInput = {
   owner?: Prisma.UserUpdateOneRequiredWithoutOwnedSpacesNestedInput
   members?: Prisma.SpaceMemberUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateWithoutCompanyInput = {
@@ -873,6 +983,7 @@ export type SpaceUncheckedUpdateWithoutCompanyInput = {
   ownerUserId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.SpaceMemberUncheckedUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateManyWithoutCompanyInput = {
@@ -911,6 +1022,7 @@ export type SpaceUpdateWithoutOwnerInput = {
   company?: Prisma.CompanyUpdateOneRequiredWithoutSpacesNestedInput
   members?: Prisma.SpaceMemberUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateWithoutOwnerInput = {
@@ -925,6 +1037,7 @@ export type SpaceUncheckedUpdateWithoutOwnerInput = {
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
   members?: Prisma.SpaceMemberUncheckedUpdateManyWithoutSpaceNestedInput
   tasks?: Prisma.TaskUncheckedUpdateManyWithoutSpaceNestedInput
+  taskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutSpaceNestedInput
 }
 
 export type SpaceUncheckedUpdateManyWithoutOwnerInput = {
@@ -947,11 +1060,13 @@ export type SpaceUncheckedUpdateManyWithoutOwnerInput = {
 export type SpaceCountOutputType = {
   members: number
   tasks: number
+  taskRecurrences: number
 }
 
 export type SpaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   members?: boolean | SpaceCountOutputTypeCountMembersArgs
   tasks?: boolean | SpaceCountOutputTypeCountTasksArgs
+  taskRecurrences?: boolean | SpaceCountOutputTypeCountTaskRecurrencesArgs
 }
 
 /**
@@ -978,6 +1093,13 @@ export type SpaceCountOutputTypeCountTasksArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.TaskWhereInput
 }
 
+/**
+ * SpaceCountOutputType without action
+ */
+export type SpaceCountOutputTypeCountTaskRecurrencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskRecurrenceWhereInput
+}
+
 
 export type SpaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -994,6 +1116,7 @@ export type SpaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Space$membersArgs<ExtArgs>
   tasks?: boolean | Prisma.Space$tasksArgs<ExtArgs>
+  taskRecurrences?: boolean | Prisma.Space$taskRecurrencesArgs<ExtArgs>
   _count?: boolean | Prisma.SpaceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["space"]>
 
@@ -1046,6 +1169,7 @@ export type SpaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   owner?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   members?: boolean | Prisma.Space$membersArgs<ExtArgs>
   tasks?: boolean | Prisma.Space$tasksArgs<ExtArgs>
+  taskRecurrences?: boolean | Prisma.Space$taskRecurrencesArgs<ExtArgs>
   _count?: boolean | Prisma.SpaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SpaceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1064,6 +1188,7 @@ export type $SpacePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     owner: Prisma.$UserPayload<ExtArgs>
     members: Prisma.$SpaceMemberPayload<ExtArgs>[]
     tasks: Prisma.$TaskPayload<ExtArgs>[]
+    taskRecurrences: Prisma.$TaskRecurrencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1474,6 +1599,7 @@ export interface Prisma__SpaceClient<T, Null = never, ExtArgs extends runtime.Ty
   owner<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   members<T extends Prisma.Space$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Space$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SpaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tasks<T extends Prisma.Space$tasksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Space$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  taskRecurrences<T extends Prisma.Space$taskRecurrencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Space$taskRecurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1959,6 +2085,30 @@ export type Space$tasksArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.TaskScalarFieldEnum | Prisma.TaskScalarFieldEnum[]
+}
+
+/**
+ * Space.taskRecurrences
+ */
+export type Space$taskRecurrencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaskRecurrence
+   */
+  select?: Prisma.TaskRecurrenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaskRecurrence
+   */
+  omit?: Prisma.TaskRecurrenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskRecurrenceInclude<ExtArgs> | null
+  where?: Prisma.TaskRecurrenceWhereInput
+  orderBy?: Prisma.TaskRecurrenceOrderByWithRelationInput | Prisma.TaskRecurrenceOrderByWithRelationInput[]
+  cursor?: Prisma.TaskRecurrenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskRecurrenceScalarFieldEnum | Prisma.TaskRecurrenceScalarFieldEnum[]
 }
 
 /**

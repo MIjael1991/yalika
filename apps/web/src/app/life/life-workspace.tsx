@@ -60,6 +60,17 @@ type TaskActivity = {
   } | null;
 };
 
+type TaskRecurrenceSummary = {
+  id: string;
+  frequency: string;
+  interval: number;
+  timezone: string;
+  status: string;
+  startsAt: string;
+  nextOccurrenceAt: string;
+  endsAt: string | null;
+};
+
 type LifeTask = {
   id: string;
   title: string;
@@ -72,6 +83,9 @@ type LifeTask = {
   postponedUntil: string | null;
   completedAt: string | null;
   version: number;
+  recurrenceId: string | null;
+  recurrenceOccurrenceAt: string | null;
+  recurrence: TaskRecurrenceSummary | null;
   user: UserSummary | null;
   createdBy: UserSummary | null;
   claimedBy: UserSummary | null;
@@ -115,6 +129,16 @@ const actionLabels: Record<string, string> = {
   completed: 'terminó la tarea',
   postponed: 'pospuso la tarea',
   reopened: 'reabrió la tarea',
+  recurrence_generated: 'preparó la siguiente repetición',
+  recurrence_cancelled: 'detuvo las siguientes repeticiones',
+  cancelled_with_recurrence: 'canceló una repetición futura',
+};
+
+const recurrenceLabels: Record<string, string> = {
+  daily: 'Cada día',
+  weekly: 'Cada semana',
+  monthly: 'Cada mes',
+  yearly: 'Cada año',
 };
 
 const categoryIcons: Record<string, string> = {
@@ -221,6 +245,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     dueAt: '',
     estimatedMinutes: '30',
     userId: '',
+    recurrenceFrequency: '',
+    recurrenceEndsAt: '',
   });
   const [memberForm, setMemberForm] = useState({
     email: '',
@@ -423,6 +449,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
+    if (taskForm.recurrenceFrequency && !taskForm.dueAt) {
+      setError('Elige la primera fecha y hora para poder repetir la tarea');
+      return;
+    }
+
     setSavingTask(true);
     setError('');
 
@@ -442,6 +473,14 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
             : undefined,
           userId: taskForm.userId || undefined,
           spaceId: activeSpace.id,
+          recurrenceFrequency:
+            taskForm.recurrenceFrequency || undefined,
+          recurrenceInterval: taskForm.recurrenceFrequency ? 1 : undefined,
+          recurrenceEndsAt: taskForm.recurrenceEndsAt
+            ? new Date(
+                `${taskForm.recurrenceEndsAt}T23:59:59`,
+              ).toISOString()
+            : undefined,
         }),
       });
 
@@ -453,6 +492,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         dueAt: '',
         estimatedMinutes: '30',
         userId: '',
+        recurrenceFrequency: '',
+        recurrenceEndsAt: '',
       });
       setView('active');
       await refreshTasks(true);
@@ -536,6 +577,38 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           : 'No se pudo actualizar la tarea',
       );
       await refreshTasks(true);
+    } finally {
+      setProcessingId('');
+    }
+  }
+
+  async function stopRecurrence(task: LifeTask) {
+    const confirmed = window.confirm(
+      `¿Dejar de repetir “${task.title}”? La tarea actual se conservará.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setProcessingId(task.id);
+    setError('');
+
+    try {
+      await apiRequest<LifeTask>(
+        `task/${encodeURIComponent(task.id)}/recurrence/cancel`,
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+        },
+      );
+      await refreshTasks(true);
+    } catch (actionError) {
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : 'No se pudo detener la repetición',
+      );
     } finally {
       setProcessingId('');
     }
@@ -836,6 +909,25 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                     {task.estimatedMinutes} min estimados
                                   </span>
                                 ) : null}
+                                {task.recurrence ? (
+                                  <span
+                                    className={
+                                      task.recurrence.status === 'active'
+                                        ? 'text-violet-300'
+                                        : 'text-slate-600'
+                                    }
+                                  >
+                                    ↻{' '}
+                                    {recurrenceLabels[
+                                      task.recurrence.frequency
+                                    ] ?? 'Recurrente'}
+                                    {task.recurrence.status === 'cancelled'
+                                      ? ' · detenida'
+                                      : task.recurrence.status === 'finished'
+                                        ? ' · finalizada'
+                                      : ''}
+                                  </span>
+                                ) : null}
                                 {task.claimedBy ? (
                                   <span className="text-amber-300">
                                     {task.claimedBy.name} se está encargando
@@ -934,6 +1026,18 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                     className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 disabled:opacity-50"
                                   >
                                     Reabrir
+                                  </button>
+                                ) : null}
+
+                                {canEdit &&
+                                task.recurrence?.status === 'active' ? (
+                                  <button
+                                    type="button"
+                                    disabled={processingId === task.id}
+                                    onClick={() => void stopRecurrence(task)}
+                                    className="rounded-xl border border-violet-400/30 px-3 py-2 text-xs text-violet-200 hover:bg-violet-400/10 disabled:opacity-50"
+                                  >
+                                    Dejar de repetir
                                   </button>
                                 ) : null}
                               </div>
@@ -1036,6 +1140,57 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                           className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-300 outline-none focus:border-cyan-400"
                         />
                       </label>
+
+                      <div
+                        className={`grid gap-2 ${
+                          taskForm.recurrenceFrequency
+                            ? 'grid-cols-2'
+                            : 'grid-cols-1'
+                        }`}
+                      >
+                        <label className="text-xs text-slate-500">
+                          Repetición
+                          <select
+                            value={taskForm.recurrenceFrequency}
+                            disabled={!canEdit || savingTask}
+                            onChange={(event) =>
+                              setTaskForm((current) => ({
+                                ...current,
+                                recurrenceFrequency: event.target.value,
+                                recurrenceEndsAt: event.target.value
+                                  ? current.recurrenceEndsAt
+                                  : '',
+                              }))
+                            }
+                            className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-violet-400"
+                          >
+                            <option value="">No se repite</option>
+                            <option value="daily">Cada día</option>
+                            <option value="weekly">Cada semana</option>
+                            <option value="monthly">Cada mes</option>
+                            <option value="yearly">Cada año</option>
+                          </select>
+                        </label>
+
+                        {taskForm.recurrenceFrequency ? (
+                          <label className="text-xs text-slate-500">
+                            Termina (opcional)
+                            <input
+                              type="date"
+                              value={taskForm.recurrenceEndsAt}
+                              disabled={!canEdit || savingTask}
+                              min={taskForm.dueAt.slice(0, 10) || undefined}
+                              onChange={(event) =>
+                                setTaskForm((current) => ({
+                                  ...current,
+                                  recurrenceEndsAt: event.target.value,
+                                }))
+                              }
+                              className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-300 outline-none focus:border-violet-400"
+                            />
+                          </label>
+                        ) : null}
+                      </div>
 
                       <div className="grid grid-cols-2 gap-2">
                         <label className="text-xs text-slate-500">

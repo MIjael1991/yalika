@@ -43,6 +43,7 @@ model Company {
   returns           Return[]
   refunds           Refund[]
   spaces            Space[]
+  taskRecurrences   TaskRecurrence[]
 
   @@map("companies")
 }
@@ -73,6 +74,8 @@ model User {
   claimedTasks        Task[]          @relation("TaskClaimer")
   completedTasks      Task[]          @relation("TaskCompleter")
   taskActivities      TaskActivity[]  @relation("TaskActivityActor")
+  createdTaskRecurrences TaskRecurrence[] @relation("TaskRecurrenceCreator")
+  assignedTaskRecurrences TaskRecurrence[] @relation("TaskRecurrenceAssignee")
   authSessions        AuthSession[]
   authorizedReturns   Return[]        @relation("ReturnAuthorizedBy")
   processedRefunds    Refund[]        @relation("RefundProcessedBy")
@@ -135,6 +138,7 @@ model Space {
 
   members SpaceMember[]
   tasks   Task[]
+  taskRecurrences TaskRecurrence[]
 
   @@index([companyId, type, status])
   @@index([ownerUserId, status])
@@ -193,12 +197,55 @@ model Task {
   completedById String?
   completedBy   User?   @relation("TaskCompleter", fields: [completedById], references: [id], onDelete: SetNull)
 
+  recurrenceId String?
+  recurrence   TaskRecurrence? @relation(fields: [recurrenceId], references: [id], onDelete: SetNull)
+  recurrenceOccurrenceAt DateTime?
+
   activities TaskActivity[]
 
+  @@unique([recurrenceId, recurrenceOccurrenceAt])
   @@index([companyId, status, dueAt])
   @@index([spaceId, status, dueAt])
   @@index([userId, status])
+  @@index([recurrenceId, status])
   @@map("tasks")
+}
+
+model TaskRecurrence {
+  id                 String   @id @default(uuid())
+  title              String
+  description        String?
+  category           String?
+  priority           String   @default("normal")
+  estimatedMinutes   Int?
+  frequency          String
+  interval           Int      @default(1)
+  timezone           String   @default("UTC")
+  status             String   @default("active")
+  startsAt           DateTime
+  nextOccurrenceAt   DateTime
+  endsAt             DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  spaceId String
+  space   Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?   @relation("TaskRecurrenceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?   @relation("TaskRecurrenceAssignee", fields: [userId], references: [id], onDelete: SetNull)
+
+  tasks Task[]
+
+  @@index([spaceId, status, nextOccurrenceAt])
+  @@index([companyId, status, nextOccurrenceAt])
+  @@index([userId, status])
+  @@map("task_recurrences")
 }
 
 model TaskActivity {

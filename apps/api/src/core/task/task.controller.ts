@@ -24,12 +24,12 @@ export class TaskController {
 
   @Get()
   findAll(@CurrentAuth() auth: AuthContext) {
-    return this.taskService.findAll(auth.user.companyId);
+    return this.taskService.findAll(auth.user.companyId, auth.user.id);
   }
 
   @Get('today')
   findToday(@CurrentAuth() auth: AuthContext) {
-    return this.taskService.findToday(auth.user.companyId);
+    return this.taskService.findToday(auth.user.companyId, auth.user.id);
   }
 
   @Get('today/priority/:priority')
@@ -40,6 +40,7 @@ export class TaskController {
     return this.taskService.findTodayByPriority(
       priority,
       auth.user.companyId,
+      auth.user.id,
     );
   }
 
@@ -86,5 +87,13 @@ export class TaskController {
   @Post(':id/reopen')
   reopen(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
     return this.taskService.reopen(id, auth.user.id);
+  }
+
+  @Post(':id/recurrence/cancel')
+  cancelRecurrence(
+    @Param('id') id: string,
+    @CurrentAuth() auth: AuthContext,
+  ) {
+    return this.taskService.cancelRecurrence(id, auth.user.id);
   }
 }

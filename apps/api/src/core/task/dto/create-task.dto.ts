@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsIn,
   IsNotEmpty,
   IsInt,
   IsOptional,
@@ -60,4 +61,24 @@ export class CreateTaskDto {
   })
   spaceId?: string;
 
+  @IsOptional()
+  @IsIn(['daily', 'weekly', 'monthly', 'yearly'], {
+    message: 'La frecuencia debe ser diaria, semanal, mensual o anual',
+  })
+  recurrenceFrequency?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(365)
+  recurrenceInterval?: number;
+
+  @IsOptional()
+  @IsDateString(
+    {},
+    {
+      message: 'La fecha final de repetición no es válida',
+    },
+  )
+  recurrenceEndsAt?: string;
 }
