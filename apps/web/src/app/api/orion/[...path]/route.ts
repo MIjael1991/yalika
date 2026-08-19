@@ -14,6 +14,7 @@ const allowedRoots = new Set([
   'order',
   'order-split',
   'payment',
+  'reminder',
   'return',
   'space',
   'task',

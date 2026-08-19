@@ -61,6 +61,17 @@ const taskInclude = {
       startsAt: true,
       nextOccurrenceAt: true,
       endsAt: true,
+      reminderMinutesBefore: true,
+    },
+  },
+  reminder: {
+    select: {
+      id: true,
+      leadMinutes: true,
+      remindAt: true,
+      status: true,
+      snoozeCount: true,
+      userId: true,
     },
   },
   activities: {
@@ -91,6 +102,7 @@ type RecurrenceRecord = {
   category: string | null;
   priority: string;
   estimatedMinutes: number | null;
+  reminderMinutesBefore: number | null;
   frequency: string;
   interval: number;
   startsAt: Date;
@@ -283,6 +295,22 @@ export class TaskService {
       ? new Date(dto.recurrenceEndsAt)
       : undefined;
 
+    if (dto.reminderMinutesBefore !== undefined && !dueAt) {
+      throw new BadRequestException(
+        'Indica la fecha y hora para poder crear un recordatorio',
+      );
+    }
+
+    const reminderRecipientId = dto.userId ?? actorUserId;
+    const reminder =
+      dueAt && dto.reminderMinutesBefore !== undefined
+        ? this.buildReminderCreate(
+            dueAt,
+            dto.reminderMinutesBefore,
+            reminderRecipientId,
+          )
+        : undefined;
+
     if (
       recurrenceFrequency &&
       dueAt &&
@@ -313,6 +341,7 @@ export class TaskService {
             category: dto.category?.trim() || undefined,
             priority: dto.priority ?? 'normal',
             estimatedMinutes: dto.estimatedMinutes,
+            reminderMinutesBefore: dto.reminderMinutesBefore,
             frequency: recurrenceFrequency,
             interval,
             timezone: recurrenceTimezone,
@@ -346,6 +375,7 @@ export class TaskService {
             createdById: actorUserId,
             recurrenceId: recurrence.id,
             recurrenceOccurrenceAt: dueAt,
+            reminder,
             activities: {
               create: {
                 action: 'created',
@@ -377,6 +407,7 @@ export class TaskService {
         userId: dto.userId,
         spaceId: dto.spaceId,
         createdById: actorUserId,
+        reminder,
         activities: {
           create: {
             action: 'created',
@@ -474,6 +505,19 @@ export class TaskService {
               note: 'Se canceló porque la serie dejó de repetirse',
             })),
           });
+
+          await tx.taskReminder.updateMany({
+            where: {
+              taskId: {
+                in: futureTasks.map((futureTask) => futureTask.id),
+              },
+              status: 'scheduled',
+            },
+            data: {
+              status: 'cancelled',
+              cancelledAt: new Date(),
+            },
+          });
         }
 
         await tx.taskActivity.create({
@@ -555,6 +599,16 @@ export class TaskService {
         );
       }
 
+      await tx.taskReminder.updateMany({
+        where: {
+          taskId,
+          status: 'scheduled',
+        },
+        data: {
+          userId: actorUserId,
+        },
+      });
+
       await tx.taskActivity.create({
         data: {
           taskId,
@@ -620,6 +674,17 @@ export class TaskService {
           version: {
             increment: 1,
           },
+        },
+      });
+
+      await tx.taskReminder.updateMany({
+        where: {
+          taskId,
+          status: 'scheduled',
+        },
+        data: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
         },
       });
 
@@ -691,6 +756,25 @@ export class TaskService {
         },
       });
 
+      if (task.reminder) {
+        const remindAt = new Date(
+          postponedUntil.getTime() -
+            task.reminder.leadMinutes * 60_000,
+        );
+
+        await tx.taskReminder.update({
+          where: {
+            taskId,
+          },
+          data: {
+            remindAt,
+            status: 'scheduled',
+            acknowledgedAt: null,
+            cancelledAt: null,
+          },
+        });
+      }
+
       await tx.taskActivity.create({
         data: {
           taskId,
@@ -745,6 +829,24 @@ export class TaskService {
           },
         },
       });
+
+      if (task.reminder && task.dueAt) {
+        const remindAt = new Date(
+          task.dueAt.getTime() - task.reminder.leadMinutes * 60_000,
+        );
+
+        await tx.taskReminder.update({
+          where: {
+            taskId,
+          },
+          data: {
+            remindAt,
+            status: 'scheduled',
+            acknowledgedAt: null,
+            cancelledAt: null,
+          },
+        });
+      }
 
       await tx.taskActivity.create({
         data: {
@@ -906,6 +1008,16 @@ export class TaskService {
       nextOccurrenceAt.getTime() > recurrence.endsAt.getTime()
         ? 'finished'
         : 'active';
+    const reminderRecipientId =
+      recurrence.userId ?? recurrence.createdById;
+    const reminder =
+      recurrence.reminderMinutesBefore !== null && reminderRecipientId
+        ? this.buildReminderCreate(
+            occurrenceAt,
+            recurrence.reminderMinutesBefore,
+            reminderRecipientId,
+          )
+        : undefined;
 
     return this.prisma.$transaction(async (tx) => {
       const claimed = await tx.taskRecurrence.updateMany({
@@ -939,6 +1051,7 @@ export class TaskService {
           createdById: recurrence.createdById,
           recurrenceId: recurrence.id,
           recurrenceOccurrenceAt: occurrenceAt,
+          reminder,
           activities: {
             create: {
               action: 'recurrence_generated',
@@ -954,6 +1067,23 @@ export class TaskService {
 
       return true;
     });
+  }
+
+  private buildReminderCreate(
+    dueAt: Date,
+    leadMinutes: number,
+    userId: string,
+  ) {
+    const remindAt = new Date(dueAt.getTime() - leadMinutes * 60_000);
+
+    return {
+      create: {
+        leadMinutes,
+        remindAt,
+        originalRemindAt: remindAt,
+        userId,
+      },
+    };
   }
 
   private getTodayRange() {
@@ -1002,6 +1132,9 @@ export class TaskService {
     const task = await this.prisma.task.findUnique({
       where: {
         id: taskId,
+      },
+      include: {
+        reminder: true,
       },
     });
 

@@ -405,6 +405,7 @@ export const ModelName = {
   SpaceMember: 'SpaceMember',
   Task: 'Task',
   TaskRecurrence: 'TaskRecurrence',
+  TaskReminder: 'TaskReminder',
   TaskActivity: 'TaskActivity',
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
@@ -459,7 +460,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "company" | "user" | "authSession" | "role" | "space" | "spaceMember" | "task" | "taskRecurrence" | "taskActivity" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "orderDiscount" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
+    modelProps: "company" | "user" | "authSession" | "role" | "space" | "spaceMember" | "task" | "taskRecurrence" | "taskReminder" | "taskActivity" | "incident" | "incidentAlternative" | "knowledgeTemplate" | "knowledgeAlternativeTemplate" | "event" | "workflow" | "workflowStep" | "experience" | "customer" | "visit" | "loyaltyProgram" | "customerReward" | "productCategory" | "product" | "productVariant" | "productImage" | "promotion" | "promotionProduct" | "site" | "siteSection" | "supplier" | "inventoryItem" | "stockMovement" | "inventoryCount" | "stockReceipt" | "stockReceiptLine" | "productRecipe" | "productRecipeComponent" | "order" | "orderItem" | "orderDiscount" | "payment" | "diningTable" | "orderSplit" | "orderSplitItem" | "return" | "returnItem" | "refund"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1052,6 +1053,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TaskRecurrenceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TaskRecurrenceCountAggregateOutputType> | number
+        }
+      }
+    }
+    TaskReminder: {
+      payload: Prisma.$TaskReminderPayload<ExtArgs>
+      fields: Prisma.TaskReminderFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TaskReminderFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TaskReminderFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        findFirst: {
+          args: Prisma.TaskReminderFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TaskReminderFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        findMany: {
+          args: Prisma.TaskReminderFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>[]
+        }
+        create: {
+          args: Prisma.TaskReminderCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        createMany: {
+          args: Prisma.TaskReminderCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TaskReminderCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>[]
+        }
+        delete: {
+          args: Prisma.TaskReminderDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        update: {
+          args: Prisma.TaskReminderUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        deleteMany: {
+          args: Prisma.TaskReminderDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TaskReminderUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TaskReminderUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>[]
+        }
+        upsert: {
+          args: Prisma.TaskReminderUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TaskReminderPayload>
+        }
+        aggregate: {
+          args: Prisma.TaskReminderAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTaskReminder>
+        }
+        groupBy: {
+          args: Prisma.TaskReminderGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaskReminderGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TaskReminderCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TaskReminderCountAggregateOutputType> | number
         }
       }
     }
@@ -4101,6 +4176,7 @@ export const TaskRecurrenceScalarFieldEnum = {
   category: 'category',
   priority: 'priority',
   estimatedMinutes: 'estimatedMinutes',
+  reminderMinutesBefore: 'reminderMinutesBefore',
   frequency: 'frequency',
   interval: 'interval',
   timezone: 'timezone',
@@ -4117,6 +4193,24 @@ export const TaskRecurrenceScalarFieldEnum = {
 } as const
 
 export type TaskRecurrenceScalarFieldEnum = (typeof TaskRecurrenceScalarFieldEnum)[keyof typeof TaskRecurrenceScalarFieldEnum]
+
+
+export const TaskReminderScalarFieldEnum = {
+  id: 'id',
+  leadMinutes: 'leadMinutes',
+  remindAt: 'remindAt',
+  originalRemindAt: 'originalRemindAt',
+  status: 'status',
+  snoozeCount: 'snoozeCount',
+  acknowledgedAt: 'acknowledgedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  taskId: 'taskId',
+  userId: 'userId'
+} as const
+
+export type TaskReminderScalarFieldEnum = (typeof TaskReminderScalarFieldEnum)[keyof typeof TaskReminderScalarFieldEnum]
 
 
 export const TaskActivityScalarFieldEnum = {
@@ -5089,6 +5183,7 @@ export type GlobalOmitConfig = {
   spaceMember?: Prisma.SpaceMemberOmit
   task?: Prisma.TaskOmit
   taskRecurrence?: Prisma.TaskRecurrenceOmit
+  taskReminder?: Prisma.TaskReminderOmit
   taskActivity?: Prisma.TaskActivityOmit
   incident?: Prisma.IncidentOmit
   incidentAlternative?: Prisma.IncidentAlternativeOmit

@@ -58,6 +58,11 @@ export type Task = Prisma.TaskModel
  */
 export type TaskRecurrence = Prisma.TaskRecurrenceModel
 /**
+ * Model TaskReminder
+ * 
+ */
+export type TaskReminder = Prisma.TaskReminderModel
+/**
  * Model TaskActivity
  * 
  */

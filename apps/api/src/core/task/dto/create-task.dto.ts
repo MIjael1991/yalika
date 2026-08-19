@@ -81,4 +81,10 @@ export class CreateTaskDto {
     },
   )
   recurrenceEndsAt?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(10080)
+  reminderMinutesBefore?: number;
 }

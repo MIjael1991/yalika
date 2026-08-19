@@ -76,6 +76,7 @@ model User {
   taskActivities      TaskActivity[]  @relation("TaskActivityActor")
   createdTaskRecurrences TaskRecurrence[] @relation("TaskRecurrenceCreator")
   assignedTaskRecurrences TaskRecurrence[] @relation("TaskRecurrenceAssignee")
+  taskReminders           TaskReminder[]
   authSessions        AuthSession[]
   authorizedReturns   Return[]        @relation("ReturnAuthorizedBy")
   processedRefunds    Refund[]        @relation("RefundProcessedBy")
@@ -202,6 +203,7 @@ model Task {
   recurrenceOccurrenceAt DateTime?
 
   activities TaskActivity[]
+  reminder   TaskReminder?
 
   @@unique([recurrenceId, recurrenceOccurrenceAt])
   @@index([companyId, status, dueAt])
@@ -218,6 +220,7 @@ model TaskRecurrence {
   category           String?
   priority           String   @default("normal")
   estimatedMinutes   Int?
+  reminderMinutesBefore Int?
   frequency          String
   interval           Int      @default(1)
   timezone           String   @default("UTC")
@@ -246,6 +249,29 @@ model TaskRecurrence {
   @@index([companyId, status, nextOccurrenceAt])
   @@index([userId, status])
   @@map("task_recurrences")
+}
+
+model TaskReminder {
+  id               String    @id @default(uuid())
+  leadMinutes      Int
+  remindAt         DateTime
+  originalRemindAt DateTime
+  status           String    @default("scheduled")
+  snoozeCount      Int       @default(0)
+  acknowledgedAt   DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  taskId String @unique
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, status, remindAt])
+  @@index([taskId, status])
+  @@map("task_reminders")
 }
 
 model TaskActivity {

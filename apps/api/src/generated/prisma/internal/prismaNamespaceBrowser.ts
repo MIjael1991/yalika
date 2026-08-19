@@ -59,6 +59,7 @@ export const ModelName = {
   SpaceMember: 'SpaceMember',
   Task: 'Task',
   TaskRecurrence: 'TaskRecurrence',
+  TaskReminder: 'TaskReminder',
   TaskActivity: 'TaskActivity',
   Incident: 'Incident',
   IncidentAlternative: 'IncidentAlternative',
@@ -237,6 +238,7 @@ export const TaskRecurrenceScalarFieldEnum = {
   category: 'category',
   priority: 'priority',
   estimatedMinutes: 'estimatedMinutes',
+  reminderMinutesBefore: 'reminderMinutesBefore',
   frequency: 'frequency',
   interval: 'interval',
   timezone: 'timezone',
@@ -253,6 +255,24 @@ export const TaskRecurrenceScalarFieldEnum = {
 } as const
 
 export type TaskRecurrenceScalarFieldEnum = (typeof TaskRecurrenceScalarFieldEnum)[keyof typeof TaskRecurrenceScalarFieldEnum]
+
+
+export const TaskReminderScalarFieldEnum = {
+  id: 'id',
+  leadMinutes: 'leadMinutes',
+  remindAt: 'remindAt',
+  originalRemindAt: 'originalRemindAt',
+  status: 'status',
+  snoozeCount: 'snoozeCount',
+  acknowledgedAt: 'acknowledgedAt',
+  cancelledAt: 'cancelledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  taskId: 'taskId',
+  userId: 'userId'
+} as const
+
+export type TaskReminderScalarFieldEnum = (typeof TaskReminderScalarFieldEnum)[keyof typeof TaskReminderScalarFieldEnum]
 
 
 export const TaskActivityScalarFieldEnum = {

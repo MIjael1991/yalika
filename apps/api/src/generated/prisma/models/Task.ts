@@ -356,6 +356,7 @@ export type TaskWhereInput = {
   completedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   recurrence?: Prisma.XOR<Prisma.TaskRecurrenceNullableScalarRelationFilter, Prisma.TaskRecurrenceWhereInput> | null
   activities?: Prisma.TaskActivityListRelationFilter
+  reminder?: Prisma.XOR<Prisma.TaskReminderNullableScalarRelationFilter, Prisma.TaskReminderWhereInput> | null
 }
 
 export type TaskOrderByWithRelationInput = {
@@ -388,6 +389,7 @@ export type TaskOrderByWithRelationInput = {
   completedBy?: Prisma.UserOrderByWithRelationInput
   recurrence?: Prisma.TaskRecurrenceOrderByWithRelationInput
   activities?: Prisma.TaskActivityOrderByRelationAggregateInput
+  reminder?: Prisma.TaskReminderOrderByWithRelationInput
 }
 
 export type TaskWhereUniqueInput = Prisma.AtLeast<{
@@ -424,6 +426,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   completedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   recurrence?: Prisma.XOR<Prisma.TaskRecurrenceNullableScalarRelationFilter, Prisma.TaskRecurrenceWhereInput> | null
   activities?: Prisma.TaskActivityListRelationFilter
+  reminder?: Prisma.XOR<Prisma.TaskReminderNullableScalarRelationFilter, Prisma.TaskReminderWhereInput> | null
 }, "id" | "recurrenceId_recurrenceOccurrenceAt">
 
 export type TaskOrderByWithAggregationInput = {
@@ -505,6 +508,7 @@ export type TaskCreateInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateInput = {
@@ -530,6 +534,7 @@ export type TaskUncheckedCreateInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUpdateInput = {
@@ -555,6 +560,7 @@ export type TaskUpdateInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateInput = {
@@ -580,6 +586,7 @@ export type TaskUncheckedUpdateInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskCreateManyInput = {
@@ -1051,6 +1058,20 @@ export type TaskUncheckedUpdateManyWithoutRecurrenceNestedInput = {
   deleteMany?: Prisma.TaskScalarWhereInput | Prisma.TaskScalarWhereInput[]
 }
 
+export type TaskCreateNestedOneWithoutReminderInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutReminderInput, Prisma.TaskUncheckedCreateWithoutReminderInput>
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutReminderInput
+  connect?: Prisma.TaskWhereUniqueInput
+}
+
+export type TaskUpdateOneRequiredWithoutReminderNestedInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutReminderInput, Prisma.TaskUncheckedCreateWithoutReminderInput>
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutReminderInput
+  upsert?: Prisma.TaskUpsertWithoutReminderInput
+  connect?: Prisma.TaskWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TaskUpdateToOneWithWhereWithoutReminderInput, Prisma.TaskUpdateWithoutReminderInput>, Prisma.TaskUncheckedUpdateWithoutReminderInput>
+}
+
 export type TaskCreateNestedOneWithoutActivitiesInput = {
   create?: Prisma.XOR<Prisma.TaskCreateWithoutActivitiesInput, Prisma.TaskUncheckedCreateWithoutActivitiesInput>
   connectOrCreate?: Prisma.TaskCreateOrConnectWithoutActivitiesInput
@@ -1087,6 +1108,7 @@ export type TaskCreateWithoutCompanyInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutCompanyInput = {
@@ -1111,6 +1133,7 @@ export type TaskUncheckedCreateWithoutCompanyInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutCompanyInput = {
@@ -1188,6 +1211,7 @@ export type TaskCreateWithoutUserInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutUserInput = {
@@ -1212,6 +1236,7 @@ export type TaskUncheckedCreateWithoutUserInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutUserInput = {
@@ -1246,6 +1271,7 @@ export type TaskCreateWithoutCreatedByInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutCreatedByInput = {
@@ -1270,6 +1296,7 @@ export type TaskUncheckedCreateWithoutCreatedByInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutCreatedByInput = {
@@ -1304,6 +1331,7 @@ export type TaskCreateWithoutClaimedByInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutClaimedByInput = {
@@ -1328,6 +1356,7 @@ export type TaskUncheckedCreateWithoutClaimedByInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutClaimedByInput = {
@@ -1362,6 +1391,7 @@ export type TaskCreateWithoutCompletedByInput = {
   claimedBy?: Prisma.UserCreateNestedOneWithoutClaimedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutCompletedByInput = {
@@ -1386,6 +1416,7 @@ export type TaskUncheckedCreateWithoutCompletedByInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutCompletedByInput = {
@@ -1484,6 +1515,7 @@ export type TaskCreateWithoutSpaceInput = {
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutSpaceInput = {
@@ -1508,6 +1540,7 @@ export type TaskUncheckedCreateWithoutSpaceInput = {
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutSpaceInput = {
@@ -1558,6 +1591,7 @@ export type TaskCreateWithoutRecurrenceInput = {
   claimedBy?: Prisma.UserCreateNestedOneWithoutClaimedTasksInput
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutRecurrenceInput = {
@@ -1582,6 +1616,7 @@ export type TaskUncheckedCreateWithoutRecurrenceInput = {
   completedById?: string | null
   recurrenceOccurrenceAt?: Date | string | null
   activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutRecurrenceInput = {
@@ -1610,6 +1645,122 @@ export type TaskUpdateManyWithWhereWithoutRecurrenceInput = {
   data: Prisma.XOR<Prisma.TaskUpdateManyMutationInput, Prisma.TaskUncheckedUpdateManyWithoutRecurrenceInput>
 }
 
+export type TaskCreateWithoutReminderInput = {
+  id?: string
+  title: string
+  description?: string | null
+  category?: string | null
+  priority?: string
+  status?: string
+  dueAt?: Date | string | null
+  estimatedMinutes?: number | null
+  postponedUntil?: Date | string | null
+  completedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  recurrenceOccurrenceAt?: Date | string | null
+  company: Prisma.CompanyCreateNestedOneWithoutTasksInput
+  user?: Prisma.UserCreateNestedOneWithoutTasksInput
+  space?: Prisma.SpaceCreateNestedOneWithoutTasksInput
+  createdBy?: Prisma.UserCreateNestedOneWithoutCreatedTasksInput
+  claimedBy?: Prisma.UserCreateNestedOneWithoutClaimedTasksInput
+  completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
+  recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
+  activities?: Prisma.TaskActivityCreateNestedManyWithoutTaskInput
+}
+
+export type TaskUncheckedCreateWithoutReminderInput = {
+  id?: string
+  title: string
+  description?: string | null
+  category?: string | null
+  priority?: string
+  status?: string
+  dueAt?: Date | string | null
+  estimatedMinutes?: number | null
+  postponedUntil?: Date | string | null
+  completedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  userId?: string | null
+  spaceId?: string | null
+  createdById?: string | null
+  claimedById?: string | null
+  completedById?: string | null
+  recurrenceId?: string | null
+  recurrenceOccurrenceAt?: Date | string | null
+  activities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutTaskInput
+}
+
+export type TaskCreateOrConnectWithoutReminderInput = {
+  where: Prisma.TaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.TaskCreateWithoutReminderInput, Prisma.TaskUncheckedCreateWithoutReminderInput>
+}
+
+export type TaskUpsertWithoutReminderInput = {
+  update: Prisma.XOR<Prisma.TaskUpdateWithoutReminderInput, Prisma.TaskUncheckedUpdateWithoutReminderInput>
+  create: Prisma.XOR<Prisma.TaskCreateWithoutReminderInput, Prisma.TaskUncheckedCreateWithoutReminderInput>
+  where?: Prisma.TaskWhereInput
+}
+
+export type TaskUpdateToOneWithWhereWithoutReminderInput = {
+  where?: Prisma.TaskWhereInput
+  data: Prisma.XOR<Prisma.TaskUpdateWithoutReminderInput, Prisma.TaskUncheckedUpdateWithoutReminderInput>
+}
+
+export type TaskUpdateWithoutReminderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  company?: Prisma.CompanyUpdateOneRequiredWithoutTasksNestedInput
+  user?: Prisma.UserUpdateOneWithoutTasksNestedInput
+  space?: Prisma.SpaceUpdateOneWithoutTasksNestedInput
+  createdBy?: Prisma.UserUpdateOneWithoutCreatedTasksNestedInput
+  claimedBy?: Prisma.UserUpdateOneWithoutClaimedTasksNestedInput
+  completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
+  recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
+  activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+}
+
+export type TaskUncheckedUpdateWithoutReminderInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  dueAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  spaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  claimedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+}
+
 export type TaskCreateWithoutActivitiesInput = {
   id?: string
   title: string
@@ -1632,6 +1783,7 @@ export type TaskCreateWithoutActivitiesInput = {
   claimedBy?: Prisma.UserCreateNestedOneWithoutClaimedTasksInput
   completedBy?: Prisma.UserCreateNestedOneWithoutCompletedTasksInput
   recurrence?: Prisma.TaskRecurrenceCreateNestedOneWithoutTasksInput
+  reminder?: Prisma.TaskReminderCreateNestedOneWithoutTaskInput
 }
 
 export type TaskUncheckedCreateWithoutActivitiesInput = {
@@ -1656,6 +1808,7 @@ export type TaskUncheckedCreateWithoutActivitiesInput = {
   completedById?: string | null
   recurrenceId?: string | null
   recurrenceOccurrenceAt?: Date | string | null
+  reminder?: Prisma.TaskReminderUncheckedCreateNestedOneWithoutTaskInput
 }
 
 export type TaskCreateOrConnectWithoutActivitiesInput = {
@@ -1696,6 +1849,7 @@ export type TaskUpdateWithoutActivitiesInput = {
   claimedBy?: Prisma.UserUpdateOneWithoutClaimedTasksNestedInput
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutActivitiesInput = {
@@ -1720,6 +1874,7 @@ export type TaskUncheckedUpdateWithoutActivitiesInput = {
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskCreateManyCompanyInput = {
@@ -1767,6 +1922,7 @@ export type TaskUpdateWithoutCompanyInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutCompanyInput = {
@@ -1791,6 +1947,7 @@ export type TaskUncheckedUpdateWithoutCompanyInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutCompanyInput = {
@@ -1930,6 +2087,7 @@ export type TaskUpdateWithoutUserInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutUserInput = {
@@ -1954,6 +2112,7 @@ export type TaskUncheckedUpdateWithoutUserInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutUserInput = {
@@ -2001,6 +2160,7 @@ export type TaskUpdateWithoutCreatedByInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutCreatedByInput = {
@@ -2025,6 +2185,7 @@ export type TaskUncheckedUpdateWithoutCreatedByInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutCreatedByInput = {
@@ -2072,6 +2233,7 @@ export type TaskUpdateWithoutClaimedByInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutClaimedByInput = {
@@ -2096,6 +2258,7 @@ export type TaskUncheckedUpdateWithoutClaimedByInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutClaimedByInput = {
@@ -2143,6 +2306,7 @@ export type TaskUpdateWithoutCompletedByInput = {
   claimedBy?: Prisma.UserUpdateOneWithoutClaimedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutCompletedByInput = {
@@ -2167,6 +2331,7 @@ export type TaskUncheckedUpdateWithoutCompletedByInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutCompletedByInput = {
@@ -2237,6 +2402,7 @@ export type TaskUpdateWithoutSpaceInput = {
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   recurrence?: Prisma.TaskRecurrenceUpdateOneWithoutTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutSpaceInput = {
@@ -2261,6 +2427,7 @@ export type TaskUncheckedUpdateWithoutSpaceInput = {
   recurrenceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutSpaceInput = {
@@ -2331,6 +2498,7 @@ export type TaskUpdateWithoutRecurrenceInput = {
   claimedBy?: Prisma.UserUpdateOneWithoutClaimedTasksNestedInput
   completedBy?: Prisma.UserUpdateOneWithoutCompletedTasksNestedInput
   activities?: Prisma.TaskActivityUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateWithoutRecurrenceInput = {
@@ -2355,6 +2523,7 @@ export type TaskUncheckedUpdateWithoutRecurrenceInput = {
   completedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   activities?: Prisma.TaskActivityUncheckedUpdateManyWithoutTaskNestedInput
+  reminder?: Prisma.TaskReminderUncheckedUpdateOneWithoutTaskNestedInput
 }
 
 export type TaskUncheckedUpdateManyWithoutRecurrenceInput = {
@@ -2441,6 +2610,7 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   completedBy?: boolean | Prisma.Task$completedByArgs<ExtArgs>
   recurrence?: boolean | Prisma.Task$recurrenceArgs<ExtArgs>
   activities?: boolean | Prisma.Task$activitiesArgs<ExtArgs>
+  reminder?: boolean | Prisma.Task$reminderArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
@@ -2540,6 +2710,7 @@ export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   completedBy?: boolean | Prisma.Task$completedByArgs<ExtArgs>
   recurrence?: boolean | Prisma.Task$recurrenceArgs<ExtArgs>
   activities?: boolean | Prisma.Task$activitiesArgs<ExtArgs>
+  reminder?: boolean | Prisma.Task$reminderArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2572,6 +2743,7 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     completedBy: Prisma.$UserPayload<ExtArgs> | null
     recurrence: Prisma.$TaskRecurrencePayload<ExtArgs> | null
     activities: Prisma.$TaskActivityPayload<ExtArgs>[]
+    reminder: Prisma.$TaskReminderPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2997,6 +3169,7 @@ export interface Prisma__TaskClient<T, Null = never, ExtArgs extends runtime.Typ
   completedBy<T extends Prisma.Task$completedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$completedByArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   recurrence<T extends Prisma.Task$recurrenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$recurrenceArgs<ExtArgs>>): Prisma.Prisma__TaskRecurrenceClient<runtime.Types.Result.GetResult<Prisma.$TaskRecurrencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   activities<T extends Prisma.Task$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reminder<T extends Prisma.Task$reminderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$reminderArgs<ExtArgs>>): Prisma.Prisma__TaskReminderClient<runtime.Types.Result.GetResult<Prisma.$TaskReminderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3583,6 +3756,25 @@ export type Task$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.TaskActivityScalarFieldEnum | Prisma.TaskActivityScalarFieldEnum[]
+}
+
+/**
+ * Task.reminder
+ */
+export type Task$reminderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaskReminder
+   */
+  select?: Prisma.TaskReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaskReminder
+   */
+  omit?: Prisma.TaskReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskReminderInclude<ExtArgs> | null
+  where?: Prisma.TaskReminderWhereInput
 }
 
 /**

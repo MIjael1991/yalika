@@ -42,6 +42,9 @@ describe('TaskService shared work', () => {
       taskActivity: {
         create: jest.fn().mockResolvedValue({ id: 'activity-1' }),
       },
+      taskReminder: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
     };
     const prisma = {
       task: {
@@ -85,6 +88,17 @@ describe('TaskService shared work', () => {
         where: expect.objectContaining({
           claimedById: null,
         }),
+      }),
+    );
+    expect(transaction.taskReminder.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          taskId: 'task-1',
+          status: 'scheduled',
+        }),
+        data: {
+          userId: 'user-1',
+        },
       }),
     );
     expect(transaction.taskActivity.create).toHaveBeenCalledWith(
@@ -156,6 +170,7 @@ describe('TaskService recurring work', () => {
       category: 'payment',
       priority: 'normal',
       estimatedMinutes: 15,
+      reminderMinutesBefore: null,
       frequency: 'monthly',
       interval: 1,
       startsAt,

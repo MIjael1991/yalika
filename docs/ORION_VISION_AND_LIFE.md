@@ -116,6 +116,20 @@ interpreta todavía expresiones como "el segundo martes" ni ajusta automáticame
 la hora civil en regiones con cambios estacionales. Esas reglas se incorporarán
 al motor de calendario antes de abrirlo globalmente.
 
+## Recordatorios internos del piloto
+
+Cada tarea con fecha puede avisar a la hora indicada o con anticipación de 15
+minutos, 30 minutos, una hora o un día. El recordatorio pertenece a una cuenta
+autenticada: inicialmente al responsable o al creador, y se transfiere cuando
+otra persona toma una tarea compartida. Completar la tarea cancela el aviso;
+posponerla recalcula el horario; posponer solamente el recordatorio conserva la
+fecha real de la actividad. Todas estas decisiones quedan auditadas.
+
+El centro muestra avisos vencidos y los próximos de 24 horas mientras ORION está
+abierto. No se debe afirmar todavía que son alarmas del dispositivo: para avisar
+con la aplicación cerrada faltan Service Worker, suscripción push, permisos,
+entrega persistente y preferencias de silencio.
+
 ## Pagos, recibos y memoria predictiva
 
 El usuario podrá fotografiar un recibo. ORION propondrá, sujeto a confirmación:
@@ -231,7 +245,8 @@ bloque agregó contraseña cifrada con scrypt, bloqueo temporal por intentos fal
 sesiones opacas y revocables en PostgreSQL, cookie HttpOnly, identidad derivada en
 el servidor, cierre de sesión y protección de espacios y tareas. Los espacios
 personales ya no admiten integrantes. El bloque actual agrega series recurrentes
-con generación anticipada y protección contra duplicados.
+con generación anticipada y protección contra duplicados, además del primer
+centro de recordatorios internos con destinatario, posposición y auditoría.
 
 Todavía no incluye alta pública de cuentas, recuperación de contraseña, segundo
 factor, invitaciones externas, WebSockets, alarmas del dispositivo, recurrencias

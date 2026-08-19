@@ -30,6 +30,7 @@ import { DiningTableModule } from './core/dining-table/dining-table.module';
 import { OrderSplitModule } from './core/order-split/order-split.module';
 import { OrderDiscountModule } from './core/order-discount/order-discount.module';
 import { SpaceModule } from './core/space/space.module';
+import { ReminderModule } from './core/reminder/reminder.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { SpaceModule } from './core/space/space.module';
 
     SpaceModule,
     TaskModule,
+    ReminderModule,
     OperationsModule,
     CustomerModule,
     VisitModule,

@@ -28,11 +28,13 @@ export type AggregateTaskRecurrence = {
 
 export type TaskRecurrenceAvgAggregateOutputType = {
   estimatedMinutes: number | null
+  reminderMinutesBefore: number | null
   interval: number | null
 }
 
 export type TaskRecurrenceSumAggregateOutputType = {
   estimatedMinutes: number | null
+  reminderMinutesBefore: number | null
   interval: number | null
 }
 
@@ -43,6 +45,7 @@ export type TaskRecurrenceMinAggregateOutputType = {
   category: string | null
   priority: string | null
   estimatedMinutes: number | null
+  reminderMinutesBefore: number | null
   frequency: string | null
   interval: number | null
   timezone: string | null
@@ -65,6 +68,7 @@ export type TaskRecurrenceMaxAggregateOutputType = {
   category: string | null
   priority: string | null
   estimatedMinutes: number | null
+  reminderMinutesBefore: number | null
   frequency: string | null
   interval: number | null
   timezone: string | null
@@ -87,6 +91,7 @@ export type TaskRecurrenceCountAggregateOutputType = {
   category: number
   priority: number
   estimatedMinutes: number
+  reminderMinutesBefore: number
   frequency: number
   interval: number
   timezone: number
@@ -106,11 +111,13 @@ export type TaskRecurrenceCountAggregateOutputType = {
 
 export type TaskRecurrenceAvgAggregateInputType = {
   estimatedMinutes?: true
+  reminderMinutesBefore?: true
   interval?: true
 }
 
 export type TaskRecurrenceSumAggregateInputType = {
   estimatedMinutes?: true
+  reminderMinutesBefore?: true
   interval?: true
 }
 
@@ -121,6 +128,7 @@ export type TaskRecurrenceMinAggregateInputType = {
   category?: true
   priority?: true
   estimatedMinutes?: true
+  reminderMinutesBefore?: true
   frequency?: true
   interval?: true
   timezone?: true
@@ -143,6 +151,7 @@ export type TaskRecurrenceMaxAggregateInputType = {
   category?: true
   priority?: true
   estimatedMinutes?: true
+  reminderMinutesBefore?: true
   frequency?: true
   interval?: true
   timezone?: true
@@ -165,6 +174,7 @@ export type TaskRecurrenceCountAggregateInputType = {
   category?: true
   priority?: true
   estimatedMinutes?: true
+  reminderMinutesBefore?: true
   frequency?: true
   interval?: true
   timezone?: true
@@ -274,6 +284,7 @@ export type TaskRecurrenceGroupByOutputType = {
   category: string | null
   priority: string
   estimatedMinutes: number | null
+  reminderMinutesBefore: number | null
   frequency: string
   interval: number
   timezone: string
@@ -319,6 +330,7 @@ export type TaskRecurrenceWhereInput = {
   category?: Prisma.StringNullableFilter<"TaskRecurrence"> | string | null
   priority?: Prisma.StringFilter<"TaskRecurrence"> | string
   estimatedMinutes?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
+  reminderMinutesBefore?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
   frequency?: Prisma.StringFilter<"TaskRecurrence"> | string
   interval?: Prisma.IntFilter<"TaskRecurrence"> | number
   timezone?: Prisma.StringFilter<"TaskRecurrence"> | string
@@ -346,6 +358,7 @@ export type TaskRecurrenceOrderByWithRelationInput = {
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   priority?: Prisma.SortOrder
   estimatedMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrderInput | Prisma.SortOrder
   frequency?: Prisma.SortOrder
   interval?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -376,6 +389,7 @@ export type TaskRecurrenceWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.StringNullableFilter<"TaskRecurrence"> | string | null
   priority?: Prisma.StringFilter<"TaskRecurrence"> | string
   estimatedMinutes?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
+  reminderMinutesBefore?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
   frequency?: Prisma.StringFilter<"TaskRecurrence"> | string
   interval?: Prisma.IntFilter<"TaskRecurrence"> | number
   timezone?: Prisma.StringFilter<"TaskRecurrence"> | string
@@ -403,6 +417,7 @@ export type TaskRecurrenceOrderByWithAggregationInput = {
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   priority?: Prisma.SortOrder
   estimatedMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrderInput | Prisma.SortOrder
   frequency?: Prisma.SortOrder
   interval?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -433,6 +448,7 @@ export type TaskRecurrenceScalarWhereWithAggregatesInput = {
   category?: Prisma.StringNullableWithAggregatesFilter<"TaskRecurrence"> | string | null
   priority?: Prisma.StringWithAggregatesFilter<"TaskRecurrence"> | string
   estimatedMinutes?: Prisma.IntNullableWithAggregatesFilter<"TaskRecurrence"> | number | null
+  reminderMinutesBefore?: Prisma.IntNullableWithAggregatesFilter<"TaskRecurrence"> | number | null
   frequency?: Prisma.StringWithAggregatesFilter<"TaskRecurrence"> | string
   interval?: Prisma.IntWithAggregatesFilter<"TaskRecurrence"> | number
   timezone?: Prisma.StringWithAggregatesFilter<"TaskRecurrence"> | string
@@ -455,6 +471,7 @@ export type TaskRecurrenceCreateInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -478,6 +495,7 @@ export type TaskRecurrenceUncheckedCreateInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -501,6 +519,7 @@ export type TaskRecurrenceUpdateInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -524,6 +543,7 @@ export type TaskRecurrenceUncheckedUpdateInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -547,6 +567,7 @@ export type TaskRecurrenceCreateManyInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -569,6 +590,7 @@ export type TaskRecurrenceUpdateManyMutationInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -587,6 +609,7 @@ export type TaskRecurrenceUncheckedUpdateManyInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -624,6 +647,7 @@ export type TaskRecurrenceCountOrderByAggregateInput = {
   category?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   estimatedMinutes?: Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   interval?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -641,6 +665,7 @@ export type TaskRecurrenceCountOrderByAggregateInput = {
 
 export type TaskRecurrenceAvgOrderByAggregateInput = {
   estimatedMinutes?: Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrder
   interval?: Prisma.SortOrder
 }
 
@@ -651,6 +676,7 @@ export type TaskRecurrenceMaxOrderByAggregateInput = {
   category?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   estimatedMinutes?: Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   interval?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -673,6 +699,7 @@ export type TaskRecurrenceMinOrderByAggregateInput = {
   category?: Prisma.SortOrder
   priority?: Prisma.SortOrder
   estimatedMinutes?: Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrder
   frequency?: Prisma.SortOrder
   interval?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
@@ -690,6 +717,7 @@ export type TaskRecurrenceMinOrderByAggregateInput = {
 
 export type TaskRecurrenceSumOrderByAggregateInput = {
   estimatedMinutes?: Prisma.SortOrder
+  reminderMinutesBefore?: Prisma.SortOrder
   interval?: Prisma.SortOrder
 }
 
@@ -884,6 +912,7 @@ export type TaskRecurrenceCreateWithoutCompanyInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -906,6 +935,7 @@ export type TaskRecurrenceUncheckedCreateWithoutCompanyInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -957,6 +987,7 @@ export type TaskRecurrenceScalarWhereInput = {
   category?: Prisma.StringNullableFilter<"TaskRecurrence"> | string | null
   priority?: Prisma.StringFilter<"TaskRecurrence"> | string
   estimatedMinutes?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
+  reminderMinutesBefore?: Prisma.IntNullableFilter<"TaskRecurrence"> | number | null
   frequency?: Prisma.StringFilter<"TaskRecurrence"> | string
   interval?: Prisma.IntFilter<"TaskRecurrence"> | number
   timezone?: Prisma.StringFilter<"TaskRecurrence"> | string
@@ -979,6 +1010,7 @@ export type TaskRecurrenceCreateWithoutCreatedByInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1001,6 +1033,7 @@ export type TaskRecurrenceUncheckedCreateWithoutCreatedByInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1033,6 +1066,7 @@ export type TaskRecurrenceCreateWithoutUserInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1055,6 +1089,7 @@ export type TaskRecurrenceUncheckedCreateWithoutUserInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1119,6 +1154,7 @@ export type TaskRecurrenceCreateWithoutSpaceInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1141,6 +1177,7 @@ export type TaskRecurrenceUncheckedCreateWithoutSpaceInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1189,6 +1226,7 @@ export type TaskRecurrenceCreateWithoutTasksInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1211,6 +1249,7 @@ export type TaskRecurrenceUncheckedCreateWithoutTasksInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1249,6 +1288,7 @@ export type TaskRecurrenceUpdateWithoutTasksInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1271,6 +1311,7 @@ export type TaskRecurrenceUncheckedUpdateWithoutTasksInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1293,6 +1334,7 @@ export type TaskRecurrenceCreateManyCompanyInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1314,6 +1356,7 @@ export type TaskRecurrenceUpdateWithoutCompanyInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1336,6 +1379,7 @@ export type TaskRecurrenceUncheckedUpdateWithoutCompanyInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1358,6 +1402,7 @@ export type TaskRecurrenceUncheckedUpdateManyWithoutCompanyInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1379,6 +1424,7 @@ export type TaskRecurrenceCreateManyCreatedByInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1400,6 +1446,7 @@ export type TaskRecurrenceCreateManyUserInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1421,6 +1468,7 @@ export type TaskRecurrenceUpdateWithoutCreatedByInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1443,6 +1491,7 @@ export type TaskRecurrenceUncheckedUpdateWithoutCreatedByInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1465,6 +1514,7 @@ export type TaskRecurrenceUncheckedUpdateManyWithoutCreatedByInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1486,6 +1536,7 @@ export type TaskRecurrenceUpdateWithoutUserInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1508,6 +1559,7 @@ export type TaskRecurrenceUncheckedUpdateWithoutUserInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1530,6 +1582,7 @@ export type TaskRecurrenceUncheckedUpdateManyWithoutUserInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1551,6 +1604,7 @@ export type TaskRecurrenceCreateManySpaceInput = {
   category?: string | null
   priority?: string
   estimatedMinutes?: number | null
+  reminderMinutesBefore?: number | null
   frequency: string
   interval?: number
   timezone?: string
@@ -1572,6 +1626,7 @@ export type TaskRecurrenceUpdateWithoutSpaceInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1594,6 +1649,7 @@ export type TaskRecurrenceUncheckedUpdateWithoutSpaceInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1616,6 +1672,7 @@ export type TaskRecurrenceUncheckedUpdateManyWithoutSpaceInput = {
   category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   priority?: Prisma.StringFieldUpdateOperationsInput | string
   estimatedMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reminderMinutesBefore?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   frequency?: Prisma.StringFieldUpdateOperationsInput | string
   interval?: Prisma.IntFieldUpdateOperationsInput | number
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1668,6 +1725,7 @@ export type TaskRecurrenceSelect<ExtArgs extends runtime.Types.Extensions.Intern
   category?: boolean
   priority?: boolean
   estimatedMinutes?: boolean
+  reminderMinutesBefore?: boolean
   frequency?: boolean
   interval?: boolean
   timezone?: boolean
@@ -1696,6 +1754,7 @@ export type TaskRecurrenceSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   category?: boolean
   priority?: boolean
   estimatedMinutes?: boolean
+  reminderMinutesBefore?: boolean
   frequency?: boolean
   interval?: boolean
   timezone?: boolean
@@ -1722,6 +1781,7 @@ export type TaskRecurrenceSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   category?: boolean
   priority?: boolean
   estimatedMinutes?: boolean
+  reminderMinutesBefore?: boolean
   frequency?: boolean
   interval?: boolean
   timezone?: boolean
@@ -1748,6 +1808,7 @@ export type TaskRecurrenceSelectScalar = {
   category?: boolean
   priority?: boolean
   estimatedMinutes?: boolean
+  reminderMinutesBefore?: boolean
   frequency?: boolean
   interval?: boolean
   timezone?: boolean
@@ -1763,7 +1824,7 @@ export type TaskRecurrenceSelectScalar = {
   userId?: boolean
 }
 
-export type TaskRecurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "category" | "priority" | "estimatedMinutes" | "frequency" | "interval" | "timezone" | "status" | "startsAt" | "nextOccurrenceAt" | "endsAt" | "createdAt" | "updatedAt" | "companyId" | "spaceId" | "createdById" | "userId", ExtArgs["result"]["taskRecurrence"]>
+export type TaskRecurrenceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "category" | "priority" | "estimatedMinutes" | "reminderMinutesBefore" | "frequency" | "interval" | "timezone" | "status" | "startsAt" | "nextOccurrenceAt" | "endsAt" | "createdAt" | "updatedAt" | "companyId" | "spaceId" | "createdById" | "userId", ExtArgs["result"]["taskRecurrence"]>
 export type TaskRecurrenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   space?: boolean | Prisma.SpaceDefaultArgs<ExtArgs>
@@ -1801,6 +1862,7 @@ export type $TaskRecurrencePayload<ExtArgs extends runtime.Types.Extensions.Inte
     category: string | null
     priority: string
     estimatedMinutes: number | null
+    reminderMinutesBefore: number | null
     frequency: string
     interval: number
     timezone: string
@@ -2248,6 +2310,7 @@ export interface TaskRecurrenceFieldRefs {
   readonly category: Prisma.FieldRef<"TaskRecurrence", 'String'>
   readonly priority: Prisma.FieldRef<"TaskRecurrence", 'String'>
   readonly estimatedMinutes: Prisma.FieldRef<"TaskRecurrence", 'Int'>
+  readonly reminderMinutesBefore: Prisma.FieldRef<"TaskRecurrence", 'Int'>
   readonly frequency: Prisma.FieldRef<"TaskRecurrence", 'String'>
   readonly interval: Prisma.FieldRef<"TaskRecurrence", 'Int'>
   readonly timezone: Prisma.FieldRef<"TaskRecurrence", 'String'>

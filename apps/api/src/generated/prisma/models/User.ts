@@ -291,6 +291,7 @@ export type UserWhereInput = {
   taskActivities?: Prisma.TaskActivityListRelationFilter
   createdTaskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
   assignedTaskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
+  taskReminders?: Prisma.TaskReminderListRelationFilter
   authSessions?: Prisma.AuthSessionListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
@@ -323,6 +324,7 @@ export type UserOrderByWithRelationInput = {
   taskActivities?: Prisma.TaskActivityOrderByRelationAggregateInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceOrderByRelationAggregateInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceOrderByRelationAggregateInput
+  taskReminders?: Prisma.TaskReminderOrderByRelationAggregateInput
   authSessions?: Prisma.AuthSessionOrderByRelationAggregateInput
   authorizedReturns?: Prisma.ReturnOrderByRelationAggregateInput
   processedRefunds?: Prisma.RefundOrderByRelationAggregateInput
@@ -358,6 +360,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   taskActivities?: Prisma.TaskActivityListRelationFilter
   createdTaskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
   assignedTaskRecurrences?: Prisma.TaskRecurrenceListRelationFilter
+  taskReminders?: Prisma.TaskReminderListRelationFilter
   authSessions?: Prisma.AuthSessionListRelationFilter
   authorizedReturns?: Prisma.ReturnListRelationFilter
   processedRefunds?: Prisma.RefundListRelationFilter
@@ -428,6 +431,7 @@ export type UserCreateInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -458,6 +462,7 @@ export type UserUncheckedCreateInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -488,6 +493,7 @@ export type UserUpdateInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -518,6 +524,7 @@ export type UserUncheckedUpdateInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -885,6 +892,20 @@ export type UserUpdateOneWithoutAssignedTaskRecurrencesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedTaskRecurrencesInput, Prisma.UserUpdateWithoutAssignedTaskRecurrencesInput>, Prisma.UserUncheckedUpdateWithoutAssignedTaskRecurrencesInput>
 }
 
+export type UserCreateNestedOneWithoutTaskRemindersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaskRemindersInput, Prisma.UserUncheckedCreateWithoutTaskRemindersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskRemindersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTaskRemindersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTaskRemindersInput, Prisma.UserUncheckedCreateWithoutTaskRemindersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskRemindersInput
+  upsert?: Prisma.UserUpsertWithoutTaskRemindersInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTaskRemindersInput, Prisma.UserUpdateWithoutTaskRemindersInput>, Prisma.UserUncheckedUpdateWithoutTaskRemindersInput>
+}
+
 export type UserCreateNestedOneWithoutTaskActivitiesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutTaskActivitiesInput, Prisma.UserUncheckedCreateWithoutTaskActivitiesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutTaskActivitiesInput
@@ -981,6 +1002,7 @@ export type UserCreateWithoutCompanyInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1010,6 +1032,7 @@ export type UserUncheckedCreateWithoutCompanyInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1085,6 +1108,7 @@ export type UserCreateWithoutAuthSessionsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -1114,6 +1138,7 @@ export type UserUncheckedCreateWithoutAuthSessionsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -1159,6 +1184,7 @@ export type UserUpdateWithoutAuthSessionsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -1188,6 +1214,7 @@ export type UserUncheckedUpdateWithoutAuthSessionsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -1216,6 +1243,7 @@ export type UserCreateWithoutRoleInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1245,6 +1273,7 @@ export type UserUncheckedCreateWithoutRoleInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1300,6 +1329,7 @@ export type UserCreateWithoutOwnedSpacesInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1329,6 +1359,7 @@ export type UserUncheckedCreateWithoutOwnedSpacesInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1374,6 +1405,7 @@ export type UserUpdateWithoutOwnedSpacesInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -1403,6 +1435,7 @@ export type UserUncheckedUpdateWithoutOwnedSpacesInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -1432,6 +1465,7 @@ export type UserCreateWithoutSpaceMembershipsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1461,6 +1495,7 @@ export type UserUncheckedCreateWithoutSpaceMembershipsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1506,6 +1541,7 @@ export type UserUpdateWithoutSpaceMembershipsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -1535,6 +1571,7 @@ export type UserUncheckedUpdateWithoutSpaceMembershipsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -1564,6 +1601,7 @@ export type UserCreateWithoutTasksInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1593,6 +1631,7 @@ export type UserUncheckedCreateWithoutTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1627,6 +1666,7 @@ export type UserCreateWithoutCreatedTasksInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1656,6 +1696,7 @@ export type UserUncheckedCreateWithoutCreatedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1690,6 +1731,7 @@ export type UserCreateWithoutClaimedTasksInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1719,6 +1761,7 @@ export type UserUncheckedCreateWithoutClaimedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1753,6 +1796,7 @@ export type UserCreateWithoutCompletedTasksInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -1782,6 +1826,7 @@ export type UserUncheckedCreateWithoutCompletedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -1827,6 +1872,7 @@ export type UserUpdateWithoutTasksInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -1856,6 +1902,7 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -1896,6 +1943,7 @@ export type UserUpdateWithoutCreatedTasksInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -1925,6 +1973,7 @@ export type UserUncheckedUpdateWithoutCreatedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -1965,6 +2014,7 @@ export type UserUpdateWithoutClaimedTasksInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -1994,6 +2044,7 @@ export type UserUncheckedUpdateWithoutClaimedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2034,6 +2085,7 @@ export type UserUpdateWithoutCompletedTasksInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2063,6 +2115,7 @@ export type UserUncheckedUpdateWithoutCompletedTasksInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2092,6 +2145,7 @@ export type UserCreateWithoutCreatedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -2121,6 +2175,7 @@ export type UserUncheckedCreateWithoutCreatedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -2155,6 +2210,7 @@ export type UserCreateWithoutAssignedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -2184,6 +2240,7 @@ export type UserUncheckedCreateWithoutAssignedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -2229,6 +2286,7 @@ export type UserUpdateWithoutCreatedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2258,6 +2316,7 @@ export type UserUncheckedUpdateWithoutCreatedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2298,6 +2357,7 @@ export type UserUpdateWithoutAssignedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2327,6 +2387,143 @@ export type UserUncheckedUpdateWithoutAssignedTaskRecurrencesInput = {
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserCreateWithoutTaskRemindersInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company: Prisma.CompanyCreateNestedOneWithoutUsersInput
+  role?: Prisma.RoleCreateNestedOneWithoutUsersInput
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
+  createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
+  assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserUncheckedCreateWithoutTaskRemindersInput = {
+  id?: string
+  name: string
+  email: string
+  status?: string
+  passwordHash?: string | null
+  passwordChangedAt?: Date | string | null
+  lastLoginAt?: Date | string | null
+  failedLoginAttempts?: number
+  lockedUntil?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  companyId: string
+  roleId?: string | null
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  ownedSpaces?: Prisma.SpaceUncheckedCreateNestedManyWithoutOwnerInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedCreateNestedManyWithoutUserInput
+  createdTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCreatedByInput
+  claimedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutClaimedByInput
+  completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
+  taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
+  createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
+  assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
+  authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
+  processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
+  authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
+  voidedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutVoidedByInput
+}
+
+export type UserCreateOrConnectWithoutTaskRemindersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaskRemindersInput, Prisma.UserUncheckedCreateWithoutTaskRemindersInput>
+}
+
+export type UserUpsertWithoutTaskRemindersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTaskRemindersInput, Prisma.UserUncheckedUpdateWithoutTaskRemindersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTaskRemindersInput, Prisma.UserUncheckedCreateWithoutTaskRemindersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTaskRemindersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTaskRemindersInput, Prisma.UserUncheckedUpdateWithoutTaskRemindersInput>
+}
+
+export type UserUpdateWithoutTaskRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneRequiredWithoutUsersNestedInput
+  role?: Prisma.RoleUpdateOneWithoutUsersNestedInput
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
+  createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
+  assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
+  authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
+  processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
+  authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
+  voidedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutVoidedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTaskRemindersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastLoginAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  failedLoginAttempts?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  companyId?: Prisma.StringFieldUpdateOperationsInput | string
+  roleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  ownedSpaces?: Prisma.SpaceUncheckedUpdateManyWithoutOwnerNestedInput
+  spaceMemberships?: Prisma.SpaceMemberUncheckedUpdateManyWithoutUserNestedInput
+  createdTasks?: Prisma.TaskUncheckedUpdateManyWithoutCreatedByNestedInput
+  claimedTasks?: Prisma.TaskUncheckedUpdateManyWithoutClaimedByNestedInput
+  completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
+  taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
+  createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
+  assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2356,6 +2553,7 @@ export type UserCreateWithoutTaskActivitiesInput = {
   completedTasks?: Prisma.TaskCreateNestedManyWithoutCompletedByInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -2385,6 +2583,7 @@ export type UserUncheckedCreateWithoutTaskActivitiesInput = {
   completedTasks?: Prisma.TaskUncheckedCreateNestedManyWithoutCompletedByInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -2430,6 +2629,7 @@ export type UserUpdateWithoutTaskActivitiesInput = {
   completedTasks?: Prisma.TaskUpdateManyWithoutCompletedByNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2459,6 +2659,7 @@ export type UserUncheckedUpdateWithoutTaskActivitiesInput = {
   completedTasks?: Prisma.TaskUncheckedUpdateManyWithoutCompletedByNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2489,6 +2690,7 @@ export type UserCreateWithoutAuthorizedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -2518,6 +2720,7 @@ export type UserUncheckedCreateWithoutAuthorizedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -2552,6 +2755,7 @@ export type UserCreateWithoutVoidedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
@@ -2581,6 +2785,7 @@ export type UserUncheckedCreateWithoutVoidedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
@@ -2626,6 +2831,7 @@ export type UserUpdateWithoutAuthorizedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2655,6 +2861,7 @@ export type UserUncheckedUpdateWithoutAuthorizedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2695,6 +2902,7 @@ export type UserUpdateWithoutVoidedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -2724,6 +2932,7 @@ export type UserUncheckedUpdateWithoutVoidedDiscountsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -2753,6 +2962,7 @@ export type UserCreateWithoutAuthorizedReturnsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -2782,6 +2992,7 @@ export type UserUncheckedCreateWithoutAuthorizedReturnsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   processedRefunds?: Prisma.RefundUncheckedCreateNestedManyWithoutProcessedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -2827,6 +3038,7 @@ export type UserUpdateWithoutAuthorizedReturnsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -2856,6 +3068,7 @@ export type UserUncheckedUpdateWithoutAuthorizedReturnsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -2885,6 +3098,7 @@ export type UserCreateWithoutProcessedRefundsInput = {
   taskActivities?: Prisma.TaskActivityCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountCreateNestedManyWithoutAuthorizedByInput
@@ -2914,6 +3128,7 @@ export type UserUncheckedCreateWithoutProcessedRefundsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedCreateNestedManyWithoutActorInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutCreatedByInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedCreateNestedManyWithoutUserInput
+  taskReminders?: Prisma.TaskReminderUncheckedCreateNestedManyWithoutUserInput
   authSessions?: Prisma.AuthSessionUncheckedCreateNestedManyWithoutUserInput
   authorizedReturns?: Prisma.ReturnUncheckedCreateNestedManyWithoutAuthorizedByInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedCreateNestedManyWithoutAuthorizedByInput
@@ -2959,6 +3174,7 @@ export type UserUpdateWithoutProcessedRefundsInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUpdateManyWithoutAuthorizedByNestedInput
@@ -2988,6 +3204,7 @@ export type UserUncheckedUpdateWithoutProcessedRefundsInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   authorizedDiscounts?: Prisma.OrderDiscountUncheckedUpdateManyWithoutAuthorizedByNestedInput
@@ -3031,6 +3248,7 @@ export type UserUpdateWithoutCompanyInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -3060,6 +3278,7 @@ export type UserUncheckedUpdateWithoutCompanyInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -3119,6 +3338,7 @@ export type UserUpdateWithoutRoleInput = {
   taskActivities?: Prisma.TaskActivityUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUpdateManyWithoutProcessedByNestedInput
@@ -3148,6 +3368,7 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   taskActivities?: Prisma.TaskActivityUncheckedUpdateManyWithoutActorNestedInput
   createdTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutCreatedByNestedInput
   assignedTaskRecurrences?: Prisma.TaskRecurrenceUncheckedUpdateManyWithoutUserNestedInput
+  taskReminders?: Prisma.TaskReminderUncheckedUpdateManyWithoutUserNestedInput
   authSessions?: Prisma.AuthSessionUncheckedUpdateManyWithoutUserNestedInput
   authorizedReturns?: Prisma.ReturnUncheckedUpdateManyWithoutAuthorizedByNestedInput
   processedRefunds?: Prisma.RefundUncheckedUpdateManyWithoutProcessedByNestedInput
@@ -3185,6 +3406,7 @@ export type UserCountOutputType = {
   taskActivities: number
   createdTaskRecurrences: number
   assignedTaskRecurrences: number
+  taskReminders: number
   authSessions: number
   authorizedReturns: number
   processedRefunds: number
@@ -3202,6 +3424,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   taskActivities?: boolean | UserCountOutputTypeCountTaskActivitiesArgs
   createdTaskRecurrences?: boolean | UserCountOutputTypeCountCreatedTaskRecurrencesArgs
   assignedTaskRecurrences?: boolean | UserCountOutputTypeCountAssignedTaskRecurrencesArgs
+  taskReminders?: boolean | UserCountOutputTypeCountTaskRemindersArgs
   authSessions?: boolean | UserCountOutputTypeCountAuthSessionsArgs
   authorizedReturns?: boolean | UserCountOutputTypeCountAuthorizedReturnsArgs
   processedRefunds?: boolean | UserCountOutputTypeCountProcessedRefundsArgs
@@ -3285,6 +3508,13 @@ export type UserCountOutputTypeCountAssignedTaskRecurrencesArgs<ExtArgs extends 
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountTaskRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TaskReminderWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountAuthSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AuthSessionWhereInput
 }
@@ -3343,6 +3573,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   createdTaskRecurrences?: boolean | Prisma.User$createdTaskRecurrencesArgs<ExtArgs>
   assignedTaskRecurrences?: boolean | Prisma.User$assignedTaskRecurrencesArgs<ExtArgs>
+  taskReminders?: boolean | Prisma.User$taskRemindersArgs<ExtArgs>
   authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
@@ -3416,6 +3647,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   taskActivities?: boolean | Prisma.User$taskActivitiesArgs<ExtArgs>
   createdTaskRecurrences?: boolean | Prisma.User$createdTaskRecurrencesArgs<ExtArgs>
   assignedTaskRecurrences?: boolean | Prisma.User$assignedTaskRecurrencesArgs<ExtArgs>
+  taskReminders?: boolean | Prisma.User$taskRemindersArgs<ExtArgs>
   authSessions?: boolean | Prisma.User$authSessionsArgs<ExtArgs>
   authorizedReturns?: boolean | Prisma.User$authorizedReturnsArgs<ExtArgs>
   processedRefunds?: boolean | Prisma.User$processedRefundsArgs<ExtArgs>
@@ -3446,6 +3678,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     taskActivities: Prisma.$TaskActivityPayload<ExtArgs>[]
     createdTaskRecurrences: Prisma.$TaskRecurrencePayload<ExtArgs>[]
     assignedTaskRecurrences: Prisma.$TaskRecurrencePayload<ExtArgs>[]
+    taskReminders: Prisma.$TaskReminderPayload<ExtArgs>[]
     authSessions: Prisma.$AuthSessionPayload<ExtArgs>[]
     authorizedReturns: Prisma.$ReturnPayload<ExtArgs>[]
     processedRefunds: Prisma.$RefundPayload<ExtArgs>[]
@@ -3871,6 +4104,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   taskActivities<T extends Prisma.User$taskActivitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskActivitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdTaskRecurrences<T extends Prisma.User$createdTaskRecurrencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdTaskRecurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assignedTaskRecurrences<T extends Prisma.User$assignedTaskRecurrencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedTaskRecurrencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskRecurrencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  taskReminders<T extends Prisma.User$taskRemindersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$taskRemindersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TaskReminderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authSessions<T extends Prisma.User$authSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuthSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   authorizedReturns<T extends Prisma.User$authorizedReturnsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$authorizedReturnsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReturnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   processedRefunds<T extends Prisma.User$processedRefundsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$processedRefundsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefundPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4551,6 +4785,30 @@ export type User$assignedTaskRecurrencesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.TaskRecurrenceScalarFieldEnum | Prisma.TaskRecurrenceScalarFieldEnum[]
+}
+
+/**
+ * User.taskReminders
+ */
+export type User$taskRemindersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TaskReminder
+   */
+  select?: Prisma.TaskReminderSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TaskReminder
+   */
+  omit?: Prisma.TaskReminderOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TaskReminderInclude<ExtArgs> | null
+  where?: Prisma.TaskReminderWhereInput
+  orderBy?: Prisma.TaskReminderOrderByWithRelationInput | Prisma.TaskReminderOrderByWithRelationInput[]
+  cursor?: Prisma.TaskReminderWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TaskReminderScalarFieldEnum | Prisma.TaskReminderScalarFieldEnum[]
 }
 
 /**

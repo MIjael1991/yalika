@@ -53,6 +53,13 @@ the screen is open. Recurring tasks prepare the schedule, but alarms with the
 application closed and production real-time delivery still require the future
 notification layer.
 
+Tasks can request one internal reminder at their scheduled time or 15 minutes,
+30 minutes, one hour or one day beforehand. The reminder center shows due and
+upcoming notices, supports snoozing and records acknowledgement. When a shared
+task is claimed, its pending reminder follows the responsible person. These
+internal reminders require ORION to be open; push delivery with the application
+closed remains a separate device-notification milestone.
+
 The checkout supports auditable discounts, cash change, printable receipts and
 equal account splitting with one recoverable payment status per part. Returns
 are available at `/pos/devoluciones`, including remaining-quantity control,

@@ -69,6 +69,16 @@ type TaskRecurrenceSummary = {
   startsAt: string;
   nextOccurrenceAt: string;
   endsAt: string | null;
+  reminderMinutesBefore: number | null;
+};
+
+type TaskReminderSummary = {
+  id: string;
+  leadMinutes: number;
+  remindAt: string;
+  status: string;
+  snoozeCount: number;
+  userId: string;
 };
 
 type LifeTask = {
@@ -86,11 +96,31 @@ type LifeTask = {
   recurrenceId: string | null;
   recurrenceOccurrenceAt: string | null;
   recurrence: TaskRecurrenceSummary | null;
+  reminder: TaskReminderSummary | null;
   user: UserSummary | null;
   createdBy: UserSummary | null;
   claimedBy: UserSummary | null;
   completedBy: UserSummary | null;
   activities: TaskActivity[];
+};
+
+type ReminderItem = TaskReminderSummary & {
+  originalRemindAt: string;
+  urgency: 'due' | 'upcoming';
+  task: {
+    id: string;
+    title: string;
+    description: string | null;
+    category: string | null;
+    status: string;
+    dueAt: string | null;
+    spaceId: string | null;
+    space: {
+      id: string;
+      name: string;
+      type: string;
+    } | null;
+  };
 };
 
 type ApiErrorPayload = {
@@ -132,6 +162,8 @@ const actionLabels: Record<string, string> = {
   recurrence_generated: 'preparó la siguiente repetición',
   recurrence_cancelled: 'detuvo las siguientes repeticiones',
   cancelled_with_recurrence: 'canceló una repetición futura',
+  reminder_snoozed: 'pospuso el recordatorio',
+  reminder_acknowledged: 'confirmó que vio el recordatorio',
 };
 
 const recurrenceLabels: Record<string, string> = {
@@ -219,16 +251,35 @@ function tomorrowAtNine() {
   return date.toISOString();
 }
 
+function reminderLabel(minutes: number) {
+  if (minutes === 0) {
+    return 'A la hora';
+  }
+
+  if (minutes === 1440) {
+    return '1 día antes';
+  }
+
+  if (minutes >= 60 && minutes % 60 === 0) {
+    const hours = minutes / 60;
+    return `${hours} ${hours === 1 ? 'hora' : 'horas'} antes`;
+  }
+
+  return `${minutes} min antes`;
+}
+
 export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const router = useRouter();
   const userId = currentUser.id;
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState('');
   const [tasks, setTasks] = useState<LifeTask[]>([]);
+  const [reminders, setReminders] = useState<ReminderItem[]>([]);
   const [view, setView] = useState<'active' | 'completed'>('active');
   const [loadingSpaces, setLoadingSpaces] = useState(true);
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [processingId, setProcessingId] = useState('');
+  const [processingReminderId, setProcessingReminderId] = useState('');
   const [error, setError] = useState('');
   const [lastSync, setLastSync] = useState<Date>();
   const [showSpaceForm, setShowSpaceForm] = useState(false);
@@ -247,6 +298,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     userId: '',
     recurrenceFrequency: '',
     recurrenceEndsAt: '',
+    reminderMinutesBefore: '',
   });
   const [memberForm, setMemberForm] = useState({
     email: '',
@@ -328,6 +380,24 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     [selectedSpaceId, userId],
   );
 
+  const refreshReminders = useCallback(async () => {
+    if (!userId) {
+      setReminders([]);
+      return;
+    }
+
+    try {
+      const nextReminders = await apiRequest<ReminderItem[]>('reminder');
+      setReminders(nextReminders);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'No se pudieron cargar tus recordatorios',
+      );
+    }
+  }, [userId]);
+
   useEffect(() => {
     const redirectToLogin = () => {
       router.replace('/login');
@@ -367,6 +437,20 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     };
   }, [refreshTasks, selectedSpaceId]);
 
+  useEffect(() => {
+    const initialLoad = window.setTimeout(() => {
+      void refreshReminders();
+    }, 0);
+    const interval = window.setInterval(() => {
+      void refreshReminders();
+    }, 30_000);
+
+    return () => {
+      window.clearTimeout(initialLoad);
+      window.clearInterval(interval);
+    };
+  }, [refreshReminders]);
+
   const visibleTasks = useMemo(() => {
     const filtered = tasks.filter((task) =>
       view === 'active'
@@ -398,6 +482,12 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const completedCount = tasks.filter(
     (task) => task.status === 'completed',
   ).length;
+  const dueReminders = reminders.filter(
+    (reminder) => reminder.urgency === 'due',
+  );
+  const upcomingReminders = reminders.filter(
+    (reminder) => reminder.urgency === 'upcoming',
+  );
 
   async function createSpace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -454,6 +544,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
+    if (taskForm.reminderMinutesBefore.length > 0 && !taskForm.dueAt) {
+      setError('Elige fecha y hora para poder crear el recordatorio');
+      return;
+    }
+
     setSavingTask(true);
     setError('');
 
@@ -481,6 +576,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 `${taskForm.recurrenceEndsAt}T23:59:59`,
               ).toISOString()
             : undefined,
+          reminderMinutesBefore: taskForm.reminderMinutesBefore.length > 0
+            ? Number(taskForm.reminderMinutesBefore)
+            : undefined,
         }),
       });
 
@@ -494,9 +592,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         userId: '',
         recurrenceFrequency: '',
         recurrenceEndsAt: '',
+        reminderMinutesBefore: '',
       });
       setView('active');
       await refreshTasks(true);
+      await refreshReminders();
       await refreshSpaces();
     } catch (saveError) {
       setError(
@@ -570,6 +670,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         },
       );
       await refreshTasks(true);
+      await refreshReminders();
     } catch (actionError) {
       setError(
         actionError instanceof Error
@@ -577,8 +678,41 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           : 'No se pudo actualizar la tarea',
       );
       await refreshTasks(true);
+      await refreshReminders();
     } finally {
       setProcessingId('');
+    }
+  }
+
+  async function runReminderAction(
+    reminderId: string,
+    action: 'snooze' | 'acknowledge',
+    minutes?: number,
+  ) {
+    setProcessingReminderId(reminderId);
+    setError('');
+
+    try {
+      await apiRequest<ReminderItem>(
+        `reminder/${encodeURIComponent(reminderId)}/${action}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(
+            action === 'snooze' ? { minutes } : {},
+          ),
+        },
+      );
+      await refreshReminders();
+      await refreshTasks(true);
+    } catch (actionError) {
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : 'No se pudo actualizar el recordatorio',
+      );
+      await refreshReminders();
+    } finally {
+      setProcessingReminderId('');
     }
   }
 
@@ -603,6 +737,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         },
       );
       await refreshTasks(true);
+      await refreshReminders();
     } catch (actionError) {
       setError(
         actionError instanceof Error
@@ -654,6 +789,18 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
             <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-300">
               ● Sincronización cada 5 segundos
             </span>
+            <span
+              className={`rounded-full border px-3 py-2 text-xs font-semibold ${
+                dueReminders.length > 0
+                  ? 'border-amber-400/40 bg-amber-400/15 text-amber-200'
+                  : 'border-slate-700 bg-slate-900 text-slate-400'
+              }`}
+            >
+              🔔 {dueReminders.length}{' '}
+              {dueReminders.length === 1
+                ? 'recordatorio'
+                : 'recordatorios'}
+            </span>
             <button
               type="button"
               onClick={() => setShowSpaceForm((current) => !current)}
@@ -681,6 +828,84 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               ×
             </button>
           </div>
+        ) : null}
+
+        {dueReminders.length > 0 ? (
+          <section className="mb-6 space-y-3">
+            {dueReminders.slice(0, 3).map((reminder) => (
+              <article
+                key={reminder.id}
+                className="rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 shadow-lg shadow-amber-950/20"
+              >
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-300">
+                      🔔 Recordatorio pendiente
+                    </p>
+                    <h2 className="mt-2 text-lg font-bold text-white">
+                      {reminder.task.title}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-400">
+                      {reminder.task.space?.name ?? 'ORION Life'} ·{' '}
+                      {formatDate(reminder.task.dueAt)}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={
+                        processingReminderId === reminder.id ||
+                        processingId === reminder.task.id
+                      }
+                      onClick={() =>
+                        void runTaskAction(reminder.task.id, 'complete')
+                      }
+                      className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-emerald-300 disabled:opacity-50"
+                    >
+                      Ya lo hice
+                    </button>
+                    <button
+                      type="button"
+                      disabled={processingReminderId === reminder.id}
+                      onClick={() =>
+                        void runReminderAction(reminder.id, 'snooze', 15)
+                      }
+                      className="rounded-xl border border-amber-400/40 px-4 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-400/10 disabled:opacity-50"
+                    >
+                      +15 min
+                    </button>
+                    <button
+                      type="button"
+                      disabled={processingReminderId === reminder.id}
+                      onClick={() =>
+                        void runReminderAction(reminder.id, 'snooze', 60)
+                      }
+                      className="rounded-xl border border-amber-400/40 px-4 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-400/10 disabled:opacity-50"
+                    >
+                      +1 hora
+                    </button>
+                    <button
+                      type="button"
+                      disabled={processingReminderId === reminder.id}
+                      onClick={() =>
+                        void runReminderAction(reminder.id, 'acknowledge')
+                      }
+                      className="rounded-xl border border-slate-700 px-4 py-2 text-xs text-slate-300 hover:bg-slate-900 disabled:opacity-50"
+                    >
+                      Ya lo vi
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {dueReminders.length > 3 ? (
+              <p className="text-sm text-amber-200">
+                Hay {dueReminders.length - 3} recordatorios pendientes más.
+              </p>
+            ) : null}
+          </section>
         ) : null}
 
         {showSpaceForm || (!loadingSpaces && spaces.length === 0) ? (
@@ -907,6 +1132,20 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                 {task.estimatedMinutes ? (
                                   <span className="text-slate-500">
                                     {task.estimatedMinutes} min estimados
+                                  </span>
+                                ) : null}
+                                {task.reminder ? (
+                                  <span
+                                    className={
+                                      task.reminder.status === 'scheduled'
+                                        ? 'text-amber-300'
+                                        : 'text-slate-600'
+                                    }
+                                  >
+                                    🔔{' '}
+                                    {reminderLabel(
+                                      task.reminder.leadMinutes,
+                                    )}
                                   </span>
                                 ) : null}
                                 {task.recurrence ? (
@@ -1141,6 +1380,28 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         />
                       </label>
 
+                      <label className="block text-xs text-slate-500">
+                        Recordarme
+                        <select
+                          value={taskForm.reminderMinutesBefore}
+                          disabled={!canEdit || savingTask}
+                          onChange={(event) =>
+                            setTaskForm((current) => ({
+                              ...current,
+                              reminderMinutesBefore: event.target.value,
+                            }))
+                          }
+                          className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-amber-400"
+                        >
+                          <option value="">Sin recordatorio</option>
+                          <option value="0">A la hora</option>
+                          <option value="15">15 minutos antes</option>
+                          <option value="30">30 minutos antes</option>
+                          <option value="60">1 hora antes</option>
+                          <option value="1440">1 día antes</option>
+                        </select>
+                      </label>
+
                       <div
                         className={`grid gap-2 ${
                           taskForm.recurrenceFrequency
@@ -1245,6 +1506,30 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         {savingTask ? 'Guardando…' : 'Agregar a Mi día'}
                       </button>
                     </form>
+                  </section>
+                ) : null}
+
+                {upcomingReminders.length > 0 ? (
+                  <section className="rounded-3xl border border-amber-400/20 bg-slate-900 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">
+                      Próximos avisos
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {upcomingReminders.slice(0, 4).map((reminder) => (
+                        <div
+                          key={reminder.id}
+                          className="rounded-2xl border border-slate-800 bg-slate-950/60 p-3"
+                        >
+                          <p className="text-sm font-semibold text-slate-200">
+                            {reminder.task.title}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            🔔 {formatDate(reminder.remindAt)} ·{' '}
+                            {reminder.task.space?.name ?? 'ORION Life'}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   </section>
                 ) : null}
 
