@@ -1,4 +1,7 @@
-import { calculateNextOccurrence } from './task-recurrence';
+import {
+  calculateNextOccurrence,
+  findLatestOccurrenceAtOrBefore,
+} from './task-recurrence';
 
 describe('task recurrence calendar', () => {
   it('keeps the original day after a short month', () => {
@@ -48,5 +51,42 @@ describe('task recurrence calendar', () => {
     expect(
       calculateNextOccurrence(startsAt, startsAt, 'weekly', 2).toISOString(),
     ).toBe('2027-05-24T09:15:00.000Z');
+  });
+
+  it('jumps directly to the latest overdue daily occurrence', () => {
+    const firstOccurrenceAt = new Date('2020-01-01T18:00:00.000Z');
+    const latest = findLatestOccurrenceAtOrBefore(
+      firstOccurrenceAt,
+      firstOccurrenceAt,
+      'daily',
+      1,
+      new Date('2026-08-25T19:00:00.000Z'),
+    );
+
+    expect(latest.occurrenceAt.toISOString()).toBe(
+      '2026-08-25T18:00:00.000Z',
+    );
+    expect(latest.nextOccurrenceAt.toISOString()).toBe(
+      '2026-08-26T18:00:00.000Z',
+    );
+    expect(latest.skippedOccurrences).toBeGreaterThan(2000);
+  });
+
+  it('keeps the monthly anchor while skipping old occurrences', () => {
+    const firstOccurrenceAt = new Date('2024-01-31T15:00:00.000Z');
+    const latest = findLatestOccurrenceAtOrBefore(
+      firstOccurrenceAt,
+      firstOccurrenceAt,
+      'monthly',
+      1,
+      new Date('2024-04-15T12:00:00.000Z'),
+    );
+
+    expect(latest.occurrenceAt.toISOString()).toBe(
+      '2024-03-31T15:00:00.000Z',
+    );
+    expect(latest.nextOccurrenceAt.toISOString()).toBe(
+      '2024-04-30T15:00:00.000Z',
+    );
   });
 });

@@ -60,6 +60,14 @@ task is claimed, its pending reminder follows the responsible person. These
 internal reminders require ORION to be open; push delivery with the application
 closed remains a separate device-notification milestone.
 
+The first universal quick-capture pilot is also available in `/life`. A short
+message is interpreted by the authenticated API, which proposes a writable
+personal, family, school, business or custom space. The proposal explains its
+signals and can be corrected before task creation. Similarity learning only uses
+tasks previously created by the same account. Voice transcription and photo OCR
+will feed this same reviewed proposal flow in later milestones; they are not yet
+presented as completed capabilities.
+
 The checkout supports auditable discounts, cash change, printable receipts and
 equal account splitting with one recoverable payment status per part. Returns
 are available at `/pos/devoluciones`, including remaining-quantity control,

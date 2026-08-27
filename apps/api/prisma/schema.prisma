@@ -177,6 +177,7 @@ model Task {
   postponedUntil DateTime?
   completedAt DateTime?
   version     Int       @default(0)
+  dedupeKey   String?   @unique
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

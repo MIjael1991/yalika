@@ -8,6 +8,7 @@ type RouteParameters = {
 
 const allowedRoots = new Set([
   'auth',
+  'capture',
   'catalog',
   'discount',
   'health',

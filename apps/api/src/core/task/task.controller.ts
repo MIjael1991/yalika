@@ -12,6 +12,7 @@ import { CurrentAuth } from '../../auth/current-auth.decorator';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
 import {
+  AddTaskNoteDto,
   CompleteTaskDto,
   PostponeTaskDto,
 } from './dto/task-action.dto';
@@ -87,6 +88,20 @@ export class TaskController {
   @Post(':id/reopen')
   reopen(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
     return this.taskService.reopen(id, auth.user.id);
+  }
+
+  @Post(':id/cancel')
+  cancel(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
+    return this.taskService.cancel(id, auth.user.id);
+  }
+
+  @Post(':id/note')
+  addNote(
+    @Param('id') id: string,
+    @Body() dto: AddTaskNoteDto,
+    @CurrentAuth() auth: AuthContext,
+  ) {
+    return this.taskService.addNote(id, auth.user.id, dto);
   }
 
   @Post(':id/recurrence/cancel')

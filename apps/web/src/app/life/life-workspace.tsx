@@ -123,10 +123,104 @@ type ReminderItem = TaskReminderSummary & {
   };
 };
 
+type CaptureProposal = {
+  title: string;
+  category: string;
+  confidence: 'high' | 'medium' | 'low';
+  confidenceScore: number;
+  reasons: string[];
+  sensitive: boolean;
+  privacyWarning: string | null;
+  needsSpaceConfirmation: boolean;
+  suggestedSpace: {
+    id: string;
+    name: string;
+    type: string;
+  };
+  alternatives: Array<{
+    id: string;
+    name: string;
+    type: string;
+    score: number;
+  }>;
+  dueAt: string | null;
+  recurrenceFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' | null;
+  recurrenceInterval: number | null;
+  reminderMinutesBefore: number | null;
+  temporalSummary: string | null;
+  needsTemporalConfirmation: boolean;
+};
+
 type ApiErrorPayload = {
   message?: string | string[];
   error?: string;
+  code?: 'DUPLICATE_TASK' | 'SIMILAR_TASK_EXISTS';
+  similarTasks?: SimilarTask[];
 };
+
+type SimilarTask = {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  dueAt: string | null;
+  spaceId: string | null;
+  similarity: number;
+};
+
+type TaskCreatePayload = Record<string, unknown> & {
+  title: string;
+  spaceId: string;
+};
+
+type DuplicateWarning = {
+  code: 'DUPLICATE_TASK' | 'SIMILAR_TASK_EXISTS';
+  message: string;
+  similarTasks: SimilarTask[];
+  payload: TaskCreatePayload;
+  source: 'capture' | 'form';
+  destinationName: string;
+};
+
+type RecentCreation = {
+  task: LifeTask;
+  destinationName: string;
+  undone: boolean;
+  restored?: boolean;
+};
+
+type SpeechRecognitionResultEvent = {
+  results: {
+    0?: {
+      0?: {
+        transcript?: string;
+      };
+    };
+  };
+};
+
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
+
+class ApiRequestError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly payload: ApiErrorPayload | null,
+  ) {
+    super(message);
+    this.name = 'ApiRequestError';
+  }
+}
 
 const sessionExpiredEvent = 'orion-session-expired';
 
@@ -157,6 +251,8 @@ const actionLabels: Record<string, string> = {
   created: 'creó la tarea',
   claimed: 'se encargó de la tarea',
   completed: 'terminó la tarea',
+  cancelled: 'canceló la tarea',
+  note_added: 'agregó un dato',
   postponed: 'pospuso la tarea',
   reopened: 'reabrió la tarea',
   recurrence_generated: 'preparó la siguiente repetición',
@@ -180,6 +276,25 @@ const categoryIcons: Record<string, string> = {
   family: '⌂',
   school: '✎',
   business: '▣',
+  health: '♥',
+  vehicle: '◆',
+};
+
+const categoryLabels: Record<string, string> = {
+  personal: 'Personal',
+  purchase: 'Compra',
+  payment: 'Pago',
+  family: 'Familia',
+  school: 'Escuela',
+  business: 'Negocio',
+  health: 'Salud',
+  vehicle: 'Vehículo',
+};
+
+const confidenceLabels: Record<CaptureProposal['confidence'], string> = {
+  high: 'Coincidencia alta',
+  medium: 'Coincidencia probable',
+  low: 'Necesito tu confirmación',
 };
 
 function getErrorMessage(payload: ApiErrorPayload | null) {
@@ -216,7 +331,12 @@ async function apiRequest<T>(path: string, init?: RequestInit) {
       window.dispatchEvent(new Event(sessionExpiredEvent));
     }
 
-    throw new Error(getErrorMessage(payload as ApiErrorPayload | null));
+    const errorPayload = payload as ApiErrorPayload | null;
+    throw new ApiRequestError(
+      getErrorMessage(errorPayload),
+      response.status,
+      errorPayload,
+    );
   }
 
   return payload as T;
@@ -268,6 +388,16 @@ function reminderLabel(minutes: number) {
   return `${minutes} min antes`;
 }
 
+function toLocalDateTimeInput(value: string | null) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
 export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const router = useRouter();
   const userId = currentUser.id;
@@ -297,6 +427,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     estimatedMinutes: '30',
     userId: '',
     recurrenceFrequency: '',
+    recurrenceInterval: '1',
     recurrenceEndsAt: '',
     reminderMinutesBefore: '',
   });
@@ -308,6 +439,16 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const [savingTask, setSavingTask] = useState(false);
   const [savingMember, setSavingMember] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [captureText, setCaptureText] = useState('');
+  const [captureProposal, setCaptureProposal] = useState<CaptureProposal>();
+  const [captureSpaceId, setCaptureSpaceId] = useState('');
+  const [interpretingCapture, setInterpretingCapture] = useState(false);
+  const [savingCapture, setSavingCapture] = useState(false);
+  const [captureNotice, setCaptureNotice] = useState('');
+  const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning>();
+  const [recentCreation, setRecentCreation] = useState<RecentCreation>();
+  const [listening, setListening] = useState(false);
+  const [readingTasks, setReadingTasks] = useState(false);
 
   const activeSpace = spaces.find((space) => space.id === selectedSpaceId);
   const currentMembership = activeSpace?.members.find(
@@ -319,6 +460,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const canManageMembers = Boolean(
     activeSpace?.type !== 'personal' &&
       ['owner', 'admin'].includes(currentMembership?.role ?? ''),
+  );
+  const writableSpaces = spaces.filter((space) =>
+    space.members.some(
+      (member) => member.user.id === userId && member.role !== 'viewer',
+    ),
   );
 
   const refreshSpaces = useCallback(async () => {
@@ -451,11 +597,17 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     };
   }, [refreshReminders]);
 
+  useEffect(() => {
+    window.speechSynthesis?.cancel();
+
+    return () => window.speechSynthesis?.cancel();
+  }, [selectedSpaceId]);
+
   const visibleTasks = useMemo(() => {
     const filtered = tasks.filter((task) =>
       view === 'active'
         ? activeStatuses.has(task.status)
-        : task.status === 'completed',
+        : task.status === 'completed' || task.status === 'cancelled',
     );
 
     return [...filtered].sort((left, right) => {
@@ -488,6 +640,41 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const upcomingReminders = reminders.filter(
     (reminder) => reminder.urgency === 'upcoming',
   );
+
+  function rememberDuplicate(
+    requestError: unknown,
+    payload: TaskCreatePayload,
+    source: 'capture' | 'form',
+    destinationName: string,
+  ) {
+    if (
+      !(requestError instanceof ApiRequestError) ||
+      !requestError.payload?.code ||
+      !requestError.payload.similarTasks?.length
+    ) {
+      return false;
+    }
+
+    setDuplicateWarning({
+      code: requestError.payload.code,
+      message: requestError.message,
+      similarTasks: requestError.payload.similarTasks,
+      payload,
+      source,
+      destinationName,
+    });
+    return true;
+  }
+
+  function registerCreation(task: LifeTask, destinationName: string) {
+    setRecentCreation({
+      task,
+      destinationName,
+      undone: false,
+      restored: false,
+    });
+    setDuplicateWarning(undefined);
+  }
 
   async function createSpace(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -551,36 +738,41 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
     setSavingTask(true);
     setError('');
+    setDuplicateWarning(undefined);
+
+    const payload: TaskCreatePayload = {
+      title: taskForm.title.trim(),
+      description: taskForm.description.trim() || undefined,
+      category: taskForm.category,
+      priority: taskForm.priority,
+      dueAt: taskForm.dueAt
+        ? new Date(taskForm.dueAt).toISOString()
+        : undefined,
+      estimatedMinutes: taskForm.estimatedMinutes
+        ? Number(taskForm.estimatedMinutes)
+        : undefined,
+      userId: taskForm.userId || undefined,
+      spaceId: activeSpace.id,
+      recurrenceFrequency: taskForm.recurrenceFrequency || undefined,
+      recurrenceInterval: taskForm.recurrenceFrequency
+        ? Number(taskForm.recurrenceInterval)
+        : undefined,
+      recurrenceEndsAt: taskForm.recurrenceEndsAt
+        ? new Date(`${taskForm.recurrenceEndsAt}T23:59:59`).toISOString()
+        : undefined,
+      reminderMinutesBefore:
+        taskForm.reminderMinutesBefore.length > 0
+          ? Number(taskForm.reminderMinutesBefore)
+          : undefined,
+    };
 
     try {
-      await apiRequest<LifeTask>('task', {
+      const createdTask = await apiRequest<LifeTask>('task', {
         method: 'POST',
-        body: JSON.stringify({
-          title: taskForm.title.trim(),
-          description: taskForm.description.trim() || undefined,
-          category: taskForm.category,
-          priority: taskForm.priority,
-          dueAt: taskForm.dueAt
-            ? new Date(taskForm.dueAt).toISOString()
-            : undefined,
-          estimatedMinutes: taskForm.estimatedMinutes
-            ? Number(taskForm.estimatedMinutes)
-            : undefined,
-          userId: taskForm.userId || undefined,
-          spaceId: activeSpace.id,
-          recurrenceFrequency:
-            taskForm.recurrenceFrequency || undefined,
-          recurrenceInterval: taskForm.recurrenceFrequency ? 1 : undefined,
-          recurrenceEndsAt: taskForm.recurrenceEndsAt
-            ? new Date(
-                `${taskForm.recurrenceEndsAt}T23:59:59`,
-              ).toISOString()
-            : undefined,
-          reminderMinutesBefore: taskForm.reminderMinutesBefore.length > 0
-            ? Number(taskForm.reminderMinutesBefore)
-            : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      registerCreation(createdTask, activeSpace.name);
 
       setTaskForm({
         title: '',
@@ -591,6 +783,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         estimatedMinutes: '30',
         userId: '',
         recurrenceFrequency: '',
+        recurrenceInterval: '1',
         recurrenceEndsAt: '',
         reminderMinutesBefore: '',
       });
@@ -599,13 +792,421 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       await refreshReminders();
       await refreshSpaces();
     } catch (saveError) {
+      if (!rememberDuplicate(saveError, payload, 'form', activeSpace.name)) {
+        setError(
+          saveError instanceof Error
+            ? saveError.message
+            : 'No se pudo guardar la tarea',
+        );
+      }
+    } finally {
+      setSavingTask(false);
+    }
+  }
+
+  async function interpretCapture(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!captureText.trim()) {
+      setError('Escribe una tarea corta para que ORION pueda organizarla');
+      return;
+    }
+
+    setInterpretingCapture(true);
+    setCaptureNotice('');
+    setError('');
+
+    try {
+      const proposal = await apiRequest<CaptureProposal>('capture/interpret', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: captureText.trim(),
+          activeSpaceId: canEdit ? selectedSpaceId : undefined,
+        }),
+      });
+
+      setCaptureProposal(proposal);
+      setCaptureSpaceId(proposal.suggestedSpace.id);
+    } catch (captureError) {
       setError(
-        saveError instanceof Error
-          ? saveError.message
-          : 'No se pudo guardar la tarea',
+        captureError instanceof Error
+          ? captureError.message
+          : 'ORION no pudo interpretar el mensaje',
+      );
+    } finally {
+      setInterpretingCapture(false);
+    }
+  }
+
+  async function confirmCapture() {
+    if (!captureProposal || !captureSpaceId) {
+      return;
+    }
+
+    const destination = writableSpaces.find(
+      (space) => space.id === captureSpaceId,
+    );
+
+    if (!destination) {
+      setError('Selecciona un espacio en el que puedas crear tareas');
+      return;
+    }
+
+    if (captureProposal.needsTemporalConfirmation) {
+      completeCaptureDetails();
+      setError(
+        'ORION necesita que revises la fecha y la hora antes de guardar.',
+      );
+      return;
+    }
+
+    setSavingCapture(true);
+    setError('');
+    setDuplicateWarning(undefined);
+
+    const payload: TaskCreatePayload = {
+      title: captureProposal.title.trim(),
+      category: captureProposal.category,
+      priority: 'normal',
+      estimatedMinutes: 30,
+      spaceId: destination.id,
+      dueAt: captureProposal.dueAt ?? undefined,
+      recurrenceFrequency:
+        captureProposal.recurrenceFrequency ?? undefined,
+      recurrenceInterval:
+        captureProposal.recurrenceInterval ?? undefined,
+      reminderMinutesBefore:
+        captureProposal.reminderMinutesBefore ?? undefined,
+    };
+
+    try {
+      const createdTask = await apiRequest<LifeTask>('task', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      registerCreation(createdTask, destination.name);
+      setSelectedSpaceId(destination.id);
+      setCaptureText('');
+      setCaptureProposal(undefined);
+      setCaptureSpaceId('');
+      setCaptureNotice(`Tarea guardada en ${destination.name}`);
+      setView('active');
+      await refreshSpaces();
+
+      if (destination.id === selectedSpaceId) {
+        await refreshTasks(true);
+      }
+    } catch (captureError) {
+      if (
+        !rememberDuplicate(
+          captureError,
+          payload,
+          'capture',
+          destination.name,
+        )
+      ) {
+        setError(
+          captureError instanceof Error
+            ? captureError.message
+            : 'No se pudo crear la tarea desde la captura rápida',
+        );
+      }
+    } finally {
+      setSavingCapture(false);
+    }
+  }
+
+  function completeCaptureDetails() {
+    if (!captureProposal || !captureSpaceId) {
+      return;
+    }
+
+    setSelectedSpaceId(captureSpaceId);
+    setTaskForm((current) => ({
+      ...current,
+      title: captureProposal.title,
+      category: captureProposal.category,
+      dueAt: toLocalDateTimeInput(captureProposal.dueAt),
+      recurrenceFrequency: captureProposal.recurrenceFrequency ?? '',
+      recurrenceInterval: String(captureProposal.recurrenceInterval ?? 1),
+      reminderMinutesBefore:
+        captureProposal.reminderMinutesBefore === null
+          ? ''
+          : String(captureProposal.reminderMinutesBefore),
+    }));
+    setCaptureProposal(undefined);
+    setCaptureText('');
+    setCaptureNotice('Completa la fecha, el aviso o la repetición');
+    window.setTimeout(() => {
+      document
+        .getElementById('orion-life-task-form')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+
+  function startVoiceCapture() {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const voiceWindow = window as typeof window & {
+      SpeechRecognition?: SpeechRecognitionConstructor;
+      webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    };
+    const Recognition =
+      voiceWindow.SpeechRecognition ?? voiceWindow.webkitSpeechRecognition;
+
+    if (!Recognition) {
+      setError(
+        'Este navegador no permite dictado directo. Puedes usar el micrófono del teclado o escribir la tarea.',
+      );
+      return;
+    }
+
+    const recognition = new Recognition();
+    recognition.lang = 'es-MX';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      const transcript = event.results[0]?.[0]?.transcript?.trim();
+
+      if (transcript) {
+        setCaptureText(transcript);
+        setCaptureProposal(undefined);
+        setCaptureNotice('Dictado listo. Revisa el texto y toca Organizar.');
+        setError('');
+      }
+    };
+    recognition.onerror = () => {
+      setError(
+        'No se pudo escuchar con claridad. Intenta otra vez o escribe la tarea.',
+      );
+    };
+    recognition.onend = () => setListening(false);
+
+    setListening(true);
+    setError('');
+    recognition.start();
+  }
+
+  function readMyDay() {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      setError('Este navegador no puede leer las tareas en voz alta.');
+      return;
+    }
+
+    if (readingTasks) {
+      window.speechSynthesis.cancel();
+      setReadingTasks(false);
+      return;
+    }
+
+    const activeTasks = tasks
+      .filter((task) => activeStatuses.has(task.status))
+      .sort((left, right) => {
+        if (!left.dueAt) return 1;
+        if (!right.dueAt) return -1;
+        return new Date(left.dueAt).getTime() - new Date(right.dueAt).getTime();
+      })
+      .slice(0, 12);
+    const message =
+      activeTasks.length === 0
+        ? `En ${activeSpace?.name ?? 'este espacio'} no tienes tareas pendientes.`
+        : `En ${activeSpace?.name ?? 'este espacio'} tienes ${activeTasks.length} tareas. ${activeTasks
+            .map(
+              (task, index) =>
+                `${index + 1}: ${task.title}. ${
+                  task.dueAt ? formatDate(task.dueAt) : 'Sin horario fijo'
+                }.`,
+            )
+            .join(' ')}`;
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = 'es-MX';
+    utterance.rate = 0.95;
+    utterance.onend = () => setReadingTasks(false);
+    utterance.onerror = () => setReadingTasks(false);
+
+    window.speechSynthesis.cancel();
+    setReadingTasks(true);
+    window.speechSynthesis.speak(utterance);
+  }
+
+  async function createSimilarAnyway() {
+    if (!duplicateWarning || duplicateWarning.code === 'DUPLICATE_TASK') {
+      return;
+    }
+
+    setSavingTask(duplicateWarning.source === 'form');
+    setSavingCapture(duplicateWarning.source === 'capture');
+    setError('');
+
+    try {
+      const createdTask = await apiRequest<LifeTask>('task', {
+        method: 'POST',
+        body: JSON.stringify({
+          ...duplicateWarning.payload,
+          allowSimilar: true,
+        }),
+      });
+      const destinationId = duplicateWarning.payload.spaceId;
+      const source = duplicateWarning.source;
+
+      registerCreation(createdTask, duplicateWarning.destinationName);
+      setSelectedSpaceId(destinationId);
+      setView('active');
+
+      if (source === 'capture') {
+        setCaptureText('');
+        setCaptureProposal(undefined);
+        setCaptureSpaceId('');
+      } else {
+        setTaskForm({
+          title: '',
+          description: '',
+          category: 'personal',
+          priority: 'normal',
+          dueAt: '',
+          estimatedMinutes: '30',
+          userId: '',
+          recurrenceFrequency: '',
+          recurrenceInterval: '1',
+          recurrenceEndsAt: '',
+          reminderMinutesBefore: '',
+        });
+      }
+
+      await refreshTasks(true);
+      await refreshReminders();
+      await refreshSpaces();
+    } catch (retryError) {
+      setError(
+        retryError instanceof Error
+          ? retryError.message
+          : 'No se pudo crear la tarea',
       );
     } finally {
       setSavingTask(false);
+      setSavingCapture(false);
+    }
+  }
+
+  function openSimilarTask(task: SimilarTask) {
+    setSelectedSpaceId(task.spaceId ?? selectedSpaceId);
+    setView('active');
+    setDuplicateWarning(undefined);
+    window.setTimeout(() => {
+      document.getElementById(`task-${task.id}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }, 600);
+  }
+
+  async function addDetailToSimilarTask(task: SimilarTask) {
+    const note = window.prompt(
+      `Agrega un dato a “${task.title}”. No se creará otra tarea:`,
+    );
+
+    if (!note?.trim()) {
+      return;
+    }
+
+    setProcessingId(task.id);
+    setError('');
+
+    try {
+      await apiRequest<LifeTask>(`task/${encodeURIComponent(task.id)}/note`, {
+        method: 'POST',
+        body: JSON.stringify({ note: note.trim() }),
+      });
+      setDuplicateWarning(undefined);
+      setCaptureNotice('El dato se agregó a la tarea existente.');
+      await refreshTasks(true);
+    } catch (noteError) {
+      setError(
+        noteError instanceof Error
+          ? noteError.message
+          : 'No se pudo agregar el dato',
+      );
+    } finally {
+      setProcessingId('');
+    }
+  }
+
+  async function undoRecentCreation() {
+    if (!recentCreation || recentCreation.undone) {
+      return;
+    }
+
+    const task = recentCreation.task;
+    setProcessingId(task.id);
+    setError('');
+
+    try {
+      if (task.recurrence?.status === 'active') {
+        await apiRequest<LifeTask>(
+          `task/${encodeURIComponent(task.id)}/recurrence/cancel`,
+          { method: 'POST', body: JSON.stringify({}) },
+        );
+      }
+
+      const cancelled = await apiRequest<LifeTask>(
+        `task/${encodeURIComponent(task.id)}/cancel`,
+        { method: 'POST', body: JSON.stringify({}) },
+      );
+      setRecentCreation((current) =>
+        current
+          ? {
+              ...current,
+              task: cancelled,
+              undone: true,
+              restored: false,
+            }
+          : current,
+      );
+      await refreshTasks(true);
+      await refreshReminders();
+    } catch (undoError) {
+      setError(
+        undoError instanceof Error
+          ? undoError.message
+          : 'No se pudo deshacer la tarea',
+      );
+    } finally {
+      setProcessingId('');
+    }
+  }
+
+  async function restoreRecentCreation() {
+    if (!recentCreation?.undone) {
+      return;
+    }
+
+    setProcessingId(recentCreation.task.id);
+    setError('');
+
+    try {
+      const restored = await apiRequest<LifeTask>(
+        `task/${encodeURIComponent(recentCreation.task.id)}/reopen`,
+        { method: 'POST', body: JSON.stringify({}) },
+      );
+      setRecentCreation({
+        ...recentCreation,
+        task: restored,
+        undone: false,
+        restored: true,
+      });
+      await refreshTasks(true);
+      await refreshReminders();
+    } catch (restoreError) {
+      setError(
+        restoreError instanceof Error
+          ? restoreError.message
+          : 'No se pudo restaurar la tarea',
+      );
+    } finally {
+      setProcessingId('');
     }
   }
 
@@ -653,7 +1254,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
   async function runTaskAction(
     taskId: string,
-    action: 'claim' | 'complete' | 'postpone' | 'reopen',
+    action: 'claim' | 'complete' | 'postpone' | 'reopen' | 'cancel',
     extra?: Record<string, unknown>,
   ) {
     setProcessingId(taskId);
@@ -803,6 +1404,15 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
             </span>
             <button
               type="button"
+              disabled={!activeSpace}
+              onClick={readMyDay}
+              title="Lee solo los títulos y horarios del espacio seleccionado"
+              className="rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-40"
+            >
+              {readingTasks ? '■ Detener lectura' : '🔊 Leer mi día'}
+            </button>
+            <button
+              type="button"
               onClick={() => setShowSpaceForm((current) => !current)}
               className="rounded-xl border border-violet-400/40 bg-violet-400/10 px-4 py-2 text-sm font-semibold text-violet-200 hover:bg-violet-400/20"
             >
@@ -828,6 +1438,108 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               ×
             </button>
           </div>
+        ) : null}
+
+        {recentCreation ? (
+          <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100 sm:flex-row sm:items-center sm:justify-between">
+            <p>
+              {recentCreation.undone
+                ? 'Tarea cancelada'
+                : recentCreation.restored
+                  ? 'Tarea restaurada'
+                  : 'Tarea creada'}
+              :{' '}
+              <strong>{recentCreation.task.title}</strong> en{' '}
+              {recentCreation.destinationName}.
+              {recentCreation.undone && recentCreation.task.recurrenceId
+                ? ' La serie repetitiva quedó detenida para evitar nuevas copias.'
+                : recentCreation.restored &&
+                    recentCreation.task.recurrence?.status === 'cancelled'
+                  ? ' La tarea volvió; la serie repetitiva permanece detenida.'
+                : ''}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={processingId === recentCreation.task.id}
+                onClick={() =>
+                  void (recentCreation.undone
+                    ? restoreRecentCreation()
+                    : undoRecentCreation())
+                }
+                className="rounded-xl border border-emerald-300/40 px-3 py-2 text-xs font-bold hover:bg-emerald-300/10 disabled:opacity-50"
+              >
+                {recentCreation.undone ? 'Restaurar tarea' : 'Deshacer'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setRecentCreation(undefined)}
+                className="px-2 text-emerald-200/70"
+                aria-label="Cerrar aviso"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {duplicateWarning ? (
+          <section className="mb-5 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 text-amber-100">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">
+              ORION evitó una tarea repetida
+            </p>
+            <h2 className="mt-2 font-bold">{duplicateWarning.message}</h2>
+            <div className="mt-4 space-y-3">
+              {duplicateWarning.similarTasks.map((task) => (
+                <article
+                  key={task.id}
+                  className="rounded-2xl border border-amber-300/20 bg-slate-950/50 p-4"
+                >
+                  <p className="font-semibold text-white">{task.title}</p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {formatDate(task.dueAt)} ·{' '}
+                    {statusLabels[task.status] ?? task.status}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openSimilarTask(task)}
+                      className="rounded-xl border border-slate-600 px-3 py-2 text-xs text-slate-200 hover:bg-slate-800"
+                    >
+                      Abrir la existente
+                    </button>
+                    <button
+                      type="button"
+                      disabled={processingId === task.id}
+                      onClick={() => void addDetailToSimilarTask(task)}
+                      className="rounded-xl border border-cyan-400/30 px-3 py-2 text-xs text-cyan-200 hover:bg-cyan-400/10 disabled:opacity-50"
+                    >
+                      Agregarle un dato
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {duplicateWarning.code === 'SIMILAR_TASK_EXISTS' ? (
+                <button
+                  type="button"
+                  disabled={savingTask || savingCapture}
+                  onClick={() => void createSimilarAnyway()}
+                  className="rounded-xl bg-amber-300 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-200 disabled:opacity-50"
+                >
+                  Crear otra de todos modos
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setDuplicateWarning(undefined)}
+                className="rounded-xl border border-amber-300/30 px-4 py-2 text-xs hover:bg-amber-300/10"
+              >
+                Cerrar
+              </button>
+            </div>
+          </section>
         ) : null}
 
         {dueReminders.length > 0 ? (
@@ -959,6 +1671,259 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           </form>
         ) : null}
 
+        <section className="mb-6 overflow-hidden rounded-3xl border border-cyan-400/30 bg-gradient-to-br from-cyan-400/10 via-slate-900 to-violet-400/10 p-5 shadow-xl shadow-cyan-950/10">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-xl">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300">
+                Captura rápida universal
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-white">
+                Dile a ORION
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                Escribe algo corto. ORION propondrá si pertenece a tu vida
+                personal, familia, escuela, negocio o un espacio particular.
+              </p>
+            </div>
+
+            <div className="flex gap-2 text-xs">
+              <button
+                type="button"
+                disabled={listening || interpretingCapture || savingCapture}
+                onClick={startVoiceCapture}
+                title="El micrófono se activa solo durante este dictado"
+                className="rounded-xl border border-cyan-400/30 bg-slate-950/60 px-3 py-2 text-cyan-200 hover:bg-cyan-400/10 disabled:text-slate-500"
+              >
+                {listening ? '🎤 Escuchando…' : '🎤 Dictar tarea'}
+              </button>
+              <button
+                type="button"
+                disabled
+                title="La lectura de fotografías llegará después de validar la clasificación"
+                className="rounded-xl border border-slate-700 bg-slate-950/60 px-3 py-2 text-slate-500"
+              >
+                📷 Foto · siguiente
+              </button>
+            </div>
+          </div>
+
+          <form
+            onSubmit={(event) => void interpretCapture(event)}
+            className="mt-5 flex flex-col gap-3 lg:flex-row"
+          >
+            <input
+              value={captureText}
+              maxLength={500}
+              disabled={interpretingCapture || savingCapture}
+              onChange={(event) => {
+                setCaptureText(event.target.value);
+                setCaptureProposal(undefined);
+                setCaptureNotice('');
+              }}
+              placeholder="Ejemplo: comprar leche para la casa"
+              className="h-14 min-w-0 flex-1 rounded-2xl border border-slate-700 bg-slate-950/80 px-4 text-base outline-none focus:border-cyan-400 disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={
+                interpretingCapture ||
+                savingCapture ||
+                !captureText.trim() ||
+                writableSpaces.length === 0
+              }
+              className="h-14 rounded-2xl bg-cyan-400 px-6 font-bold text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500"
+            >
+              {interpretingCapture ? 'Organizando…' : 'Organizar'}
+            </button>
+          </form>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              'Comprar leche para la casa',
+              'Pedir refrescos al proveedor',
+              'Hablar con el padre de familia de Juan',
+            ].map((example) => (
+              <button
+                key={example}
+                type="button"
+                disabled={interpretingCapture || savingCapture}
+                onClick={() => {
+                  setCaptureText(example);
+                  setCaptureProposal(undefined);
+                  setCaptureNotice('');
+                }}
+                className="rounded-full border border-slate-700 px-3 py-1.5 text-xs text-slate-400 hover:border-cyan-400/40 hover:text-cyan-200 disabled:opacity-50"
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+
+          {captureNotice ? (
+            <p className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
+              ✓ {captureNotice}
+            </p>
+          ) : null}
+
+          {captureProposal ? (
+            <div className="mt-5 rounded-3xl border border-violet-400/30 bg-slate-950/70 p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">
+                    Propuesta de ORION
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">
+                    {confidenceLabels[captureProposal.confidence]}
+                  </p>
+                </div>
+                <span
+                  className={`w-fit rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                    captureProposal.needsSpaceConfirmation
+                      ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+                      : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+                  }`}
+                >
+                  {captureProposal.needsSpaceConfirmation
+                    ? 'Confirma el destino'
+                    : 'Destino reconocido'}
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_240px_180px]">
+                <label className="text-xs text-slate-500">
+                  Tarea
+                  <input
+                    value={captureProposal.title}
+                    maxLength={150}
+                    disabled={savingCapture}
+                    onChange={(event) =>
+                      setCaptureProposal((current) =>
+                        current
+                          ? {
+                              ...current,
+                              title: event.target.value,
+                            }
+                          : current,
+                      )
+                    }
+                    className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 text-sm text-slate-100 outline-none focus:border-cyan-400"
+                  />
+                </label>
+
+                <label className="text-xs text-slate-500">
+                  Espacio
+                  <select
+                    value={captureSpaceId}
+                    disabled={savingCapture}
+                    onChange={(event) => setCaptureSpaceId(event.target.value)}
+                    className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 text-sm outline-none focus:border-violet-400"
+                  >
+                    {writableSpaces.map((space) => (
+                      <option key={space.id} value={space.id}>
+                        {space.name} ·{' '}
+                        {spaceTypeLabels[space.type] ?? space.type}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs text-slate-500">
+                  Categoría
+                  <select
+                    value={captureProposal.category}
+                    disabled={savingCapture}
+                    onChange={(event) =>
+                      setCaptureProposal((current) =>
+                        current
+                          ? {
+                              ...current,
+                              category: event.target.value,
+                            }
+                          : current,
+                      )
+                    }
+                    className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-900 px-3 text-sm outline-none focus:border-cyan-400"
+                  >
+                    {Object.entries(categoryLabels).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              {captureProposal.temporalSummary ? (
+                <div
+                  className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
+                    captureProposal.needsTemporalConfirmation
+                      ? 'border-amber-400/30 bg-amber-400/10 text-amber-100'
+                      : 'border-cyan-400/30 bg-cyan-400/10 text-cyan-100'
+                  }`}
+                >
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] opacity-70">
+                    Fecha, aviso y repetición entendidos
+                  </p>
+                  <p className="mt-1">{captureProposal.temporalSummary}</p>
+                </div>
+              ) : null}
+
+              {captureProposal.privacyWarning ? (
+                <p className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                  ⚠ {captureProposal.privacyWarning}
+                </p>
+              ) : null}
+
+              {captureProposal.reasons.length > 0 ? (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                    Por qué lo propuso
+                  </p>
+                  <ul className="mt-2 space-y-1 text-sm text-slate-400">
+                    {captureProposal.reasons.map((reason) => (
+                      <li key={reason}>• {reason}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              <div className="mt-5 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={savingCapture || !captureProposal.title.trim()}
+                  onClick={() => void confirmCapture()}
+                  className="rounded-xl bg-emerald-400 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-emerald-300 disabled:bg-slate-700 disabled:text-slate-500"
+                >
+                  {savingCapture
+                    ? 'Guardando…'
+                    : captureProposal.needsTemporalConfirmation
+                      ? 'Revisar hora propuesta'
+                      : 'Crear tarea'}
+                </button>
+                <button
+                  type="button"
+                  disabled={savingCapture || !captureProposal.title.trim()}
+                  onClick={completeCaptureDetails}
+                  className="rounded-xl border border-cyan-400/30 px-4 py-2.5 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/10 disabled:opacity-50"
+                >
+                  Agregar fecha o aviso
+                </button>
+                <button
+                  type="button"
+                  disabled={savingCapture}
+                  onClick={() => {
+                    setCaptureProposal(undefined);
+                    setCaptureSpaceId('');
+                  }}
+                  className="rounded-xl border border-slate-700 px-4 py-2.5 text-sm text-slate-400 hover:bg-slate-900 disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </section>
+
         {loadingSpaces ? (
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
             Cargando ORION Life…
@@ -977,7 +1942,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 <button
                   key={space.id}
                   type="button"
-                  onClick={() => setSelectedSpaceId(space.id)}
+                  onClick={() => {
+                    window.speechSynthesis?.cancel();
+                    setReadingTasks(false);
+                    setSelectedSpaceId(space.id);
+                  }}
                   className={`min-w-max rounded-2xl border px-4 py-3 text-left transition ${
                     selectedSpaceId === space.id
                       ? 'border-violet-400/60 bg-violet-400/15'
@@ -1091,6 +2060,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                       return (
                         <article
                           key={task.id}
+                          id={`task-${task.id}`}
                           className="rounded-3xl border border-slate-800 bg-slate-900 p-5"
                         >
                           <div className="flex items-start gap-4">
@@ -1115,6 +2085,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                   className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
                                     task.status === 'completed'
                                       ? 'bg-emerald-500/10 text-emerald-300'
+                                      : task.status === 'cancelled'
+                                        ? 'bg-red-500/10 text-red-300'
                                       : task.status === 'in_progress'
                                         ? 'bg-amber-500/10 text-amber-300'
                                         : 'bg-cyan-500/10 text-cyan-300'
@@ -1184,6 +2156,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                 <p className="mt-3 text-xs text-slate-600">
                                   {lastActivity.actor?.name ?? 'ORION'}{' '}
                                   {actionLabels[lastActivity.action] ?? lastActivity.action}
+                                  {lastActivity.note ? `: ${lastActivity.note}` : ''}
                                 </p>
                               ) : null}
 
@@ -1252,10 +2225,33 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                     >
                                       Mañana 9:00
                                     </button>
+                                    <button
+                                      type="button"
+                                      disabled={processingId === task.id}
+                                      onClick={() => {
+                                        const label = task.recurrence
+                                          ? 'esta ocasión'
+                                          : 'esta tarea';
+                                        if (
+                                          window.confirm(
+                                            `¿Cancelar ${label}? Podrás restaurarla después.`,
+                                          )
+                                        ) {
+                                          void runTaskAction(task.id, 'cancel');
+                                        }
+                                      }}
+                                      className="rounded-xl border border-red-400/30 px-3 py-2 text-xs text-red-200 hover:bg-red-400/10 disabled:opacity-50"
+                                    >
+                                      {task.recurrence
+                                        ? 'Cancelar esta vez'
+                                        : 'Cancelar'}
+                                    </button>
                                   </>
                                 ) : null}
 
-                                {canEdit && task.status === 'completed' ? (
+                                {canEdit &&
+                                (task.status === 'completed' ||
+                                  task.status === 'cancelled') ? (
                                   <button
                                     type="button"
                                     disabled={processingId === task.id}
@@ -1264,7 +2260,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                     }
                                     className="rounded-xl border border-slate-700 px-3 py-2 text-xs text-slate-300 hover:bg-slate-800 disabled:opacity-50"
                                   >
-                                    Reabrir
+                                    {task.status === 'cancelled'
+                                      ? 'Restaurar'
+                                      : 'Reabrir'}
                                   </button>
                                 ) : null}
 
@@ -1296,6 +2294,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                       Nueva tarea
                     </p>
                     <form
+                      id="orion-life-task-form"
                       onSubmit={(event) => void createTask(event)}
                       className="mt-4 space-y-3"
                     >
@@ -1344,6 +2343,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                           <option value="family">Familia</option>
                           <option value="school">Escuela</option>
                           <option value="business">Negocio</option>
+                          <option value="health">Salud</option>
+                          <option value="vehicle">Vehículo</option>
                         </select>
 
                         <select
@@ -1402,13 +2403,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         </select>
                       </label>
 
-                      <div
-                        className={`grid gap-2 ${
-                          taskForm.recurrenceFrequency
-                            ? 'grid-cols-2'
-                            : 'grid-cols-1'
-                        }`}
-                      >
+                      <div className="space-y-2">
                         <label className="text-xs text-slate-500">
                           Repetición
                           <select
@@ -1418,6 +2413,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                               setTaskForm((current) => ({
                                 ...current,
                                 recurrenceFrequency: event.target.value,
+                                recurrenceInterval: event.target.value
+                                  ? current.recurrenceInterval
+                                  : '1',
                                 recurrenceEndsAt: event.target.value
                                   ? current.recurrenceEndsAt
                                   : '',
@@ -1434,22 +2432,41 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         </label>
 
                         {taskForm.recurrenceFrequency ? (
-                          <label className="text-xs text-slate-500">
-                            Termina (opcional)
-                            <input
-                              type="date"
-                              value={taskForm.recurrenceEndsAt}
-                              disabled={!canEdit || savingTask}
-                              min={taskForm.dueAt.slice(0, 10) || undefined}
-                              onChange={(event) =>
-                                setTaskForm((current) => ({
-                                  ...current,
-                                  recurrenceEndsAt: event.target.value,
-                                }))
-                              }
-                              className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-300 outline-none focus:border-violet-400"
-                            />
-                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <label className="text-xs text-slate-500">
+                              Cada cuántas
+                              <input
+                                type="number"
+                                min="1"
+                                max="365"
+                                value={taskForm.recurrenceInterval}
+                                disabled={!canEdit || savingTask}
+                                onChange={(event) =>
+                                  setTaskForm((current) => ({
+                                    ...current,
+                                    recurrenceInterval: event.target.value,
+                                  }))
+                                }
+                                className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-violet-400"
+                              />
+                            </label>
+                            <label className="text-xs text-slate-500">
+                              Termina (opcional)
+                              <input
+                                type="date"
+                                value={taskForm.recurrenceEndsAt}
+                                disabled={!canEdit || savingTask}
+                                min={taskForm.dueAt.slice(0, 10) || undefined}
+                                onChange={(event) =>
+                                  setTaskForm((current) => ({
+                                    ...current,
+                                    recurrenceEndsAt: event.target.value,
+                                  }))
+                                }
+                                className="mt-1 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-300 outline-none focus:border-violet-400"
+                              />
+                            </label>
+                          </div>
                         ) : null}
                       </div>
 

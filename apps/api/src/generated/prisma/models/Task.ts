@@ -48,6 +48,7 @@ export type TaskMinAggregateOutputType = {
   postponedUntil: Date | null
   completedAt: Date | null
   version: number | null
+  dedupeKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
   companyId: string | null
@@ -72,6 +73,7 @@ export type TaskMaxAggregateOutputType = {
   postponedUntil: Date | null
   completedAt: Date | null
   version: number | null
+  dedupeKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
   companyId: string | null
@@ -96,6 +98,7 @@ export type TaskCountAggregateOutputType = {
   postponedUntil: number
   completedAt: number
   version: number
+  dedupeKey: number
   createdAt: number
   updatedAt: number
   companyId: number
@@ -132,6 +135,7 @@ export type TaskMinAggregateInputType = {
   postponedUntil?: true
   completedAt?: true
   version?: true
+  dedupeKey?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -156,6 +160,7 @@ export type TaskMaxAggregateInputType = {
   postponedUntil?: true
   completedAt?: true
   version?: true
+  dedupeKey?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -180,6 +185,7 @@ export type TaskCountAggregateInputType = {
   postponedUntil?: true
   completedAt?: true
   version?: true
+  dedupeKey?: true
   createdAt?: true
   updatedAt?: true
   companyId?: true
@@ -291,6 +297,7 @@ export type TaskGroupByOutputType = {
   postponedUntil: Date | null
   completedAt: Date | null
   version: number
+  dedupeKey: string | null
   createdAt: Date
   updatedAt: Date
   companyId: string
@@ -338,6 +345,7 @@ export type TaskWhereInput = {
   postponedUntil?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   version?: Prisma.IntFilter<"Task"> | number
+  dedupeKey?: Prisma.StringNullableFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   companyId?: Prisma.StringFilter<"Task"> | string
@@ -371,6 +379,7 @@ export type TaskOrderByWithRelationInput = {
   postponedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -394,6 +403,7 @@ export type TaskOrderByWithRelationInput = {
 
 export type TaskWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  dedupeKey?: string
   recurrenceId_recurrenceOccurrenceAt?: Prisma.TaskRecurrenceIdRecurrenceOccurrenceAtCompoundUniqueInput
   AND?: Prisma.TaskWhereInput | Prisma.TaskWhereInput[]
   OR?: Prisma.TaskWhereInput[]
@@ -427,7 +437,7 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   recurrence?: Prisma.XOR<Prisma.TaskRecurrenceNullableScalarRelationFilter, Prisma.TaskRecurrenceWhereInput> | null
   activities?: Prisma.TaskActivityListRelationFilter
   reminder?: Prisma.XOR<Prisma.TaskReminderNullableScalarRelationFilter, Prisma.TaskReminderWhereInput> | null
-}, "id" | "recurrenceId_recurrenceOccurrenceAt">
+}, "id" | "dedupeKey" | "recurrenceId_recurrenceOccurrenceAt">
 
 export type TaskOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -441,6 +451,7 @@ export type TaskOrderByWithAggregationInput = {
   postponedUntil?: Prisma.SortOrderInput | Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -473,6 +484,7 @@ export type TaskScalarWhereWithAggregatesInput = {
   postponedUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"Task"> | number
+  dedupeKey?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   companyId?: Prisma.StringWithAggregatesFilter<"Task"> | string
@@ -497,6 +509,7 @@ export type TaskCreateInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -523,6 +536,7 @@ export type TaskUncheckedCreateInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -549,6 +563,7 @@ export type TaskUpdateInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -575,6 +590,7 @@ export type TaskUncheckedUpdateInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -601,6 +617,7 @@ export type TaskCreateManyInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -625,6 +642,7 @@ export type TaskUpdateManyMutationInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -642,6 +660,7 @@ export type TaskUncheckedUpdateManyInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -681,6 +700,7 @@ export type TaskCountOrderByAggregateInput = {
   postponedUntil?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -710,6 +730,7 @@ export type TaskMaxOrderByAggregateInput = {
   postponedUntil?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -734,6 +755,7 @@ export type TaskMinOrderByAggregateInput = {
   postponedUntil?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
+  dedupeKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   companyId?: Prisma.SortOrder
@@ -1098,6 +1120,7 @@ export type TaskCreateWithoutCompanyInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1123,6 +1146,7 @@ export type TaskUncheckedCreateWithoutCompanyInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   userId?: string | null
@@ -1177,6 +1201,7 @@ export type TaskScalarWhereInput = {
   postponedUntil?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   completedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   version?: Prisma.IntFilter<"Task"> | number
+  dedupeKey?: Prisma.StringNullableFilter<"Task"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   companyId?: Prisma.StringFilter<"Task"> | string
@@ -1201,6 +1226,7 @@ export type TaskCreateWithoutUserInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1226,6 +1252,7 @@ export type TaskUncheckedCreateWithoutUserInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1261,6 +1288,7 @@ export type TaskCreateWithoutCreatedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1286,6 +1314,7 @@ export type TaskUncheckedCreateWithoutCreatedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1321,6 +1350,7 @@ export type TaskCreateWithoutClaimedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1346,6 +1376,7 @@ export type TaskUncheckedCreateWithoutClaimedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1381,6 +1412,7 @@ export type TaskCreateWithoutCompletedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1406,6 +1438,7 @@ export type TaskUncheckedCreateWithoutCompletedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1505,6 +1538,7 @@ export type TaskCreateWithoutSpaceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1530,6 +1564,7 @@ export type TaskUncheckedCreateWithoutSpaceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1581,6 +1616,7 @@ export type TaskCreateWithoutRecurrenceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1606,6 +1642,7 @@ export type TaskUncheckedCreateWithoutRecurrenceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1657,6 +1694,7 @@ export type TaskCreateWithoutReminderInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1682,6 +1720,7 @@ export type TaskUncheckedCreateWithoutReminderInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1723,6 +1762,7 @@ export type TaskUpdateWithoutReminderInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1748,6 +1788,7 @@ export type TaskUncheckedUpdateWithoutReminderInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1773,6 +1814,7 @@ export type TaskCreateWithoutActivitiesInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   recurrenceOccurrenceAt?: Date | string | null
@@ -1798,6 +1840,7 @@ export type TaskUncheckedCreateWithoutActivitiesInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -1839,6 +1882,7 @@ export type TaskUpdateWithoutActivitiesInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1864,6 +1908,7 @@ export type TaskUncheckedUpdateWithoutActivitiesInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1889,6 +1934,7 @@ export type TaskCreateManyCompanyInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   userId?: string | null
@@ -1912,6 +1958,7 @@ export type TaskUpdateWithoutCompanyInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1937,6 +1984,7 @@ export type TaskUncheckedUpdateWithoutCompanyInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1962,6 +2010,7 @@ export type TaskUncheckedUpdateManyWithoutCompanyInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1985,6 +2034,7 @@ export type TaskCreateManyUserInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2008,6 +2058,7 @@ export type TaskCreateManyCreatedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2031,6 +2082,7 @@ export type TaskCreateManyClaimedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2054,6 +2106,7 @@ export type TaskCreateManyCompletedByInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2077,6 +2130,7 @@ export type TaskUpdateWithoutUserInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2102,6 +2156,7 @@ export type TaskUncheckedUpdateWithoutUserInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2127,6 +2182,7 @@ export type TaskUncheckedUpdateManyWithoutUserInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2150,6 +2206,7 @@ export type TaskUpdateWithoutCreatedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2175,6 +2232,7 @@ export type TaskUncheckedUpdateWithoutCreatedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2200,6 +2258,7 @@ export type TaskUncheckedUpdateManyWithoutCreatedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2223,6 +2282,7 @@ export type TaskUpdateWithoutClaimedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2248,6 +2308,7 @@ export type TaskUncheckedUpdateWithoutClaimedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2273,6 +2334,7 @@ export type TaskUncheckedUpdateManyWithoutClaimedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2296,6 +2358,7 @@ export type TaskUpdateWithoutCompletedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2321,6 +2384,7 @@ export type TaskUncheckedUpdateWithoutCompletedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2346,6 +2410,7 @@ export type TaskUncheckedUpdateManyWithoutCompletedByInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2369,6 +2434,7 @@ export type TaskCreateManySpaceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2392,6 +2458,7 @@ export type TaskUpdateWithoutSpaceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2417,6 +2484,7 @@ export type TaskUncheckedUpdateWithoutSpaceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2442,6 +2510,7 @@ export type TaskUncheckedUpdateManyWithoutSpaceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2465,6 +2534,7 @@ export type TaskCreateManyRecurrenceInput = {
   postponedUntil?: Date | string | null
   completedAt?: Date | string | null
   version?: number
+  dedupeKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   companyId: string
@@ -2488,6 +2558,7 @@ export type TaskUpdateWithoutRecurrenceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   recurrenceOccurrenceAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2513,6 +2584,7 @@ export type TaskUncheckedUpdateWithoutRecurrenceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2538,6 +2610,7 @@ export type TaskUncheckedUpdateManyWithoutRecurrenceInput = {
   postponedUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
+  dedupeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   companyId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2592,6 +2665,7 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   postponedUntil?: boolean
   completedAt?: boolean
   version?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2626,6 +2700,7 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   postponedUntil?: boolean
   completedAt?: boolean
   version?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2657,6 +2732,7 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   postponedUntil?: boolean
   completedAt?: boolean
   version?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2688,6 +2764,7 @@ export type TaskSelectScalar = {
   postponedUntil?: boolean
   completedAt?: boolean
   version?: boolean
+  dedupeKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   companyId?: boolean
@@ -2700,7 +2777,7 @@ export type TaskSelectScalar = {
   recurrenceOccurrenceAt?: boolean
 }
 
-export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "category" | "priority" | "status" | "dueAt" | "estimatedMinutes" | "postponedUntil" | "completedAt" | "version" | "createdAt" | "updatedAt" | "companyId" | "userId" | "spaceId" | "createdById" | "claimedById" | "completedById" | "recurrenceId" | "recurrenceOccurrenceAt", ExtArgs["result"]["task"]>
+export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "category" | "priority" | "status" | "dueAt" | "estimatedMinutes" | "postponedUntil" | "completedAt" | "version" | "dedupeKey" | "createdAt" | "updatedAt" | "companyId" | "userId" | "spaceId" | "createdById" | "claimedById" | "completedById" | "recurrenceId" | "recurrenceOccurrenceAt", ExtArgs["result"]["task"]>
 export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   user?: boolean | Prisma.Task$userArgs<ExtArgs>
@@ -2757,6 +2834,7 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     postponedUntil: Date | null
     completedAt: Date | null
     version: number
+    dedupeKey: string | null
     createdAt: Date
     updatedAt: Date
     companyId: string
@@ -3210,6 +3288,7 @@ export interface TaskFieldRefs {
   readonly postponedUntil: Prisma.FieldRef<"Task", 'DateTime'>
   readonly completedAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly version: Prisma.FieldRef<"Task", 'Int'>
+  readonly dedupeKey: Prisma.FieldRef<"Task", 'String'>
   readonly createdAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly companyId: Prisma.FieldRef<"Task", 'String'>

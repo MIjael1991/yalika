@@ -31,6 +31,7 @@ import { OrderSplitModule } from './core/order-split/order-split.module';
 import { OrderDiscountModule } from './core/order-discount/order-discount.module';
 import { SpaceModule } from './core/space/space.module';
 import { ReminderModule } from './core/reminder/reminder.module';
+import { CaptureModule } from './core/capture/capture.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ReminderModule } from './core/reminder/reminder.module';
     SpaceModule,
     TaskModule,
     ReminderModule,
+    CaptureModule,
     OperationsModule,
     CustomerModule,
     VisitModule,

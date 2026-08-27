@@ -1,6 +1,6 @@
 # ORION: visión de producto y continuidad
 
-Actualizado: 17 de agosto de 2026.
+Actualizado: 19 de agosto de 2026.
 
 Este documento conserva decisiones de producto que deben sobrevivir a cambios de
 chat, desarrolladores y etapas. No obliga a construir todo inmediatamente. Sirve
@@ -84,6 +84,34 @@ Las alarmas futuras tendrán acciones como:
 Para sonar con la aplicación cerrada serán necesarias notificaciones del dispositivo
 y un servicio de recordatorios. Las tareas esenciales deberán conservarse localmente
 cuando no exista Internet.
+
+## Captura rápida y motor de contexto
+
+La entrada principal será **Dile a ORION**. Una persona podrá escribir un mensaje
+corto y, en etapas posteriores, dictarlo o fotografiar un documento. Texto, voz y
+fotografía alimentarán el mismo motor; no existirán tres sistemas de tareas
+separados.
+
+ORION distinguirá entre:
+
+- el espacio, que define propiedad y visibilidad: personal, familia, escuela,
+  negocio o uno personalizado;
+- la categoría, que describe el tema: compra, pago, salud, vehículo, tarea
+  escolar, proveedor y otras;
+- el origen de la señal: indicación explícita, contexto activo, palabras del
+  mensaje o patrones confirmados anteriormente.
+
+Una indicación explícita del usuario siempre tendrá prioridad. Con confianza alta
+ORION preseleccionará el destino y permitirá cambiarlo. Con confianza media
+solicitará una confirmación breve. Con confianza baja propondrá conservar la tarea
+en un espacio privado. Nunca se compartirá silenciosamente información sensible,
+en especial salud, menores, dinero o conversaciones escolares.
+
+El primer piloto de clasificación utiliza únicamente tareas creadas por la misma
+cuenta como antecedentes. Mover una propuesta al espacio correcto permite que una
+tarea similar se clasifique mejor después, sin copiar los textos a otra tabla. Las
+reglas permanentes y el aprendizaje avanzado deberán ser explícitos, revocables y
+auditables.
 
 ## Tareas compartidas
 
@@ -248,7 +276,27 @@ personales ya no admiten integrantes. El bloque actual agrega series recurrentes
 con generación anticipada y protección contra duplicados, además del primer
 centro de recordatorios internos con destinatario, posposición y auditoría.
 
+La captura rápida ya acepta texto y dictado temporal del navegador. Ambos caminos
+usan el mismo motor explicable: proponen un espacio, muestran las señales utilizadas,
+advierten sobre información sensible y exigen confirmación humana antes de crear la
+tarea. También interpreta expresiones frecuentes como “mañana a las 6”, “cada
+martes” o “30 minutos antes”. Cuando falta la hora propone las 9:00, pero obliga a
+revisarla. La fotografía seguirá reutilizando este contrato cuando se agregue OCR.
+
+La protección de calidad del piloto compara tareas solamente dentro del espacio de
+destino. Una coincidencia exacta se bloquea y una coincidencia parecida permite
+abrir la existente, agregarle un dato o confirmar una nueva. La base de datos evita
+la carrera entre dos ventanas. Las creaciones recientes pueden deshacerse sin borrar
+historial y las tareas canceladas pueden restaurarse.
+
+El motor recurrente rechaza años fuera del intervalo razonable, detiene series
+antiguas dañadas y mantiene como máximo una ocurrencia activa por serie. “Leer mi
+día” se activa de forma explícita y pronuncia solamente títulos y horarios del
+espacio seleccionado; no lee descripciones privadas ni escucha en segundo plano.
+
 Todavía no incluye alta pública de cuentas, recuperación de contraseña, segundo
-factor, invitaciones externas, WebSockets, alarmas del dispositivo, recurrencias
-avanzadas, OCR, rutas ni IA de reorganización. Esos componentes deben construirse
-sobre esta base y no simularse como si ya fueran funciones de producción.
+factor, invitaciones externas, WebSockets, alarmas del dispositivo, palabra de
+activación en segundo plano, OCR, rutas ni IA de reorganización. El dictado y la
+lectura dependen de las capacidades del navegador; no sustituyen una experiencia
+manos libres certificada para conducir. Esos componentes deben construirse sobre
+esta base y no simularse como si ya fueran funciones de producción.

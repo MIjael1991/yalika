@@ -1,6 +1,7 @@
 import {
   IsDateString,
   IsInt,
+  IsNotEmpty,
   IsOptional,
   IsString,
   Max,
@@ -13,6 +14,15 @@ export class CompleteTaskDto {
   @IsString()
   @MaxLength(500)
   note?: string;
+}
+
+export class AddTaskNoteDto {
+  @IsString()
+  @IsNotEmpty({
+    message: 'Escribe el dato que deseas agregar',
+  })
+  @MaxLength(500)
+  note: string;
 }
 
 export class PostponeTaskDto {

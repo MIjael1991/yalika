@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDateString,
   IsIn,
   IsNotEmpty,
@@ -87,4 +88,8 @@ export class CreateTaskDto {
   @Min(0)
   @Max(10080)
   reminderMinutesBefore?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  allowSimilar?: boolean;
 }

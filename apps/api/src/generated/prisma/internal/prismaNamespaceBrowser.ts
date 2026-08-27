@@ -216,6 +216,7 @@ export const TaskScalarFieldEnum = {
   postponedUntil: 'postponedUntil',
   completedAt: 'completedAt',
   version: 'version',
+  dedupeKey: 'dedupeKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   companyId: 'companyId',

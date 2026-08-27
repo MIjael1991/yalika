@@ -74,6 +74,7 @@ describe('TaskService shared work', () => {
     return {
       service: new TaskService(prisma as unknown as PrismaService),
       transaction,
+      prisma,
     };
   }
 
@@ -192,6 +193,10 @@ describe('TaskService recurring work', () => {
     const prisma = {
       taskRecurrence: {
         findMany: jest.fn().mockResolvedValue([recurrence]),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+      task: {
+        findFirst: jest.fn().mockResolvedValue(null),
       },
       $transaction: jest.fn(
         (callback: (client: typeof transaction) => unknown) =>
@@ -202,6 +207,7 @@ describe('TaskService recurring work', () => {
     return {
       service: new TaskService(prisma as unknown as PrismaService),
       transaction,
+      prisma,
     };
   }
 
@@ -228,5 +234,112 @@ describe('TaskService recurring work', () => {
     await service.materializeDueRecurrences('space-1');
 
     expect(transaction.task.create).not.toHaveBeenCalled();
+  });
+
+  it('does not prepare another occurrence while one remains active', async () => {
+    const fixture = createRecurrenceFixture(1);
+    fixture.prisma.task.findFirst.mockResolvedValue({ id: 'active-task' });
+
+    await fixture.service.materializeDueRecurrences('space-1');
+
+    expect(fixture.transaction.taskRecurrence.updateMany).not.toHaveBeenCalled();
+    expect(fixture.transaction.task.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('TaskService duplicate checks', () => {
+  it('blocks the same active task inside the same space', async () => {
+    const prisma = {
+      company: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'company-1' }),
+      },
+      space: {
+        findUnique: jest.fn().mockResolvedValue({
+          companyId: 'company-1',
+          status: 'active',
+          timezone: 'America/Mexico_City',
+        }),
+      },
+      spaceMember: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'membership-1',
+          role: 'member',
+          status: 'active',
+          space: {
+            type: 'family',
+            ownerUserId: 'user-1',
+          },
+        }),
+      },
+      task: {
+        findMany: jest.fn().mockResolvedValue([
+          {
+            id: 'task-existing',
+            title: 'Comprar leche',
+            description: null,
+            status: 'pending',
+            dueAt: null,
+            spaceId: 'space-1',
+          },
+        ]),
+        create: jest.fn(),
+      },
+    };
+    const service = new TaskService(prisma as unknown as PrismaService);
+
+    await expect(
+      service.create(
+        {
+          title: 'Comprar leche',
+          spaceId: 'space-1',
+        },
+        'user-1',
+        'company-1',
+      ),
+    ).rejects.toBeInstanceOf(ConflictException);
+    expect(prisma.task.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects an accidental year 0026 before creating a recurrence', async () => {
+    const prisma = {
+      company: {
+        findUnique: jest.fn().mockResolvedValue({ id: 'company-1' }),
+      },
+      space: {
+        findUnique: jest.fn().mockResolvedValue({
+          companyId: 'company-1',
+          status: 'active',
+          timezone: 'America/Mexico_City',
+        }),
+      },
+      spaceMember: {
+        findUnique: jest.fn().mockResolvedValue({
+          id: 'membership-1',
+          role: 'member',
+          status: 'active',
+          space: {
+            type: 'personal',
+            ownerUserId: 'user-1',
+          },
+        }),
+      },
+      task: {
+        findMany: jest.fn().mockResolvedValue([]),
+      },
+    };
+    const service = new TaskService(prisma as unknown as PrismaService);
+
+    await expect(
+      service.create(
+        {
+          title: 'Revisar agenda',
+          spaceId: 'space-1',
+          dueAt: '0026-08-25T18:00:00.000Z',
+          recurrenceFrequency: 'daily',
+        },
+        'user-1',
+        'company-1',
+      ),
+    ).rejects.toThrow('no es razonable');
   });
 });
