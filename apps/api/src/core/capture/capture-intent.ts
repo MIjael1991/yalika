@@ -21,6 +21,11 @@ export type CaptureActionCandidate = {
     type: string;
   } | null;
   recurrenceId: string | null;
+  recurrence?: {
+    status: string;
+    nextOccurrenceAt: Date;
+    endsAt: Date | null;
+  } | null;
 };
 
 const intentPatterns: Array<{

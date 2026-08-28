@@ -127,11 +127,13 @@ type CaptureProposal = {
   intent: 'create' | 'cancel' | 'complete' | 'find';
   title: string;
   category: string;
+  requestedSpaceType: string | null;
   confidence: 'high' | 'medium' | 'low';
   confidenceScore: number;
   reasons: string[];
   sensitive: boolean;
   privacyWarning: string | null;
+  destinationWarning: string | null;
   needsSpaceConfirmation: boolean;
   suggestedSpace: {
     id: string;
@@ -170,6 +172,11 @@ type CaptureProposal = {
       dueAt: string | null;
       spaceId: string | null;
       recurrenceId: string | null;
+      recurrence: {
+        status: string;
+        nextOccurrenceAt: string;
+        endsAt: string | null;
+      } | null;
       score: number;
       dateMatches: boolean;
       space: {
@@ -386,6 +393,51 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+function displaySpaceName(space: Space, allSpaces: Space[]) {
+  const normalizedName = space.name.trim().toLocaleLowerCase('es-MX');
+  const matches = allSpaces.filter(
+    (candidate) =>
+      candidate.type === space.type &&
+      candidate.name.trim().toLocaleLowerCase('es-MX') === normalizedName,
+  );
+
+  if (matches.length < 2) {
+    return space.name;
+  }
+
+  const position = matches.findIndex((candidate) => candidate.id === space.id);
+  return `${space.name} · espacio ${Math.max(0, position) + 1}`;
+}
+
+function recurrenceDisplayText(task: LifeTask) {
+  const recurrence = task.recurrence;
+
+  if (!recurrence) {
+    return null;
+  }
+
+  if (
+    recurrence.status === 'finished' &&
+    activeStatuses.has(task.status)
+  ) {
+    return 'Última ocasión';
+  }
+
+  const shortDailySeries = Boolean(
+    recurrence.frequency === 'daily' &&
+      recurrence.interval === 1 &&
+      recurrence.endsAt &&
+      new Date(recurrence.endsAt).getTime() -
+        new Date(recurrence.startsAt).getTime() <=
+        48 * 60 * 60_000,
+  );
+  const label = shortDailySeries
+    ? '2 ocasiones'
+    : (recurrenceLabels[recurrence.frequency] ?? 'Recurrente');
+
+  return recurrence.status === 'cancelled' ? `${label} · detenida` : label;
+}
+
 function initials(name: string) {
   return name
     .split(/\s+/)
@@ -499,6 +551,21 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       (member) => member.user.id === userId && member.role !== 'viewer',
     ),
   );
+  const duplicateSpaceNames = useMemo(() => {
+    const groups = new Map<string, { name: string; type: string; count: number }>();
+
+    for (const space of spaces) {
+      const key = `${space.type}:${space.name.trim().toLocaleLowerCase('es-MX')}`;
+      const current = groups.get(key);
+      groups.set(key, {
+        name: space.name,
+        type: space.type,
+        count: (current?.count ?? 0) + 1,
+      });
+    }
+
+    return [...groups.values()].filter((group) => group.count > 1);
+  }, [spaces]);
 
   const refreshSpaces = useCallback(async () => {
     if (!userId) {
@@ -1028,6 +1095,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           ? `Marcaste como terminada: ${target.title}`
           : captureActionWholeSeries && target.recurrenceId
             ? `Cancelaste esta tarea y sus próximas repeticiones: ${target.title}`
+            : target.recurrenceId && target.recurrence?.status === 'finished'
+              ? `Cancelaste la última ocasión: ${target.title}`
             : target.recurrenceId
               ? `Cancelaste solo esta ocasión. Las próximas se conservan: ${target.title}`
               : `Cancelaste la tarea: ${target.title}`,
@@ -2001,7 +2070,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   captureProposal.actionProposal.matches.some(
                     (match) =>
                       match.id === captureActionTargetId &&
-                      Boolean(match.recurrenceId),
+                      Boolean(match.recurrenceId) &&
+                      match.recurrence?.status !== 'finished',
                   ) ? (
                     <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
                       <p className="text-sm font-semibold text-slate-200">
@@ -2039,6 +2109,19 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                           </span>
                         </button>
                       </div>
+                    </div>
+                  ) : null}
+
+                  {captureProposal.actionProposal.intent === 'cancel' &&
+                  captureProposal.actionProposal.matches.some(
+                    (match) =>
+                      match.id === captureActionTargetId &&
+                      Boolean(match.recurrenceId) &&
+                      match.recurrence?.status === 'finished',
+                  ) ? (
+                    <div className="rounded-2xl border border-cyan-400/30 bg-cyan-400/10 p-4 text-sm text-cyan-100">
+                      Esta es la última ocasión de la repetición. No quedan
+                      tareas posteriores por cancelar.
                     </div>
                   ) : null}
 
@@ -2111,7 +2194,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   >
                     {writableSpaces.map((space) => (
                       <option key={space.id} value={space.id}>
-                        {space.name} ·{' '}
+                        {displaySpaceName(space, spaces)} ·{' '}
                         {spaceTypeLabels[space.type] ?? space.type}
                       </option>
                     ))}
@@ -2144,6 +2227,17 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 </label>
               </div>
 
+              {captureProposal.requestedSpaceType ? (
+                <p className="mt-3 text-xs text-slate-400">
+                  Sector detectado:{' '}
+                  <span className="font-semibold text-cyan-200">
+                    {spaceTypeLabels[captureProposal.requestedSpaceType] ??
+                      captureProposal.requestedSpaceType}
+                  </span>
+                  . El sector no cambia quién puede verla.
+                </p>
+              ) : null}
+
               {captureProposal.temporalSummary ? (
                 <div
                   className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
@@ -2162,6 +2256,12 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               {captureProposal.privacyWarning ? (
                 <p className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
                   ⚠ {captureProposal.privacyWarning}
+                </p>
+              ) : null}
+
+              {captureProposal.destinationWarning ? (
+                <p className="mt-4 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-100">
+                  {captureProposal.destinationWarning}
                 </p>
               ) : null}
 
@@ -2255,10 +2355,29 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
                     {spaceTypeLabels[space.type] ?? space.type}
                   </span>
-                  <span className="mt-1 block font-semibold">{space.name}</span>
+                  <span className="mt-1 block font-semibold">
+                    {displaySpaceName(space, spaces)}
+                  </span>
                 </button>
               ))}
             </div>
+
+            {duplicateSpaceNames.length > 0 ? (
+              <div className="mb-6 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                Hay espacios con el mismo nombre:{' '}
+                {duplicateSpaceNames
+                  .map(
+                    (group) =>
+                      `${group.name} (${group.count} espacios ${
+                        spaceTypeLabels[group.type]?.toLocaleLowerCase('es-MX') ??
+                        group.type
+                      })`,
+                  )
+                  .join(', ')}
+                . ORION los numeró para distinguirlos y no combinará sus tareas
+                sin tu autorización.
+              </div>
+            ) : null}
 
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
               <section className="min-w-0">
@@ -2427,15 +2546,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                                         : 'text-slate-600'
                                     }
                                   >
-                                    ↻{' '}
-                                    {recurrenceLabels[
-                                      task.recurrence.frequency
-                                    ] ?? 'Recurrente'}
-                                    {task.recurrence.status === 'cancelled'
-                                      ? ' · detenida'
-                                      : task.recurrence.status === 'finished'
-                                        ? ' · finalizada'
-                                      : ''}
+                                    ↻ {recurrenceDisplayText(task)}
                                   </span>
                                 ) : null}
                                 {task.claimedBy ? (

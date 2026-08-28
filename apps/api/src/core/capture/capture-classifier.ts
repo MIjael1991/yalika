@@ -16,11 +16,13 @@ export type CaptureConfidence = 'high' | 'medium' | 'low';
 export type CaptureClassification = {
   title: string;
   category: string;
+  requestedSpaceType: string | null;
   confidence: CaptureConfidence;
   confidenceScore: number;
   reasons: string[];
   sensitive: boolean;
   privacyWarning: string | null;
+  destinationWarning: string | null;
   needsSpaceConfirmation: boolean;
   suggestedSpace: CaptureSpace;
   alternatives: Array<
@@ -272,7 +274,14 @@ function similarity(left: Set<string>, right: Set<string>) {
   return intersection / union;
 }
 
-function inferCategory(normalizedMessage: string) {
+function inferCategory(
+  normalizedMessage: string,
+  requestedSpaceType: string | null,
+) {
+  if (requestedSpaceType === 'business') {
+    return 'business';
+  }
+
   for (const rule of categorySignals) {
     if (
       rule.keywords.some((keyword) =>
@@ -326,6 +335,10 @@ export function classifyCapture(input: {
   }
 
   const normalizedMessage = normalizeCaptureText(message);
+  const requestedSpaceType =
+    Object.entries(explicitTypeSignals).find(([, signals]) =>
+      signals.some((signal) => containsPhrase(normalizedMessage, signal)),
+    )?.[0] ?? null;
   const messageTokens = meaningfulTokens(message);
   const activeSpace = input.spaces.find(
     (space) => space.id === input.activeSpaceId,
@@ -422,6 +435,13 @@ export function classifyCapture(input: {
   }
 
   for (const candidate of candidates) {
+    if (
+      requestedSpaceType &&
+      candidate.space.type !== requestedSpaceType
+    ) {
+      continue;
+    }
+
     const historyScore = historyScores.get(candidate.space.id) ?? 0;
 
     if (historyScore > 0) {
@@ -434,6 +454,12 @@ export function classifyCapture(input: {
   }
 
   const hasSignal = candidates.some((candidate) => candidate.score > 6);
+  const missingRequestedSpace = Boolean(
+    requestedSpaceType &&
+      !candidates.some(
+        (candidate) => candidate.space.type === requestedSpaceType,
+      ),
+  );
 
   if (!hasSignal) {
     const privateCandidate =
@@ -446,8 +472,12 @@ export function classifyCapture(input: {
     if (privateCandidate) {
       addScore(
         privateCandidate,
-        8,
-        'Ante la duda, ORION propone mantenerla privada',
+        missingRequestedSpace ? 12 : 8,
+        missingRequestedSpace
+          ? `Aún no existe un espacio de ${
+              spaceTypeNames[requestedSpaceType ?? ''] ?? requestedSpaceType
+            }; ORION propone mantenerla privada`
+          : 'Ante la duda, ORION propone mantenerla privada',
       );
     }
   }
@@ -485,16 +515,26 @@ export function classifyCapture(input: {
     sensitive && winner.space.type !== 'personal'
       ? 'Esta tarea puede contener información sensible. Confirma quién podrá verla antes de guardarla.'
       : null;
+  const destinationWarning = missingRequestedSpace
+    ? `Detecté que esta tarea pertenece a ${
+        spaceTypeNames[requestedSpaceType ?? ''] ?? requestedSpaceType
+      }, pero todavía no tienes un espacio de ese tipo. Si la guardas aquí seguirá privada.`
+    : null;
 
   return {
     title: buildTaskTitle(message),
-    category: inferCategory(normalizedMessage),
+    category: inferCategory(normalizedMessage, requestedSpaceType),
+    requestedSpaceType,
     confidence,
     confidenceScore: Math.min(100, Math.max(0, winner.score)),
     reasons: [...winner.reasons].slice(0, 3),
     sensitive,
     privacyWarning,
-    needsSpaceConfirmation: confidence !== 'high' || Boolean(privacyWarning),
+    destinationWarning,
+    needsSpaceConfirmation:
+      confidence !== 'high' ||
+      Boolean(privacyWarning) ||
+      Boolean(destinationWarning),
     suggestedSpace: winner.space,
     alternatives: ranked.slice(0, 4).map((candidate) => ({
       ...candidate.space,

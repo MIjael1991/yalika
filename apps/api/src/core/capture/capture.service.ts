@@ -129,6 +129,13 @@ export class CaptureService {
           dueAt: true,
           spaceId: true,
           recurrenceId: true,
+          recurrence: {
+            select: {
+              status: true,
+              nextOccurrenceAt: true,
+              endsAt: true,
+            },
+          },
           space: {
             select: {
               id: true,
@@ -175,6 +182,14 @@ export class CaptureService {
           matches: matches.map((match) => ({
             ...match,
             dueAt: match.dueAt?.toISOString() ?? null,
+            recurrence: match.recurrence
+              ? {
+                  ...match.recurrence,
+                  nextOccurrenceAt:
+                    match.recurrence.nextOccurrenceAt.toISOString(),
+                  endsAt: match.recurrence.endsAt?.toISOString() ?? null,
+                }
+              : null,
           })),
         },
       };

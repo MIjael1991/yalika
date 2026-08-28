@@ -23,6 +23,23 @@ describe('capture temporal interpretation', () => {
     expect(result.needsTemporalConfirmation).toBe(true);
     expect(result.canUseTemporalProposal).toBe(true);
     expect(result.temporalSummary).toContain('ORION asumió horario de tarde');
+    expect(result.temporalSummary).toContain('2 ocasiones: hoy y mañana');
+    expect(result.temporalSummary).not.toContain('cada día');
+  });
+
+  it('removes a morning time without leaving a dangling phrase in the title', () => {
+    const result = interpretCaptureTemporal({
+      message:
+        'Revisar el inventario del negocio mañana a las 10 de la mañana y recuérdame 30 minutos antes',
+      title:
+        'Revisar el inventario del negocio mañana a las 10 de la mañana y recuérdame 30 minutos antes',
+      timezone,
+      now,
+    });
+
+    expect(result.title).toBe('Revisar el inventario del negocio');
+    expect(result.dueAt).toBe('2026-08-26T16:00:00.000Z');
+    expect(result.reminderMinutesBefore).toBe(30);
   });
 
   it('understands a weekly voice-style instruction', () => {

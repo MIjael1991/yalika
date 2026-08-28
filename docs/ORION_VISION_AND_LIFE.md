@@ -296,6 +296,20 @@ espacios visibles y editables de la sesión, muestra las coincidencias y exige e
 la tarea exacta antes de actuar. “Eliminar” se interpreta como cancelación
 recuperable; el borrado definitivo no forma parte de la captura rápida.
 
+Este patrón se aplicará a todo ORION: identificar la intención, buscar el elemento
+correcto, mostrar el efecto, confirmar cuando exista ambigüedad, ejecutar y ofrecer
+deshacer cuando la operación sea recuperable. Ventas, inventario, clientes,
+documentos y espacios compartidos no deben interpretar una orden destructiva como
+una alta nueva.
+
+El sector de una tarea y su visibilidad son decisiones distintas. Detectar
+“Negocio” o “Inventario” no autoriza compartirla. Si existe un solo espacio de
+negocio accesible, ORION puede proponerlo; si existen varios, debe preguntar cuál;
+si no existe ninguno, conservará la tarea en un espacio personal y explicará que
+seguirá privada. Una instrucción explícita como “del negocio” prevalece sobre el
+aprendizaje histórico. Los espacios con nombres repetidos se diferencian y nunca se
+fusionan automáticamente.
+
 Cuando la tarea pertenece a una serie, la confirmación separa “solo esta ocasión”
 de “toda la repetición”. Cancelar la ocasión actual conserva por defecto las
 siguientes. Las expresiones “hoy y mañana” representan una serie limitada a dos
@@ -307,6 +321,11 @@ El motor recurrente rechaza años fuera del intervalo razonable, detiene series
 antiguas dañadas y mantiene como máximo una ocurrencia activa por serie. “Leer mi
 día” se activa de forma explícita y pronuncia solamente títulos y horarios del
 espacio seleccionado; no lee descripciones privadas ni escucha en segundo plano.
+
+Antes de ampliar módulos, la experiencia base deberá funcionar con controles
+claros y adaptables en teléfono, tableta y computadora. Las series limitadas se
+describirán como “2 ocasiones” o “última ocasión”, sin exponer estados internos que
+puedan confundirse con la terminación de la tarea.
 
 Todavía no incluye alta pública de cuentas, recuperación de contraseña, segundo
 factor, invitaciones externas, WebSockets, alarmas del dispositivo, palabra de

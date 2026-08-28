@@ -96,4 +96,46 @@ describe('ORION capture classifier', () => {
     expect(result.confidence).toBe('low');
     expect(result.needsSpaceConfirmation).toBe(true);
   });
+
+  it('keeps an explicit business task private when no business space exists', () => {
+    const result = classifyCapture({
+      message: 'Revisar el inventario del negocio mañana a las 10 de la mañana',
+      spaces: spaces.filter((space) => space.type !== 'business'),
+      activeSpaceId: 'family-1',
+      history: [
+        {
+          title: 'Revisar el inventario anterior',
+          category: 'purchase',
+          spaceId: 'family-1',
+        },
+      ],
+    });
+
+    expect(result.suggestedSpace.id).toBe('personal-1');
+    expect(result.requestedSpaceType).toBe('business');
+    expect(result.category).toBe('business');
+    expect(result.destinationWarning).toContain('seguirá privada');
+    expect(result.needsSpaceConfirmation).toBe(true);
+    expect(result.reasons.join(' ')).not.toContain('anteriormente');
+  });
+
+  it('lets an explicit business destination override family history', () => {
+    const result = classifyCapture({
+      message: 'Revisar el inventario del negocio mañana',
+      spaces,
+      activeSpaceId: 'family-1',
+      history: [
+        {
+          title: 'Revisar el inventario del negocio',
+          category: 'purchase',
+          spaceId: 'family-1',
+        },
+      ],
+    });
+
+    expect(result.suggestedSpace.id).toBe('business-1');
+    expect(result.requestedSpaceType).toBe('business');
+    expect(result.category).toBe('business');
+    expect(result.confidence).toBe('high');
+  });
 });

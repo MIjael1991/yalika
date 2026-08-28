@@ -357,6 +357,10 @@ function defaultDate(
 function cleanTemporalTitle(title: string) {
   const cleaned = title
     .replace(/\b(?:recu[eé]rdame|av[ií]same|pon(?:me)?\s+una?\s+alarma)\b/gi, ' ')
+    .replace(
+      /\b(?:a\s+las?|de\s+las?)\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
+      ' ',
+    )
     .replace(/\bpasado\s+mañana\b/gi, ' ')
     .replace(/\b(?:hoy|mañana)\b/gi, ' ')
     .replace(
@@ -365,10 +369,6 @@ function cleanTemporalTitle(title: string) {
     )
     .replace(
       /\b(?:el\s+)?\d{1,2}\s+de\s+(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+\d{4})?\b/gi,
-      ' ',
-    )
-    .replace(
-      /\b(?:a\s+las?|de\s+las?)\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
       ' ',
     )
     .replace(
@@ -410,9 +410,7 @@ function buildSummary(
 
   if (todayAndTomorrow) {
     parts.push('2 ocasiones: hoy y mañana');
-  }
-
-  if (frequency) {
+  } else if (frequency) {
     const labels: Record<RecurrenceFrequency, string> = {
       daily: interval === 1 ? 'cada día' : `cada ${interval} días`,
       weekly: interval === 1 ? 'cada semana' : `cada ${interval} semanas`,
