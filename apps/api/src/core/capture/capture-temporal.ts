@@ -7,9 +7,11 @@ export type CaptureTemporalResult = {
   dueAt: string | null;
   recurrenceFrequency: RecurrenceFrequency | null;
   recurrenceInterval: number | null;
+  recurrenceEndsAt: string | null;
   reminderMinutesBefore: number | null;
   temporalSummary: string | null;
   needsTemporalConfirmation: boolean;
+  canUseTemporalProposal: boolean;
 };
 
 type LocalDateTime = {
@@ -54,7 +56,10 @@ export function interpretCaptureTemporal(input: {
   const now = input.now ?? new Date();
   const normalized = normalizeCaptureText(input.message);
   const localNow = getZonedParts(now, input.timezone);
-  const recurrence = inferRecurrence(normalized);
+  const todayAndTomorrow = hasTodayAndTomorrow(normalized);
+  const recurrence = todayAndTomorrow
+    ? { frequency: 'daily' as const, interval: 1 }
+    : inferRecurrence(normalized);
   const time = inferTime(normalized);
   const date = inferDate(normalized, localNow, recurrence.frequency);
   const hasTemporalSignal = Boolean(
@@ -63,6 +68,7 @@ export function interpretCaptureTemporal(input: {
   let localDue: LocalDateTime | null = null;
   let usedDefaultTime = false;
   let invalidDate = false;
+  let explicitTimeAlreadyPassed = false;
 
   if (hasTemporalSignal) {
     const selectedDate = date.value ?? defaultDate(localNow, recurrence.frequency);
@@ -78,6 +84,9 @@ export function interpretCaptureTemporal(input: {
 
       let dueAt = zonedDateTimeToUtc(localDue, input.timezone);
 
+      explicitTimeAlreadyPassed =
+        date.explicit && dueAt.getTime() <= now.getTime();
+
       if (
         !date.explicit &&
         !recurrence.frequency &&
@@ -92,6 +101,23 @@ export function interpretCaptureTemporal(input: {
   const dueAt = localDue
     ? zonedDateTimeToUtc(localDue, input.timezone)
     : null;
+  const recurrenceEndsAt = todayAndTomorrow
+    ? zonedDateTimeToUtc(
+        {
+          ...addLocalDays(
+            {
+              year: localNow.year,
+              month: localNow.month,
+              day: localNow.day,
+            },
+            1,
+          ),
+          hour: 23,
+          minute: 59,
+        },
+        input.timezone,
+      )
+    : null;
   const reminderMinutesBefore = inferReminder(normalized, Boolean(dueAt));
   const temporalSummary = invalidDate
     ? 'La fecha indicada no existe. Corrígela antes de guardar.'
@@ -103,6 +129,9 @@ export function interpretCaptureTemporal(input: {
           recurrence.interval,
           reminderMinutesBefore,
           usedDefaultTime,
+          time.assumedPeriod,
+          todayAndTomorrow,
+          explicitTimeAlreadyPassed,
         )
       : null;
 
@@ -111,9 +140,19 @@ export function interpretCaptureTemporal(input: {
     dueAt: dueAt?.toISOString() ?? null,
     recurrenceFrequency: recurrence.frequency,
     recurrenceInterval: recurrence.frequency ? recurrence.interval : null,
+    recurrenceEndsAt: recurrenceEndsAt?.toISOString() ?? null,
     reminderMinutesBefore,
     temporalSummary,
-    needsTemporalConfirmation: usedDefaultTime || invalidDate,
+    needsTemporalConfirmation:
+      usedDefaultTime ||
+      invalidDate ||
+      time.assumedPeriod ||
+      explicitTimeAlreadyPassed,
+    canUseTemporalProposal:
+      time.assumedPeriod &&
+      !usedDefaultTime &&
+      !invalidDate &&
+      !explicitTimeAlreadyPassed,
   };
 }
 
@@ -158,15 +197,24 @@ function inferTime(normalized: string) {
   const twentyFourHourMatch = normalized.match(
     /\ba\s+las?\s+([01]?\d|2[0-3]):([0-5]\d)\b/,
   );
-  const match = periodMatch ?? amPmMatch ?? twentyFourHourMatch;
+  const ambiguousHourMatch = normalized.match(
+    /\b(?:a\s+las?|de\s+las?)\s+(\d{1,2})(?::(\d{2}))?\b/,
+  );
+  const match =
+    periodMatch ?? amPmMatch ?? twentyFourHourMatch ?? ambiguousHourMatch;
 
   if (!match) {
-    return { explicit: false, value: null };
+    return { explicit: false, value: null, assumedPeriod: false };
   }
 
   let hour = Number(match[1]);
   const minute = Number(match[2] ?? 0);
   const period = match[3];
+  const assumedPeriod = match === ambiguousHourMatch;
+
+  if (assumedPeriod && hour >= 1 && hour <= 7) {
+    hour += 12;
+  }
 
   if (period === 'pm' || period === 'tarde' || period === 'noche') {
     if (hour < 12) {
@@ -177,12 +225,13 @@ function inferTime(normalized: string) {
   }
 
   if (hour > 23 || minute > 59) {
-    return { explicit: false, value: null };
+    return { explicit: false, value: null, assumedPeriod: false };
   }
 
   return {
     explicit: true,
     value: { hour, minute },
+    assumedPeriod,
   };
 }
 
@@ -196,6 +245,10 @@ function inferDate(
     month: localNow.month,
     day: localNow.day,
   };
+
+  if (hasTodayAndTomorrow(normalized)) {
+    return { explicit: true, value: localDate };
+  }
 
   if (/\bpasado manana\b/.test(normalized)) {
     return { explicit: true, value: addLocalDays(localDate, 2) };
@@ -256,7 +309,7 @@ function inferReminder(normalized: string, hasDueAt: boolean) {
   }
 
   const minuteMatch = normalized.match(
-    /\b(\d{1,4})\s+minutos?\s+antes\b/,
+    /\b(\d{1,4})\s+min(?:uto)?s?\s+antes\b/,
   );
   if (minuteMatch) {
     return Math.min(10080, Number(minuteMatch[1]));
@@ -303,6 +356,7 @@ function defaultDate(
 
 function cleanTemporalTitle(title: string) {
   const cleaned = title
+    .replace(/\b(?:recu[eé]rdame|av[ií]same|pon(?:me)?\s+una?\s+alarma)\b/gi, ' ')
     .replace(/\bpasado\s+mañana\b/gi, ' ')
     .replace(/\b(?:hoy|mañana)\b/gi, ' ')
     .replace(
@@ -314,15 +368,22 @@ function cleanTemporalTitle(title: string) {
       ' ',
     )
     .replace(
-      /\ba\s+las?\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
+      /\b(?:a\s+las?|de\s+las?)\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
       ' ',
     )
-    .replace(/\b(?:\d+|un|una)\s+(?:minutos?|horas?)\s+antes\b/gi, ' ')
+    .replace(
+      /\b(?:\d+|un|una)\s+(?:min(?:uto)?s?|horas?)\s+antes\b/gi,
+      ' ',
+    )
     .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^(?:y|para|que)\s+|\s+(?:y|para|que)$/gi, '')
     .replace(/\s+([,.;:])/g, '$1')
     .trim();
 
-  return cleaned.length >= 3 ? cleaned : title;
+  const result = cleaned.length >= 3 ? cleaned : title.trim();
+
+  return result.charAt(0).toLocaleUpperCase('es-MX') + result.slice(1);
 }
 
 function buildSummary(
@@ -332,6 +393,9 @@ function buildSummary(
   interval: number,
   reminderMinutesBefore: number | null,
   usedDefaultTime: boolean,
+  assumedPeriod: boolean,
+  todayAndTomorrow: boolean,
+  explicitTimeAlreadyPassed: boolean,
 ) {
   const date = new Intl.DateTimeFormat('es-MX', {
     timeZone: timezone,
@@ -343,6 +407,10 @@ function buildSummary(
     minute: '2-digit',
   }).format(dueAt);
   const parts = [date];
+
+  if (todayAndTomorrow) {
+    parts.push('2 ocasiones: hoy y mañana');
+  }
 
   if (frequency) {
     const labels: Record<RecurrenceFrequency, string> = {
@@ -366,7 +434,19 @@ function buildSummary(
     parts.push('9:00 es una hora propuesta; confírmala');
   }
 
+  if (assumedPeriod) {
+    parts.push('ORION asumió horario de tarde; confirma antes de guardar');
+  }
+
+  if (explicitTimeAlreadyPassed) {
+    parts.push('esa hora ya pasó; elige si deseas moverla');
+  }
+
   return parts.join(' · ');
+}
+
+function hasTodayAndTomorrow(normalized: string) {
+  return /\bhoy\b.*\bmanana\b|\bmanana\b.*\bhoy\b/.test(normalized);
 }
 
 function getZonedParts(date: Date, timezone: string): LocalDateTime {

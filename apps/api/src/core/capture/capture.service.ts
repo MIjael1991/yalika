@@ -6,6 +6,10 @@ import {
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { classifyCapture } from './capture-classifier';
+import {
+  inferCaptureIntent,
+  rankCaptureActionCandidates,
+} from './capture-intent';
 import { interpretCaptureTemporal } from './capture-temporal';
 import { InterpretCaptureDto } from './dto/interpret-capture.dto';
 
@@ -74,6 +78,8 @@ export class CaptureService {
       );
     }
 
+    const captureIntent = inferCaptureIntent(dto.message);
+
     const history = await this.prisma.task.findMany({
       where: {
         companyId,
@@ -105,9 +111,80 @@ export class CaptureService {
       timezone: classification.suggestedSpace.timezone ?? 'UTC',
     });
 
+    if (captureIntent.intent !== 'create') {
+      const candidates = await this.prisma.task.findMany({
+        where: {
+          companyId,
+          spaceId: {
+            in: spaces.map((space) => space.id),
+          },
+          status: {
+            in: ['pending', 'in_progress'],
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          dueAt: true,
+          spaceId: true,
+          recurrenceId: true,
+          space: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+            },
+          },
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        take: 200,
+      });
+      const matches = rankCaptureActionCandidates({
+        query: captureIntent.query,
+        candidates,
+        requestedDate: temporal.dueAt ? new Date(temporal.dueAt) : null,
+        timezone: classification.suggestedSpace.timezone ?? 'UTC',
+      });
+      const firstMatch = matches[0];
+      const secondMatch = matches[1];
+      const recommendedTaskId =
+        firstMatch &&
+        firstMatch.score >= 0.82 &&
+        (!secondMatch || firstMatch.score - secondMatch.score >= 0.16)
+          ? firstMatch.id
+          : null;
+
+      return {
+        ...classification,
+        ...temporal,
+        intent: captureIntent.intent,
+        actionProposal: {
+          intent: captureIntent.intent,
+          query: captureIntent.query,
+          scope: captureIntent.scope,
+          recommendedTaskId,
+          message:
+            matches.length === 0
+              ? 'No encontré una tarea activa que coincida. No crearé otra tarea con esta orden.'
+              : matches.length === 1
+                ? 'Encontré esta tarea. Confirma que sea la correcta antes de continuar.'
+                : 'Encontré varias tareas parecidas. Elige exactamente cuál deseas cambiar.',
+          matches: matches.map((match) => ({
+            ...match,
+            dueAt: match.dueAt?.toISOString() ?? null,
+          })),
+        },
+      };
+    }
+
     return {
       ...classification,
       ...temporal,
+      intent: 'create',
+      actionProposal: null,
     };
   }
 }

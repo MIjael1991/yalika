@@ -88,6 +88,9 @@ const spaceSignals: Record<string, string[]> = {
     'factura',
     'empleado',
     'abarrotes',
+    'servidor',
+    'terminal',
+    'sistema',
   ],
   school: [
     'escuela',

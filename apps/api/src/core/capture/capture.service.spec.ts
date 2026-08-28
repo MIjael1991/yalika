@@ -69,4 +69,54 @@ describe('CaptureService privacy', () => {
     ).rejects.toBeInstanceOf(ForbiddenException);
     expect(taskFindMany).not.toHaveBeenCalled();
   });
+
+  it('proposes cancelling the referenced task instead of creating another one', async () => {
+    const taskFindMany = jest
+      .fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          id: 'task-server',
+          title: 'Apagar el servidor',
+          status: 'pending',
+          dueAt: new Date('2026-08-27T16:00:00.000Z'),
+          spaceId: 'space-personal',
+          recurrenceId: null,
+          space: {
+            id: 'space-personal',
+            name: 'Mi vida',
+            type: 'personal',
+          },
+        },
+      ]);
+    const service = new CaptureService({
+      space: {
+        findMany: jest.fn().mockResolvedValue(spaces),
+      },
+      task: {
+        findMany: taskFindMany,
+      },
+    } as unknown as PrismaService);
+
+    const result = await service.interpret(
+      {
+        message: 'Quiero que elimines la tarea de apagar el servidor',
+        activeSpaceId: 'space-personal',
+      },
+      'user-1',
+      'company-1',
+    );
+
+    expect(result.intent).toBe('cancel');
+    expect(result.actionProposal).toMatchObject({
+      intent: 'cancel',
+      recommendedTaskId: 'task-server',
+      matches: [
+        expect.objectContaining({
+          id: 'task-server',
+          title: 'Apagar el servidor',
+        }),
+      ],
+    });
+  });
 });

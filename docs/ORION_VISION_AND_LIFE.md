@@ -289,6 +289,20 @@ abrir la existente, agregarle un dato o confirmar una nueva. La base de datos ev
 la carrera entre dos ventanas. Las creaciones recientes pueden deshacerse sin borrar
 historial y las tareas canceladas pueden restaurarse.
 
+La captura universal distingue entre crear una tarea y dar una orden sobre una
+tarea existente. “Cancelar”, “eliminar”, “terminar” o “buscar” nunca deben producir
+otra tarea con esas palabras en el título. ORION busca solamente dentro de los
+espacios visibles y editables de la sesión, muestra las coincidencias y exige elegir
+la tarea exacta antes de actuar. “Eliminar” se interpreta como cancelación
+recuperable; el borrado definitivo no forma parte de la captura rápida.
+
+Cuando la tarea pertenece a una serie, la confirmación separa “solo esta ocasión”
+de “toda la repetición”. Cancelar la ocasión actual conserva por defecto las
+siguientes. Las expresiones “hoy y mañana” representan una serie limitada a dos
+ocasiones. Una hora ambigua como “a las 4” puede proponerse como 4:00 p. m., pero la
+interfaz debe declarar la suposición y pedir confirmación hasta contar con una
+preferencia horaria suficientemente confiable.
+
 El motor recurrente rechaza años fuera del intervalo razonable, detiene series
 antiguas dañadas y mantiene como máximo una ocurrencia activa por serie. “Leer mi
 día” se activa de forma explícita y pronuncia solamente títulos y horarios del

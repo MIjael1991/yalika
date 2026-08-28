@@ -124,6 +124,7 @@ type ReminderItem = TaskReminderSummary & {
 };
 
 type CaptureProposal = {
+  intent: 'create' | 'cancel' | 'complete' | 'find';
   title: string;
   category: string;
   confidence: 'high' | 'medium' | 'low';
@@ -146,9 +147,38 @@ type CaptureProposal = {
   dueAt: string | null;
   recurrenceFrequency: 'daily' | 'weekly' | 'monthly' | 'yearly' | null;
   recurrenceInterval: number | null;
+  recurrenceEndsAt: string | null;
   reminderMinutesBefore: number | null;
   temporalSummary: string | null;
   needsTemporalConfirmation: boolean;
+  canUseTemporalProposal: boolean;
+  actionProposal: {
+    intent: 'cancel' | 'complete' | 'find';
+    query: string;
+    scope:
+      | 'today'
+      | 'tomorrow'
+      | 'today_and_tomorrow'
+      | 'series'
+      | 'unspecified';
+    recommendedTaskId: string | null;
+    message: string;
+    matches: Array<{
+      id: string;
+      title: string;
+      status: string;
+      dueAt: string | null;
+      spaceId: string | null;
+      recurrenceId: string | null;
+      score: number;
+      dateMatches: boolean;
+      space: {
+        id: string;
+        name: string;
+        type: string;
+      } | null;
+    }>;
+  } | null;
 };
 
 type ApiErrorPayload = {
@@ -445,6 +475,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const [interpretingCapture, setInterpretingCapture] = useState(false);
   const [savingCapture, setSavingCapture] = useState(false);
   const [captureNotice, setCaptureNotice] = useState('');
+  const [captureActionTargetId, setCaptureActionTargetId] = useState('');
+  const [captureActionWholeSeries, setCaptureActionWholeSeries] =
+    useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning>();
   const [recentCreation, setRecentCreation] = useState<RecentCreation>();
   const [listening, setListening] = useState(false);
@@ -827,6 +860,16 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
       setCaptureProposal(proposal);
       setCaptureSpaceId(proposal.suggestedSpace.id);
+      setCaptureActionTargetId(
+        proposal.actionProposal?.recommendedTaskId ??
+          (proposal.actionProposal?.matches.length === 1
+            ? proposal.actionProposal.matches[0].id
+            : ''),
+      );
+      setCaptureActionWholeSeries(
+        proposal.actionProposal?.scope === 'series' ||
+          proposal.actionProposal?.scope === 'today_and_tomorrow',
+      );
     } catch (captureError) {
       setError(
         captureError instanceof Error
@@ -838,7 +881,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     }
   }
 
-  async function confirmCapture() {
+  async function confirmCapture(acceptTemporalProposal = false) {
     if (!captureProposal || !captureSpaceId) {
       return;
     }
@@ -852,7 +895,10 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
-    if (captureProposal.needsTemporalConfirmation) {
+    if (
+      captureProposal.needsTemporalConfirmation &&
+      !acceptTemporalProposal
+    ) {
       completeCaptureDetails();
       setError(
         'ORION necesita que revises la fecha y la hora antes de guardar.',
@@ -875,6 +921,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         captureProposal.recurrenceFrequency ?? undefined,
       recurrenceInterval:
         captureProposal.recurrenceInterval ?? undefined,
+      recurrenceEndsAt: captureProposal.recurrenceEndsAt ?? undefined,
       reminderMinutesBefore:
         captureProposal.reminderMinutesBefore ?? undefined,
     };
@@ -917,6 +964,88 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     }
   }
 
+  async function confirmCaptureAction() {
+    const action = captureProposal?.actionProposal;
+    const target = action?.matches.find(
+      (match) => match.id === captureActionTargetId,
+    );
+
+    if (!action || !target) {
+      setError('Elige la tarea exacta antes de continuar');
+      return;
+    }
+
+    if (action.intent === 'find') {
+      setSelectedSpaceId(target.spaceId ?? selectedSpaceId);
+      setView('active');
+      setCaptureProposal(undefined);
+      setCaptureActionTargetId('');
+      window.setTimeout(() => {
+        document.getElementById(`task-${target.id}`)?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 600);
+      return;
+    }
+
+    setSavingCapture(true);
+    setError('');
+
+    try {
+      if (
+        action.intent === 'cancel' &&
+        captureActionWholeSeries &&
+        target.recurrenceId
+      ) {
+        await apiRequest(`task/${target.id}/recurrence/cancel`, {
+          method: 'POST',
+        });
+        await apiRequest(`task/${target.id}/cancel`, {
+          method: 'POST',
+        });
+      } else {
+        const endpoint =
+          action.intent === 'cancel'
+            ? `task/${target.id}/cancel`
+            : `task/${target.id}/complete`;
+
+        await apiRequest(endpoint, {
+          method: 'POST',
+          body:
+            action.intent === 'complete' ? JSON.stringify({}) : undefined,
+        });
+      }
+
+      setSelectedSpaceId(target.spaceId ?? selectedSpaceId);
+      setCaptureText('');
+      setCaptureProposal(undefined);
+      setCaptureSpaceId('');
+      setCaptureActionTargetId('');
+      setCaptureActionWholeSeries(false);
+      setCaptureNotice(
+        action.intent === 'complete'
+          ? `Marcaste como terminada: ${target.title}`
+          : captureActionWholeSeries && target.recurrenceId
+            ? `Cancelaste esta tarea y sus próximas repeticiones: ${target.title}`
+            : target.recurrenceId
+              ? `Cancelaste solo esta ocasión. Las próximas se conservan: ${target.title}`
+              : `Cancelaste la tarea: ${target.title}`,
+      );
+      await refreshSpaces();
+      await refreshTasks(true);
+      await refreshReminders();
+    } catch (actionError) {
+      setError(
+        actionError instanceof Error
+          ? actionError.message
+          : 'No se pudo realizar la acción sobre la tarea',
+      );
+    } finally {
+      setSavingCapture(false);
+    }
+  }
+
   function completeCaptureDetails() {
     if (!captureProposal || !captureSpaceId) {
       return;
@@ -930,6 +1059,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       dueAt: toLocalDateTimeInput(captureProposal.dueAt),
       recurrenceFrequency: captureProposal.recurrenceFrequency ?? '',
       recurrenceInterval: String(captureProposal.recurrenceInterval ?? 1),
+      recurrenceEndsAt: captureProposal.recurrenceEndsAt
+        ? toLocalDateTimeInput(captureProposal.recurrenceEndsAt).slice(0, 10)
+        : '',
       reminderMinutesBefore:
         captureProposal.reminderMinutesBefore === null
           ? ''
@@ -1719,6 +1851,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 setCaptureText(event.target.value);
                 setCaptureProposal(undefined);
                 setCaptureNotice('');
+                setCaptureActionTargetId('');
+                setCaptureActionWholeSeries(false);
               }}
               placeholder="Ejemplo: comprar leche para la casa"
               className="h-14 min-w-0 flex-1 rounded-2xl border border-slate-700 bg-slate-950/80 px-4 text-base outline-none focus:border-cyan-400 disabled:opacity-50"
@@ -1742,6 +1876,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               'Comprar leche para la casa',
               'Pedir refrescos al proveedor',
               'Hablar con el padre de familia de Juan',
+              'Cancelar la tarea de hoy de apagar el servidor',
             ].map((example) => (
               <button
                 key={example}
@@ -1770,25 +1905,181 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">
-                    Propuesta de ORION
+                    {captureProposal.actionProposal
+                      ? 'Orden reconocida por ORION'
+                      : 'Propuesta de ORION'}
                   </p>
                   <p className="mt-2 text-sm text-slate-400">
-                    {confidenceLabels[captureProposal.confidence]}
+                    {captureProposal.actionProposal
+                      ? 'Confirmación humana requerida'
+                      : confidenceLabels[captureProposal.confidence]}
                   </p>
                 </div>
                 <span
                   className={`w-fit rounded-full border px-3 py-1.5 text-xs font-semibold ${
-                    captureProposal.needsSpaceConfirmation
+                    captureProposal.actionProposal
+                      ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+                      : captureProposal.needsSpaceConfirmation
                       ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
                       : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
                   }`}
                 >
-                  {captureProposal.needsSpaceConfirmation
+                  {captureProposal.actionProposal
+                    ? 'No crea otra tarea'
+                    : captureProposal.needsSpaceConfirmation
                     ? 'Confirma el destino'
                     : 'Destino reconocido'}
                 </span>
               </div>
 
+              {captureProposal.actionProposal ? (
+                <div className="mt-5 space-y-4">
+                  <div className="rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-200">
+                      {captureProposal.actionProposal.intent === 'cancel'
+                        ? 'Cancelar una tarea existente'
+                        : captureProposal.actionProposal.intent === 'complete'
+                          ? 'Terminar una tarea existente'
+                          : 'Buscar una tarea existente'}
+                    </p>
+                    <p className="mt-2 text-sm text-amber-50">
+                      {captureProposal.actionProposal.message}
+                    </p>
+                    <p className="mt-2 text-xs text-amber-100/70">
+                      ORION no creará una tarea nueva con esta orden.
+                    </p>
+                  </div>
+
+                  {captureProposal.actionProposal.matches.length > 0 ? (
+                    <div className="space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        ¿Te refieres a esta tarea?
+                      </p>
+                      {captureProposal.actionProposal.matches.map((match) => (
+                        <label
+                          key={match.id}
+                          className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition ${
+                            captureActionTargetId === match.id
+                              ? 'border-cyan-400/60 bg-cyan-400/10'
+                              : 'border-slate-700 bg-slate-900/70 hover:border-slate-600'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="capture-action-target"
+                            checked={captureActionTargetId === match.id}
+                            disabled={savingCapture}
+                            onChange={() => {
+                              setCaptureActionTargetId(match.id);
+                              setCaptureActionWholeSeries(
+                                captureProposal.actionProposal?.scope ===
+                                  'series' ||
+                                  captureProposal.actionProposal?.scope ===
+                                    'today_and_tomorrow',
+                              );
+                            }}
+                            className="mt-1"
+                          />
+                          <span className="min-w-0">
+                            <span className="block font-semibold text-slate-100">
+                              {match.title}
+                            </span>
+                            <span className="mt-1 block text-xs text-slate-400">
+                              {match.dueAt
+                                ? formatDate(match.dueAt)
+                                : 'Sin horario fijo'}{' '}
+                              · {match.space?.name ?? 'Espacio privado'}
+                              {match.recurrenceId ? ' · Se repite' : ''}
+                            </span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {captureProposal.actionProposal.intent === 'cancel' &&
+                  captureProposal.actionProposal.matches.some(
+                    (match) =>
+                      match.id === captureActionTargetId &&
+                      Boolean(match.recurrenceId),
+                  ) ? (
+                    <div className="rounded-2xl border border-slate-700 bg-slate-900/70 p-4">
+                      <p className="text-sm font-semibold text-slate-200">
+                        Esta tarea forma parte de una repetición
+                      </p>
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          disabled={savingCapture}
+                          onClick={() => setCaptureActionWholeSeries(false)}
+                          className={`rounded-xl border px-3 py-2 text-sm ${
+                            !captureActionWholeSeries
+                              ? 'border-cyan-400 bg-cyan-400/10 text-cyan-100'
+                              : 'border-slate-700 text-slate-400'
+                          }`}
+                        >
+                          Solo esta ocasión
+                          <span className="mt-1 block text-xs opacity-70">
+                            Conserva la siguiente
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={savingCapture}
+                          onClick={() => setCaptureActionWholeSeries(true)}
+                          className={`rounded-xl border px-3 py-2 text-sm ${
+                            captureActionWholeSeries
+                              ? 'border-red-400 bg-red-400/10 text-red-100'
+                              : 'border-slate-700 text-slate-400'
+                          }`}
+                        >
+                          Toda la repetición
+                          <span className="mt-1 block text-xs opacity-70">
+                            Cancela también las siguientes
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="flex flex-wrap gap-2">
+                    {captureProposal.actionProposal.matches.length > 0 ? (
+                      <button
+                        type="button"
+                        disabled={savingCapture || !captureActionTargetId}
+                        onClick={() => void confirmCaptureAction()}
+                        className={`rounded-xl px-5 py-2.5 text-sm font-bold disabled:bg-slate-700 disabled:text-slate-500 ${
+                          captureProposal.actionProposal.intent === 'cancel'
+                            ? 'bg-red-400 text-slate-950 hover:bg-red-300'
+                            : 'bg-emerald-400 text-slate-950 hover:bg-emerald-300'
+                        }`}
+                      >
+                        {savingCapture
+                          ? 'Procesando…'
+                          : captureProposal.actionProposal.intent === 'cancel'
+                            ? 'Confirmar cancelación'
+                            : captureProposal.actionProposal.intent ===
+                                'complete'
+                              ? 'Confirmar como terminada'
+                              : 'Abrir tarea'}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={savingCapture}
+                      onClick={() => {
+                        setCaptureProposal(undefined);
+                        setCaptureActionTargetId('');
+                        setCaptureActionWholeSeries(false);
+                      }}
+                      className="rounded-xl border border-slate-700 px-4 py-2.5 text-sm text-slate-400 hover:bg-slate-900 disabled:opacity-50"
+                    >
+                      No es ninguna
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
               <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_240px_180px]">
                 <label className="text-xs text-slate-500">
                   Tarea
@@ -1891,12 +2182,16 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 <button
                   type="button"
                   disabled={savingCapture || !captureProposal.title.trim()}
-                  onClick={() => void confirmCapture()}
+                  onClick={() =>
+                    void confirmCapture(captureProposal.canUseTemporalProposal)
+                  }
                   className="rounded-xl bg-emerald-400 px-5 py-2.5 text-sm font-bold text-slate-950 hover:bg-emerald-300 disabled:bg-slate-700 disabled:text-slate-500"
                 >
                   {savingCapture
                     ? 'Guardando…'
-                    : captureProposal.needsTemporalConfirmation
+                    : captureProposal.canUseTemporalProposal
+                      ? 'Confirmar horario y crear'
+                      : captureProposal.needsTemporalConfirmation
                       ? 'Revisar hora propuesta'
                       : 'Crear tarea'}
                 </button>
@@ -1906,7 +2201,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   onClick={completeCaptureDetails}
                   className="rounded-xl border border-cyan-400/30 px-4 py-2.5 text-sm font-semibold text-cyan-200 hover:bg-cyan-400/10 disabled:opacity-50"
                 >
-                  Agregar fecha o aviso
+                  {captureProposal.canUseTemporalProposal
+                    ? 'Cambiar fecha u hora'
+                    : 'Agregar fecha o aviso'}
                 </button>
                 <button
                   type="button"
@@ -1920,6 +2217,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   Cancelar
                 </button>
               </div>
+                </>
+              )}
             </div>
           ) : null}
         </section>
