@@ -310,6 +310,12 @@ seguirá privada. Una instrucción explícita como “del negocio” prevalece s
 aprendizaje histórico. Los espacios con nombres repetidos se diferencian y nunca se
 fusionan automáticamente.
 
+Cada usuario tendrá como máximo un espacio personal activo. La interfaz reutiliza el
+existente, la API resuelve de forma segura dos solicitudes simultáneas y PostgreSQL
+mantiene una restricción parcial como última protección. Los espacios familiares,
+escolares y de negocio siguen siendo independientes y pueden existir varias veces
+cuando representen grupos u organizaciones diferentes.
+
 Cuando la tarea pertenece a una serie, la confirmación separa “solo esta ocasión”
 de “toda la repetición”. Cancelar la ocasión actual conserva por defecto las
 siguientes. Las expresiones “hoy y mañana” representan una serie limitada a dos

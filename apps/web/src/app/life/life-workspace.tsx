@@ -45,6 +45,7 @@ type Space = {
   _count: {
     tasks: number;
   };
+  reused?: boolean;
 };
 
 type TaskActivity = {
@@ -784,6 +785,23 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
+    const existingPersonal =
+      spaceForm.type === 'personal'
+        ? spaces.find(
+            (space) =>
+              space.type === 'personal' && space.status === 'active',
+          )
+        : undefined;
+
+    if (existingPersonal) {
+      setSelectedSpaceId(existingPersonal.id);
+      setCaptureNotice(
+        `Ya tienes el espacio personal ${existingPersonal.name}; ORION lo seleccionó en lugar de duplicarlo.`,
+      );
+      setShowSpaceForm(false);
+      return;
+    }
+
     setSavingSpace(true);
     setError('');
 
@@ -799,7 +817,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         }),
       });
 
-      setSpaces((current) => [...current, space]);
+      setSpaces((current) =>
+        current.some((candidate) => candidate.id === space.id)
+          ? current
+          : [...current, space],
+      );
       setSelectedSpaceId(space.id);
       setSpaceForm({
         name: '',
@@ -807,6 +829,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         type: 'personal',
       });
       setShowSpaceForm(false);
+      setCaptureNotice(
+        space.reused
+          ? `Ya existía el espacio personal ${space.name}; ORION lo reutilizó.`
+          : `Espacio creado: ${space.name}`,
+      );
     } catch (saveError) {
       setError(
         saveError instanceof Error
@@ -1859,6 +1886,15 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   <option value="business">Negocio</option>
                   <option value="school">Escuela</option>
                 </select>
+                {spaces.some(
+                  (space) =>
+                    space.type === 'personal' && space.status === 'active',
+                ) ? (
+                  <span className="mt-2 block text-xs text-slate-500">
+                    Ya tienes un espacio personal. Si eliges Personal, ORION
+                    abrirá el existente.
+                  </span>
+                ) : null}
               </label>
 
               <button

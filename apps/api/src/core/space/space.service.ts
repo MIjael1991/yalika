@@ -42,6 +42,15 @@ const spaceInclude = {
   },
 };
 
+function isUniqueConstraintError(error: unknown) {
+  return Boolean(
+    error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'P2002',
+  );
+}
+
 @Injectable()
 export class SpaceService {
   constructor(private readonly prisma: PrismaService) {}
@@ -91,22 +100,67 @@ export class SpaceService {
   }
 
   async create(dto: CreateSpaceDto, owner: AuthenticatedUser) {
-    return this.prisma.space.create({
-      data: {
-        name: dto.name.trim(),
-        description: dto.description?.trim() || undefined,
-        type: dto.type,
-        timezone: dto.timezone?.trim() || 'UTC',
-        companyId: owner.companyId,
-        ownerUserId: owner.id,
-        members: {
-          create: {
-            userId: owner.id,
-            role: 'owner',
+    if (dto.type === 'personal') {
+      const existing = await this.findActivePersonalSpace(owner.id);
+
+      if (existing) {
+        return {
+          ...existing,
+          reused: true,
+        };
+      }
+    }
+
+    try {
+      const created = await this.prisma.space.create({
+        data: {
+          name: dto.name.trim(),
+          description: dto.description?.trim() || undefined,
+          type: dto.type,
+          timezone: dto.timezone?.trim() || 'UTC',
+          companyId: owner.companyId,
+          ownerUserId: owner.id,
+          members: {
+            create: {
+              userId: owner.id,
+              role: 'owner',
+            },
           },
         },
+        include: spaceInclude,
+      });
+
+      return {
+        ...created,
+        reused: false,
+      };
+    } catch (error) {
+      if (dto.type === 'personal' && isUniqueConstraintError(error)) {
+        const existing = await this.findActivePersonalSpace(owner.id);
+
+        if (existing) {
+          return {
+            ...existing,
+            reused: true,
+          };
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  private findActivePersonalSpace(ownerUserId: string) {
+    return this.prisma.space.findFirst({
+      where: {
+        ownerUserId,
+        type: 'personal',
+        status: 'active',
       },
       include: spaceInclude,
+      orderBy: {
+        createdAt: 'asc',
+      },
     });
   }
 
