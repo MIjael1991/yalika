@@ -55,13 +55,21 @@ export function interpretCaptureTemporal(input: {
 }): CaptureTemporalResult {
   const now = input.now ?? new Date();
   const normalized = normalizeCaptureText(input.message);
+  const normalizedDateSignals = normalized.replace(
+    /\b(?:de|por)\s+la\s+manana\b/g,
+    ' ',
+  );
   const localNow = getZonedParts(now, input.timezone);
-  const todayAndTomorrow = hasTodayAndTomorrow(normalized);
+  const todayAndTomorrow = hasTodayAndTomorrow(normalizedDateSignals);
   const recurrence = todayAndTomorrow
     ? { frequency: 'daily' as const, interval: 1 }
     : inferRecurrence(normalized);
   const time = inferTime(normalized);
-  const date = inferDate(normalized, localNow, recurrence.frequency);
+  const date = inferDate(
+    normalizedDateSignals,
+    localNow,
+    recurrence.frequency,
+  );
   const hasTemporalSignal = Boolean(
     time.explicit || date.explicit || recurrence.frequency,
   );
@@ -365,6 +373,10 @@ function cleanTemporalTitle(title: string) {
     .replace(/\b(?:hoy|mañana)\b/gi, ' ')
     .replace(
       /\b(?:cada\s+(?:\d+\s+)?(?:día|dias?|semana|semanas|mes|meses|año|años|lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)|diari[oa]|semanal|mensual|anual)\b/gi,
+      ' ',
+    )
+    .replace(
+      /\b(?:el\s+)?(?:lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)\b/gi,
       ' ',
     )
     .replace(

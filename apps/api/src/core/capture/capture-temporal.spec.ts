@@ -42,6 +42,33 @@ describe('capture temporal interpretation', () => {
     expect(result.reminderMinutesBefore).toBe(30);
   });
 
+  it('removes a one-time weekday after using it as the due date', () => {
+    const result = interpretCaptureTemporal({
+      message:
+        'Revisar el inventario de la papelería el lunes a las 9 de la mañana',
+      title:
+        'Revisar el inventario de la papelería el lunes a las 9 de la mañana',
+      timezone,
+      now,
+    });
+
+    expect(result.title).toBe('Revisar el inventario de la papelería');
+    expect(result.dueAt).toBe('2026-08-31T15:00:00.000Z');
+  });
+
+  it('does not confuse a morning period with tomorrow', () => {
+    const result = interpretCaptureTemporal({
+      message: 'Llamar hoy a las 4 de la mañana',
+      title: 'Llamar hoy a las 4 de la mañana',
+      timezone,
+      now,
+    });
+
+    expect(result.title).toBe('Llamar');
+    expect(result.dueAt).toBe('2026-08-25T10:00:00.000Z');
+    expect(result.recurrenceFrequency).toBeNull();
+  });
+
   it('understands a weekly voice-style instruction', () => {
     const result = interpretCaptureTemporal({
       message:
