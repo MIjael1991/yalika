@@ -36,6 +36,28 @@ describe('ORION capture classifier', () => {
     expect(result.confidence).not.toBe('low');
   });
 
+  it('classifies an inventory review as business rather than a purchase', () => {
+    const result = classifyCapture({
+      message: 'Revisar el inventario de la papelería mañana',
+      spaces,
+      activeSpaceId: 'business-1',
+    });
+
+    expect(result.suggestedSpace.id).toBe('business-1');
+    expect(result.category).toBe('business');
+  });
+
+  it('keeps an actual inventory purchase in the purchase category', () => {
+    const result = classifyCapture({
+      message: 'Comprar inventario mañana',
+      spaces,
+      activeSpaceId: 'business-1',
+    });
+
+    expect(result.suggestedSpace.id).toBe('business-1');
+    expect(result.category).toBe('purchase');
+  });
+
   it('honors an explicit custom space name', () => {
     const result = classifyCapture({
       message: 'Ponlo en Familia Bernabé: comprar leche para el domingo',

@@ -499,7 +499,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const [spaceForm, setSpaceForm] = useState({
     name: '',
     description: '',
-    type: 'personal',
+    type: '',
   });
   const [taskForm, setTaskForm] = useState({
     title: '',
@@ -785,6 +785,13 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
+    if (!spaceForm.type) {
+      setError(
+        'Elige si el espacio es personal, familiar, de negocio o escolar',
+      );
+      return;
+    }
+
     const existingPersonal =
       spaceForm.type === 'personal'
         ? spaces.find(
@@ -826,7 +833,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       setSpaceForm({
         name: '',
         description: '',
-        type: 'personal',
+        type: '',
       });
       setShowSpaceForm(false);
       setCaptureNotice(
@@ -1641,7 +1648,11 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
             </button>
             <button
               type="button"
-              onClick={() => setShowSpaceForm((current) => !current)}
+              onClick={() => {
+                setShowSpaceForm((current) => !current);
+                setCaptureNotice('');
+                setError('');
+              }}
               className="rounded-xl border border-violet-400/40 bg-violet-400/10 px-4 py-2 text-sm font-semibold text-violet-200 hover:bg-violet-400/20"
             >
               + Nuevo espacio
@@ -1881,6 +1892,9 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   }
                   className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-violet-400"
                 >
+                  <option value="" disabled>
+                    Elige el tipo
+                  </option>
                   <option value="personal">Personal</option>
                   <option value="family">Familia</option>
                   <option value="business">Negocio</option>

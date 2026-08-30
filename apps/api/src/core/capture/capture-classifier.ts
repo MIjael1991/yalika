@@ -194,7 +194,6 @@ const categorySignals: Array<{
       'proveedor',
       'surtir',
       'despensa',
-      'inventario',
     ],
   },
   {
@@ -233,7 +232,14 @@ const categorySignals: Array<{
   },
   {
     category: 'business',
-    keywords: ['cliente', 'empleado', 'negocio', 'stock', 'venta'],
+    keywords: [
+      'cliente',
+      'empleado',
+      'inventario',
+      'negocio',
+      'stock',
+      'venta',
+    ],
   },
   {
     category: 'family',
@@ -278,10 +284,6 @@ function inferCategory(
   normalizedMessage: string,
   requestedSpaceType: string | null,
 ) {
-  if (requestedSpaceType === 'business') {
-    return 'business';
-  }
-
   for (const rule of categorySignals) {
     if (
       rule.keywords.some((keyword) =>
@@ -290,6 +292,10 @@ function inferCategory(
     ) {
       return rule.category;
     }
+  }
+
+  if (requestedSpaceType) {
+    return requestedSpaceType;
   }
 
   return 'personal';

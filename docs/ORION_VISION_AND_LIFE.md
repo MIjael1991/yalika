@@ -316,6 +316,10 @@ mantiene una restricción parcial como última protección. Los espacios familia
 escolares y de negocio siguen siendo independientes y pueden existir varias veces
 cuando representen grupos u organizaciones diferentes.
 
+El espacio determina quién puede ver la tarea; la categoría describe qué clase de
+actividad es. Por ejemplo, revisar inventario pertenece a Negocio, mientras comprar o
+surtir mercancía pertenece a Compra aunque ambas tareas vivan en el mismo negocio.
+
 Cuando la tarea pertenece a una serie, la confirmación separa “solo esta ocasión”
 de “toda la repetición”. Cancelar la ocasión actual conserva por defecto las
 siguientes. Las expresiones “hoy y mañana” representan una serie limitada a dos
