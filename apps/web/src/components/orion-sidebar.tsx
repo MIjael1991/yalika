@@ -23,6 +23,10 @@ const menu = [
         badge: 'POS',
       },
       {
+        name: 'Historial de ventas',
+        href: '/pos/ventas',
+      },
+      {
         name: 'Devoluciones',
         href: '/pos/devoluciones',
       },

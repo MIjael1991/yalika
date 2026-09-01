@@ -363,6 +363,7 @@ export function PosWorkspace({
   const [checkoutError, setCheckoutError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [receipt, setReceipt] = useState<Receipt>();
+  const [showCancelSale, setShowCancelSale] = useState(false);
   const [splitEditor, setSplitEditor] = useState<SplitEditor>();
   const [splitCheckout, setSplitCheckout] = useState<SplitCheckout>();
   const [splitPaymentMethod, setSplitPaymentMethod] = useState('cash');
@@ -635,6 +636,13 @@ export function PosWorkspace({
     }
 
     const received = receivedAmount ? Number(receivedAmount) : undefined;
+
+    if (paymentMethod === 'cash' && received === undefined) {
+      setCheckoutError(
+        'Escribe cuánto efectivo entregó el cliente o selecciona Pago exacto',
+      );
+      return;
+    }
 
     if (
       paymentMethod === 'cash' &&
@@ -1180,6 +1188,24 @@ export function PosWorkspace({
     setTimeout(() => searchRef.current?.focus(), 0);
   }
 
+  function cancelCurrentSale() {
+    if (checkoutSession) {
+      setShowCancelSale(false);
+      setCheckoutError(
+        'Esta venta ya inició su cobro. Revísala en Cuentas pendientes para no perder su seguimiento.',
+      );
+      return;
+    }
+
+    setCart([]);
+    setOrderDiscount(undefined);
+    setReceivedAmount('');
+    setPaymentReference('');
+    setCheckoutError('');
+    setShowCancelSale(false);
+    setTimeout(() => searchRef.current?.focus(), 0);
+  }
+
   return (
     <main className="min-h-screen bg-[#07101f] text-slate-100">
       <div className="border-b border-slate-800/80 bg-slate-950/70 px-4 py-4 backdrop-blur md:px-6">
@@ -1193,11 +1219,17 @@ export function PosWorkspace({
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="hidden items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-300 sm:flex">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
               Caja lista
             </div>
+            <Link
+              href="/pos/ventas"
+              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800"
+            >
+              Historial
+            </Link>
             <Link
               href="/pos/devoluciones"
               className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800"
@@ -1543,9 +1575,22 @@ export function PosWorkspace({
 
             {paymentMethod === 'cash' ? (
               <div className="mt-3">
-                <label className="text-xs font-medium text-slate-500" htmlFor="receivedAmount">
-                  Efectivo recibido (opcional)
-                </label>
+                <div className="flex items-center justify-between gap-3">
+                  <label className="text-xs font-medium text-slate-500" htmlFor="receivedAmount">
+                    Efectivo recibido
+                  </label>
+                  <button
+                    type="button"
+                    disabled={cartLocked || cart.length === 0}
+                    onClick={() => {
+                      setReceivedAmount(totals.total.toFixed(2));
+                      setCheckoutError('');
+                    }}
+                    className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 disabled:text-slate-600"
+                  >
+                    Pago exacto
+                  </button>
+                </div>
                 <input
                   id="receivedAmount"
                   inputMode="decimal"
@@ -1586,6 +1631,17 @@ export function PosWorkspace({
                   </p>
                 ) : null}
               </div>
+            ) : null}
+
+            {cart.length > 0 ? (
+              <button
+                type="button"
+                disabled={checkingOut || cartLocked}
+                onClick={() => setShowCancelSale(true)}
+                className="mt-4 w-full text-center text-sm font-semibold text-red-300 transition hover:text-red-200 disabled:text-slate-600"
+              >
+                Cancelar venta
+              </button>
             ) : null}
 
             <div className="mt-5 grid grid-cols-[0.85fr_1.15fr] gap-2">
@@ -2104,7 +2160,42 @@ export function PosWorkspace({
                 onClick={newSale}
                 className="h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
               >
-                Seguir vendiendo
+                Agregar producto adicional
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {showCancelSale ? (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-3xl border border-red-400/30 bg-slate-900 p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-400/10 text-2xl text-red-300">
+              ×
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-red-300">
+              Cancelar venta actual
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">
+              ¿El cliente ya no comprará?
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              Se vaciará el carrito. No se registrará pago ni se descontará inventario.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCancelSale(false)}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
+              >
+                Continuar venta
+              </button>
+              <button
+                type="button"
+                onClick={cancelCurrentSale}
+                className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300"
+              >
+                Sí, cancelar
               </button>
             </div>
           </section>
