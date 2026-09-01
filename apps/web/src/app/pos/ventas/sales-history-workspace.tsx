@@ -343,7 +343,7 @@ export function SalesHistoryWorkspace({
                     Reimprimir comprobante
                   </button>
                   <Link
-                    href="/pos/devoluciones"
+                    href={`/pos/devoluciones?orderId=${encodeURIComponent(selectedOrderId)}`}
                     className="flex h-12 items-center justify-center rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
                   >
                     Devolver o anular

@@ -363,6 +363,7 @@ export function PosWorkspace({
   const [checkoutError, setCheckoutError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [receipt, setReceipt] = useState<Receipt>();
+  const [customerReceipts, setCustomerReceipts] = useState<Receipt[]>([]);
   const [showCancelSale, setShowCancelSale] = useState(false);
   const [splitEditor, setSplitEditor] = useState<SplitEditor>();
   const [splitCheckout, setSplitCheckout] = useState<SplitCheckout>();
@@ -1180,11 +1181,21 @@ export function PosWorkspace({
   }
 
   function newSale() {
+    if (receipt) {
+      setCustomerReceipts((current) => [...current, receipt]);
+    }
     setReceipt(undefined);
     setCheckoutError('');
     setSplitEditor(undefined);
     setSplitCheckout(undefined);
     setSplitPaymentError('');
+    setTimeout(() => searchRef.current?.focus(), 0);
+  }
+
+  function finishCustomer() {
+    setReceipt(undefined);
+    setCustomerReceipts([]);
+    setCheckoutError('');
     setTimeout(() => searchRef.current?.focus(), 0);
   }
 
@@ -1404,6 +1415,44 @@ export function PosWorkspace({
             </span>
           </div>
 
+          {customerReceipts.length > 0 ? (
+            <div className="border-b border-emerald-500/20 bg-emerald-500/5 px-5 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300">
+                    Ya pagado por este cliente
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Sigue visible, pero no volverá a cobrarse.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={finishCustomer}
+                  className="shrink-0 rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800"
+                >
+                  Terminar atención
+                </button>
+              </div>
+              <div className="mt-3 space-y-2">
+                {customerReceipts.flatMap((paidReceipt) =>
+                  paidReceipt.items.map((item) => (
+                    <div
+                      key={`${paidReceipt.order.id}-${item.key}`}
+                      className="flex justify-between gap-3 text-xs"
+                    >
+                      <span className="text-slate-400">
+                        {item.quantity} × {item.productName}
+                      </span>
+                      <span className="font-semibold text-emerald-300">
+                        Pagado
+                      </span>
+                    </div>
+                  )),
+                )}
+              </div>
+            </div>
+          ) : null}
           <div className="max-h-[40vh] overflow-y-auto px-5 py-2 xl:max-h-[42vh]">
             {cart.length === 0 ? (
               <div className="py-12 text-center">

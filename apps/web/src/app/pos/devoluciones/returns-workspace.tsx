@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type OrderItem = {
   id: string;
@@ -197,6 +198,7 @@ export function ReturnsWorkspace({
   initialReturns: ReturnRecord[];
   initialError: string;
 }) {
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState(initialOrders);
   const [returns, setReturns] = useState(initialReturns);
   const [search, setSearch] = useState('');
@@ -216,6 +218,7 @@ export function ReturnsWorkspace({
   const [pendingReturn, setPendingReturn] = useState<ReturnRecord>();
   const [returnOperationId, setReturnOperationId] = useState('');
   const [refundOperationId, setRefundOperationId] = useState('');
+  const requestedOrderId = searchParams.get('orderId') ?? '';
 
   const paidOrders = useMemo(
     () =>
@@ -340,6 +343,23 @@ export function ReturnsWorkspace({
     }
   }
 
+  useEffect(() => {
+    if (!requestedOrderId || selectedOrderId) {
+      return;
+    }
+
+    const requestedOrder = orders.find((order) => order.id === requestedOrderId);
+
+    if (requestedOrder) {
+      const timer = window.setTimeout(() => {
+        void selectOrder(requestedOrder);
+      }, 0);
+
+      return () => window.clearTimeout(timer);
+    }
+    // The URL request is handled once; subsequent selections belong to the user.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, requestedOrderId, selectedOrderId]);
   async function cancelPendingReturn() {
     if (!pendingReturn) {
       return;
