@@ -2086,7 +2086,12 @@ export function PosWorkspace({
               ) : null}
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3 print:hidden">
+            <p className="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-3 py-3 text-center text-xs leading-5 text-cyan-100/80 print:hidden">
+              Si el cliente desea otro producto, continúa vendiendo. ORION lo
+              registrará como una venta adicional sin alterar este pago.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-3 print:hidden">
               <button
                 type="button"
                 onClick={() => window.print()}
@@ -2099,7 +2104,7 @@ export function PosWorkspace({
                 onClick={newSale}
                 className="h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
               >
-                Nueva venta
+                Seguir vendiendo
               </button>
             </div>
           </section>

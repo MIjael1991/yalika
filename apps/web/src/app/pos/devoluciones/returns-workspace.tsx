@@ -93,6 +93,7 @@ type RefundResult =
 
 type CompletedResult = {
   returnNumber: string;
+  orderNumber: string;
   amount: number;
   method: string;
   inventoryEffects: ConfirmReturnResult['inventoryEffects'];
@@ -249,6 +250,14 @@ export function ReturnsWorkspace({
       .flatMap((returnRecord) => returnRecord.items)
       .filter((item) => item.orderItemId === orderItemId)
       .reduce((total, item) => total + item.quantity, 0);
+  }
+
+  function remainingReturnQuantity(order: Order) {
+    return order.items.reduce(
+      (total, item) =>
+        total + Math.max(item.quantity - returnedQuantity(item.id), 0),
+      0,
+    );
   }
 
   function activeReturnForOrder(orderId: string) {
@@ -466,6 +475,7 @@ export function ReturnsWorkspace({
 
       setResult({
         returnNumber: confirmed.return.returnNumber,
+        orderNumber: selectedOrder.orderNumber,
         amount: refundAmount(refunded),
         method: refundMethod(refunded),
         inventoryEffects: confirmed.inventoryEffects,
@@ -529,16 +539,21 @@ export function ReturnsWorkspace({
           <div className="mt-4 max-h-[65vh] space-y-2 overflow-y-auto pr-1">
             {filteredOrders.map((order) => {
               const activeReturn = activeReturnForOrder(order.id);
+              const remaining = remainingReturnQuantity(order);
+              const fullyReturned = remaining <= 0.000001;
 
               return (
                 <button
                   key={order.id}
                   type="button"
+                  disabled={fullyReturned}
                   onClick={() => void selectOrder(order)}
                   className={`w-full rounded-2xl border p-4 text-left transition ${
                     selectedOrderId === order.id
                       ? 'border-cyan-400/60 bg-cyan-400/10'
-                      : 'border-slate-800 bg-slate-950/60 hover:border-slate-700'
+                      : fullyReturned
+                        ? 'cursor-not-allowed border-slate-800 bg-slate-950/40 opacity-65'
+                        : 'border-slate-800 bg-slate-950/60 hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -561,7 +576,15 @@ export function ReturnsWorkspace({
                     <p className="mt-2 text-xs font-medium text-amber-300">
                       Devolución pendiente
                     </p>
-                  ) : null}
+                  ) : fullyReturned ? (
+                    <p className="mt-2 text-xs font-medium text-emerald-300">
+                      Devuelta por completo
+                    </p>
+                  ) : (
+                    <p className="mt-2 text-xs font-medium text-slate-500">
+                      {remaining} {remaining === 1 ? 'unidad disponible' : 'unidades disponibles'} para devolver
+                    </p>
+                  )}
                 </button>
               );
             })}
@@ -584,6 +607,9 @@ export function ReturnsWorkspace({
                 Devolución completada
               </p>
               <h2 className="mt-2 text-2xl font-semibold">{result.returnNumber}</h2>
+              <p className="mt-2 text-sm text-slate-400">
+                Venta original: {result.orderNumber}
+              </p>
               <p className="mt-5 text-sm text-slate-400">Reembolso procesado</p>
               <p className="mt-1 text-4xl font-bold text-white">
                 {money.format(result.amount)}
@@ -615,7 +641,7 @@ export function ReturnsWorkspace({
                 }}
                 className="mt-7 h-12 rounded-xl bg-cyan-400 px-8 font-bold text-slate-950 hover:bg-cyan-300"
               >
-                Nueva devolución
+                Devolver otra venta
               </button>
             </div>
           ) : pendingReturn ? (
