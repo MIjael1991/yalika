@@ -24,6 +24,22 @@ export type OrderSummary = {
   items: OrderItemSummary[];
 };
 
+export type ReturnSummary = {
+  id: string;
+  orderId: string;
+  status: string;
+  createdAt: string;
+  items: Array<{
+    orderItemId: string;
+    quantity: number;
+  }>;
+  refunds: Array<{
+    amount: number;
+    status: string;
+    refundedAt: string;
+  }>;
+};
+
 type Ticket = {
   orderNumber: string;
   status: string;
@@ -103,9 +119,11 @@ async function apiRequest<T>(path: string) {
 
 export function SalesHistoryWorkspace({
   initialOrders,
+  initialReturns,
   initialError,
 }: {
   initialOrders: OrderSummary[];
+  initialReturns: ReturnSummary[];
   initialError: string;
 }) {
   const [search, setSearch] = useState('');
@@ -122,6 +140,36 @@ export function SalesHistoryWorkspace({
       ),
     [initialOrders],
   );
+
+  const completedReturns = useMemo(
+    () => initialReturns.filter((record) => record.status === 'completed'),
+    [initialReturns],
+  );
+
+  function returnedQuantity(orderId: string, orderItemId: string) {
+    return completedReturns
+      .filter((record) => record.orderId === orderId)
+      .flatMap((record) => record.items)
+      .filter((item) => item.orderItemId === orderItemId)
+      .reduce((total, item) => total + item.quantity, 0);
+  }
+
+  function isFullyReturned(order: OrderSummary) {
+    return (
+      order.items.length > 0 &&
+      order.items.every(
+        (item) => returnedQuantity(order.id, item.id) >= item.quantity,
+      )
+    );
+  }
+
+  function refundedForOrder(orderId: string) {
+    return completedReturns
+      .filter((record) => record.orderId === orderId)
+      .flatMap((record) => record.refunds)
+      .filter((refund) => refund.status === 'completed')
+      .reduce((total, refund) => total + refund.amount, 0);
+  }
 
   const filteredOrders = useMemo(() => {
     const normalized = search.trim().toLocaleLowerCase('es-MX');
@@ -150,6 +198,22 @@ export function SalesHistoryWorkspace({
     (total, order) => total + order.total,
     0,
   );
+  const todayRefundTotal = completedReturns
+    .flatMap((record) => record.refunds)
+    .filter(
+      (refund) =>
+        refund.status === 'completed' &&
+        new Date(refund.refundedAt).toLocaleDateString('en-CA') === todayKey,
+    )
+    .reduce((total, refund) => total + refund.amount, 0);
+  const todayNetTotal = todayTotal - todayRefundTotal;
+  const selectedOrder = paidOrders.find((order) => order.id === selectedOrderId);
+  const selectedRefunded = selectedOrder
+    ? refundedForOrder(selectedOrder.id)
+    : 0;
+  const selectedFullyReturned = selectedOrder
+    ? isFullyReturned(selectedOrder)
+    : false;
 
   async function selectOrder(order: OrderSummary) {
     setSelectedOrderId(order.id);
@@ -195,21 +259,21 @@ export function SalesHistoryWorkspace({
       <div className="mx-auto max-w-[1500px] p-4 md:p-6">
         <div className="mb-5 grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-            <p className="text-xs text-slate-500">Ventas pagadas hoy</p>
+            <p className="text-xs text-slate-500">Cobros registrados hoy</p>
             <p className="mt-2 text-2xl font-bold text-cyan-300">
               {todayOrders.length}
             </p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-            <p className="text-xs text-slate-500">Total vendido hoy</p>
+            <p className="text-xs text-slate-500">Venta neta hoy</p>
             <p className="mt-2 text-2xl font-bold text-emerald-300">
-              {money.format(todayTotal)}
+              {money.format(todayNetTotal)}
             </p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-            <p className="text-xs text-slate-500">Historial disponible</p>
-            <p className="mt-2 text-2xl font-bold text-white">
-              {paidOrders.length}
+            <p className="text-xs text-slate-500">Reembolsado hoy</p>
+            <p className="mt-2 text-2xl font-bold text-amber-300">
+              {money.format(todayRefundTotal)}
             </p>
           </div>
         </div>
@@ -256,6 +320,15 @@ export function SalesHistoryWorkspace({
                       .map((item) => `${item.quantity} × ${item.productName}`)
                       .join(', ')}
                   </p>
+                  {isFullyReturned(order) ? (
+                    <p className="mt-2 text-xs font-semibold text-amber-300">
+                      Anulada y reembolsada
+                    </p>
+                  ) : refundedForOrder(order.id) > 0 ? (
+                    <p className="mt-2 text-xs font-semibold text-amber-300">
+                      Devolución parcial · {money.format(refundedForOrder(order.id))}
+                    </p>
+                  ) : null}
                 </button>
               ))}
 
@@ -334,6 +407,19 @@ export function SalesHistoryWorkspace({
                   ))}
                 </div>
 
+                {selectedRefunded > 0 ? (
+                  <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
+                    <p className="font-semibold">
+                      {selectedFullyReturned
+                        ? 'Venta anulada y reembolsada'
+                        : 'Esta venta tiene una devolución parcial'}
+                    </p>
+                    <p className="mt-1">
+                      Reembolsado: {money.format(selectedRefunded)}. El movimiento permanece visible por auditoría.
+                    </p>
+                  </div>
+                ) : null}
+
                 <div className="mt-6 grid gap-3 sm:grid-cols-2 print:hidden">
                   <button
                     type="button"
@@ -342,12 +428,18 @@ export function SalesHistoryWorkspace({
                   >
                     Reimprimir comprobante
                   </button>
-                  <Link
-                    href={`/pos/devoluciones?orderId=${encodeURIComponent(selectedOrderId)}`}
-                    className="flex h-12 items-center justify-center rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
-                  >
-                    Devolver o anular
-                  </Link>
+                  {selectedFullyReturned ? (
+                    <span className="flex h-12 items-center justify-center rounded-xl border border-slate-800 bg-slate-950/50 font-semibold text-slate-500">
+                      Devuelta por completo
+                    </span>
+                  ) : (
+                    <Link
+                      href={`/pos/devoluciones?orderId=${encodeURIComponent(selectedOrderId)}`}
+                      className="flex h-12 items-center justify-center rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
+                    >
+                      Devolver o anular
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (

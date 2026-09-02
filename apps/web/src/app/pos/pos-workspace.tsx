@@ -159,6 +159,16 @@ type Receipt = {
   items: CartItem[];
 };
 
+type ReturnRecord = {
+  id: string;
+  returnNumber: string;
+  status: string;
+};
+
+type ConfirmReturnResult = {
+  return: ReturnRecord;
+};
+
 type DiscountEditor = {
   targetKey: 'order' | string;
   label: string;
@@ -365,6 +375,15 @@ export function PosWorkspace({
   const [receipt, setReceipt] = useState<Receipt>();
   const [customerReceipts, setCustomerReceipts] = useState<Receipt[]>([]);
   const [showCancelSale, setShowCancelSale] = useState(false);
+  const [showVoidPaidSale, setShowVoidPaidSale] = useState(false);
+  const [voidingPaidSale, setVoidingPaidSale] = useState(false);
+  const [voidPaidSaleError, setVoidPaidSaleError] = useState('');
+  const voidOperationIds = useRef<{
+    orderId: string;
+    returnId: string;
+    refundId: string;
+  } | undefined>(undefined);
+  const [searchError, setSearchError] = useState('');
   const [splitEditor, setSplitEditor] = useState<SplitEditor>();
   const [splitCheckout, setSplitCheckout] = useState<SplitCheckout>();
   const [splitPaymentMethod, setSplitPaymentMethod] = useState('cash');
@@ -466,6 +485,7 @@ export function PosWorkspace({
       return [...current, { ...option, quantity: 1 }];
     });
     setSearch('');
+    setSearchError('');
     searchRef.current?.focus();
   }
 
@@ -508,6 +528,106 @@ export function PosWorkspace({
 
     if (filteredOptions.length === 1) {
       addOption(filteredOptions[0]);
+      return;
+    }
+
+    setSearchError(
+      !normalized
+        ? 'Escribe un producto o escanea un código registrado.'
+        : filteredOptions.length > 1
+          ? 'Encontramos varios productos. Selecciona el correcto de la lista.'
+          : 'Producto no registrado. Verifica el código o solicita su alta a un usuario autorizado.',
+    );
+  }
+
+  async function voidPaidSale() {
+    if (!receipt || !companyId || !authorizedUserId) {
+      return;
+    }
+
+    if (!voidOperationIds.current || voidOperationIds.current.orderId !== receipt.order.id) {
+      voidOperationIds.current = {
+        orderId: receipt.order.id,
+        returnId: crypto.randomUUID(),
+        refundId: crypto.randomUUID(),
+      };
+    }
+
+    const operationIds = voidOperationIds.current;
+    setVoidingPaidSale(true);
+    setVoidPaidSaleError('');
+
+    try {
+      const items = receipt.order.items.map((orderItem) => {
+        const cartItem = receipt.items.find(
+          (item) =>
+            item.productId === orderItem.productId &&
+            (item.variantId ?? null) === orderItem.variantId,
+        );
+
+        if (!cartItem) {
+          throw new Error('No fue posible relacionar un producto de la venta');
+        }
+
+        return {
+          orderItemId: orderItem.id,
+          quantity: cartItem.quantity,
+          condition: 'sellable',
+          disposition: cartItem.trackInventory ? 'restock' : 'no_restock',
+        };
+      });
+
+      const created = await apiRequest<ReturnRecord>('return', {
+        method: 'POST',
+        body: JSON.stringify({
+          companyId,
+          orderId: receipt.order.id,
+          authorizedById: authorizedUserId,
+          type: 'return',
+          reason: 'customer_changed_mind',
+          notes: 'Anulación inmediata realizada desde ORION Punto de Venta',
+          operationId: operationIds.returnId,
+          items,
+        }),
+      });
+
+      const completedReturn =
+        created.status === 'completed'
+          ? created
+          : (
+              await apiRequest<ConfirmReturnResult>(
+                `return/${created.id}/confirm`,
+                { method: 'POST' },
+              )
+            ).return;
+
+      await apiRequest(`return/${completedReturn.id}/refund`, {
+        method: 'POST',
+        body: JSON.stringify({
+          processedById: authorizedUserId,
+          method: receipt.payment.payment.method,
+          paymentId: receipt.payment.payment.id,
+          notes: 'Reembolso por anulación inmediata en caja',
+          operationId: operationIds.refundId,
+        }),
+      });
+
+      const orderNumber = receipt.order.orderNumber;
+      setShowVoidPaidSale(false);
+      setReceipt(undefined);
+      setCheckoutError(
+        `Venta ${orderNumber} anulada. El pago quedó registrado como reembolsado y el inventario vendible fue repuesto.`,
+      );
+      voidOperationIds.current = undefined;
+      await loadProducts();
+    } catch (error) {
+      setVoidPaidSaleError(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible anular la venta pagada',
+      );
+    } finally {
+      setVoidingPaidSale(false);
     }
   }
 
@@ -1285,6 +1405,12 @@ export function PosWorkspace({
               Agregar
             </button>
           </form>
+
+          {searchError ? (
+            <p className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
+              {searchError}
+            </p>
+          ) : null}
 
           <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
             <button
@@ -2206,10 +2332,63 @@ export function PosWorkspace({
               </button>
               <button
                 type="button"
+
+                onClick={() => {
+                  setVoidPaidSaleError('');
+                  setShowVoidPaidSale(true);
+                }}
+                className="h-12 rounded-xl border border-red-400/40 font-semibold text-red-300 hover:bg-red-400/10"
+              >
+                Anular cobro
+              </button>
+              <button
+                type="button"
                 onClick={newSale}
-                className="h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
+                className="col-span-2 h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
               >
                 Agregar producto adicional
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {showVoidPaidSale && receipt ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-3xl border border-red-400/30 bg-slate-900 p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-400/10 text-2xl text-red-300">
+              ↶
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-red-300">
+              Anular cobro pagado
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">
+              ¿El cliente se arrepintió en caja?
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              ORION reembolsará {money.format(receipt.order.total)}, regresará al inventario los productos vendibles y conservará el movimiento en auditoría.
+            </p>
+            {voidPaidSaleError ? (
+              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-3 text-sm text-red-200">
+                {voidPaidSaleError}
+              </p>
+            ) : null}
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={voidingPaidSale}
+                onClick={() => setShowVoidPaidSale(false)}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+              >
+                Conservar venta
+              </button>
+              <button
+                type="button"
+                disabled={voidingPaidSale}
+                onClick={() => void voidPaidSale()}
+                className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300 disabled:opacity-50"
+              >
+                {voidingPaidSale ? 'Anulando…' : 'Sí, anular y reponer'}
               </button>
             </div>
           </section>

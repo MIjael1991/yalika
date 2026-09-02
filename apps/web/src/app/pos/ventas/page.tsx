@@ -1,6 +1,7 @@
 import {
   SalesHistoryWorkspace,
   type OrderSummary,
+  type ReturnSummary,
 } from './sales-history-workspace';
 
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,7 @@ async function getOrders(companyId: string) {
   if (!companyId) {
     return {
       orders: [] as OrderSummary[],
+      returns: [] as ReturnSummary[],
       error: '',
     };
   }
@@ -18,25 +20,32 @@ async function getOrders(companyId: string) {
   ).replace(/\/+$/, '');
 
   try {
-    const response = await fetch(
-      `${apiUrl}/order/company/${encodeURIComponent(companyId)}`,
-      { cache: 'no-store' },
-    );
+    const [ordersResponse, returnsResponse] = await Promise.all([
+      fetch(`${apiUrl}/order/company/${encodeURIComponent(companyId)}`, {
+        cache: 'no-store',
+      }),
+      fetch(`${apiUrl}/return/company/${encodeURIComponent(companyId)}`, {
+        cache: 'no-store',
+      }),
+    ]);
 
-    if (!response.ok) {
+    if (!ordersResponse.ok || !returnsResponse.ok) {
       return {
         orders: [] as OrderSummary[],
+        returns: [] as ReturnSummary[],
         error: 'No se pudo cargar el historial de ventas',
       };
     }
 
     return {
-      orders: (await response.json()) as OrderSummary[],
+      orders: (await ordersResponse.json()) as OrderSummary[],
+      returns: (await returnsResponse.json()) as ReturnSummary[],
       error: '',
     };
   } catch {
     return {
       orders: [] as OrderSummary[],
+      returns: [] as ReturnSummary[],
       error: 'ORION API no está disponible',
     };
   }
@@ -49,6 +58,7 @@ export default async function SalesHistoryPage() {
   return (
     <SalesHistoryWorkspace
       initialOrders={data.orders}
+      initialReturns={data.returns}
       initialError={data.error}
     />
   );
