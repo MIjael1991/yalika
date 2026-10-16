@@ -21,7 +21,7 @@ logs/
 scripts/logs/
 
 # respaldos, temporales y binarios
-*.bak
+*.bak*
 *.temporal
 *.prismarespaldo
 *.zip
