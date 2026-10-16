@@ -19,13 +19,13 @@ services:
         sync: false
       - key: OPENAI_SURVEY_MODEL
         value: gpt-5-mini
-      - key: ORION_SESSION_HOURS
+      - key: YALIKA_SESSION_HOURS
         value: 12
-      - key: ORION_BOOTSTRAP_ORGANIZATION
+      - key: YALIKA_BOOTSTRAP_ORGANIZATION
         sync: false
-      - key: ORION_BOOTSTRAP_NAME
+      - key: YALIKA_BOOTSTRAP_NAME
         sync: false
-      - key: ORION_BOOTSTRAP_EMAIL
+      - key: YALIKA_BOOTSTRAP_EMAIL
         sync: false
-      - key: ORION_BOOTSTRAP_PASSWORD
+      - key: YALIKA_BOOTSTRAP_PASSWORD
         sync: false

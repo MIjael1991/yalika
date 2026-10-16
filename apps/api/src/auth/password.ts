@@ -50,7 +50,7 @@ export async function verifyPassword(password: string, storedHash: string) {
 }
 
 export async function consumePasswordCheck(password: string) {
-  await derivePassword(password, 'orion-invalid-account');
+  await derivePassword(password, 'yalika-invalid-account');
 }
 
 export function createSessionToken() {

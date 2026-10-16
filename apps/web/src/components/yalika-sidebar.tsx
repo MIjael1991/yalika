@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { moduleForPath } from "../lib/module-navigation";
 
-function OrionSidebarMark() {
+function YalikaSidebarMark() {
   return (
     <svg
       viewBox="0 0 48 48"
@@ -126,7 +126,7 @@ function MobileNavIcon({
 
 const menu = [
   {
-    label: "Yaleka",
+    label: "Yalika",
     items: [
       { name: "Inicio", href: "/inicio" },
       { name: "Mi día", href: "/life" },
@@ -145,7 +145,7 @@ const menu = [
   },
 ];
 
-export function OrionSidebar() {
+export function YalikaSidebar() {
   const pathname = usePathname();
   const [modules, setModules] = useState<string[] | null>(null);
   const [visibleModules, setVisibleModules] = useState<string[] | null>(null);
@@ -201,7 +201,7 @@ export function OrionSidebar() {
           },
           { label: currentModule.name, items: currentModule.items },
           {
-            label: "Yaleka",
+            label: "Yalika",
             items: [{ name: "Cambiar de servicio", href: "/servicios" }],
           },
         ]
@@ -218,7 +218,7 @@ export function OrionSidebar() {
   useEffect(() => {
     let active = true;
 
-    fetch("/api/orion/auth/me", { cache: "no-store" })
+    fetch("/api/yalika/auth/me", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) return null;
         return response.json() as Promise<{ user?: { modules?: string[] } }>;
@@ -243,7 +243,7 @@ export function OrionSidebar() {
     async function refreshSelection() {
       try {
         const response = await fetch(
-          "/api/orion/assistant-preference/modules",
+          "/api/yalika/assistant-preference/modules",
           { cache: "no-store" },
         );
 
@@ -316,7 +316,7 @@ export function OrionSidebar() {
   }, [hasFullAccess]);
 
   const logout = async () => {
-    await fetch("/api/orion/auth/logout", { method: "POST" }).catch(() => null);
+    await fetch("/api/yalika/auth/logout", { method: "POST" }).catch(() => null);
     window.location.assign("/login");
   };
 
@@ -333,10 +333,10 @@ export function OrionSidebar() {
     <>
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-white/10 bg-[#061426]/95 px-4 backdrop-blur-xl lg:hidden">
         <Link href={homeHref} className="flex items-center gap-2">
-          <OrionSidebarMark />
+          <YalikaSidebarMark />
           <span>
             <span className="block text-sm font-black tracking-[0.28em] text-white">
-              Yaleka
+              Yalika
             </span>
             <span className="block text-[9px] text-cyan-200/70">
               Contigo cuando importa.
@@ -379,10 +379,10 @@ export function OrionSidebar() {
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-white/10 bg-[#061426] lg:flex">
         <div className="border-b border-white/10 px-5 py-5">
           <Link href={homeHref} className="flex items-center gap-3">
-            <OrionSidebarMark />
+            <YalikaSidebarMark />
             <span>
               <span className="block text-base font-black tracking-[0.28em] text-white">
-                Yaleka
+                Yalika
               </span>
               <span className="mt-0.5 block text-sm text-cyan-200/65">
                 Contigo cuando importa.
@@ -429,7 +429,7 @@ export function OrionSidebar() {
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
             <span className="text-sm text-slate-300">
-              Yaleka · Una sola cuenta
+              Yalika · Una sola cuenta
             </span>
           </div>
           <Link

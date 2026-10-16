@@ -23,7 +23,7 @@ function apiMessage(payload: unknown) {
   return 'No se completó la operación';
 }
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init, cache: 'no-store', headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
   const text = await response.text();
@@ -113,7 +113,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-400">Yaleka · POS</p>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-400">Yalika · POS</p>
             <h1 className="mt-1 text-3xl font-bold">Inventario</h1>
             <p className="mt-1 max-w-2xl text-sm text-slate-400">Recibe mercancía con comprobante e idempotencia. Una caja suma sus piezas al mismo inventario: no se crean existencias dobles.</p>
           </div>
@@ -131,7 +131,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <form onSubmit={receive} className="space-y-4 rounded-2xl border border-emerald-700/50 bg-slate-950 p-4 md:p-5">
-            <div><h2 className="text-xl font-semibold">Entrada de mercancía</h2><p className="text-sm text-slate-400">Costo vacío significa desconocido; Yaleka no lo convierte en cero.</p></div>
+            <div><h2 className="text-xl font-semibold">Entrada de mercancía</h2><p className="text-sm text-slate-400">Costo vacío significa desconocido; Yalika no lo convierte en cero.</p></div>
             <div className="grid gap-3 md:grid-cols-2">
               <label className="text-sm">Proveedor / origen<input className={field} value={sourceName} onChange={e=>{setSourceName(e.target.value);setOperationId('');}} required maxLength={150} /></label>
               <label className="text-sm">Referencia (opcional)<input className={field} value={reference} onChange={e=>{setReference(e.target.value);setOperationId('');}} maxLength={100} /></label>

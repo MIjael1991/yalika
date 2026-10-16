@@ -440,7 +440,7 @@ function buildSummary(
   }
 
   if (assumedPeriod) {
-    parts.push('ORION asumió horario de tarde; confirma antes de guardar');
+    parts.push('Yalika asumió horario de tarde; confirma antes de guardar');
   }
 
   if (explicitTimeAlreadyPassed) {

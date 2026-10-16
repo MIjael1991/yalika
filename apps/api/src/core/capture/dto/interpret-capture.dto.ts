@@ -9,7 +9,7 @@ import {
 export class InterpretCaptureDto {
   @IsString()
   @IsNotEmpty({
-    message: 'Escribe o dicta algo para que ORION pueda organizarlo',
+    message: 'Escribe o dicta algo para que Yalika pueda organizarlo',
   })
   @MaxLength(500)
   message: string;

@@ -1,7 +1,7 @@
 import { SiteView, type Site, type Product, type Promotion, type StoreData } from './site-view';
 import { ShowcaseStorefront } from './showcase-storefront';
 const apiUrl = (
-  process.env.ORION_API_URL ??
+  process.env.YALIKA_API_URL ??
   'http://localhost:3000'
 ).replace(/\/+$/, '');
 

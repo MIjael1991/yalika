@@ -15,7 +15,7 @@ const PUBLIC_ACCOUNT_ROLE = 'Administrador';
 
 function registrationEnabled() {
   const configured =
-    process.env.YALEKA_PUBLIC_REGISTRATION?.trim().toLowerCase();
+    process.env.YALIKA_PUBLIC_REGISTRATION?.trim().toLowerCase();
   if (!configured) return process.env.NODE_ENV !== 'production';
   return configured === 'true';
 }

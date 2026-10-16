@@ -1,11 +1,14 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
 function ticketSecret() {
-  return (
-    process.env.ORION_TICKET_SECRET ??
-    process.env.JWT_SECRET ??
-    'orion-local-ticket-secret-change-before-production'
-  );
+  const secret = process.env.YALIKA_TICKET_SECRET ?? process.env.JWT_SECRET;
+  if (secret) return secret;
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Falta YALIKA_TICKET_SECRET para firmar los tickets');
+  }
+
+  return 'yalika-clave-local-solo-para-desarrollo';
 }
 
 export function createTicketClaimToken(orderId: string, companyId: string) {

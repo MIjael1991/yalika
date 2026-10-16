@@ -11,14 +11,14 @@ import { ConflictException } from '@nestjs/common';
 import { PublicRegistrationService } from './public-registration.service';
 
 describe('PublicRegistrationService', () => {
-  const previous = process.env.YALEKA_PUBLIC_REGISTRATION;
+  const previous = process.env.YALIKA_PUBLIC_REGISTRATION;
 
   afterAll(() => {
-    process.env.YALEKA_PUBLIC_REGISTRATION = previous;
+    process.env.YALIKA_PUBLIC_REGISTRATION = previous;
   });
 
   it('creates a general Yalika account and records the event', async () => {
-    process.env.YALEKA_PUBLIC_REGISTRATION = 'true';
+    process.env.YALIKA_PUBLIC_REGISTRATION = 'true';
     const findFirst = jest.fn().mockResolvedValue(null);
     const companyCreate = jest
       .fn()
@@ -71,7 +71,7 @@ describe('PublicRegistrationService', () => {
   });
 
   it('does not create a duplicate email', async () => {
-    process.env.YALEKA_PUBLIC_REGISTRATION = 'true';
+    process.env.YALIKA_PUBLIC_REGISTRATION = 'true';
     const service = new PublicRegistrationService({
       user: { findFirst: jest.fn().mockResolvedValue({ id: 'existing' }) },
     } as any);

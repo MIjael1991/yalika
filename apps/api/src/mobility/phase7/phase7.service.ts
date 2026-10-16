@@ -35,7 +35,7 @@ export class MobilityPhase7Service {
       .trim();
   }
 
-  // YALEKA_PHASE8_PATCH_V1
+  // YALIKA_PHASE8_PATCH_V1
   private extractAmount(text: string) {
     const textValue = this.normalize(text);
     const digits = textValue.match(/(?:\$\s*)?\b(\d{1,4}(?:[.,]\d{1,2})?)\b/);
@@ -181,13 +181,13 @@ export class MobilityPhase7Service {
         input:
           'El frontend convierte voz a texto y envia el texto a este interprete.',
         backend:
-          'Yaleka interpreta intencion, valida contexto y exige confirmacion antes de acciones sensibles.',
+          'Yalika interpreta intencion, valida contexto y exige confirmacion antes de acciones sensibles.',
         output:
           'La respuesta spokenResponse puede ser leida por TTS del dispositivo.',
       },
       examples: {
         passenger: [
-          'Yaleka, quiero pagar 70',
+          'Yalika, quiero pagar 70',
           'Que precio recomiendas',
           'Muestrame conductores cerca',
           'Acepto la propuesta',
@@ -344,7 +344,7 @@ export class MobilityPhase7Service {
         clientRequestId: dto.clientRequestId
           ? `${dto.clientRequestId}-${mode.toLowerCase()}`
           : undefined,
-        note: `Modo rapido Yaleka: ${mode}`,
+        note: `Modo rapido Yalika: ${mode}`,
       });
     }
 
@@ -610,7 +610,7 @@ export class MobilityPhase7Service {
         requiresConfirmation = true;
         spokenResponse = amount
           ? `Preparare el viaje con una oferta de ${amount} pesos. Di confirmar para continuar.`
-          : 'Preparare el viaje con la recomendacion de Yaleka. Di confirmar para continuar.';
+          : 'Preparare el viaje con la recomendacion de Yalika. Di confirmar para continuar.';
         break;
       default:
         spokenResponse =

@@ -29,7 +29,7 @@ const templateLabels: Record<string, string> = {
 };
 
 async function action(path: string) {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   });
@@ -72,7 +72,7 @@ export function SiteListWorkspace({ initialSites }: { initialSites: SiteSummary[
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yaleka · Páginas</p>
+            <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yalika · Páginas</p>
             <h1 className="mt-2 text-3xl font-black md:text-4xl">Mis páginas</h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-400">
               Puedes tener varias páginas en el mismo negocio. Cada una conserva diseño, enlace, menú, QR y equipo.
@@ -88,7 +88,7 @@ export function SiteListWorkspace({ initialSites }: { initialSites: SiteSummary[
         {initialSites.length === 0 ? (
           <section className="mt-8 rounded-[2rem] border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
             <h2 className="text-xl font-black">Todavía no tienes páginas</h2>
-            <p className="mt-2 text-slate-400">Crea la primera y Yaleka la marcará como principal.</p>
+            <p className="mt-2 text-slate-400">Crea la primera y Yalika la marcará como principal.</p>
           </section>
         ) : (
           <section className="mt-8 grid gap-5 lg:grid-cols-2 xl:grid-cols-3">

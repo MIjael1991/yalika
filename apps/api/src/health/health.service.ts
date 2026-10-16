@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class HealthService {
   getStatus() {
     return {
-      name: 'ORION',
+      name: 'Yalika',
       status: 'online',
       version: '0.0.1',
     };

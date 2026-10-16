@@ -1,11 +1,11 @@
 import {
   resolvePilotConsultationPrice,
-  YALEKA_CLINICAL_PILOT_PRICE,
+  YALIKA_CLINICAL_PILOT_PRICE,
 } from './consultation-pricing';
 
 describe('Yalika Salud pilot consultation pricing', () => {
   it('defaults to a free consultation while the pilot remains free', () => {
-    expect(YALEKA_CLINICAL_PILOT_PRICE.amountCents).toBe(0);
+    expect(YALIKA_CLINICAL_PILOT_PRICE.amountCents).toBe(0);
     expect(resolvePilotConsultationPrice().amount).toBe(0);
     expect(resolvePilotConsultationPrice().label).toBe('Gratis');
   });

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-export function YalekaTheme({ children }: { children: React.ReactNode }) {
+export function YalikaTheme({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [choice, setChoice] = useState("auto");
   const [systemDark, setSystemDark] = useState(false);
@@ -40,17 +40,17 @@ export function YalekaTheme({ children }: { children: React.ReactNode }) {
   }
   return (
     <div
-      className="yaleka-frame"
-      data-yaleka-theme={
+      className="yalika-frame"
+      data-yalika-theme={
         choice === "auto" ? (systemDark ? "dark" : "light") : choice
       }
     >
       {pathname === "/cuenta" && (
-        <div className="yaleka-theme-bar">
+        <div className="yalika-theme-bar">
           <label>
             Apariencia{" "}
             <select
-              aria-label="Apariencia de Yaleka"
+              aria-label="Apariencia de Yalika"
               value={choice}
               onChange={(e) => choose(e.target.value)}
             >

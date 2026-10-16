@@ -1,6 +1,6 @@
 import type { Request } from 'express';
 
-export const sessionCookieName = 'orion_session';
+export const sessionCookieName = 'yalika_session';
 
 export type AuthenticatedUser = {
   id: string;

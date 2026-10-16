@@ -284,7 +284,7 @@ function getErrorMessage(value: unknown) {
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -1554,7 +1554,7 @@ export function PosWorkspace({
               identity?.program?.id,
             source: 'counter',
             orderType: 'counter',
-            notes: 'Venta creada desde ORION Punto de Venta',
+            notes: 'Venta creada desde Yalika Punto de Venta',
             items: cart.map((item) => ({
               productId: item.productId,
               variantId: item.variantId,
@@ -1795,7 +1795,7 @@ export function PosWorkspace({
               identity?.program?.id,
             source: 'counter',
             orderType: 'counter',
-            notes: 'Venta dividida desde ORION Punto de Venta',
+            notes: 'Venta dividida desde Yalika Punto de Venta',
             items: cart.map((item) => ({
               productId: item.productId,
               variantId: item.variantId,
@@ -2241,7 +2241,7 @@ export function PosWorkspace({
         <div className="mx-auto flex max-w-[1600px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
-              YALEKA / Ventas
+              YALIKA / Ventas
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">
               Punto de venta
@@ -2645,13 +2645,13 @@ export function PosWorkspace({
                   </button>
                 </div>
                 <p className="mt-2 text-[11px] text-emerald-200/70">
-                  ORION usa una sola oferta para evitar descuentos duplicados.
+                  Yalika usa una sola oferta para evitar descuentos duplicados.
                 </p>
               </div>
             ) : bestPromotionPlan ? (
               <div className="mb-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-300">
-                  ORION encontró una oferta
+                  Yalika encontró una oferta
                 </p>
                 <p className="mt-1 font-semibold text-white">
                   {bestPromotionPlan.promotion.title}
@@ -2949,7 +2949,7 @@ export function PosWorkspace({
                   Dividir {money.format(totals.total)}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-400">
-                  ORION conservará cada centavo y permitirá cobrar cada cuenta por separado.
+                  Yalika conservará cada centavo y permitirá cobrar cada cuenta por separado.
                 </p>
               </div>
 
@@ -3219,7 +3219,7 @@ export function PosWorkspace({
                   Entregar premio
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-400">
-                  Si el cliente ganó, ORION le mostró un código en su celular. No es su teléfono ni tiene que inventarlo: copia aquí ese código para entregar el premio.
+                  Si el cliente ganó, Yalika le mostró un código en su celular. No es su teléfono ni tiene que inventarlo: copia aquí ese código para entregar el premio.
                 </p>
               </div>
               <button
@@ -3232,7 +3232,7 @@ export function PosWorkspace({
             </div>
 
             <label className="mt-6 block text-sm font-medium text-slate-300">
-              Código ganador creado por ORION
+              Código ganador creado por Yalika
               <input
                 autoFocus
                 value={rewardCode}
@@ -3243,7 +3243,7 @@ export function PosWorkspace({
                   setRewardRedeemError('');
                   setRewardRedeemMessage('');
                 }}
-                placeholder="ORION-XXXXXXXXXX"
+                placeholder="YALIKA-XXXXXXXXXX"
                 className="mt-2 h-14 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 text-center font-mono text-lg font-bold uppercase tracking-wider outline-none focus:border-amber-300"
               />
             </label>
@@ -3839,7 +3839,7 @@ export function PosWorkspace({
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">
               Usa esta opción solamente si el ticket y la mercancía aún no se
-              entregaron. ORION reembolsará {money.format(receipt.order.total)},
+              entregaron. Yalika reembolsará {money.format(receipt.order.total)},
               repondrá los productos vendibles y conservará la operación en
               auditoría.
             </p>

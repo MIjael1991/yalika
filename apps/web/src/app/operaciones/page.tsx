@@ -43,7 +43,7 @@ type OperationsToday = {
 
 async function getApi<T>(path: string): Promise<T | null> {
   const apiUrl =
-    process.env.ORION_API_URL ?? 'http://localhost:3000';
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000';
 
   try {
     const response = await fetch(`${apiUrl}${path}`, {
@@ -116,7 +116,7 @@ export default async function Home() {
         <header className="mb-10 flex flex-col gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="mb-2 text-sm font-semibold tracking-[0.3em] text-cyan-400">
-              Yaleka
+              Yalika
             </div>
 
             <h1 className="text-3xl font-semibold tracking-tight">
@@ -144,8 +144,8 @@ export default async function Home() {
             />
 
             {apiOnline
-              ? `Yaleka API online · ${health?.version ?? ''}`
-              : 'Yaleka API sin conexión'}
+              ? `Yalika API online · ${health?.version ?? ''}`
+              : 'Yalika API sin conexión'}
           </div>
         </header>
 
@@ -215,7 +215,7 @@ export default async function Home() {
               </h2>
 
               <p className="mt-1 text-sm text-slate-400">
-                Últimos eventos registrados por Yaleka.
+                Últimos eventos registrados por Yalika.
               </p>
             </div>
 

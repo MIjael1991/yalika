@@ -9,14 +9,14 @@ import type { AuthenticatedRequest } from './auth.types';
 
 /**
  * IDs de usuario con rol de operador de la plataforma.
- * Se leen de YALEKA_OPERATOR_USER_IDS (separados por coma).
+ * Se leen de YALIKA_OPERATOR_USER_IDS (separados por coma).
  * Si la variable no existe o está vacía, nadie es operador.
  */
 export function platformOperatorIds(
   env: NodeJS.ProcessEnv = process.env,
 ): Set<string> {
   return new Set(
-    (env.YALEKA_OPERATOR_USER_IDS ?? '')
+    (env.YALIKA_OPERATOR_USER_IDS ?? '')
       .split(',')
       .map((id) => id.trim())
       .filter(Boolean),
@@ -24,7 +24,7 @@ export function platformOperatorIds(
 }
 
 /**
- * Para acciones que afectan a todos los usuarios de Yaleka (precios, abonos,
+ * Para acciones que afectan a todos los usuarios de Yalika (precios, abonos,
  * pagos, revisiones, conocimiento compartido). Niega por defecto.
  * Debe declararse después de SessionAuthGuard:
  *   @UseGuards(SessionAuthGuard, PlatformOperatorGuard)

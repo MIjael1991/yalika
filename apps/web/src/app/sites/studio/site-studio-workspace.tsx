@@ -3,13 +3,13 @@ import Link from 'next/link';
 import {useEffect,useState,useRef} from 'react';
 import {type Site,type Product,type Promotion} from '../../s/[slug]/site-view';
 import {SitePreview} from './site-preview';
-import {draftKey,parseDraft,sectionPayload,type SiteDraft,type DraftSection} from '../../../lib/yaleka-site-draft';
+import {draftKey,parseDraft,sectionPayload,type SiteDraft,type DraftSection} from '../../../lib/yalika-site-draft';
 import styles from './studio.module.css';
 type StudioSite=Site&{updatedAt:string};
 const editableTypes=['banner','video','menu','gallery','text'];
 const types=[['banner','Banner'],['video','Video'],['menu','Menú'],['gallery','Galería'],['text','Texto'],['catalog','Catálogo'],['promotions','Promociones'],['contact','Contacto']] as const;
 async function api<T>(path:string,init?:RequestInit):Promise<T>{
- const response=await fetch(`/api/orion/${path}`,{...init,cache:'no-store',headers:{'Content-Type':'application/json',...init?.headers},signal:AbortSignal.timeout(20000)});
+ const response=await fetch(`/api/yalika/${path}`,{...init,cache:'no-store',headers:{'Content-Type':'application/json',...init?.headers},signal:AbortSignal.timeout(20000)});
  const body=await response.json().catch(()=>null);
  if(!response.ok||!body)throw Error(typeof body?.message==='string'?body.message:'No se completó la operación.');return body;
 }
@@ -47,7 +47,7 @@ export function SiteStudioWorkspace({companyId,userId}:{companyId:string;userId:
   }catch(e){setError(e instanceof Error?e.message:'No se confirmó la publicación. Conservamos tus cambios.');}finally{setBusy(false);}}
  const retryLoad=()=>{if(unsaved&&!confirm('Hay cambios sin guardar. ¿Recargar desde el servidor y descartarlos del editor?'))return;setPreview(false);setRetry(v=>v+1);};
  return <main className={styles.page}><div className={styles.wrap}>
- <header className={styles.header}><div><p>YALEKA · MI PÁGINA</p><h1>Diseña y revisa antes de publicar</h1><p>{site?.name??'Editor de secciones'} · El diseño público es independiente del tema de Yaleka.</p></div><Link href="/sites">Diseño y catálogo</Link></header>
+ <header className={styles.header}><div><p>YALIKA · MI PÁGINA</p><h1>Diseña y revisa antes de publicar</h1><p>{site?.name??'Editor de secciones'} · El diseño público es independiente del tema de Yalika.</p></div><Link href="/sites">Diseño y catálogo</Link></header>
  <p role="alert">{error}</p><p role="status">{message}</p>
  {!site?<section className={styles.panel}><p>{error?'No se pudo abrir el sitio.':'Cargando…'}</p><button onClick={retryLoad}>Reintentar</button><Link href="/sites">Crear o abrir mi página</Link></section>:<>
  <section className={styles.panel}><div className={styles.actions}><strong>1. Edita → 2. Guarda borrador → 3. Revisa → 4. Publica</strong><span>{site.status==='published'?'Sitio publicado':'Sitio aún no publicado'}</span></div><p className={styles.muted}>El borrador se conserva en este navegador y cuenta. No se sincroniza a otro equipo. Publicar aplica únicamente las secciones; el diseño general se administra en “Diseño y catálogo”.</p>

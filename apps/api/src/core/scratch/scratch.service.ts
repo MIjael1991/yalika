@@ -311,7 +311,7 @@ export class ScratchService {
         ? new Date(now.getTime() + campaign.validDays * 86_400_000)
         : null;
       const claimCode = selectedPrize
-        ? `ORION-${randomBytes(5).toString('hex').toUpperCase()}`
+        ? `YALIKA-${randomBytes(5).toString('hex').toUpperCase()}`
         : null;
       const attempt = await tx.scratchAttempt.create({
         data: {

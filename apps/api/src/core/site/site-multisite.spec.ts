@@ -3,7 +3,7 @@ jest.mock('../../prisma/prisma.service', () => ({ PrismaService: class PrismaSer
 import type { PrismaService } from '../../prisma/prisma.service';
 import { SiteService } from './site.service';
 
-describe('Yaleka site multisite', () => {
+describe('Yalika site multisite', () => {
   it('creates another page and makes only the first page primary', async () => {
     const tx = {
       site: {

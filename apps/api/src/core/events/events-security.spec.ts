@@ -23,7 +23,7 @@ function auth(roleName: string | null, companyId = 'company-1'): AuthContext {
   };
 }
 
-describe('YALEKA I1 - Seguridad de Eventos', () => {
+describe('YALIKA I1 - Seguridad de Eventos', () => {
   it('exige autenticacion', () => {
     const guards = Reflect.getMetadata(GUARDS_METADATA, EventsController) ?? [];
 

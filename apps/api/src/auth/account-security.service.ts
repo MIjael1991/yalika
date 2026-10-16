@@ -21,7 +21,7 @@ const GENERIC_RESET_MESSAGE =
   'Si el correo corresponde a una cuenta activa y la recuperación por correo está disponible, recibirás instrucciones para continuar.';
 
 function getPublicUrl() {
-  const value = (process.env.YALEKA_PUBLIC_URL ?? '')
+  const value = (process.env.YALIKA_PUBLIC_URL ?? '')
     .trim()
     .replace(/\/+$/, '');
   return /^https?:\/\//i.test(value) ? value : '';
@@ -30,7 +30,7 @@ function getPublicUrl() {
 function emailDeliveryAvailable() {
   return Boolean(
     process.env.RESEND_API_KEY?.trim() &&
-    process.env.YALEKA_EMAIL_FROM?.trim() &&
+    process.env.YALIKA_EMAIL_FROM?.trim() &&
     getPublicUrl(),
   );
 }
@@ -45,17 +45,17 @@ async function sendResetEmail(to: string, resetUrl: string) {
       'content-type': 'application/json',
     },
     body: JSON.stringify({
-      from: process.env.YALEKA_EMAIL_FROM,
+      from: process.env.YALIKA_EMAIL_FROM,
       to: [to],
-      subject: 'Recupera tu contraseña de Yaleka',
+      subject: 'Recupera tu contraseña de Yalika',
       text: `Abre este enlace para crear una nueva contraseña. El enlace vence en ${PASSWORD_RESET_MINUTES} minutos: ${resetUrl}`,
-      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><h2>Recupera tu acceso a Yaleka</h2><p>Recibimos una solicitud para cambiar la contraseña de tu cuenta.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 18px;background:#22d3ee;color:#062033;text-decoration:none;border-radius:10px;font-weight:700">Crear nueva contraseña</a></p><p>Este enlace vence en ${PASSWORD_RESET_MINUTES} minutos y sólo puede usarse una vez.</p><p>Si tú no hiciste la solicitud, puedes ignorar este correo.</p></div>`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto"><h2>Recupera tu acceso a Yalika</h2><p>Recibimos una solicitud para cambiar la contraseña de tu cuenta.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 18px;background:#22d3ee;color:#062033;text-decoration:none;border-radius:10px;font-weight:700">Crear nueva contraseña</a></p><p>Este enlace vence en ${PASSWORD_RESET_MINUTES} minutos y sólo puede usarse una vez.</p><p>Si tú no hiciste la solicitud, puedes ignorar este correo.</p></div>`,
     }),
   }).catch(() => null);
 
   if (!response?.ok) {
     console.error(
-      'Yaleka password reset email failed',
+      'Yalika password reset email failed',
       response?.status ?? 'network',
     );
     return false;
@@ -119,7 +119,7 @@ export class AccountSecurityService {
       ok: true,
       recoveryKey: raw,
       warning:
-        'Guárdala ahora en un lugar seguro. Yaleka no puede volver a mostrar esta misma clave.',
+        'Guárdala ahora en un lugar seguro. Yalika no puede volver a mostrar esta misma clave.',
     };
   }
 
@@ -207,7 +207,7 @@ export class AccountSecurityService {
     });
 
     if (!user) {
-      await consumePasswordCheck('yaleka-password-reset-padding');
+      await consumePasswordCheck('yalika-password-reset-padding');
       return {
         ok: true,
         message: GENERIC_RESET_MESSAGE,
@@ -365,7 +365,7 @@ export class AccountSecurityService {
 
     return {
       ok: true,
-      message: 'Contraseña actualizada. Ya puedes entrar a Yaleka.',
+      message: 'Contraseña actualizada. Ya puedes entrar a Yalika.',
     };
   }
 }

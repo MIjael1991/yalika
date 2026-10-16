@@ -19,7 +19,7 @@ const source = {
   ],
 };
 
-describe('Yaleka survey spelling proofreader', () => {
+describe('Yalika survey spelling proofreader', () => {
   const originalEnv = { ...process.env };
   beforeEach(() => {
     process.env.SURVEY_AI_PROVIDER = 'gemini';

@@ -1,6 +1,6 @@
 import { CatalogService } from './catalog.service';
 
-describe('Yaleka R8 barcodes', () => {
+describe('Yalika R8 barcodes', () => {
   it('reuses an existing generated internal barcode', async () => {
     const existing = { id: 'b1', value: 'YLK-ABC', generated: true };
     const prisma = {

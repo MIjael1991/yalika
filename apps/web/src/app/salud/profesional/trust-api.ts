@@ -1,5 +1,5 @@
 async function jsonApi<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion${path}`, {
+  const response = await fetch(`/api/yalika${path}`, {
     ...init,
     credentials: 'include',
     cache: 'no-store',
@@ -14,7 +14,7 @@ async function jsonApi<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 async function formApi<T>(path: string, form: FormData): Promise<T> {
-  const response = await fetch(`/api/orion${path}`, {
+  const response = await fetch(`/api/yalika${path}`, {
     method: 'POST',
     credentials: 'include',
     cache: 'no-store',

@@ -5,13 +5,13 @@ import {
   verifyPassword,
 } from './password';
 
-describe('ORION authentication secrets', () => {
+describe('Yalika authentication secrets', () => {
   it('hashes a password with a unique salt and verifies it', async () => {
-    const firstHash = await hashPassword('OrionSeguro2026');
-    const secondHash = await hashPassword('OrionSeguro2026');
+    const firstHash = await hashPassword('YalikaSeguro2026');
+    const secondHash = await hashPassword('YalikaSeguro2026');
 
     expect(firstHash).not.toBe(secondHash);
-    await expect(verifyPassword('OrionSeguro2026', firstHash)).resolves.toBe(
+    await expect(verifyPassword('YalikaSeguro2026', firstHash)).resolves.toBe(
       true,
     );
     await expect(verifyPassword('otra-clave', firstHash)).resolves.toBe(false);

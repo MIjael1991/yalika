@@ -5,7 +5,7 @@ import type { PrismaService } from '../../prisma/prisma.service';
 import type { SiteService } from './site.service';
 import { SiteTeamService } from './site-team.service';
 
-describe('Yaleka site team', () => {
+describe('Yalika site team', () => {
   it('blocks a second active collaborator with the current limit', async () => {
     const prisma = {
       user: {

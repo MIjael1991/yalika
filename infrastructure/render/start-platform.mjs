@@ -24,10 +24,10 @@ if (accountSetup.status !== 0) {
 }
 
 for (const key of [
-  'ORION_BOOTSTRAP_ORGANIZATION',
-  'ORION_BOOTSTRAP_NAME',
-  'ORION_BOOTSTRAP_EMAIL',
-  'ORION_BOOTSTRAP_PASSWORD',
+  'YALIKA_BOOTSTRAP_ORGANIZATION',
+  'YALIKA_BOOTSTRAP_NAME',
+  'YALIKA_BOOTSTRAP_EMAIL',
+  'YALIKA_BOOTSTRAP_PASSWORD',
 ]) {
   delete process.env[key];
 }
@@ -50,7 +50,7 @@ const web = spawn(
     env: {
       ...process.env,
       NODE_ENV: 'production',
-      ORION_API_URL: 'http://127.0.0.1:3000',
+      YALIKA_API_URL: 'http://127.0.0.1:3000',
       PORT: publicPort,
     },
     stdio: 'inherit',

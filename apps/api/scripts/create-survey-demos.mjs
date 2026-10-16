@@ -139,7 +139,7 @@ async function main() {
           demo.collectMunicipality, demo.collectLocality, demo.collectPostalCode, demo.collectAddress,
           demo.collectCurp, demo.collectVoterKey, demo.collectElectoralSection, demo.collectIne, demo.ineCaptureMode,
           demo.ineAutoExtract, demo.ineRequired, privacy,
-          'Gracias. Esta fue una encuesta de prueba de Yaleka.', owner.companyId, owner.id, now,
+          'Gracias. Esta fue una encuesta de prueba de Yalika.', owner.companyId, owner.id, now,
         ],
       );
       for (const [index, question] of demo.questions.entries()) {

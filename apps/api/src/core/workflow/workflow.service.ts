@@ -262,7 +262,7 @@ export class WorkflowService {
         });
 
         return {
-          message: 'ORION está esperando una decisión humana',
+          message: 'Yalika está esperando una decisión humana',
           workflowId,
           status: 'waiting_human_decision',
           executionLog,
@@ -316,7 +316,7 @@ export class WorkflowService {
 
             if (!knowledge) {
               result =
-                'ORION todavía no tiene conocimiento para esta categoría';
+                'Yalika todavía no tiene conocimiento para esta categoría';
             } else {
               result = `Conocimiento encontrado: ${knowledge.name}`;
 
@@ -850,7 +850,7 @@ export class WorkflowService {
 
       return {
         message:
-          'La solución no resolvió el incidente. ORION requiere una nueva decisión humana.',
+          'La solución no resolvió el incidente. Yalika requiere una nueva decisión humana.',
         workflowId: workflow.id,
         incidentId: incident.id,
         success: false,

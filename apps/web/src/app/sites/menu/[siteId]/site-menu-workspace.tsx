@@ -56,7 +56,7 @@ export function SiteMenuWorkspace({
     setBusy(true);
     setMessage('');
     try {
-      const response = await fetch(`/api/orion/site/${siteId}/sections`, {
+      const response = await fetch(`/api/yalika/site/${siteId}/sections`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export function SiteMenuWorkspace({
       <div className="mx-auto max-w-3xl">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yaleka · Menú</p>
+            <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yalika · Menú</p>
             <h1 className="mt-2 text-3xl font-black">{siteName}</h1>
             <p className="mt-2 text-sm text-slate-400">Arrastra los bloques para ordenar el menú. También puedes usar ↑ y ↓.</p>
           </div>

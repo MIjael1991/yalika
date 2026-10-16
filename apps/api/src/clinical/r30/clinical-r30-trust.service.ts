@@ -131,7 +131,7 @@ export class ClinicalR30TrustService {
     dto: UpsertProfessionalProfileDto,
   ) {
     const userId = auth.user.id;
-    // YALEKA_R302_PROFILE_GATE: un profesional requiere establecimiento propio o invitaciÃ³n de uno.
+    // YALIKA_R302_PROFILE_GATE: un profesional requiere establecimiento propio o invitaciÃ³n de uno.
     let profileGateEmail = String(auth?.user?.email ?? '').trim().toLowerCase();
     if (!profileGateEmail) {
       const account = await this.prisma.user.findUnique({

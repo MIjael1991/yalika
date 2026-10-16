@@ -27,7 +27,7 @@ vm.runInNewContext(code, {
   },
 });
 const { readQueue, writeQueue } = exportsObject;
-const legacy = "yaleka:clinical:r29:offline-queue";
+const legacy = "yalika:clinical:r29:offline-queue";
 values.set(legacy, "LEGADO");
 writeQueue("empresa-a:persona-a", [{ id: "PRUEBA-A" }]);
 writeQueue("empresa-a:persona-b", [{ id: "PRUEBA-B" }]);

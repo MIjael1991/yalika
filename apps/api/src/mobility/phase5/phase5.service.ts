@@ -290,7 +290,7 @@ export class MobilityPhase5Service {
         args.beneficiaryUserId,
         args.amount,
         referenceKey,
-        'Recompensa por recomendaciÃ³n Yaleka',
+        'Recompensa por recomendaciÃ³n Yalika',
       );
     }
 
@@ -1128,7 +1128,7 @@ export class MobilityPhase5Service {
       ],
       emergencyServiceContacted: false,
       warning:
-        'Yaleka registrÃ³ el incidente. No significa que policÃ­a/911 haya sido contactado.',
+        'Yalika registrÃ³ el incidente. No significa que policÃ­a/911 haya sido contactado.',
     };
   }
 

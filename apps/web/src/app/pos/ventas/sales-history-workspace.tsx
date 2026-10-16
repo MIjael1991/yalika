@@ -111,7 +111,7 @@ function getErrorMessage(value: unknown) {
 }
 
 async function apiRequest<T>(path: string) {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     cache: 'no-store',
   });
   const payload = (await response.json().catch(() => null)) as unknown;
@@ -288,7 +288,7 @@ export function SalesHistoryWorkspace({
         <div className="mx-auto flex max-w-[1500px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
-              ORION / Ventas
+              Yalika / Ventas
             </p>
             <h1 className="mt-1 text-2xl font-semibold">Historial de ventas</h1>
           </div>

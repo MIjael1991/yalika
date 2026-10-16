@@ -336,7 +336,7 @@ export class TaskService {
 
     if (recurrenceFrequency && (!dto.spaceId || !taskSpace)) {
       throw new BadRequestException(
-        'Las tareas recurrentes deben pertenecer a un espacio de ORION Life',
+        'Las tareas recurrentes deben pertenecer a un espacio de Yalika Life',
       );
     }
 
@@ -1496,7 +1496,7 @@ export class TaskService {
     });
 
     if (!actor || actor.status !== 'active') {
-      throw new NotFoundException('La persona no está activa en ORION');
+      throw new NotFoundException('La persona no está activa en Yalika');
     }
 
     if (task.spaceId) {
@@ -1537,7 +1537,7 @@ export class TaskService {
 
     if (!membership || membership.status !== 'active') {
       throw new ForbiddenException(
-        'La persona no tiene acceso a este espacio de ORION',
+        'La persona no tiene acceso a este espacio de Yalika',
       );
     }
 

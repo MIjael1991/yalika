@@ -151,7 +151,7 @@ function getErrorMessage(value: unknown) {
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -487,7 +487,7 @@ export function ReturnsWorkspace({
             processedById: authorizedUserId,
             method: refundMethodValue,
             paymentId: refundMethodValue === 'card' ? paymentId : undefined,
-            notes: 'Reembolso procesado desde ORION Punto de Venta',
+            notes: 'Reembolso procesado desde Yalika Punto de Venta',
             operationId: nextRefundOperationId,
           }),
         },
@@ -521,7 +521,7 @@ export function ReturnsWorkspace({
         <div className="mx-auto flex max-w-[1500px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
-              ORION / Postventa
+              Yalika / Postventa
             </p>
             <h1 className="mt-1 text-2xl font-semibold">Devoluciones</h1>
           </div>
@@ -887,7 +887,7 @@ export function ReturnsWorkspace({
                 Selecciona una venta
               </h2>
               <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                Busca el folio o producto. ORION mostrará únicamente las cantidades que todavía pueden devolverse.
+                Busca el folio o producto. Yalika mostrará únicamente las cantidades que todavía pueden devolverse.
               </p>
               {!companyId || !authorizedUserId ? (
                 <p className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">

@@ -4,7 +4,7 @@ import {
   SITE_COLLABORATOR_LIMIT,
 } from './site-permissions';
 
-describe('Yaleka site permissions', () => {
+describe('Yalika site permissions', () => {
   it('keeps the current collaborator limit at one without hard-coding it in the database', () => {
     expect(SITE_COLLABORATOR_LIMIT).toBe(1);
   });

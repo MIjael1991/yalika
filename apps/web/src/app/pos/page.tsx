@@ -17,7 +17,7 @@ async function getProducts(companyId: string, cookieHeader: string) {
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   try {
@@ -40,7 +40,7 @@ async function getProducts(companyId: string, cookieHeader: string) {
   } catch {
     return {
       products: [] as Product[],
-      error: 'ORION API no está disponible',
+      error: 'Yalika API no está disponible',
     };
   }
 }
@@ -51,7 +51,7 @@ async function getPromotions(companyId: string) {
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   try {

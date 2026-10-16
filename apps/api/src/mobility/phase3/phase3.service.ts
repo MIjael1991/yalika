@@ -60,7 +60,7 @@ export class MobilityPhase3Service {
     if (!policy) {
       policy = await this.prisma.mobilityPricingPolicy.create({
         data: {
-          name: 'Yaleka Económica Base',
+          name: 'Yalika Económica Base',
           city: city ?? null,
           baseFare: 10,
           perKm: 5,

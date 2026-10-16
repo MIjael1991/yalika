@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
-describe('YALEKA R11B-3B: aislamiento al crear pedidos', () => {
+describe('YALIKA R11B-3B: aislamiento al crear pedidos', () => {
   const companyId = 'empresa-a';
   const boutique = 'catalogo-boutique';
   const papeleria = 'catalogo-papeleria';

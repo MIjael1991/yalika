@@ -1,4 +1,4 @@
-// YALEKA_R10B_SITE_SERVICE
+// YALIKA_R10B_SITE_SERVICE
 import {
   ConflictException,
   ForbiddenException,

@@ -14,7 +14,7 @@ apps/api/src/generated/
 # datos privados y de prueba local
 apps/api/uploads/
 apps/api/.yalika-clinical-dev/
-apps/api/yaleka-test-results/
+apps/api/yalika-test-results/
 ACCESOS_DEMO*
 *.pid
 logs/

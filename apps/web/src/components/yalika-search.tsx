@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { searchDestinations } from "../lib/yaleka-navigation";
-import styles from "./yaleka-search.module.css";
+import { searchDestinations } from "../lib/yalika-navigation";
+import styles from "./yalika-search.module.css";
 
 type Recognition = {
   lang: string;
@@ -17,7 +17,7 @@ type Recognition = {
   onerror: (() => void) | null;
   onend: (() => void) | null;
 };
-export function YalekaSearch({ compact = false }: { compact?: boolean }) {
+export function YalikaSearch({ compact = false }: { compact?: boolean }) {
   const [permitted, setPermitted] = useState(!compact);
   const [open, setOpen] = useState(!compact);
   const [text, setText] = useState("");
@@ -37,7 +37,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
   const results = searchDestinations(text, available);
   useEffect(() => {
     let live = true;
-    void fetch("/api/orion/auth/me", { cache: "no-store" })
+    void fetch("/api/yalika/auth/me", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((p) => {
         if (live) setPermitted(p?.user?.modules?.includes("all") === true);
@@ -46,7 +46,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
         if (live) setPermitted(false);
       });
     const refresh = () =>
-      fetch("/api/orion/assistant-preference/modules", { cache: "no-store" })
+      fetch("/api/yalika/assistant-preference/modules", { cache: "no-store" })
         .then(async (r) => {
           if (!r.ok) throw Error();
           const p = await r.json();
@@ -129,7 +129,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
     controller.current = abort;
     const timeout = setTimeout(() => abort.abort(), 35000);
     try {
-      const r = await fetch("/api/orion/business-assistant/writing", {
+      const r = await fetch("/api/yalika/business-assistant/writing", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ text: snapshot, action, consent: true }),
@@ -164,7 +164,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
     <div className={styles.box}>
       <div className={styles.head}>
         <div>
-          <span className={styles.eyebrow}>YALEKA · A TU LADO</span>
+          <span className={styles.eyebrow}>YALIKA · A TU LADO</span>
           <h2>¿Qué necesitas hacer?</h2>
         </div>
         {compact && (
@@ -175,7 +175,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
       </div>
       <div className={styles.tabs}>
         <button aria-pressed={mode === "find"} onClick={() => setMode("find")}>
-          Buscar en Yaleka
+          Buscar en Yalika
         </button>
         <button
           aria-pressed={mode === "write"}
@@ -258,7 +258,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
             registro o documento concreto, abre su servicio.
           </p>
           <Link
-            href="/life#orion-captura"
+            href="/life#yalika-captura"
             onClick={() => {
               if (compact) close();
             }}
@@ -287,7 +287,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
           </label>
           <p className={styles.small}>
             El corrector del navegador puede subrayar errores sin usar la IA de
-            Yaleka. Para una propuesta completa se necesita el proveedor
+            Yalika. Para una propuesta completa se necesita el proveedor
             configurado.
           </p>
           <label className={styles.consent}>
@@ -385,7 +385,7 @@ export function YalekaSearch({ compact = false }: { compact?: boolean }) {
         className={styles.dialog}
         onCancel={close}
         onClose={() => setOpen(false)}
-        aria-label="Buscador y asistente Yaleka"
+        aria-label="Buscador y asistente Yalika"
       >
         {content}
       </dialog>

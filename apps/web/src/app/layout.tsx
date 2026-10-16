@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
-import { OrionShell } from '@/components/orion-shell';
+import { YalikaShell } from '@/components/yalika-shell';
 
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Yaleka',
-  description: 'Yaleka Intelligence Platform',
+  title: 'Yalika',
+  description: 'Yalika Intelligence Platform',
 };
 
 export default function RootLayout({
@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased">
-        <OrionShell>{children}</OrionShell>
+        <YalikaShell>{children}</YalikaShell>
       </body>
     </html>
   );

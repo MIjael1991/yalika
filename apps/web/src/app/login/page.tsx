@@ -1,7 +1,7 @@
 import { LoginWorkspace } from './login-workspace';
 
 export const metadata = {
-  title: 'Ingresar · Yaleka',
+  title: 'Ingresar · Yalika',
 };
 
 export default function LoginPage() {

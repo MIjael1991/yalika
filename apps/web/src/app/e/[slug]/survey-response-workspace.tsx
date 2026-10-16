@@ -226,7 +226,7 @@ export function SurveyResponseWorkspace({ survey, invitationToken }: { survey: P
     setIneReadingMessage("Intentando leer los datos visibles del frente…");
     try {
       const response = await fetch(
-        `/api/orion/survey/public/${encodeURIComponent(survey.slug)}/ine/extract`,
+        `/api/yalika/survey/public/${encodeURIComponent(survey.slug)}/ine/extract`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -460,7 +460,7 @@ export function SurveyResponseWorkspace({ survey, invitationToken }: { survey: P
         Object.entries(person).filter(([, value]) => value.trim()),
       );
       const response = await fetch(
-        `/api/orion/survey/public/${encodeURIComponent(survey.slug)}/responses`,
+        `/api/yalika/survey/public/${encodeURIComponent(survey.slug)}/responses`,
         {
           method: "POST",
           headers: {
@@ -739,7 +739,7 @@ export function SurveyResponseWorkspace({ survey, invitationToken }: { survey: P
                 Esto no es una pregunta y no cambia tus respuestas. Las imágenes se
                 guardan cifradas. {survey.ineStorageMode === "temporary"
                   ? "La organización eligió almacenamiento temporal para transferirlas a su propio respaldo."
-                  : "La organización eligió conservarlas en la nube Yaleka según su configuración."} Yaleka no las elimina automáticamente sin que exista un respaldo confirmado; el periodo configurado es de
+                  : "La organización eligió conservarlas en la nube Yalika según su configuración."} Yalika no las elimina automáticamente sin que exista un respaldo confirmado; el periodo configurado es de
                 {` ${survey.ineRetentionDays} días`}.
               </p>
             </div>
@@ -828,9 +828,9 @@ export function SurveyResponseWorkspace({ survey, invitationToken }: { survey: P
               <div className="mx-6 mb-4 rounded-xl bg-cyan-50 px-4 py-4 text-sm leading-5 text-cyan-950 sm:mx-8">
                 {!ineReadConsent ? (
                   <>
-                    <p className="font-black">¿Quieres que Yaleka intente completar los datos visibles?</p>
+                    <p className="font-black">¿Quieres que Yalika intente completar los datos visibles?</p>
                     <p className="mt-1 font-semibold text-cyan-900">
-                      Si eliges esta opción, la fotografía del frente se procesará con el servicio de IA configurado por Yaleka únicamente para leer los campos solicitados. No intentamos obtener teléfono ni correo desde la credencial. Podrás revisar y corregir todo antes de enviar.
+                      Si eliges esta opción, la fotografía del frente se procesará con el servicio de IA configurado por Yalika únicamente para leer los campos solicitados. No intentamos obtener teléfono ni correo desde la credencial. Podrás revisar y corregir todo antes de enviar.
                     </p>
                     <button
                       type="button"

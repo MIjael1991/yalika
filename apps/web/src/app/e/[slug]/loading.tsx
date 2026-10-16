@@ -11,7 +11,7 @@ export default function PublicSurveyLoading() {
           aria-hidden="true"
         />
         <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-cyan-300">
-          Yaleka
+          Yalika
         </p>
         <h1 className="mt-2 text-2xl font-black">Cargando encuesta…</h1>
         <p className="mt-3 text-sm leading-6 text-slate-300">

@@ -25,7 +25,7 @@ const sessionUserSelect = {
 } as const;
 
 function getSessionDurationMs() {
-  const configuredHours = Number(process.env.ORION_SESSION_HOURS ?? 12);
+  const configuredHours = Number(process.env.YALIKA_SESSION_HOURS ?? 12);
   const hours = Number.isFinite(configuredHours)
     ? Math.min(Math.max(configuredHours, 1), 720)
     : 12;

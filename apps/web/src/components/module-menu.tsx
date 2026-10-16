@@ -11,7 +11,7 @@ export function ModuleMenu() {
   const details = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     let live = true;
-    fetch("/api/orion/auth/me", { cache: "no-store" })
+    fetch("/api/yalika/auth/me", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((p) => {
         if (live) setFull(p?.user?.modules?.includes("all") === true);

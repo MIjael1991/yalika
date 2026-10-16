@@ -61,7 +61,7 @@ export class CaptureService {
 
     if (spaces.length === 0) {
       throw new BadRequestException(
-        'Crea un espacio de ORION Life antes de organizar tareas',
+        'Crea un espacio de Yalika Life antes de organizar tareas',
       );
     }
 

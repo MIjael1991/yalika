@@ -204,10 +204,10 @@ const defaultPrivacy =
   "Acepto que mis respuestas se utilicen únicamente para los fines indicados en esta encuesta. Mis datos de contacto permanecerán separados de mis respuestas y no serán compartidos sin autorización.";
 
 const inePrivacy =
-  "Si envío fotografía(s) de mi INE, acepto que se utilicen únicamente para la identificación relacionada con esta encuesta. Si está activada la ayuda de lectura, Yaleka intentará completar sólo los datos solicitados y yo podré corregirlos antes de enviar. Las imágenes se guardan cifradas y la organización responsable debe respaldarlas antes de liberar el almacenamiento temporal. Puedo solicitar su eliminación a la organización responsable.";
+  "Si envío fotografía(s) de mi INE, acepto que se utilicen únicamente para la identificación relacionada con esta encuesta. Si está activada la ayuda de lectura, Yalika intentará completar sólo los datos solicitados y yo podré corregirlos antes de enviar. Las imágenes se guardan cifradas y la organización responsable debe respaldarlas antes de liberar el almacenamiento temporal. Puedo solicitar su eliminación a la organización responsable.";
 
 async function api<T>(path: string, options?: RequestInit) {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...options,
     headers: {
       "content-type": "application/json",
@@ -836,7 +836,7 @@ export function SurveyWorkspace({
     side: "front" | "back",
   ) => {
     const link = document.createElement("a");
-    link.href = `/api/orion/survey/${surveyId}/ine/${submissionId}/${side}`;
+    link.href = `/api/yalika/survey/${surveyId}/ine/${submissionId}/${side}`;
     link.download = `ine-${side}.jpg`;
     document.body.appendChild(link);
     link.click();
@@ -971,7 +971,7 @@ export function SurveyWorkspace({
     }
   };
 
-  // YALEKA_DELETE_SURVEY_SAFE_V1: solamente encuestas sin respuestas ni documentos.
+  // YALIKA_DELETE_SURVEY_SAFE_V1: solamente encuestas sin respuestas ni documentos.
   // El backend valida nuevamente la propiedad y rechaza encuestas con respuestas.
   const deleteSurveySafely = async (survey: SurveyRecord) => {
     if (deletingSurveyId) return;
@@ -1083,7 +1083,7 @@ export function SurveyWorkspace({
   };
 
   const downloadFile = (path: string) => {
-    const link = document.createElement("a"); link.href = `/api/orion/${path}`; document.body.appendChild(link); link.click(); link.remove();
+    const link = document.createElement("a"); link.href = `/api/yalika/${path}`; document.body.appendChild(link); link.click(); link.remove();
   };
   const downloadResults = () => { if (resultsSurveyId) downloadFile(`survey/${resultsSurveyId}/export.xlsx`); };
   const downloadIneArchive = () => { if (ineSurvey) downloadFile(`survey/${ineSurvey.id}/ine/archive`); };
@@ -1108,13 +1108,13 @@ export function SurveyWorkspace({
     if (!ineSurvey) return;
     const backed = ineRecords.filter((item) => item.available && item.backupConfirmedAt).length;
     if (!backed) { setError("Primero descarga el respaldo y confirma que ya lo guardaste."); return; }
-    if (!window.confirm(`Se eliminarán del almacenamiento de Yaleka ${backed} documento(s) que ya marcaste como respaldados. El ZIP que guardaste no se modifica. ¿Continuar?`)) return;
+    if (!window.confirm(`Se eliminarán del almacenamiento de Yalika ${backed} documento(s) que ya marcaste como respaldados. El ZIP que guardaste no se modifica. ¿Continuar?`)) return;
     setIneLoading(true); setError("");
     try {
       const result = await api<{ deleted: number }>(`survey/${ineSurvey.id}/ine/purge-backed-up`, { method: "POST", body: JSON.stringify({ confirmed: true }) });
       setIneRecords((current) => current.map((item) => item.backupConfirmedAt ? { ...item, available: false, deletedAt: new Date().toISOString() } : item));
       await refresh();
-      setMessage(`${result.deleted} documento(s) respaldados fueron eliminados del almacenamiento de Yaleka.`);
+      setMessage(`${result.deleted} documento(s) respaldados fueron eliminados del almacenamiento de Yalika.`);
     } catch (caught) { setError(caught instanceof Error ? caught.message : "No pude liberar el espacio"); } finally { setIneLoading(false); }
   };
 
@@ -1123,7 +1123,7 @@ export function SurveyWorkspace({
     const popup=window.open("","_blank"); if(!popup){setError("Permite ventanas emergentes para preparar la impresión.");return;}
     popup.document.write('<p style="font-family:Arial;padding:24px">Preparando documentos…</p>'); setIneLoading(true);
     try { const cards:string[]=[];
-      for(const item of available){ const fetchSide=async(side:"front"|"back")=>{const response=await fetch(`/api/orion/survey/${ineSurvey.id}/ine/${item.id}/${side}`);if(!response.ok)return "";const blob=await response.blob();return await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=()=>reject(new Error("No pude preparar una imagen"));reader.readAsDataURL(blob);});};
+      for(const item of available){ const fetchSide=async(side:"front"|"back")=>{const response=await fetch(`/api/yalika/survey/${ineSurvey.id}/ine/${item.id}/${side}`);if(!response.ok)return "";const blob=await response.blob();return await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=()=>reject(new Error("No pude preparar una imagen"));reader.readAsDataURL(blob);});};
         const front=await fetchSide("front"); const back=item.hasBack?await fetchSide("back"):""; cards.push(`<section class="sheet ${mode==="compact"&&!back?"compact":""}"><div class="folio">Folio ${item.folio}</div>${front?`<img src="${front}" alt="INE frente ${item.folio}">`:""}${back?`<img src="${back}" alt="INE reverso ${item.folio}">`:""}</section>`); }
       popup.document.open(); popup.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>INE · ${ineSurvey.title}</title><style>@page{size:A4;margin:10mm}body{font-family:Arial,sans-serif;color:#111;margin:0}.sheet{box-sizing:border-box;min-height:277mm;page-break-after:always;display:flex;flex-direction:column;justify-content:center;gap:12mm}.sheet.compact{min-height:133mm;page-break-after:auto;border-bottom:1px dashed #bbb}.folio{font-size:14pt;font-weight:700;text-align:center}.sheet img{max-width:100%;max-height:112mm;object-fit:contain;margin:auto}.sheet.compact img{max-height:92mm}@media print{button{display:none}}</style></head><body><button onclick="window.print()" style="position:fixed;right:18px;top:18px;padding:12px 18px;font-weight:bold">Imprimir / Guardar PDF</button>${cards.join("")}<script>window.onload=()=>setTimeout(()=>window.print(),500)<\/script></body></html>`); popup.document.close();
     } catch(caught){popup.close();setError(caught instanceof Error?caught.message:"No pude preparar la impresión");} finally{setIneLoading(false);}
@@ -1390,7 +1390,7 @@ export function SurveyWorkspace({
                     <span className="block text-sm font-black text-emerald-100">Dónde se conservarán mientras trabajas</span>
                     <select value={ineStorageMode} onChange={(event) => setIneStorageMode(event.target.value as "temporary" | "yaleka_cloud")} className="mt-2 w-full rounded-xl border border-white/10 bg-[#071425] px-3 py-2 text-sm text-white">
                       <option value="temporary">Temporal para transferir a mi computadora · recomendado</option>
-                      <option value="yaleka_cloud">Nube Yaleka · almacenamiento opcional</option>
+                      <option value="yaleka_cloud">Nube Yalika · almacenamiento opcional</option>
                     </select>
                     <span className="mt-1 block text-xs leading-5 text-slate-400">En modo temporal las fotos permanecen cifradas hasta que descargues el respaldo y confirmes que ya lo guardaste. Después podrás liberar el espacio del servidor. La conexión directa a nube propia será una opción posterior.</span>
                   </label>
@@ -1399,7 +1399,7 @@ export function SurveyWorkspace({
                     <select value={ineRetentionDays} onChange={(event) => setIneRetentionDays(Number(event.target.value))} className="mt-2 w-full rounded-xl border border-white/10 bg-[#071425] px-3 py-2 text-sm text-white">
                       <option value={7}>7 días</option><option value={30}>30 días (recomendado)</option><option value={90}>90 días</option><option value={180}>180 días</option>
                     </select>
-                    <span className="mt-1 block text-xs leading-5 text-slate-400">Al vencer el periodo, Yaleka sólo puede limpiar automáticamente documentos que ya tengan respaldo confirmado. Los pendientes se conservan para evitar pérdida accidental.</span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-400">Al vencer el periodo, Yalika sólo puede limpiar automáticamente documentos que ya tengan respaldo confirmado. Los pendientes se conservan para evitar pérdida accidental.</span>
                   </label>
                   <div className="mt-3 grid gap-2 text-xs leading-5 text-slate-300 sm:grid-cols-3">
                     <span className="rounded-xl bg-white/5 p-3">🔒 Guardado cifrado</span>
@@ -1838,7 +1838,7 @@ export function SurveyWorkspace({
                       <input type="file" accept=".xlsx,.csv" disabled={importBusy} onChange={event => { void importParticipants(survey,event.target.files?.[0]); event.target.value = ""; }} className="mt-2 block w-full" />
                     </label>
                     <p className="my-2 text-xs text-slate-300">Columnas: Nombre, Correo, Teléfono/Celular, Grupo, Referencia. Cada fila necesita correo o teléfono. Hasta 1000 filas por archivo.</p>
-                    <a href={`/api/orion/survey/${survey.id}/invitations.xlsx`} className="font-bold text-cyan-200">Descargar enlaces en Excel</a>
+                    <a href={`/api/yalika/survey/${survey.id}/invitations.xlsx`} className="font-bold text-cyan-200">Descargar enlaces en Excel</a>
                   </div> : null}
                   {survey.collectIne ? (
                     <button
@@ -2023,7 +2023,7 @@ export function SurveyWorkspace({
 
             <div className="p-5 sm:p-7">
               <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.07] p-4 text-xs leading-5 text-emerald-100">
-                <strong>{ineSurvey.ineStorageMode === "temporary" ? "Modo temporal para transferir" : "Nube Yaleka"}</strong>. Actualmente hay {ineRecords.filter((item) => item.available).length} documento(s) disponibles y ocupan {(ineRecords.reduce((sum, item) => sum + (item.available ? item.totalBytes : 0), 0) / 1024 / 1024).toFixed(1)} MB. Yaleka no elimina automáticamente una INE sin respaldo confirmado.
+                <strong>{ineSurvey.ineStorageMode === "temporary" ? "Modo temporal para transferir" : "Nube Yalika"}</strong>. Actualmente hay {ineRecords.filter((item) => item.available).length} documento(s) disponibles y ocupan {(ineRecords.reduce((sum, item) => sum + (item.available ? item.totalBytes : 0), 0) / 1024 / 1024).toFixed(1)} MB. Yalika no elimina automáticamente una INE sin respaldo confirmado.
               </div>
 
               {ineRecords.some((item) => item.available) ? (
@@ -2031,7 +2031,7 @@ export function SurveyWorkspace({
                   <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                     <button type="button" onClick={downloadIneBackup} className="rounded-xl bg-emerald-300 px-3 py-3 text-xs font-black text-slate-950">1 · Transferir a mi computadora</button>
                     <button type="button" disabled={!ineBackupDownloaded || ineLoading} onClick={() => void confirmIneBackup()} className="rounded-xl border border-emerald-300/30 px-3 py-3 text-xs font-black text-emerald-100 disabled:opacity-40">2 · Ya guardé el respaldo</button>
-                    <button type="button" disabled={!ineRecords.some((item) => item.available && item.backupConfirmedAt) || ineLoading} onClick={() => void purgeBackedUpIne()} className="rounded-xl border border-amber-300/30 px-3 py-3 text-xs font-black text-amber-100 disabled:opacity-40">3 · Liberar espacio de Yaleka</button>
+                    <button type="button" disabled={!ineRecords.some((item) => item.available && item.backupConfirmedAt) || ineLoading} onClick={() => void purgeBackedUpIne()} className="rounded-xl border border-amber-300/30 px-3 py-3 text-xs font-black text-amber-100 disabled:opacity-40">3 · Liberar espacio de Yalika</button>
                     <button type="button" onClick={downloadIneArchive} className="rounded-xl border border-cyan-300/20 px-3 py-3 text-xs font-black text-cyan-100">Sólo INE originales</button>
                   </div>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

@@ -300,7 +300,7 @@ export class OrderService {
         }
       }
 
-      // YALEKA_R9A_REACTIVATE_ON_UNPAID_CANCEL
+      // YALIKA_R9A_REACTIVATE_ON_UNPAID_CANCEL
       if (order.reservationId) {
         const reservation =
           await tx.commerceReservation.findFirst({
@@ -505,7 +505,7 @@ export class OrderService {
     /*
      * CLIENTE OPCIONAL
      */
-    // YALEKA_R9A_RESERVATION_LINK
+    // YALIKA_R9A_RESERVATION_LINK
     const linkedReservation =
       dto.reservationId
         ? await this.prisma.commerceReservation.findFirst({
@@ -894,7 +894,7 @@ export class OrderService {
         detail: string;
       }> = [];
 
-      // YALEKA_R9A_RESERVATION_STOCK_GUARD
+      // YALIKA_R9A_RESERVATION_STOCK_GUARD
       // Un hold vencido se libera. Un anticipo reportado que venció pasa
       // a revisión manual para no vender una pieza que quizá ya fue pagada.
       const nowForReservations = new Date();
@@ -1231,7 +1231,7 @@ export class OrderService {
        *
        * Es completamente opcional.
        */
-      // YALEKA_R9A_RESERVATION_CONVERSION
+      // YALIKA_R9A_RESERVATION_CONVERSION
       if (order.reservationId) {
         const converted = await tx.commerceReservation.updateMany({
           where: {

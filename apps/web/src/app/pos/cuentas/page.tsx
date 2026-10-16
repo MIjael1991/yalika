@@ -11,7 +11,7 @@ async function getPendingOrders(companyId: string) {
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   try {
@@ -34,13 +34,13 @@ async function getPendingOrders(companyId: string) {
   } catch {
     return {
       orders: [] as PendingOrder[],
-      error: 'ORION API no está disponible',
+      error: 'Yalika API no está disponible',
     };
   }
 }
 
 export default async function PendingAccountsPage() {
-  const companyId = process.env.ORION_COMPANY_ID ?? '';
+  const companyId = process.env.YALIKA_COMPANY_ID ?? '';
   const data = await getPendingOrders(companyId);
 
   return (

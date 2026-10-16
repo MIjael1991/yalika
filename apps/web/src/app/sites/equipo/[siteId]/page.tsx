@@ -3,7 +3,7 @@ import { requireBusinessSession } from '../../../../lib/yalika-business-session'
 import { SiteTeamWorkspace } from './site-team-workspace';
 
 export const dynamic = 'force-dynamic';
-const apiUrl = (process.env.ORION_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
+const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
 
 export default async function SiteTeamPage({ params }: { params: Promise<{ siteId: string }> }) {
   await requireBusinessSession();

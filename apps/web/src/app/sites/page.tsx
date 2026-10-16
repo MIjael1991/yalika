@@ -4,7 +4,7 @@ import { SiteListWorkspace, type SiteSummary } from './site-list-workspace';
 
 export const dynamic = 'force-dynamic';
 
-const apiUrl = (process.env.ORION_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
+const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
 
 async function loadSites(companyId: string, cookieHeader: string) {
   try {

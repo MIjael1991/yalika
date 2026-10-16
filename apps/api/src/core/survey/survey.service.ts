@@ -1660,11 +1660,11 @@ export class SurveyService implements OnModuleInit {
       userId,
     );
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Yaleka';
+    workbook.creator = 'Yalika';
     workbook.created = new Date();
     const summary = workbook.addWorksheet('Resumen');
     summary.mergeCells('A1:F1');
-    summary.getCell('A1').value = `Yaleka · ${survey.title}`;
+    summary.getCell('A1').value = `Yalika · ${survey.title}`;
     summary.getCell('A1').font = {
       bold: true,
       size: 16,
@@ -1847,7 +1847,7 @@ export class SurveyService implements OnModuleInit {
     }
     zip.file(
       'LEEME.txt',
-      `Yaleka · ${survey.title}\nDocumentos: ${count}\nLos nombres usan el mismo folio del Excel.\n`,
+      `Yalika · ${survey.title}\nDocumentos: ${count}\nLos nombres usan el mismo folio del Excel.\n`,
     );
     return {
       data: await zip.generateAsync({
@@ -1916,7 +1916,7 @@ export class SurveyService implements OnModuleInit {
     );
     zip.file(
       'LEEME.txt',
-      'Respaldo Yaleka. El folio del Excel coincide con las fotografías. Extrae todo el ZIP antes de abrir enlaces del Excel.\n',
+      'Respaldo Yalika. El folio del Excel coincide con las fotografías. Extrae todo el ZIP antes de abrir enlaces del Excel.\n',
     );
     return {
       data: await zip.generateAsync({

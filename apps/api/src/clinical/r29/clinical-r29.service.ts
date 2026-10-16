@@ -1026,7 +1026,7 @@ export class ClinicalR29Service {
               profileId: profile.id,
               title: `Resumen para médico · ${new Date().toISOString().slice(0, 10)}`,
               documentType: 'SUMMARY',
-              originalName: `yaleka-resumen-medico-${new Date().toISOString().slice(0, 10)}.pdf`,
+              originalName: `yalika-resumen-medico-${new Date().toISOString().slice(0, 10)}.pdf`,
               mimeType: 'application/pdf',
               byteSize: pdf.length,
               sha256: sha256(pdf),
@@ -1063,7 +1063,7 @@ export class ClinicalR29Service {
       lines,
       savedDocument,
       disclaimer:
-        'Basado sólo en hechos registrados en Yaleka; no agrega diagnósticos nuevos.',
+        'Basado sólo en hechos registrados en Yalika; no agrega diagnósticos nuevos.',
     };
   }
 
@@ -1158,7 +1158,7 @@ export class ClinicalR29Service {
     });
     if (!caregiver)
       throw new BadRequestException(
-        'El familiar/cuidador debe tener una cuenta Yaleka',
+        'El familiar/cuidador debe tener una cuenta Yalika',
       );
     if (caregiver.id === auth.user.id)
       throw new BadRequestException('No necesitas darte acceso a ti mismo');

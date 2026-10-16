@@ -30,7 +30,7 @@ function EmergencyViewerContent() {
       <div className={styles.shell}>
         <header className={styles.hero}>
           <div>
-            <span className={styles.eyebrow}>YALEKA SALUD · ACCESO DE EMERGENCIA</span>
+            <span className={styles.eyebrow}>YALIKA SALUD · ACCESO DE EMERGENCIA</span>
             <h1>Ficha esencial autorizada</h1>
             <p>Acceso temporal para profesional verificado. Queda auditado.</p>
           </div>

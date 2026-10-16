@@ -152,8 +152,8 @@ export class MobilityPhase6Service {
     return this.prisma.mobilityNegotiationPolicy.create({
       data: {
         name: city
-          ? `Yaleka Negociacion Base - ${city}`
-          : 'Yaleka Negociacion Base',
+          ? `Yalika Negociacion Base - ${city}`
+          : 'Yalika Negociacion Base',
         city: city ?? null,
         baseFare: 15,
         perKm: 10,
@@ -308,7 +308,7 @@ export class MobilityPhase6Service {
       score = 40;
       level = 'MEDIUM_LOW';
       message =
-        'Oferta baja. Yaleka recomienda aumentarla para facilitar aceptacion.';
+        'Oferta baja. Yalika recomienda aumentarla para facilitar aceptacion.';
     } else {
       score = 10;
       level = 'VERY_LOW';
@@ -501,7 +501,7 @@ export class MobilityPhase6Service {
         label: 'RECOMENDADA',
         from: request.recommendedFare,
         to: this.money(request.fastMatchFare - 0.01),
-        explanation: 'Zona recomendada por Yaleka.',
+        explanation: 'Zona recomendada por Yalika.',
       },
       {
         label: 'RAPIDA',
@@ -526,11 +526,11 @@ export class MobilityPhase6Service {
       ),
       bands,
       pricingPrinciple:
-        'Yaleka usa el mayor entre componente por distancia y componente por tiempo, mas base y eventual compensacion de aproximacion.',
+        'Yalika usa el mayor entre componente por distancia y componente por tiempo, mas base y eventual compensacion de aproximacion.',
     };
   }
 
-  // YALEKA_PHASE8_PATCH_V1
+  // YALIKA_PHASE8_PATCH_V1
   async passengerOffer(id: string, dto: PassengerOfferDto) {
     const request = await this.ensureOpenRequest(id);
     if (request.passengerUserId !== dto.passengerUserId) {
@@ -809,7 +809,7 @@ export class MobilityPhase6Service {
       radiusKm,
       count: ranked.length,
       candidates: ranked,
-      note: 'El score es heuristico. Cuando Yaleka tenga historial suficiente se reemplaza por modelo calibrado con aceptaciones reales.',
+      note: 'El score es heuristico. Cuando Yalika tenga historial suficiente se reemplaza por modelo calibrado con aceptaciones reales.',
     };
   }
 

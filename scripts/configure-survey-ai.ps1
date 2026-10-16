@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectRoot = "C:\Users\Admin\Documents\ORION"
+  [string]$ProjectRoot = "C:\Users\Admin\Documents\Yalika"
 )
 
 $ErrorActionPreference = 'Stop'

@@ -58,7 +58,7 @@ export function proposeVisitExtraction(sourceText?: string | null) {
     fields,
     medications,
     unreadable: false,
-    message: 'Esto es lo que Yaleka pudo organizar del texto. Confirma antes de guardarlo como hecho clínico.',
+    message: 'Esto es lo que Yalika pudo organizar del texto. Confirma antes de guardarlo como hecho clínico.',
   };
 }
 
@@ -115,7 +115,7 @@ export function buildSimpleDoctorSummaryLines(input: {
   documents: Array<{ title: string; createdAt: Date }>;
 }) {
   const lines: string[] = [
-    'YALEKA SALUD - RESUMEN PARA EL MEDICO',
+    'YALIKA SALUD - RESUMEN PARA EL MEDICO',
     `Generado: ${input.generatedAt.toISOString()}`,
     '',
     'ALERGIAS',
@@ -136,7 +136,7 @@ export function buildSimpleDoctorSummaryLines(input: {
     'DOCUMENTOS NUEVOS',
     ...input.documents.map((d) => `- ${d.createdAt.toISOString().slice(0, 10)} | ${d.title}`),
     '',
-    'Este resumen se basa solamente en información registrada en Yaleka. No agrega diagnósticos nuevos.',
+    'Este resumen se basa solamente en información registrada en Yalika. No agrega diagnósticos nuevos.',
   ];
   return lines;
 }

@@ -54,7 +54,7 @@ export function RegistrationWorkspace() {
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/orion/auth/register', {
+      const response = await fetch('/api/yalika/auth/register', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -86,16 +86,16 @@ export function RegistrationWorkspace() {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-10 text-slate-100">
         <section className="w-full max-w-md rounded-3xl border border-emerald-500/20 bg-slate-900 p-7 shadow-2xl shadow-black/30">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yaleka</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yalika</p>
           <h1 className="mt-3 text-3xl font-bold">Cuenta creada</h1>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Ya puedes ingresar y abrir el mÃ³dulo de Encuestas. Desde la misma cuenta iremos activando otros mÃ³dulos de Yaleka cuando correspondan.
+            Ya puedes ingresar y abrir el mÃ³dulo de Encuestas. Desde la misma cuenta iremos activando otros mÃ³dulos de Yalika cuando correspondan.
           </p>
           <Link
             href={loginHref}
             className="mt-6 flex min-h-12 w-full items-center justify-center rounded-xl bg-cyan-400 px-4 font-semibold text-slate-950 hover:bg-cyan-300"
           >
-            Ingresar a Yaleka
+            Ingresar a Yalika
           </Link>
         </section>
       </main>
@@ -105,7 +105,7 @@ export function RegistrationWorkspace() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-10 text-slate-100">
       <section className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-2xl shadow-black/30">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yaleka</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yalika</p>
         <h1 className="mt-3 text-3xl font-bold">Crear cuenta</h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
           RegÃ­strate para crear, publicar y consultar tus encuestas en lÃ­nea.
@@ -165,7 +165,7 @@ export function RegistrationWorkspace() {
           <label className="block text-sm text-slate-300">
             ContraseÃ±a
             <input
-              id="yaleka-register-password"
+              id="yalika-register-password"
               type={showPassword ? 'text' : 'password'}
               required
               minLength={10}
@@ -197,7 +197,7 @@ export function RegistrationWorkspace() {
 
           <button
             type="button"
-            aria-controls="yaleka-register-password"
+            aria-controls="yalika-register-password"
             aria-pressed={showPassword}
             onClick={() => setShowPassword((value) => !value)}
             className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
@@ -214,7 +214,7 @@ export function RegistrationWorkspace() {
               onChange={(event) => setAcceptTerms(event.target.checked)}
               className="mt-1 h-5 w-5"
             />
-            <span>Acepto crear una cuenta Yaleka y soy responsable de la informaciÃ³n que capture en mis encuestas.</span>
+            <span>Acepto crear una cuenta Yalika y soy responsable de la informaciÃ³n que capture en mis encuestas.</span>
           </label>
 
           <button
@@ -222,7 +222,7 @@ export function RegistrationWorkspace() {
             disabled={submitting}
             className="h-12 w-full rounded-xl bg-cyan-400 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-wait disabled:opacity-60"
           >
-            {submitting ? 'Creando cuentaâ€¦' : 'Crear cuenta Yaleka'}
+            {submitting ? 'Creando cuentaâ€¦' : 'Crear cuenta Yalika'}
           </button>
         </form>
 

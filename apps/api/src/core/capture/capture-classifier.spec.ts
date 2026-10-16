@@ -23,7 +23,7 @@ const spaces = [
   },
 ];
 
-describe('ORION capture classifier', () => {
+describe('Yalika capture classifier', () => {
   it('routes a supplier purchase to the business space', () => {
     const result = classifyCapture({
       message: 'Pedir diez cajas de refresco al proveedor',

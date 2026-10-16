@@ -94,7 +94,7 @@ export class IncidentService {
     if (!knowledge) {
       return {
         message:
-          'ORION todavía no tiene conocimiento para este tipo de incidente',
+          'Yalika todavía no tiene conocimiento para este tipo de incidente',
         category: incident.category,
         generated: 0,
       };
@@ -123,7 +123,7 @@ export class IncidentService {
       data: templatesToCreate.map((template) => ({
         title: template.title,
         description: template.description,
-        impact: `Alternativa generada automáticamente por ORION Knowledge: ${knowledge.name}`,
+        impact: `Alternativa generada automáticamente por Yalika Knowledge: ${knowledge.name}`,
         incidentId: incident.id,
       })),
     });
@@ -140,7 +140,7 @@ export class IncidentService {
 
     return {
       message:
-        'ORION encontró conocimiento relacionado y generó alternativas automáticamente',
+        'Yalika encontró conocimiento relacionado y generó alternativas automáticamente',
       knowledge: {
         id: knowledge.id,
         name: knowledge.name,

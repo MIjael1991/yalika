@@ -6,7 +6,7 @@ Un lector configurado como teclado HID no necesita integración especial:
 
 1. Conectar el lector por USB o emparejarlo por Bluetooth.
 2. Configurarlo para enviar `Enter` después del código (sufijo CR o CR/LF).
-3. Abrir Punto de venta. ORION mantiene activo el campo “Buscar producto o
+3. Abrir Punto de venta. Yalika mantiene activo el campo “Buscar producto o
    escanear código”.
 4. Escanear un producto conocido: se agrega una unidad. Si vuelve a escanearse,
    aumenta la cantidad sin rebasar la existencia disponible.

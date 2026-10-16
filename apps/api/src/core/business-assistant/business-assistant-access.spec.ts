@@ -34,12 +34,12 @@ describe('R8.2 sesión del asistente comercial', () => {
     await request(app.getHttpServer()).post('/business-assistant/writing').send({text:'hola mundo',action:'spelling',consent:true}).expect(401);
   });
   it('rechaza una sesión inválida', async () => {
-    await request(app.getHttpServer()).post('/business-assistant/interpret').set('Cookie', 'orion_session=invalid').send({ text: 'ventas' }).expect(401);
+    await request(app.getHttpServer()).post('/business-assistant/interpret').set('Cookie', 'yalika_session=invalid').send({ text: 'ventas' }).expect(401);
     expect(interpret).not.toHaveBeenCalled();
   });
   it('usa la identidad autenticada y no la compañía del cuerpo', async () => {
     const body = { text: 'ventas', context: { companyId: 'otra' } };
-    await request(app.getHttpServer()).post('/business-assistant/interpret').set('Cookie', 'orion_session=valid').send(body).expect(201);
+    await request(app.getHttpServer()).post('/business-assistant/interpret').set('Cookie', 'yalika_session=valid').send(body).expect(201);
     expect(interpret).toHaveBeenCalledWith(body, user);
   });
 });

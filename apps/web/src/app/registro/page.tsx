@@ -5,7 +5,7 @@ import { RegistrationWorkspace } from './registration-workspace';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: 'Crear cuenta Â· Yaleka',
+  title: 'Crear cuenta Â· Yalika',
   description: 'Crea una sola cuenta Yalika para acceder a tus módulos y servicios.',
 };
 

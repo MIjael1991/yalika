@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Yaleka',
-    short_name: 'Yaleka',
+    name: 'Yalika',
+    short_name: 'Yalika',
     description:
       'Agenda, familia, educación y negocio reunidos en un mismo lugar.',
     start_url: '/life',

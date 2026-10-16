@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path'),ts=require('typescript');
-const compiled=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/yaleka-site-draft.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+const compiled=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/yalika-site-draft.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
 const sandbox={exports:{}};vm.runInNewContext(compiled,sandbox);const {draftKey,parseDraft,sectionPayload}=sandbox.exports;
 assert.notEqual(draftKey('u1','c1','s1'),draftKey('u2','c1','s1'));
 assert.notEqual(draftKey('u1','c1','s1'),draftKey('u1','c2','s1'));

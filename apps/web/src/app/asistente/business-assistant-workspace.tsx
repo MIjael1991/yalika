@@ -96,7 +96,7 @@ function localInterpret(text: string): AssistantResult {
 class ApiFailure extends Error {}
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     cache: "no-store",
     headers: { "Content-Type": "application/json", ...init?.headers },
@@ -105,7 +105,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok)
     throw new ApiFailure(
       (payload as { message?: string }).message ??
-        "No fue posible consultar Yaleka",
+        "No fue posible consultar Yalika",
     );
   return payload as T;
 }
@@ -255,7 +255,7 @@ export function BusinessAssistantWorkspace({
         >
           <div>
             <p className="text-xs font-bold uppercase tracking-[.28em] text-cyan-300">
-              YALEKA · ASISTENTE LOCAL-FIRST
+              YALIKA · ASISTENTE LOCAL-FIRST
             </p>
             <h1 className="mt-2 text-3xl font-black sm:text-4xl">
               Hola, {userName}. ¿Qué quieres resolver?

@@ -16,7 +16,7 @@ async function getOrders(companyId: string) {
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   try {
@@ -46,13 +46,13 @@ async function getOrders(companyId: string) {
     return {
       orders: [] as OrderSummary[],
       returns: [] as ReturnSummary[],
-      error: 'ORION API no está disponible',
+      error: 'Yalika API no está disponible',
     };
   }
 }
 
 export default async function SalesHistoryPage() {
-  const companyId = process.env.ORION_COMPANY_ID ?? '';
+  const companyId = process.env.YALIKA_COMPANY_ID ?? '';
   const data = await getOrders(companyId);
 
   return (

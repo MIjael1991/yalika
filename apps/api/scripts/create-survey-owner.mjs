@@ -78,10 +78,10 @@ async function main() {
   let password;
 
   if (fromEnvironment) {
-    companyName = (process.env.ORION_BOOTSTRAP_ORGANIZATION ?? '').trim();
-    personName = (process.env.ORION_BOOTSTRAP_NAME ?? '').trim();
-    email = (process.env.ORION_BOOTSTRAP_EMAIL ?? '').trim().toLowerCase();
-    password = process.env.ORION_BOOTSTRAP_PASSWORD ?? '';
+    companyName = (process.env.YALIKA_BOOTSTRAP_ORGANIZATION ?? '').trim();
+    personName = (process.env.YALIKA_BOOTSTRAP_NAME ?? '').trim();
+    email = (process.env.YALIKA_BOOTSTRAP_EMAIL ?? '').trim().toLowerCase();
+    password = process.env.YALIKA_BOOTSTRAP_PASSWORD ?? '';
 
     if (![companyName, personName, email, password].every(Boolean)) {
       console.log('No se configuró una cuenta inicial de Encuestas; se omitirá este paso.');

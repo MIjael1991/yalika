@@ -14,7 +14,7 @@ export class CreatePaymentDto {
 
   /*
    * Si no mandamos amount,
-   * ORION cobrará todo lo que falte.
+   * Yalika cobrará todo lo que falte.
    *
    * Esto permite:
    *

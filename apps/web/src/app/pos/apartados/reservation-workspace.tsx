@@ -85,7 +85,7 @@ function getMessage(value: unknown) {
 }
 
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-function yalekaWhatsappUrl(phone: string, message: string) {
+function yalikaWhatsappUrl(phone: string, message: string) {
   const digits = phone.replace(/\D/g, '');
   const international = digits.length === 10 ? `52${digits}` : digits;
   return `https://wa.me/${international}?text=${encodeURIComponent(message)}`;
@@ -385,7 +385,7 @@ export function ReservationWorkspace({
               Apartados
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-slate-400">
-              Separa mercancía sin confundirla con una venta. Yaleka libera
+              Separa mercancía sin confundirla con una venta. Yalika libera
               automáticamente los apartados sin anticipo cuando vence su tiempo.
             </p>
           </div>
@@ -541,7 +541,7 @@ export function ReservationWorkspace({
 
             <p className="mt-4 text-xs leading-5 text-slate-500">
               Si existe anticipo confirmado y vence la fecha de recogida,
-              Yaleka lo manda a revisión; no libera ni confisca dinero
+              Yalika lo manda a revisión; no libera ni confisca dinero
               automáticamente.
             </p>
           </form>
@@ -725,7 +725,7 @@ export function ReservationWorkspace({
                         ) : null}
 
                         <a
-                          href={yalekaWhatsappUrl(item.contactPhone, `Hola ${item.contactName}, te escribimos sobre tu apartado ${item.reservationNumber}. Productos: ${item.items.map((line) => `${line.quantity} x ${line.productNameSnapshot}${line.variantSnapshot ? ` (${line.variantSnapshot})` : ''}`).join(', ')}. Importe: ${money.format(sumReservation(item))}. Anticipo: ${money.format(item.depositAmount)}. Estado: ${statusText[item.status] ?? item.status}.`)}
+                          href={yalikaWhatsappUrl(item.contactPhone, `Hola ${item.contactName}, te escribimos sobre tu apartado ${item.reservationNumber}. Productos: ${item.items.map((line) => `${line.quantity} x ${line.productNameSnapshot}${line.variantSnapshot ? ` (${line.variantSnapshot})` : ''}`).join(', ')}. Importe: ${money.format(sumReservation(item))}. Anticipo: ${money.format(item.depositAmount)}. Estado: ${statusText[item.status] ?? item.status}.`)}
                           target="_blank"
                           rel="noreferrer"
                           className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold"

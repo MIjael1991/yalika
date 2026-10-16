@@ -42,7 +42,7 @@ const labels: Record<string, string> = {
   completed: 'Completado',
 };
 
-function yalekaWhatsappUrl(phone: string, message: string) {
+function yalikaWhatsappUrl(phone: string, message: string) {
   const digits = phone.replace(/\D/g, '');
   const international = digits.length === 10 ? `52${digits}` : digits;
   return `https://wa.me/${international}?text=${encodeURIComponent(message)}`;
@@ -76,7 +76,7 @@ export function ReservationTracking({ token }: { token: string }) {
   async function load() {
     try {
       const response = await fetch(
-        `/api/orion/reservation/public/${encodeURIComponent(token)}`,
+        `/api/yalika/reservation/public/${encodeURIComponent(token)}`,
         { cache: 'no-store' },
       );
       const text = await response.text();
@@ -128,7 +128,7 @@ export function ReservationTracking({ token }: { token: string }) {
     setError('');
     try {
       const response = await fetch(
-        `/api/orion/reservation/public/${encodeURIComponent(token)}/report-deposit`,
+        `/api/yalika/reservation/public/${encodeURIComponent(token)}/report-deposit`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -189,7 +189,7 @@ export function ReservationTracking({ token }: { token: string }) {
         <header className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-300">
-              Yaleka · Apartado
+              Yalika · Apartado
             </p>
             <h1 className="mt-1 text-2xl font-black">
               {record.site?.name ?? 'Mi apartado'}
@@ -197,7 +197,7 @@ export function ReservationTracking({ token }: { token: string }) {
           </div>
           {record.site?.whatsappPhone ? (
             <a
-              href={yalekaWhatsappUrl(record.site.whatsappPhone, `Hola, quiero consultar mi apartado ${record.reservationNumber}. Productos: ${record.items.map((item) => `${item.quantity} x ${item.productName}${item.variant ? ` (${item.variant})` : ''}`).join(', ')}. Importe total: ${money.format(total)}. Estado: ${labels[record.status] ?? record.status}.`)}
+              href={yalikaWhatsappUrl(record.site.whatsappPhone, `Hola, quiero consultar mi apartado ${record.reservationNumber}. Productos: ${record.items.map((item) => `${item.quantity} x ${item.productName}${item.variant ? ` (${item.variant})` : ''}`).join(', ')}. Importe total: ${money.format(total)}. Estado: ${labels[record.status] ?? record.status}.`)}
               target="_blank"
               rel="noreferrer"
               className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950"

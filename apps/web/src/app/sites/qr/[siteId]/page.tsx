@@ -4,7 +4,7 @@ import { requireBusinessSession } from '../../../../lib/yalika-business-session'
 import { QrActions } from './qr-actions';
 
 export const dynamic = 'force-dynamic';
-const apiUrl = (process.env.ORION_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
+const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
 
 type Site = { id: string; name: string; slug: string; status: string };
 
@@ -28,7 +28,7 @@ export default async function SiteQrPage({ params }: { params: Promise<{ siteId:
   return (
     <main className="min-h-screen bg-[#07111f] p-4 text-white md:p-8 print:bg-white print:text-black">
       <div className="mx-auto max-w-xl rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 text-center print:border-0 print:bg-white">
-        <p className="text-xs font-black uppercase tracking-[.28em] text-emerald-300 print:text-black">Yaleka · QR de página</p>
+        <p className="text-xs font-black uppercase tracking-[.28em] text-emerald-300 print:text-black">Yalika · QR de página</p>
         <h1 className="mt-2 text-3xl font-black">{site.name}</h1>
         <div className="mx-auto mt-6 w-fit rounded-3xl bg-white p-4"><img src={qrDataUrl} alt={`QR de ${site.name}`} className="h-[300px] w-[300px]" /></div>
         <p className="mt-4 break-all text-sm text-slate-400 print:text-black">{publicUrl}</p>

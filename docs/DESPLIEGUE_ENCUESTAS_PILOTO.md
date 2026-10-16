@@ -10,13 +10,13 @@ en un proveedor externo compatible, como Supabase.
 2. Crear un proyecto PostgreSQL y copiar su cadena de conexión con SSL.
 3. Crear el servicio desde `render.yaml`.
 4. Configurar `DATABASE_URL` como secreto.
-5. Completar `ORION_BOOTSTRAP_ORGANIZATION`, `ORION_BOOTSTRAP_NAME`,
-   `ORION_BOOTSTRAP_EMAIL` y `ORION_BOOTSTRAP_PASSWORD`. La contraseña debe
+5. Completar `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`,
+   `YALIKA_BOOTSTRAP_EMAIL` y `YALIKA_BOOTSTRAP_PASSWORD`. La contraseña debe
    tener al menos diez caracteres, letras y números.
 6. Conservar `SURVEY_PII_KEY`: cambiarla vuelve ilegibles los datos personales
    cifrados anteriormente.
 7. Cuando el primer despliegue termine, entrar con esa cuenta y retirar
-   `ORION_BOOTSTRAP_PASSWORD` del servicio. La cuenta no se eliminará.
+   `YALIKA_BOOTSTRAP_PASSWORD` del servicio. La cuenta no se eliminará.
 
 También se puede crear otra organización manualmente desde `apps/api` con
 `npm run auth:create-survey-owner`.

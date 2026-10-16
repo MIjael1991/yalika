@@ -119,7 +119,7 @@ export class SurveyIneStorageService {
     }
     if (bytes.length > MAX_IMAGE_BYTES) {
       throw new BadRequestException(
-        `La fotografía de ${label} es demasiado pesada. Vuelve a tomarla con la cámara de Yaleka`,
+        `La fotografía de ${label} es demasiado pesada. Vuelve a tomarla con la cámara de Yalika`,
       );
     }
 

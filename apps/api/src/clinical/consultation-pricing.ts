@@ -1,4 +1,4 @@
-export const YALEKA_CLINICAL_PILOT_PRICE = {
+export const YALIKA_CLINICAL_PILOT_PRICE = {
   currency: 'MXN',
   amountCents: 0,
   amount: 0,
@@ -14,7 +14,7 @@ export function resolvePilotConsultationPrice(
     configuredCents === null ||
     configuredCents === ''
   ) {
-    return YALEKA_CLINICAL_PILOT_PRICE;
+    return YALIKA_CLINICAL_PILOT_PRICE;
   }
 
   const value = Number(configuredCents);

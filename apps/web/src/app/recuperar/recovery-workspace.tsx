@@ -38,7 +38,7 @@ export function RecoveryWorkspace({ initialToken = "" }: { initialToken?: string
     setError("");
     setNotice("");
     try {
-      const response = await fetch("/api/orion/auth/password/request", {
+      const response = await fetch("/api/yalika/auth/password/request", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
@@ -66,7 +66,7 @@ export function RecoveryWorkspace({ initialToken = "" }: { initialToken?: string
     if (newPassword !== confirmPassword) return setError("Las contraseñas no coinciden.");
     setBusy(true);
     try {
-      const response = await fetch("/api/orion/auth/password/reset", {
+      const response = await fetch("/api/yalika/auth/password/reset", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -80,7 +80,7 @@ export function RecoveryWorkspace({ initialToken = "" }: { initialToken?: string
       const payload = (await response.json().catch(() => null)) as ApiPayload | null;
       if (!response.ok) throw new Error(messageOf(payload, "No pudimos cambiar la contraseña."));
       setDone(true);
-      setNotice(messageOf(payload, "Contraseña actualizada. Ya puedes entrar a Yaleka."));
+      setNotice(messageOf(payload, "Contraseña actualizada. Ya puedes entrar a Yalika."));
     } catch (err) {
       setError(err instanceof Error ? err.message : "No pudimos cambiar la contraseña.");
     } finally {
@@ -96,7 +96,7 @@ export function RecoveryWorkspace({ initialToken = "" }: { initialToken?: string
           <h1 className="mt-4 text-2xl font-bold">Contraseña actualizada</h1>
           <p className="mt-2 text-sm leading-6 text-slate-300">{notice}</p>
           <Link href="/login" className="mt-6 flex h-12 items-center justify-center rounded-xl bg-cyan-400 font-semibold text-slate-950">
-            Entrar a Yaleka
+            Entrar a Yalika
           </Link>
         </section>
       </main>
@@ -106,7 +106,7 @@ export function RecoveryWorkspace({ initialToken = "" }: { initialToken?: string
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-10 text-slate-100">
       <section className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-2xl shadow-black/30">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yaleka</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yalika</p>
         <h1 className="mt-3 text-3xl font-bold">Recuperar acceso</h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
           Puedes usar el enlace enviado a tu correo o la clave de recuperación que guardaste desde Mi cuenta.

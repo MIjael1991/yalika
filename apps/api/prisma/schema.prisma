@@ -99,7 +99,7 @@ model User {
   assistantBusinessActions  BusinessAssistantAction[]
   createdSurveys          Survey[]             @relation("SurveyCreator")
 
-  // Yaleka Mobility
+  // Yalika Mobility
   mobilityDriver         MobilityDriver?
   mobilityPassengerTrips MobilityTrip[]       @relation("MobilityPassenger")
   passwordResetTokens    PasswordResetToken[]
@@ -1923,7 +1923,7 @@ model SurveyAnswerAggregate {
 }
 
 // ============================================================
-// YALEKA MOBILITY
+// YALIKA MOBILITY
 // Primer nÃºcleo de movilidad integrado al mismo cerebro Prisma.
 // ============================================================
 
@@ -2104,7 +2104,7 @@ model MobilityTripEvent {
 }
 
 // =====================================================
-// YALEKA MOBILITY - FASE 2
+// YALIKA MOBILITY - FASE 2
 // Historial de ubicaciÃƒÂ³n, cancelaciones inteligentes,
 // seguridad, objetos olvidados, recompensas y rutas.
 // =====================================================
@@ -2264,7 +2264,7 @@ model MobilityScheduledRoute {
 }
 
 // =====================================================
-// YALEKA MOBILITY - FASE 3
+// YALIKA MOBILITY - FASE 3
 // EconomÃƒÂ­a, seguridad continua, wallet, bonos,
 // telemetrÃƒÂ­a/heartbeat y viajes de oportunidad.
 // =====================================================
@@ -2480,7 +2480,7 @@ model MobilityServicePaymentPlan {
 }
 
 // =====================================================
-// YALEKA MOBILITY - FASE 4
+// YALIKA MOBILITY - FASE 4
 // OperaciÃƒÂ³n, calidad, soporte, documentos, recibos,
 // cancelaciÃƒÂ³n liquidada, notificaciones y privacidad.
 // =====================================================
@@ -2663,7 +2663,7 @@ model MobilityPayoutBatch {
 }
 
 // =====================================================
-// YALEKA MOBILITY - FASE 5
+// YALIKA MOBILITY - FASE 5
 // Referidos + verificacion + taxis + centro de seguridad
 // + viaje seguro fuera del marketplace.
 // =====================================================
@@ -2911,7 +2911,7 @@ model MobilitySafeRideIncident {
 }
 
 // =====================================================
-// YALEKA MOBILITY - FASE 6
+// YALIKA MOBILITY - FASE 6
 // Mapas/rutas + tarifa propuesta por pasajero +
 // contraofertas + recomendador de aceptacion +
 // protecciones anti-spam/idempotencia.
@@ -3442,7 +3442,7 @@ model ClinicalAuditEvent {
 
 // ===== YALIKA SALUD R1 â€” END =====
 
-// YALEKA_CLINICAL_R28B_BEGIN
+// YALIKA_CLINICAL_R28B_BEGIN
 model ClinicalSubjectExtension {
   id                String   @id @default(uuid())
   clinicalProfileId String   @unique
@@ -3585,9 +3585,9 @@ model ClinicalIntegrationEvent {
   @@index([eventType, status])
   @@map("clinical_integration_events")
 }
-// YALEKA_CLINICAL_R28B_END
+// YALIKA_CLINICAL_R28B_END
 
-// YALEKA_CLINICAL_R29_BEGIN
+// YALIKA_CLINICAL_R29_BEGIN
 model ClinicalVisitCapture {
   id                 String   @id @default(uuid())
   clinicalProfileId  String
@@ -3741,9 +3741,9 @@ model ClinicalOperationReceipt {
   @@index([actorUserId, createdAt])
   @@map("clinical_operation_receipts")
 }
-// YALEKA_CLINICAL_R29_END
+// YALIKA_CLINICAL_R29_END
 
-// YALEKA_CLINICAL_R30_TRUST_BEGIN
+// YALIKA_CLINICAL_R30_TRUST_BEGIN
 model ClinicalCareOrganization {
   id                             String   @id @default(uuid())
   ownerUserId                    String
@@ -3867,9 +3867,9 @@ model ClinicalOrganizationVerification {
   @@index([result, verificationType])
   @@map("clinical_organization_verifications")
 }
-// YALEKA_CLINICAL_R30_TRUST_END
+// YALIKA_CLINICAL_R30_TRUST_END
 
-// YALEKA_CLINICAL_R302_NETWORK_BEGIN
+// YALIKA_CLINICAL_R302_NETWORK_BEGIN
 model ClinicalOrganizationLocation {
   id             String   @id @default(uuid())
   organizationId String   @unique
@@ -3937,9 +3937,9 @@ model ClinicalOrganizationReviewSubmission {
   @@index([status, submittedAt])
   @@map("clinical_organization_review_submissions")
 }
-// YALEKA_CLINICAL_R302_NETWORK_END
+// YALIKA_CLINICAL_R302_NETWORK_END
 
-// YALEKA_CLINICAL_R303_PATIENT_HOME_BEGIN
+// YALIKA_CLINICAL_R303_PATIENT_HOME_BEGIN
 model ClinicalEmergencyProfile {
   id                          String   @id @default(uuid())
   clinicalProfileId           String   @unique
@@ -3976,9 +3976,9 @@ model ClinicalChronicCondition {
   @@index([clinicalProfileId, createdAt])
   @@map("clinical_chronic_conditions")
 }
-// YALEKA_CLINICAL_R303_PATIENT_HOME_END
+// YALIKA_CLINICAL_R303_PATIENT_HOME_END
 
-// YALEKA_CLINICAL_R304_STRUCTURED_HISTORY_BEGIN
+// YALIKA_CLINICAL_R304_STRUCTURED_HISTORY_BEGIN
 model ClinicalHealthEpisode {
   id                 String   @id @default(uuid())
   clinicalProfileId  String
@@ -4090,7 +4090,7 @@ model ClinicalEmergencyRelayLink {
   @@index([authorizationId, status])
   @@map("clinical_emergency_relay_links")
 }
-// YALEKA_CLINICAL_R304_STRUCTURED_HISTORY_END
+// YALIKA_CLINICAL_R304_STRUCTURED_HISTORY_END
 
 model CommerceReservationPolicy {
   id String @id @default(uuid())

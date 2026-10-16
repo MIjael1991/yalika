@@ -44,7 +44,7 @@ function getTargetUrl(request: NextRequest, path: string[]) {
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
   const encodedPath = path.map(encodeURIComponent).join('/');
   const target = new URL(`${apiUrl}/${encodedPath}`);

@@ -70,7 +70,7 @@ function getErrorMessage(value: unknown) {
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -339,7 +339,7 @@ export function PendingAccountsWorkspace({
         <div className="mx-auto flex max-w-[1450px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
-              ORION / Ventas
+              Yalika / Ventas
             </p>
             <h1 className="mt-1 text-2xl font-semibold">Cuentas pendientes</h1>
           </div>

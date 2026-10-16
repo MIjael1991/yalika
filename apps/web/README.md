@@ -16,36 +16,36 @@ bun dev
 
 Open [http://localhost:3001](http://localhost:3001) with your browser to see the result.
 
-## ORION Punto de Venta
+## Yalika Punto de Venta
 
-The commercial checkout is available at `/pos`. It connects to ORION API on
+The commercial checkout is available at `/pos`. It connects to Yalika API on
 port `3000` through a same-origin server route, so the browser does not need
 direct API access.
 
 Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-ORION_API_URL=http://localhost:3000
-ORION_COMPANY_ID=your-company-uuid
-ORION_AUTHORIZED_USER_ID=your-active-user-uuid
+YALIKA_API_URL=http://localhost:3000
+YALIKA_COMPANY_ID=your-company-uuid
+YALIKA_AUTHORIZED_USER_ID=your-active-user-uuid
 ```
 
 The company identifies the catalog and the active user records who authorized
-each discount. These two identifiers are still used by the POS pilot; ORION
+each discount. These two identifiers are still used by the POS pilot; Yalika
 Life now obtains its identity from an authenticated session.
 
-ORION Life is available at `/life`. Its first pilot adds personal, family,
+Yalika Life is available at `/life`. Its first pilot adds personal, family,
 business and school spaces on top of the shared core task engine. Tasks can be
 assigned, claimed, completed, reopened and postponed with an auditable activity
 history. Daily, weekly, monthly and yearly tasks can also create protected
 occurrences for the next seven days without duplicating them when multiple
-devices refresh together. ORION Life is protected by an opaque, revocable session stored in
+devices refresh together. Yalika Life is protected by an opaque, revocable session stored in
 PostgreSQL and delivered through an HttpOnly cookie. Before the first login, an
 administrator sets a password without exposing it in command history:
 
 ```bash
 cd ../api
-npm run auth:set-password -- return-test@orion.local
+npm run auth:set-password -- return-test@yalika.local
 ```
 
 Then open `/login`. The browser refreshes shared work every five seconds while
@@ -57,7 +57,7 @@ Tasks can request one internal reminder at their scheduled time or 15 minutes,
 30 minutes, one hour or one day beforehand. The reminder center shows due and
 upcoming notices, supports snoozing and records acknowledgement. When a shared
 task is claimed, its pending reminder follows the responsible person. These
-internal reminders require ORION to be open; push delivery with the application
+internal reminders require Yalika to be open; push delivery with the application
 closed remains a separate device-notification milestone.
 
 The first universal quick-capture pilot is also available in `/life`. A short

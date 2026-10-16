@@ -33,7 +33,7 @@ export function AccountSecurityWorkspace() {
   const [error, setError] = useState("");
 
   async function loadStatus() {
-    const response = await fetch("/api/orion/auth/security", { cache: "no-store" });
+    const response = await fetch("/api/yalika/auth/security", { cache: "no-store" });
     if (response.status === 401) {
       router.replace("/login");
       return;
@@ -46,7 +46,7 @@ export function AccountSecurityWorkspace() {
   useEffect(() => {
     let active = true;
 
-    fetch("/api/orion/auth/security", { cache: "no-store" })
+    fetch("/api/yalika/auth/security", { cache: "no-store" })
       .then(async (response) => {
         if (response.status === 401) {
           router.replace("/login");
@@ -80,7 +80,7 @@ export function AccountSecurityWorkspace() {
     if (newPassword !== confirmPassword) return setError("Las contraseñas no coinciden.");
     setBusy(true);
     try {
-      const response = await fetch("/api/orion/auth/password/change", {
+      const response = await fetch("/api/yalika/auth/password/change", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ currentPassword, newPassword, confirmPassword, closeOtherSessions }),
@@ -103,7 +103,7 @@ export function AccountSecurityWorkspace() {
     const ok = window.confirm(
       status?.recoveryKeyConfigured
         ? "Esto reemplazará tu clave de recuperación anterior. ¿Continuar?"
-        : "Yaleka mostrará la clave una sola vez. ¿Generarla ahora?",
+        : "Yalika mostrará la clave una sola vez. ¿Generarla ahora?",
     );
     if (!ok) return;
     setBusy(true);
@@ -111,7 +111,7 @@ export function AccountSecurityWorkspace() {
     setNotice("");
     setRecoveryKey("");
     try {
-      const response = await fetch("/api/orion/auth/recovery-key", { method: "POST" });
+      const response = await fetch("/api/yalika/auth/recovery-key", { method: "POST" });
       const payload = await response.json().catch(() => null);
       if (!response.ok) throw new Error(messageOf(payload, "No pudimos crear la clave."));
       setRecoveryKey(String(payload?.recoveryKey ?? ""));
@@ -182,7 +182,7 @@ export function AccountSecurityWorkspace() {
         <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
           <h2 className="text-xl font-bold">Recuperación de cuenta</h2>
           <p className="mt-1 text-sm leading-6 text-slate-400">
-            Guarda una clave fuera de Yaleka. Sirve como respaldo si pierdes acceso al correo.
+            Guarda una clave fuera de Yalika. Sirve como respaldo si pierdes acceso al correo.
           </p>
           <dl className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between gap-4 border-b border-slate-800 pb-3"><dt className="text-slate-500">Correo</dt><dd className="break-all text-right text-slate-200">{status?.email ?? "…"}</dd></div>

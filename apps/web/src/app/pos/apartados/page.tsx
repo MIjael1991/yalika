@@ -10,7 +10,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 const apiUrl = (
-  process.env.ORION_API_URL ?? 'http://localhost:3000'
+  process.env.YALIKA_API_URL ?? 'http://localhost:3000'
 ).replace(/\/+$/, '');
 
 async function getApi<T>(

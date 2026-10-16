@@ -9,7 +9,7 @@ type BusinessUser = {
 
 export async function requireBusinessSession(): Promise<BusinessUser> {
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   let payload: unknown = null;

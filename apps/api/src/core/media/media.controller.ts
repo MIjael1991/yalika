@@ -116,7 +116,7 @@ export class MediaController {
     if (!verified) throw new BadRequestException('El contenido no corresponde a una imagen valida');
 
     return {
-      url: `/api/orion/media/image/${file.filename}`,
+      url: `/api/yalika/media/image/${file.filename}`,
       filename: file.filename,
       originalName: file.originalname,
       mimeType: file.mimetype,

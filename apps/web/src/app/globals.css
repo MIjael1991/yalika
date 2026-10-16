@@ -61,10 +61,10 @@ button:disabled {
 }
 
 /* R8.4: scoped to the private workspace. Public sites keep their own palette. */
-.yaleka-frame{--yk-bg:#eef3fa;--yk-panel:#fff;--yk-text:#142641;--yk-muted:#506079;--yk-border:#b8cbe2;--yk-soft:#e6efff;--yk-field:#f8fbff;--yk-link:#2054b6;min-height:100vh;background:var(--yk-bg);color:var(--yk-text);color-scheme:light}
-.yaleka-frame[data-yaleka-theme=dark]{--yk-bg:#0b1220;--yk-panel:#142035;--yk-text:#edf3ff;--yk-muted:#b5c6df;--yk-border:#435774;--yk-soft:#1d304d;--yk-field:#0e192c;--yk-link:#9ac6ff;color-scheme:dark}
-.yaleka-theme-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 20px;background:var(--yk-panel);border-bottom:1px solid var(--yk-border);font-size:14px}
-.yaleka-theme-bar label{display:flex;align-items:center;gap:10px;font-weight:600}
-.yaleka-theme-bar select{min-height:44px;padding:8px;border:1px solid var(--yk-border);border-radius:10px;background:var(--yk-field);color:var(--yk-text)}
-.yaleka-theme-bar span{color:var(--yk-muted)}
-.yaleka-frame select:focus-visible{outline:3px solid var(--yk-link);outline-offset:3px}
+.yalika-frame{--yk-bg:#eef3fa;--yk-panel:#fff;--yk-text:#142641;--yk-muted:#506079;--yk-border:#b8cbe2;--yk-soft:#e6efff;--yk-field:#f8fbff;--yk-link:#2054b6;min-height:100vh;background:var(--yk-bg);color:var(--yk-text);color-scheme:light}
+.yalika-frame[data-yalika-theme=dark]{--yk-bg:#0b1220;--yk-panel:#142035;--yk-text:#edf3ff;--yk-muted:#b5c6df;--yk-border:#435774;--yk-soft:#1d304d;--yk-field:#0e192c;--yk-link:#9ac6ff;color-scheme:dark}
+.yalika-theme-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding:12px 20px;background:var(--yk-panel);border-bottom:1px solid var(--yk-border);font-size:14px}
+.yalika-theme-bar label{display:flex;align-items:center;gap:10px;font-weight:600}
+.yalika-theme-bar select{min-height:44px;padding:8px;border:1px solid var(--yk-border);border-radius:10px;background:var(--yk-field);color:var(--yk-text)}
+.yalika-theme-bar span{color:var(--yk-muted)}
+.yalika-frame select:focus-visible{outline:3px solid var(--yk-link);outline-offset:3px}

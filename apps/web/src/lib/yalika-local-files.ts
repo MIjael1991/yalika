@@ -15,7 +15,7 @@ function openStore(scope: FileScope): Promise<IDBDatabase> {
     request.onupgradeneeded = () => request.result.createObjectStore('files', { keyPath: 'id' });
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(new Error('No se pudo abrir el almacenamiento local.'));
-    request.onblocked = () => reject(new Error('Cierra las otras pestañas de Yaleka y vuelve a intentar.'));
+    request.onblocked = () => reject(new Error('Cierra las otras pestañas de Yalika y vuelve a intentar.'));
   });
 }
 export async function listLocalFiles(scope: FileScope): Promise<LocalFile[]> {

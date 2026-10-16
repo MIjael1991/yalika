@@ -63,7 +63,7 @@ export class SpaceService {
     });
 
     if (!user || user.status !== 'active') {
-      throw new NotFoundException('El usuario de ORION no está activo');
+      throw new NotFoundException('El usuario de Yalika no está activo');
     }
 
     return this.prisma.space.findMany({
@@ -215,7 +215,7 @@ export class SpaceService {
 
     if (!invitedUser || invitedUser.status !== 'active') {
       throw new NotFoundException(
-        'No encontramos una cuenta activa de ORION con ese correo',
+        'No encontramos una cuenta activa de Yalika con ese correo',
       );
     }
 

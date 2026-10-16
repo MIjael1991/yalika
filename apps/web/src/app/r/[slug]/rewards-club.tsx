@@ -165,7 +165,7 @@ export function RewardsClub({
 
     try {
       const response = await fetch(
-        `/api/orion/engagement/public/${encodeURIComponent(slug)}/${
+        `/api/yalika/engagement/public/${encodeURIComponent(slug)}/${
           hasTicket ? 'claim-ticket' : 'join'
         }`,
         {
@@ -235,7 +235,7 @@ export function RewardsClub({
 
     try {
       const response = await fetch(
-        `/api/orion/scratch/public/${encodeURIComponent(slug)}/play`,
+        `/api/yalika/scratch/public/${encodeURIComponent(slug)}/play`,
         {
           method: 'POST',
           headers: {

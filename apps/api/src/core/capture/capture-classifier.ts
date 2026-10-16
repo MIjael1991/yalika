@@ -320,7 +320,7 @@ export function classifyCapture(input: {
   const message = input.message.trim();
 
   if (!message) {
-    throw new Error('Escribe algo para que ORION pueda organizarlo');
+    throw new Error('Escribe algo para que Yalika pueda organizarlo');
   }
 
   if (input.spaces.length === 0) {
@@ -466,8 +466,8 @@ export function classifyCapture(input: {
         missingRequestedSpace
           ? `Aún no existe un espacio de ${
               spaceTypeNames[requestedSpaceType ?? ''] ?? requestedSpaceType
-            }; ORION propone mantenerla privada`
-          : 'Ante la duda, ORION propone mantenerla privada',
+            }; Yalika propone mantenerla privada`
+          : 'Ante la duda, Yalika propone mantenerla privada',
       );
     }
   }

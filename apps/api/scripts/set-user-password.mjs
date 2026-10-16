@@ -83,7 +83,7 @@ async function main() {
 
   if (!email) {
     throw new Error(
-      'Uso: npm run auth:set-password -- correo@orion.local',
+      'Uso: npm run auth:set-password -- correo@yalika.local',
     );
   }
 
@@ -126,7 +126,7 @@ async function main() {
     );
 
     if (result.rowCount !== 1) {
-      throw new Error(`No existe una cuenta ORION con el correo ${email}`);
+      throw new Error(`No existe una cuenta Yalika con el correo ${email}`);
     }
 
     await client.query(

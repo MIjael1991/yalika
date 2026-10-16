@@ -21,7 +21,7 @@ type SessionResponse = {
 
 async function getCurrentUser() {
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
   const cookieHeader = (await cookies()).toString();
   let response: Response;

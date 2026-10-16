@@ -1,5 +1,5 @@
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion${path}`, {
+  const response = await fetch(`/api/yalika${path}`, {
     ...init,
     credentials: 'include',
     cache: 'no-store',

@@ -1,12 +1,12 @@
-# Revisión de Yaleka — 12 de octubre de 2026
+# Revisión de Yalika — 12 de octubre de 2026
 
 Estado: correcciones preparadas y verificadas con los ZIP recibidos. No equivale a autorización de publicación ni a una revisión exhaustiva de seguridad. Este archivo es el informe de esta entrega.
 
 ## Organización
 
-La aplicación principal sigue en `apps/api` y `apps/web`. La carpeta `.next` es salida de compilación regenerable; no es otro servicio y no se distribuye en este ajuste. El inicio local ahora obtiene la raíz desde su propia ubicación y permite cambiar el nombre de la carpeta sin una ruta ORION fija.
+La aplicación principal sigue en `apps/api` y `apps/web`. La carpeta `.next` es salida de compilación regenerable; no es otro servicio y no se distribuye en este ajuste. El inicio local ahora obtiene la raíz desde su propia ubicación y permite cambiar el nombre de la carpeta sin una ruta Yalika fija.
 
-`orion-life` es un prototipo separado con funciones simuladas; no sustituye a `/life` en la aplicación principal. `orion-encuestas` es una implementación anterior con almacenamiento distinto. No se eliminaron porque hacerlo sin comprobar sus datos podría perder información. Control y un módulo identificable de Veterinaria no aparecen entre las fuentes recibidas. No se inventaron pantallas para ellos.
+`yalika-life` es un prototipo separado con funciones simuladas; no sustituye a `/life` en la aplicación principal. `yalika-encuestas` es una implementación anterior con almacenamiento distinto. No se eliminaron porque hacerlo sin comprobar sus datos podría perder información. Control y un módulo identificable de Veterinaria no aparecen entre las fuentes recibidas. No se inventaron pantallas para ellos.
 
 El instalador retira únicamente dos archivos duplicados de `scripts/infrastructure` cuando coinciden exactamente con sus originales canónicos en `infrastructure`. Conserva cualquier variante modificada. No crea respaldos, cuentas, instalaciones, páginas ni registros comerciales adicionales. No cambia variables de entorno, credenciales, esquema ni datos de PostgreSQL.
 
@@ -36,7 +36,7 @@ Son pruebas de código con datos simulados aislados. No se cargó otro mes ficti
 
 ## Aplicación
 
-Cerrar los procesos locales de Web y API. Ejecutar el archivo AJUSTAR_YALEKA.cjs indicando la raíz existente que contiene apps/api y apps/web. El instalador verifica versiones antes de escribir; si encuentra cambios distintos de los ZIP revisados, se detiene y enumera los archivos sin sobrescribirlos. Requiere las dependencias ya instaladas. No instala servicios ni ejecuta migraciones o semillas.
+Cerrar los procesos locales de Web y API. Ejecutar el archivo AJUSTAR_YALIKA.cjs indicando la raíz existente que contiene apps/api y apps/web. El instalador verifica versiones antes de escribir; si encuentra cambios distintos de los ZIP revisados, se detiene y enumera los archivos sin sobrescribirlos. Requiere las dependencias ya instaladas. No instala servicios ni ejecuta migraciones o semillas.
 
 Si la escritura o las comprobaciones fallan, intenta restaurar en memoria los archivos que cambió y muestra el resultado. No crea una copia de respaldo persistente. Mantener los procesos cerrados durante la aplicación y reiniciarlos solo tras AJUSTE_VERIFICADO. Los directorios de compilación pueden regenerarse durante las comprobaciones.
 

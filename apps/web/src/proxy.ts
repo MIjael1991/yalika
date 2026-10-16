@@ -27,20 +27,20 @@ function allowedSurveyPath(pathname: string) {
 
 function allowedSurveyApi(pathname: string) {
   return (
-    pathname.startsWith('/api/orion/auth') ||
-    pathname.startsWith('/api/orion/survey')
+    pathname.startsWith('/api/yalika/auth') ||
+    pathname.startsWith('/api/yalika/survey')
   );
 }
 
 export async function proxy(request: NextRequest) {
-  const sessionToken = request.cookies.get('orion_session')?.value;
+  const sessionToken = request.cookies.get('yalika_session')?.value;
 
   if (!sessionToken) {
     return NextResponse.next();
   }
 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
 
   let session: SessionResponse | null = null;
@@ -64,7 +64,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
-  if (pathname.startsWith('/api/orion/')) {
+  if (pathname.startsWith('/api/yalika/')) {
     return allowedSurveyApi(pathname)
       ? NextResponse.next()
       : NextResponse.json(

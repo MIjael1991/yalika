@@ -1,5 +1,5 @@
 async function api<T>(path:string, init?:RequestInit):Promise<T>{
-  const response=await fetch(`/api/orion${path}`,{...init,credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json',...(init?.headers??{})}});
+  const response=await fetch(`/api/yalika${path}`,{...init,credentials:'include',cache:'no-store',headers:{'Content-Type':'application/json',...(init?.headers??{})}});
   const body=await response.json().catch(()=>null); if(!response.ok){const m=body?.message??body?.error??`Error ${response.status}`;throw new Error(Array.isArray(m)?m.join('. '):String(m));} return body as T;
 }
 export const historyApi={

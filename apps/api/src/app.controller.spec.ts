@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Bienvenido a ORION API"', () => {
-      expect(appController.getHello()).toBe('Bienvenido a ORION API');
+    it('should return "Bienvenido a Yalika API"', () => {
+      expect(appController.getHello()).toBe('Bienvenido a Yalika API');
     });
   });
 });

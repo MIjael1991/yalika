@@ -9,7 +9,7 @@ async function bootstrap() {
 
   app.useBodyParser('json', { limit: '6mb' });
 
-  // YALEKA_SURVEY_SECURITY_HEADERS
+  // YALIKA_SURVEY_SECURITY_HEADERS
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');

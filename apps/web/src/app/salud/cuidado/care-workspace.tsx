@@ -13,7 +13,7 @@ import {
 } from "./offline-store";
 import styles from "./cuidado.module.css";
 
-const OFFLINE_KEY = "yaleka:clinical:r29:offline-queue:v2";
+const OFFLINE_KEY = "yalika:clinical:r29:offline-queue:v2";
 
 function fmt(value?: string | null) {
   if (!value) return "Sin fecha";
@@ -53,7 +53,7 @@ export default function CareWorkspace() {
   const scope = useRef("");
   const syncing = useRef(false);
   async function verifyAccount() {
-    const response = await fetch("/api/orion/auth/me", { cache: "no-store" });
+    const response = await fetch("/api/yalika/auth/me", { cache: "no-store" });
     if (!response.ok)
       throw new Error("Inicia sesión para sincronizar tus pendientes");
     const { user } = await response.json();
@@ -151,9 +151,9 @@ export default function CareWorkspace() {
       const due = new Date(next.nextDoseAt).getTime();
       const now = Date.now();
       if (due > now + 60_000 || due < now - 10 * 60_000) return;
-      const key = `yaleka:clinical:notified:${next.id}:${next.nextDoseAt}`;
+      const key = `yalika:clinical:notified:${next.id}:${next.nextDoseAt}`;
       if (localStorage.getItem(key)) return;
-      new Notification("Yaleka Salud", {
+      new Notification("Yalika Salud", {
         body: "Tienes una dosis registrada para este momento. Revisa el tratamiento antes de marcarla.",
       });
       localStorage.setItem(key, "1");
@@ -653,7 +653,7 @@ export default function CareWorkspace() {
     const permission = await Notification.requestPermission();
     setNotice(
       permission === "granted"
-        ? "Avisos locales activados mientras Yaleka esté abierta."
+        ? "Avisos locales activados mientras Yalika esté abierta."
         : "No se autorizó el aviso local.",
     );
   }
@@ -799,7 +799,7 @@ export default function CareWorkspace() {
       <div className={styles.shell}>
         <header className={styles.heroSimple}>
           <div>
-            <span className={styles.eyebrow}>YALEKA SALUD</span>
+            <span className={styles.eyebrow}>YALIKA SALUD</span>
             <h1>Tu salud, fácil de entender.</h1>
             <p>
               Lo importante hoy primero. Tu historial completo sigue guardado
@@ -839,7 +839,7 @@ export default function CareWorkspace() {
         <section className={styles.assistantHero}>
           <div className={styles.assistantOrb}>Y</div>
           <div className={styles.assistantBody}>
-            <span className={styles.kicker}>ASISTENTE YALEKA</span>
+            <span className={styles.kicker}>ASISTENTE YALIKA</span>
             <h2>¿En qué te ayudo con tu salud?</h2>
             <form onSubmit={askAssistant} className={styles.assistantForm}>
               <input
@@ -890,7 +890,7 @@ export default function CareWorkspace() {
             <p>
               {nextMedication?.nextDoseAt
                 ? `Próxima toma: ${fmt(nextMedication.nextDoseAt)}`
-                : "Cuando registres un tratamiento, Yaleka te mostrará aquí qué sigue."}
+                : "Cuando registres un tratamiento, Yalika te mostrará aquí qué sigue."}
             </p>
             {nextMedication?.id && (
               <div className={styles.actions}>
@@ -929,7 +929,7 @@ export default function CareWorkspace() {
             </h2>
             <p>
               {nextConsultation?.scheduledAt
-                ? "Tu próxima cita registrada en Yaleka."
+                ? "Tu próxima cita registrada en Yalika."
                 : "Puedes guardar una revisión cuando tu médico te indique la fecha."}
             </p>
             <Link href="/salud/consultas" className={styles.textLink}>
@@ -1300,7 +1300,7 @@ export default function CareWorkspace() {
               </div>
               <button disabled={busy}>Iniciar recordatorios</button>
               <p className={styles.note}>
-                Yaleka no adivina el intervalo: debe venir de una indicación
+                Yalika no adivina el intervalo: debe venir de una indicación
                 confirmada.
               </p>
             </form>
@@ -1368,7 +1368,7 @@ export default function CareWorkspace() {
           {capture && (
             <div className={styles.reviewBox}>
               <h3>Confirma antes de agregar al historial</h3>
-              <p>Yaleka sólo propone. Revisa los datos y confirma.</p>
+              <p>Yalika sólo propone. Revisa los datos y confirma.</p>
               <form className={styles.form} onSubmit={confirmCapture}>
                 <div className={styles.two}>
                   <label>
@@ -1685,7 +1685,7 @@ export default function CareWorkspace() {
               <h3>Familiar o cuidador</h3>
               <form className={styles.form} onSubmit={addCaregiver}>
                 <label>
-                  Correo de cuenta Yaleka
+                  Correo de cuenta Yalika
                   <input name="email" type="email" required />
                 </label>
                 <div className={styles.checks}>

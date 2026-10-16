@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, NotFoundException } from '@nest
 import { CatalogService } from './catalog.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
-describe('Yaleka R11B-3A: aislamiento de catalogos', () => {
+describe('Yalika R11B-3A: aislamiento de catalogos', () => {
   const companyId = 'empresa-a';
   const otherCompanyId = 'empresa-b';
   const catalogId = 'boutique';

@@ -236,7 +236,7 @@ export default function HistoryWorkspace() {
       <div className={styles.shell}>
         <header className={styles.hero}>
           <div>
-            <span className={styles.eyebrow}>YALEKA SALUD · MI HISTORIA</span>
+            <span className={styles.eyebrow}>YALIKA SALUD · MI HISTORIA</span>
             <h1>Tu salud, organizada por lo que te ha pasado.</h1>
             <p>
               No es una carpeta de archivos: padecimientos, infecciones,
@@ -464,7 +464,7 @@ export default function HistoryWorkspace() {
         <section className={styles.card}>
           <h2>Relacionar receta, estudio o documento</h2>
           <p className={styles.meta}>
-            La receta física sigue siendo el documento original. Yaleka sólo la
+            La receta física sigue siendo el documento original. Yalika sólo la
             relaciona con el padecimiento o episodio correcto; no inventa el
             diagnóstico.
           </p>

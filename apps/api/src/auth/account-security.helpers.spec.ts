@@ -7,7 +7,7 @@ import {
 } from './account-security.helpers';
 
 describe('account security helpers', () => {
-  it('genera claves de recuperación Yaleka difíciles de adivinar', () => {
+  it('genera claves de recuperación Yalika difíciles de adivinar', () => {
     const a = createRecoveryKey();
     const b = createRecoveryKey();
     expect(a).toMatch(/^YALEKA-(?:[A-F0-9]{4}-){4}[A-F0-9]{4}$/);

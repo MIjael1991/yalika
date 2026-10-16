@@ -22,7 +22,7 @@ function parseApiMessage(payload: unknown): string {
   return 'No se completó la operación';
 }
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init, cache: 'no-store',
     headers: init?.body instanceof FormData ? init.headers : { 'Content-Type': 'application/json', ...init?.headers },
   });
@@ -229,7 +229,7 @@ export function ProductManager({ companyId }: { companyId: string }) {
   return <main className="min-h-screen bg-[#07101f] p-4 text-slate-100 md:p-7">
     <div className="mx-auto max-w-7xl space-y-6">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <div><p className="text-sm text-emerald-400">YALEKA · POS</p><h1 className="text-3xl font-bold">Productos</h1>
+        <div><p className="text-sm text-emerald-400">YALIKA · POS</p><h1 className="text-3xl font-bold">Productos</h1>
           <p className="text-sm text-slate-400">Catálogo, presentaciones, códigos y publicación web. Las entradas de mercancía se registran en Inventario.</p></div>
         <Link href="/pos/inventario" className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/15">Ir a inventario</Link>
       </header>
@@ -295,7 +295,7 @@ export function ProductManager({ companyId }: { companyId: string }) {
             <div className="grid gap-3 sm:grid-cols-2">
               {barcodes.map(barcode => <div key={barcode.id} className="rounded-xl border border-slate-700 p-3">
                 {barcode.generated && barcode.format === 'CODE39' ? <Code39Label value={barcode.value} caption={`${current.name} · ${barcode.unitsPerScan} unidad${barcode.unitsPerScan===1?'':'es'}`} /> : <div className="rounded-lg bg-white p-3 font-mono text-sm font-bold text-slate-950">{barcode.value}</div>}
-                <p className="mt-2 text-xs text-slate-400">{barcode.generated ? 'Interno Yaleka' : 'Código existente'} · {barcode.kind === 'pack' ? `Caja/paquete: ${barcode.unitsPerScan} unidades` : 'Pieza'}</p>
+                <p className="mt-2 text-xs text-slate-400">{barcode.generated ? 'Interno Yalika' : 'Código existente'} · {barcode.kind === 'pack' ? `Caja/paquete: ${barcode.unitsPerScan} unidades` : 'Pieza'}</p>
               </div>)}
               {barcodes.length === 0 ? <p className="text-sm text-slate-400">Aún no hay códigos vinculados.</p> : null}
             </div>

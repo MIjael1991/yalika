@@ -15,7 +15,7 @@ type Incident = {
 
 async function getIncidents(): Promise<Incident[]> {
   const apiUrl =
-    process.env.ORION_API_URL ?? 'http://localhost:3000';
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000';
 
   try {
     const response = await fetch(`${apiUrl}/incident`, {
@@ -93,7 +93,7 @@ export default async function IncidentsPage() {
     <main className="min-h-screen bg-slate-950 p-6 text-slate-100 md:p-8">
       <header className="mb-8">
         <p className="text-sm font-medium text-cyan-400">
-          ORION / Incidentes
+          Yalika / Incidentes
         </p>
 
         <h1 className="mt-2 text-3xl font-semibold">
@@ -154,7 +154,7 @@ export default async function IncidentsPage() {
           </h2>
 
           <p className="mt-1 text-sm text-slate-400">
-            Información obtenida directamente de ORION API.
+            Información obtenida directamente de Yalika API.
           </p>
         </div>
 

@@ -25,7 +25,7 @@ function slugify(value: string) {
 }
 
 async function post(path: string, body?: unknown) {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
@@ -82,7 +82,7 @@ export function CreateSiteWorkspace({ companyId }: { companyId: string }) {
   return (
     <main className="min-h-screen bg-[#07111f] p-4 text-white md:p-8">
       <form onSubmit={submit} className="mx-auto max-w-2xl rounded-[2rem] border border-white/10 bg-white/[0.045] p-6 md:p-8">
-        <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yaleka · Nueva página</p>
+        <p className="text-xs font-black uppercase tracking-[.28em] text-cyan-300">Yalika · Nueva página</p>
         <h1 className="mt-2 text-3xl font-black">Crear otra página</h1>
         <p className="mt-2 text-sm text-slate-400">No reemplaza las que ya tienes.</p>
         {error ? <p className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-red-100">{error}</p> : null}

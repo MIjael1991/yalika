@@ -61,7 +61,7 @@ function getMessage(value: unknown) {
   return 'No fue posible completar la solicitud';
 }
 
-function yalekaWhatsappUrl(phone: string, message: string) {
+function yalikaWhatsappUrl(phone: string, message: string) {
   const digits = phone.replace(/\D/g, '');
   const international = digits.length === 10 ? `52${digits}` : digits;
   return `https://wa.me/${international}?text=${encodeURIComponent(message)}`;
@@ -121,7 +121,7 @@ export function ReservableCatalog({
     setError('');
     try {
       const operationId = crypto.randomUUID();
-      const response = await fetch('/api/orion/reservation/public/hold', {
+      const response = await fetch('/api/yalika/reservation/public/hold', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -190,7 +190,7 @@ export function ReservableCatalog({
           </Link>
           {data.site.whatsappPhone ? (
             <a
-              href={yalekaWhatsappUrl(data.site.whatsappPhone, `Hola, hice el apartado ${created.reservationNumber}. Producto: ${selected?.name ?? 'artículo'}. Cantidad: ${quantity}. Anticipo: ${money.format(created.depositRequiredAmount)}. Entrega: ${deliveryMode}.`)}
+              href={yalikaWhatsappUrl(data.site.whatsappPhone, `Hola, hice el apartado ${created.reservationNumber}. Producto: ${selected?.name ?? 'artículo'}. Cantidad: ${quantity}. Anticipo: ${money.format(created.depositRequiredAmount)}. Entrega: ${deliveryMode}.`)}
               target="_blank"
               rel="noreferrer"
               className="mt-3 block rounded-2xl bg-emerald-500 px-5 py-4 text-center font-black text-white"
@@ -215,7 +215,7 @@ export function ReservableCatalog({
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-700">
-              Yaleka · Apartados
+              Yalika · Apartados
             </p>
             <h1 className="font-black">{data.site.name}</h1>
           </div>
@@ -228,7 +228,7 @@ export function ReservableCatalog({
             </Link>
             {data.site.whatsappPhone ? (
               <a
-                href={yalekaWhatsappUrl(data.site.whatsappPhone, `Hola, estoy viendo los apartados de ${data.site.name}. Quiero confirmar disponibilidad.`)}
+                href={yalikaWhatsappUrl(data.site.whatsappPhone, `Hola, estoy viendo los apartados de ${data.site.name}. Quiero confirmar disponibilidad.`)}
                 target="_blank"
                 rel="noreferrer"
                 className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white"
@@ -316,7 +316,7 @@ export function ReservableCatalog({
                     </button>
                   ) : data.site.whatsappPhone ? (
                     <a
-                      href={yalekaWhatsappUrl(data.site.whatsappPhone, `Hola, quiero consultar disponibilidad de ${product.name} en ${data.site.name}.`)}
+                      href={yalikaWhatsappUrl(data.site.whatsappPhone, `Hola, quiero consultar disponibilidad de ${product.name} en ${data.site.name}.`)}
                       target="_blank"
                       rel="noreferrer"
                       className="mt-4 block w-full rounded-2xl bg-emerald-500 px-4 py-3 text-center font-black text-white"
@@ -422,7 +422,7 @@ export function ReservableCatalog({
             </label>
 
             <div className="mt-5 rounded-2xl bg-amber-50 p-4 text-sm text-amber-950">
-              <strong>No es una venta todavía.</strong> Al confirmar, Yaleka
+              <strong>No es una venta todavía.</strong> Al confirmar, Yalika
               separa temporalmente el artículo. Si no se confirma el anticipo
               dentro del plazo, vuelve a estar disponible.
             </div>

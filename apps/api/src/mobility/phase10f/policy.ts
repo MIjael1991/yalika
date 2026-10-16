@@ -1,4 +1,4 @@
-/** YALEKA Fase 10F — calculadora PURA de políticas, NO efectúa cobros ni cambia viajes. */
+/** YALIKA Fase 10F — calculadora PURA de políticas, NO efectúa cobros ni cambia viajes. */
 export type VehicleKind = 'CAR' | 'TAXI' | 'MOTORCYCLE';
 export type TripState =
   | 'REQUESTED'

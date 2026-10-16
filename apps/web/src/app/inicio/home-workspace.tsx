@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { ServiceArt } from "../../components/service-art";
 import { useEffect, useState } from "react";
-import { YalekaSearch } from "../../components/yaleka-search";
-import { destinations } from "../../lib/yaleka-navigation";
+import { YalikaSearch } from "../../components/yalika-search";
+import { destinations } from "../../lib/yalika-navigation";
 import styles from "./home.module.css";
 
 type Briefing = {
@@ -51,7 +51,7 @@ export function HomeWorkspace() {
       }
       const timer = setTimeout(() => request.abort(), 15000);
       async function get(path: string) {
-        const r = await fetch(`/api/orion/${path}`, {
+        const r = await fetch(`/api/yalika/${path}`, {
           cache: "no-store",
           signal: request.signal,
         });
@@ -249,7 +249,7 @@ export function HomeWorkspace() {
                   ) : (
                     <div className={styles.empty}>
                       <p>No tienes actividades programadas para hoy.</p>
-                      <Link href="/life#orion-captura">
+                      <Link href="/life#yalika-captura">
                         Agregar una actividad →
                       </Link>
                     </div>
@@ -271,7 +271,7 @@ export function HomeWorkspace() {
               Escribe o habla para organizar una actividad. Revisa la propuesta
               antes de guardarla.
             </p>
-            <Link className={styles.primary} href="/life#orion-captura">
+            <Link className={styles.primary} href="/life#yalika-captura">
               Organizar una actividad →
             </Link>
             <Link className={styles.secondary} href="/estudio">
@@ -317,7 +317,7 @@ export function HomeWorkspace() {
             : "Sin conexión: las acciones que requieren el servidor no están disponibles."}
         </footer>
         <div className={styles.assistantBar}>
-          <YalekaSearch compact />
+          <YalikaSearch compact />
         </div>
       </div>
     </main>

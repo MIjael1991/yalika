@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $Root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..\..")).Path
 $Api = Join-Path $Root "apps\api"
 $Web = Join-Path $Root "apps\web"
-$Sidebar = Join-Path $Web "src\components\orion-sidebar.tsx"
+$Sidebar = Join-Path $Web "src\components\yalika-sidebar.tsx"
 $SaludPage = Join-Path $Web "src\app\salud\page.tsx"
 $ClinicalModule = Join-Path $Api "src\clinical\clinical.module.ts"
 $ClinicalStorage = Join-Path $env:LOCALAPPDATA "Yalika\clinical-dev"
@@ -80,9 +80,9 @@ function Start-DockerDesktopIfNeeded {
 }
 
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host " YALEKA - INICIO LOCAL UNICO" -ForegroundColor Cyan
+Write-Host " YALIKA - INICIO LOCAL UNICO" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
-Write-Host "Una Web + una API + una PostgreSQL orion."
+Write-Host "Una Web + una API + una PostgreSQL yalika."
 Write-Host ""
 
 foreach ($Required in @($Api, $Web, $Sidebar, $SaludPage, $ClinicalModule)) {
@@ -207,7 +207,7 @@ Ok "Salud Yalika: http://localhost:3001/salud"
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green
-Write-Host " YALEKA LOCAL COMPLETA: ACTIVA" -ForegroundColor Green
+Write-Host " YALIKA LOCAL COMPLETA: ACTIVA" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host "Inicio:  http://localhost:3001"
 Write-Host "Salud:   http://localhost:3001/salud"

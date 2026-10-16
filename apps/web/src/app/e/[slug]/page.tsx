@@ -54,7 +54,7 @@ export default async function PublicSurveyPage({
   const query = await searchParams;
   const invitation = typeof query.invitation === 'string' && query.invitation.length <= 128 ? query.invitation : ''; 
   const apiUrl = (
-    process.env.ORION_API_URL ?? 'http://localhost:3000'
+    process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
   let survey: PublicSurvey | null = null;
 

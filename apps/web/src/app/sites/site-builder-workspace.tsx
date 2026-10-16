@@ -784,7 +784,7 @@ async function apiRequest<T>(
   init?: RequestInit,
 ) {
   const response = await fetch(
-    `/api/orion/${path}`,
+    `/api/yalika/${path}`,
     {
       ...init,
       headers: {
@@ -811,7 +811,7 @@ async function apiRequest<T>(
       Array.isArray(message)
         ? message.join('. ')
         : message ??
-            'ORION no pudo completar la operación',
+            'Yalika no pudo completar la operación',
     );
   }
 
@@ -1342,7 +1342,7 @@ export function SiteBuilderWorkspace({
     }));
     setSelectedExample('');
     setSiteMessage(
-      `ORION preparó el estilo ${idea.name}. Revísalo antes de guardar o publicar.`,
+      `Yalika preparó el estilo ${idea.name}. Revísalo antes de guardar o publicar.`,
     );
     setSiteError('');
   }
@@ -1406,7 +1406,7 @@ export function SiteBuilderWorkspace({
       ]);
       setScratchError('');
       setScratchMessage(
-        'ORION preparó esta propuesta. Revísala y presiona Activar solamente si estás de acuerdo.',
+        'Yalika preparó esta propuesta. Revísala y presiona Activar solamente si estás de acuerdo.',
       );
       setAssistantScratchPreview(
         preparedScratch,
@@ -2460,7 +2460,7 @@ export function SiteBuilderWorkspace({
 
     if (!site || site.status !== 'published') {
       setLoyaltyError(
-        'Primero guarda y publica la página. Después ORION podrá crear su QR.',
+        'Primero guarda y publica la página. Después Yalika podrá crear su QR.',
       );
       return;
     }
@@ -2663,7 +2663,7 @@ export function SiteBuilderWorkspace({
 
     if (!initialAuthorizedUserId) {
       setRedeemError(
-        'Falta configurar ORION_AUTHORIZED_USER_ID para registrar quién entrega el premio.',
+        'Falta configurar YALIKA_AUTHORIZED_USER_ID para registrar quién entrega el premio.',
       );
       return;
     }
@@ -2708,7 +2708,7 @@ export function SiteBuilderWorkspace({
           className="w-full max-w-lg rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-2xl"
         >
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-400">
-            Yaleka · Mi página
+            Yalika · Mi página
           </p>
           <h1 className="mt-3 text-3xl font-semibold">
             Conectar mi tienda
@@ -2746,7 +2746,7 @@ export function SiteBuilderWorkspace({
         <header className="flex flex-col gap-5 border-b border-slate-800 pb-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-400">
-              Yaleka · Mi página
+              Yalika · Mi página
             </p>
             <h1 className="mt-2 text-3xl font-semibold sm:text-4xl">
               Mi tienda
@@ -2833,13 +2833,13 @@ export function SiteBuilderWorkspace({
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-fuchsia-300">
-                Idea de ORION para esta temporada
+                Idea de Yalika para esta temporada
               </p>
               <h2 className="mt-2 text-2xl font-semibold">
                 {seasonalStyleIdea.name}
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                {seasonalStyleIdea.description} ORION cambia el estilo y prepara un anuncio; nunca publica sin tu permiso.
+                {seasonalStyleIdea.description} Yalika cambia el estilo y prepara un anuncio; nunca publica sin tu permiso.
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <button
@@ -2983,7 +2983,7 @@ export function SiteBuilderWorkspace({
                 Cuatro diseños recomendados
               </h2>
               <p className="mt-2 text-sm text-slate-400">
-                Son las opciones más claras y fáciles. ORION puede transformar cualquiera en un estilo especial cuando se lo pidas.
+                Son las opciones más claras y fáciles. Yalika puede transformar cualquiera en un estilo especial cuando se lo pidas.
               </p>
             </div>
           </div>
@@ -3361,7 +3361,7 @@ export function SiteBuilderWorkspace({
                 className="mt-2 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 outline-none focus:border-cyan-400"
               />
               <span className="mt-1 block text-[11px] text-slate-500">
-                Escribe el número con lada; ORION creará el enlace.
+                Escribe el número con lada; Yalika creará el enlace.
               </span>
             </label>
             <label className="text-sm text-slate-300">
@@ -3600,7 +3600,7 @@ export function SiteBuilderWorkspace({
               Crear promoción
             </h2>
             <p className="mt-2 text-sm text-slate-400">
-              Puedes dictar el título y el mensaje; ORION conservará los números para que los revises.
+              Puedes dictar el título y el mensaje; Yalika conservará los números para que los revises.
             </p>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -4325,7 +4325,7 @@ export function SiteBuilderWorkspace({
                 Premia una compra real, una sola vez
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-                El cliente recibe una oportunidad únicamente después de pagar. ORION decide el resultado, descuenta existencias y crea un código único si gana.
+                El cliente recibe una oportunidad únicamente después de pagar. Yalika decide el resultado, descuenta existencias y crea un código único si gana.
               </p>
 
               <button
@@ -4342,7 +4342,7 @@ export function SiteBuilderWorkspace({
               >
                 <span>
                   <strong className="block text-sm text-cyan-100">
-                    Que ORION lo prepare por mí
+                    Que Yalika lo prepare por mí
                   </strong>
                   <span className="mt-1 block text-xs text-cyan-100/65">
                     Habla o escribe lo que quieres regalar.
@@ -4358,7 +4358,7 @@ export function SiteBuilderWorkspace({
                 <ol className="mt-3 grid gap-2 text-xs leading-5 text-slate-300 sm:grid-cols-2">
                   <li><strong className="text-amber-200">1.</strong> El cliente realiza y paga una compra.</li>
                   <li><strong className="text-amber-200">2.</strong> El QR del ticket le da un intento.</li>
-                  <li><strong className="text-amber-200">3.</strong> Si gana, ORION crea un código ganador.</li>
+                  <li><strong className="text-amber-200">3.</strong> Si gana, Yalika crea un código ganador.</li>
                   <li><strong className="text-amber-200">4.</strong> Caja valida el código al entregar el premio.</li>
                 </ol>
               </div>
@@ -4595,14 +4595,14 @@ export function SiteBuilderWorkspace({
                 Canjear código
               </h3>
               <p className="mt-3 text-sm leading-6 text-slate-400">
-                Si el cliente gana, ORION mostrará un código en su celular. No es su teléfono ni tiene que inventarlo. Escríbelo aquí al entregar el premio.
+                Si el cliente gana, Yalika mostrará un código en su celular. No es su teléfono ni tiene que inventarlo. Escríbelo aquí al entregar el premio.
               </p>
               <form
                 onSubmit={redeemScratch}
                 className="mt-6"
               >
                 <label className="text-sm text-slate-300">
-                  Código ganador creado por ORION
+                  Código ganador creado por Yalika
                   <input
                     value={redeemCode}
                     onChange={(event) =>
@@ -4610,7 +4610,7 @@ export function SiteBuilderWorkspace({
                         event.target.value.toUpperCase(),
                       )
                     }
-                    placeholder="ORION-XXXXXXXXXX"
+                    placeholder="YALIKA-XXXXXXXXXX"
                     className="mt-2 h-14 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 text-center font-mono text-lg font-bold uppercase tracking-wider outline-none focus:border-cyan-300"
                   />
                 </label>
@@ -4642,7 +4642,7 @@ export function SiteBuilderWorkspace({
                   <li>• Una oportunidad por ticket pagado.</li>
                   <li>• Un código ganador solamente se usa una vez.</li>
                   <li>• Una devolución cancela el beneficio relacionado.</li>
-                  <li>• ORION registra quién entregó el premio.</li>
+                  <li>• Yalika registra quién entregó el premio.</li>
                 </ul>
               </div>
             </div>
@@ -4724,7 +4724,7 @@ export function SiteBuilderWorkspace({
                   ¿Este producto tiene tallas, colores o tamaños?
                 </legend>
                 <p className="mb-3 text-xs leading-5 text-slate-400">
-                  Elige una opción y ORION llevará la existencia de cada variante por separado.
+                  Elige una opción y Yalika llevará la existencia de cada variante por separado.
                 </p>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {[
@@ -5339,8 +5339,8 @@ export function SiteBuilderWorkspace({
           setAssistantMessage('');
         }}
         className="fixed bottom-5 right-5 z-[70] flex h-16 w-16 items-center justify-center rounded-full border border-cyan-200/40 bg-gradient-to-br from-cyan-300 via-cyan-400 to-violet-500 text-2xl font-black text-slate-950 shadow-[0_0_45px_rgba(34,211,238,.45)] transition hover:scale-105 sm:bottom-7 sm:right-7 sm:h-20 sm:w-20"
-        aria-label="Hablar con ORION"
-        title="Hablar con ORION"
+        aria-label="Hablar con Yalika"
+        title="Hablar con Yalika"
       >
         <span className="absolute inset-2 animate-pulse rounded-full border border-white/45" />
         <span className="relative">✦</span>
@@ -5356,7 +5356,7 @@ export function SiteBuilderWorkspace({
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400">
-                    Dile a ORION
+                    Dile a Yalika
                   </p>
                   <h2 className="mt-1 text-xl font-semibold">
                     ¿Qué quieres preparar?
@@ -5375,7 +5375,7 @@ export function SiteBuilderWorkspace({
             </div>
 
             <p className="mt-5 text-sm leading-6 text-slate-400">
-              Puedes pedir un diseño, una promoción o un raspadito. ORION prepara los campos y tú confirmas al final.
+              Puedes pedir un diseño, una promoción o un raspadito. Yalika prepara los campos y tú confirmas al final.
             </p>
 
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -5492,7 +5492,7 @@ export function SiteBuilderWorkspace({
               Preparar para revisar
             </button>
             <p className="mt-3 text-center text-xs text-slate-500">
-              ORION no publicará nada sin tu confirmación.
+              Yalika no publicará nada sin tu confirmación.
             </p>
           </section>
         </div>

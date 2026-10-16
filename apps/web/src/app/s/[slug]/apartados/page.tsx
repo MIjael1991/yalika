@@ -3,7 +3,7 @@ import { ReservableCatalog } from './reservable-catalog';
 export const dynamic = 'force-dynamic';
 
 const apiUrl = (
-  process.env.ORION_API_URL ?? 'http://localhost:3000'
+  process.env.YALIKA_API_URL ?? 'http://localhost:3000'
 ).replace(/\/+$/, '');
 
 export default async function StoreReservationsPage({

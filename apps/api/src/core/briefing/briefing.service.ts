@@ -246,7 +246,7 @@ export class BriefingService {
         kind: 'sales',
         title: `Las ventas de ayer bajaron ${Math.abs(salesChangePercent)}%`,
         detail:
-          'Yaleka puede ayudarte a preparar una promoción; tú decides si se publica.',
+          'Yalika puede ayudarte a preparar una promoción; tú decides si se publica.',
         actionHref: '/sites#promotions',
         actionLabel: 'Preparar promoción',
       });
@@ -258,8 +258,8 @@ export class BriefingService {
         kind: 'planning',
         title: 'Tu día todavía está libre',
         detail:
-          'Puedes dictar una actividad y Yaleka la colocará en el espacio correcto.',
-        actionHref: '/life#orion-captura',
+          'Puedes dictar una actividad y Yalika la colocará en el espacio correcto.',
+        actionHref: '/life#yalika-captura',
         actionLabel: 'Agregar actividad',
       });
     }

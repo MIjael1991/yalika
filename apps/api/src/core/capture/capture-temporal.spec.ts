@@ -21,7 +21,7 @@ describe('capture temporal interpretation', () => {
     expect(result.reminderMinutesBefore).toBe(15);
     expect(result.needsTemporalConfirmation).toBe(true);
     expect(result.canUseTemporalProposal).toBe(true);
-    expect(result.temporalSummary).toContain('ORION asumió horario de tarde');
+    expect(result.temporalSummary).toContain('Yalika asumió horario de tarde');
     expect(result.temporalSummary).toContain('2 ocasiones: hoy y mañana');
     expect(result.temporalSummary).not.toContain('cada día');
   });

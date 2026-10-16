@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const ts=require('typescript');
-const source=path.join(__dirname,'../src/lib/yaleka-navigation.ts');
+const source=path.join(__dirname,'../src/lib/yalika-navigation.ts');
 const compiled=ts.transpileModule(fs.readFileSync(source,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
 const sandbox={exports:{}};vm.runInNewContext(compiled,sandbox);
 const {searchDestinations:search,normalizeSearch,destinations}=sandbox.exports;

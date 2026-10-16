@@ -52,7 +52,7 @@ export function LoginWorkspace() {
     setError('');
 
     try {
-      const response = await fetch('/api/orion/auth/login', {
+      const response = await fetch('/api/yalika/auth/login', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
@@ -65,7 +65,7 @@ export function LoginWorkspace() {
       const text = await response.text();
       let payload: LoginResponse | null = null;
       try { payload = text ? JSON.parse(text) as LoginResponse : null; } catch {
-        throw new Error('El acceso no respondió correctamente. Reintenta; si continúa, revisa la conexión con Yaleka.');
+        throw new Error('El acceso no respondió correctamente. Reintenta; si continúa, revisa la conexión con Yalika.');
       }
       if (response.ok && !payload?.user) throw new Error('No se pudo confirmar la sesión. Reintenta.');
 
@@ -97,7 +97,7 @@ export function LoginWorkspace() {
     <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 py-10 text-slate-100">
       <section className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-2xl shadow-black/30">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">
-          Yaleka
+          Yalika
         </p>
         <h1 className="mt-3 text-3xl font-bold">Bienvenido</h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
@@ -128,7 +128,7 @@ export function LoginWorkspace() {
           <label className="block text-sm text-slate-300">
             Contraseña
             <input
-              id="yaleka-login-password"
+              id="yalika-login-password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               required
@@ -143,7 +143,7 @@ export function LoginWorkspace() {
           <div className="-mt-2 flex min-h-11 flex-wrap items-center justify-between gap-2">
             <button
               type="button"
-              aria-controls="yaleka-login-password"
+              aria-controls="yalika-login-password"
               aria-pressed={showPassword}
               onClick={() => setShowPassword((value) => !value)}
               className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
@@ -160,13 +160,13 @@ export function LoginWorkspace() {
             disabled={submitting}
             className="h-12 w-full rounded-xl bg-cyan-400 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-wait disabled:opacity-60"
           >
-            {submitting ? 'Verificando…' : 'Ingresar a Yaleka'}
+            {submitting ? 'Verificando…' : 'Ingresar a Yalika'}
           </button>
         </form>
 
-        <section data-yaleka-register-cta="true" className="mt-6 rounded-2xl border border-cyan-400/25 bg-cyan-400/5 p-4 text-center">
-          <p className="text-sm font-semibold text-slate-100">¿Primera vez en Yaleka?</p>
-          <p className="mt-1 text-xs leading-5 text-slate-400">Crea una sola cuenta Yaleka y entra a los módulos que tengas disponibles.</p>
+        <section data-yalika-register-cta="true" className="mt-6 rounded-2xl border border-cyan-400/25 bg-cyan-400/5 p-4 text-center">
+          <p className="text-sm font-semibold text-slate-100">¿Primera vez en Yalika?</p>
+          <p className="mt-1 text-xs leading-5 text-slate-400">Crea una sola cuenta Yalika y entra a los módulos que tengas disponibles.</p>
           <Link
             href={registerHref}
             className="mt-4 flex min-h-12 w-full items-center justify-center rounded-xl border border-cyan-300/40 bg-slate-950 px-4 font-semibold text-cyan-200 transition hover:border-cyan-200 hover:bg-slate-900"
@@ -177,7 +177,7 @@ export function LoginWorkspace() {
 
 
         <p className="mt-5 text-xs leading-5 text-slate-500">
-          Yaleka nunca guarda tu contraseña en texto. La sesión queda protegida
+          Yalika nunca guarda tu contraseña en texto. La sesión queda protegida
           en este navegador y puede cerrarse desde tu cuenta.
         </p>
       </section>

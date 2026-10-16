@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
-// YALEKA_SURVEY_SECURITY_CONFIG
+// YALIKA_SURVEY_SECURITY_CONFIG
 const isProduction = process.env.NODE_ENV === 'production';
 
-const yalekaSurveySecurityHeaders = [
+const yalikaSurveySecurityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -35,22 +35,26 @@ const yalekaSurveySecurityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['*.trycloudflare.com'],
+  // Enlaces guardados antes del cambio de nombre (por ejemplo las imágenes de las páginas).
+  async rewrites() {
+    return [{ source: '/api/orion/:path*', destination: '/api/yalika/:path*' }];
+  },
   async headers() {
     return [
-      { source: '/surveys/:path*', headers: yalekaSurveySecurityHeaders },
-      { source: '/encuestas/:path*', headers: yalekaSurveySecurityHeaders },
-      { source: '/registro', headers: yalekaSurveySecurityHeaders },
+      { source: '/surveys/:path*', headers: yalikaSurveySecurityHeaders },
+      { source: '/encuestas/:path*', headers: yalikaSurveySecurityHeaders },
+      { source: '/registro', headers: yalikaSurveySecurityHeaders },
       {
         source: '/e/:path*',
         headers: [
-          ...yalekaSurveySecurityHeaders,
+          ...yalikaSurveySecurityHeaders,
           { key: 'Cache-Control', value: 'no-store, max-age=0' },
         ],
       },
       {
-        source: '/api/orion/survey/:path*',
+        source: '/api/yalika/survey/:path*',
         headers: [
-          ...yalekaSurveySecurityHeaders,
+          ...yalikaSurveySecurityHeaders,
           { key: 'Cache-Control', value: 'no-store, max-age=0' },
         ],
       },

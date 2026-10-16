@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-export function OrionPwa() {
+export function YalikaPwa() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) {
       return;

@@ -1,7 +1,7 @@
 import { RecoveryWorkspace } from './recovery-workspace';
 
 export const metadata = {
-  title: 'Recuperar acceso · Yaleka',
+  title: 'Recuperar acceso · Yalika',
 };
 
 export default async function RecoverPage({

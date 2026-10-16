@@ -2,13 +2,13 @@
 
 import { usePathname } from "next/navigation";
 
-import { YalekaTheme } from "./yaleka-theme";
-import { YalekaSearch } from "./yaleka-search";
-import { OrionSidebar } from "./orion-sidebar";
+import { YalikaTheme } from "./yalika-theme";
+import { YalikaSearch } from "./yalika-search";
+import { YalikaSidebar } from "./yalika-sidebar";
 import { ModuleMenu } from "./module-menu";
-import { OrionPwa } from "./orion-pwa";
+import { YalikaPwa } from "./yalika-pwa";
 
-export function OrionShell({ children }: { children: React.ReactNode }) {
+export function YalikaShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   if (
@@ -21,7 +21,7 @@ export function OrionShell({ children }: { children: React.ReactNode }) {
   ) {
     return (
       <div className="min-h-screen bg-slate-950">
-        <OrionPwa />
+        <YalikaPwa />
         {children}
       </div>
     );
@@ -29,18 +29,18 @@ export function OrionShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <OrionPwa />
-      <OrionSidebar />
+      <YalikaPwa />
+      <YalikaSidebar />
       <div className="min-w-0 pb-20 lg:pl-64 lg:pb-0">
-        <YalekaTheme>
+        <YalikaTheme>
           <ModuleMenu />
           {pathname !== "/inicio" && (
             <div className="px-4 py-3">
-              <YalekaSearch compact />
+              <YalikaSearch compact />
             </div>
           )}
           {children}
-        </YalekaTheme>
+        </YalikaTheme>
       </div>
     </div>
   );

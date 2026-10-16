@@ -152,7 +152,7 @@ export default function AccesoSaludPage() {
                     </div>
                     <a
                       className={styles.linkButton}
-                      href={`/api/orion/clinical/access/sessions/${encodeURIComponent(sessionId)}/documents/${encodeURIComponent(doc.id)}/download`}
+                      href={`/api/yalika/clinical/access/sessions/${encodeURIComponent(sessionId)}/documents/${encodeURIComponent(doc.id)}/download`}
                     >
                       Descargar si fue autorizado
                     </a>

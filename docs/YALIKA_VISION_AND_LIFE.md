@@ -1,4 +1,4 @@
-# ORION: visión de producto y continuidad
+# Yalika: visión de producto y continuidad
 
 Actualizado: 19 de agosto de 2026.
 
@@ -9,7 +9,7 @@ esperar hasta que exista una base segura.
 
 ## Forma de trabajo
 
-ORION es un proyecto de largo plazo. Durante su desarrollo se debe:
+Yalika es un proyecto de largo plazo. Durante su desarrollo se debe:
 
 - explicar qué se construye, por qué y qué posibilidad abre;
 - recomendar mejoras relevantes aunque no hayan sido solicitadas literalmente;
@@ -22,7 +22,7 @@ ORION es un proyecto de largo plazo. Durante su desarrollo se debe:
 
 ## Principio central
 
-ORION no será un sistema diferente para cada giro. Tendrá un núcleo universal:
+Yalika no será un sistema diferente para cada giro. Tendrá un núcleo universal:
 
 - identidad, personas, usuarios, roles y permisos;
 - organizaciones, espacios y ubicaciones;
@@ -35,9 +35,9 @@ ORION no será un sistema diferente para cada giro. Tendrá un núcleo universal
 Los paquetes Business, Retail, Restaurant, Education, Services, Government,
 Agriculture, Transport, Hospitality y otros activarán solamente lo necesario.
 
-## ORION Life
+## Yalika Life
 
-ORION Life será la puerta personal al ecosistema. No será una agenda separada:
+Yalika Life será la puerta personal al ecosistema. No será una agenda separada:
 usará el motor universal de espacios, tareas, documentos, notificaciones y
 permisos. Una persona podrá participar en varios contextos sin que sus datos se
 mezclen indebidamente.
@@ -68,9 +68,9 @@ Las actividades se clasificarán como:
 5. compras y tareas flexibles;
 6. tareas que pueden pasar a otro día.
 
-ORION deberá considerar duración, tráfico, ubicación, horario de establecimientos,
+Yalika deberá considerar duración, tráfico, ubicación, horario de establecimientos,
 dependencias y tiempo de traslado. Cuando el usuario posponga una actividad 15,
-30 o 60 minutos, ORION preparará un nuevo orden y solicitará confirmación antes de
+30 o 60 minutos, Yalika preparará un nuevo orden y solicitará confirmación antes de
 mover compromisos importantes.
 
 Las alarmas futuras tendrán acciones como:
@@ -87,12 +87,12 @@ cuando no exista Internet.
 
 ## Captura rápida y motor de contexto
 
-La entrada principal será **Dile a ORION**. Una persona podrá escribir un mensaje
+La entrada principal será **Dile a Yalika**. Una persona podrá escribir un mensaje
 corto y, en etapas posteriores, dictarlo o fotografiar un documento. Texto, voz y
 fotografía alimentarán el mismo motor; no existirán tres sistemas de tareas
 separados.
 
-ORION distinguirá entre:
+Yalika distinguirá entre:
 
 - el espacio, que define propiedad y visibilidad: personal, familia, escuela,
   negocio o uno personalizado;
@@ -102,7 +102,7 @@ ORION distinguirá entre:
   mensaje o patrones confirmados anteriormente.
 
 Una indicación explícita del usuario siempre tendrá prioridad. Con confianza alta
-ORION preseleccionará el destino y permitirá cambiarlo. Con confianza media
+Yalika preseleccionará el destino y permitirá cambiarlo. Con confianza media
 solicitará una confirmación breve. Con confianza baja propondrá conservar la tarea
 en un espacio privado. Nunca se compartirá silenciosamente información sensible,
 en especial salud, menores, dinero o conversaciones escolares.
@@ -135,7 +135,7 @@ eventos en tiempo real.
 
 El núcleo ya puede representar tareas diarias, semanales, mensuales y anuales.
 Cada serie conserva su fecha original, responsable, espacio y fecha final opcional.
-ORION prepara ocurrencias para los siguientes siete días y PostgreSQL impide que
+Yalika prepara ocurrencias para los siguientes siete días y PostgreSQL impide que
 dos dispositivos generen dos veces la misma actividad. Al detener una serie se
 conservan la tarea actual y el historial.
 
@@ -153,14 +153,14 @@ otra persona toma una tarea compartida. Completar la tarea cancela el aviso;
 posponerla recalcula el horario; posponer solamente el recordatorio conserva la
 fecha real de la actividad. Todas estas decisiones quedan auditadas.
 
-El centro muestra avisos vencidos y los próximos de 24 horas mientras ORION está
+El centro muestra avisos vencidos y los próximos de 24 horas mientras Yalika está
 abierto. No se debe afirmar todavía que son alarmas del dispositivo: para avisar
 con la aplicación cerrada faltan Service Worker, suscripción push, permisos,
 entrega persistente y preferencias de silencio.
 
 ## Pagos, recibos y memoria predictiva
 
-El usuario podrá fotografiar un recibo. ORION propondrá, sujeto a confirmación:
+El usuario podrá fotografiar un recibo. Yalika propondrá, sujeto a confirmación:
 
 - empresa o servicio;
 - número de suscriptor o contrato;
@@ -169,13 +169,13 @@ El usuario podrá fotografiar un recibo. ORION propondrá, sujeto a confirmació
 - siguiente fecha aproximada.
 
 Después del pago se podrá guardar el comprobante y generar el siguiente recordatorio.
-Una fecha inferida siempre se mostrará como estimación. ORION no realizará pagos ni
+Una fecha inferida siempre se mostrará como estimación. Yalika no realizará pagos ni
 guardará datos bancarios sensibles sin una solución específica y autorización.
 
-## Compras de ORION a ORION
+## Compras de Yalika a Yalika
 
-ORION Business podrá transformar faltantes de inventario en una orden de compra y
-asignarla al ORION del trabajador sin transcribir productos. Debe incluir cantidades,
+Yalika Business podrá transformar faltantes de inventario en una orden de compra y
+asignarla al Yalika del trabajador sin transcribir productos. Debe incluir cantidades,
 presentación, proveedor, presupuesto, fecha límite, sustituciones y factura.
 
 El trabajador podrá informar aceptada, en camino, comprando, parcial, terminada o
@@ -195,13 +195,13 @@ Un profesor podrá registrar observaciones semanales y preparar juntas. Se disti
 Los tutores solamente verán información de sus hijos. La inteligencia organizará y
 resumirá, pero no diagnosticará, etiquetará ni tomará decisiones disciplinarias.
 
-ORION podrá comunicar internamente primero y después, con consentimiento, mediante
+Yalika podrá comunicar internamente primero y después, con consentimiento, mediante
 notificaciones del dispositivo, correo, WhatsApp o SMS. No enviará mensajes en nombre
 del usuario sin autorización explícita.
 
 ## Activos y mantenimiento
 
-Además de inventario consumible, ORION deberá representar vehículos, computadoras,
+Además de inventario consumible, Yalika deberá representar vehículos, computadoras,
 herramientas, maquinaria, mobiliario y equipos. Conservará compra, ubicación,
 responsable, garantía, fallas, mantenimientos, vida útil y documentos relacionados.
 
@@ -209,7 +209,7 @@ Ejemplos personales incluyen servicio del automóvil, antigüedad de llantas y
 renovación de pólizas. Las recomendaciones se basarán en datos registrados y se
 identificarán como aproximadas cuando corresponda.
 
-## Inteligencia ORION
+## Inteligencia Yalika
 
 La inteligencia será avanzada para analizar y prudente para actuar:
 
@@ -220,7 +220,7 @@ La inteligencia será avanzada para analizar y prudente para actuar:
 5. preparar una acción para revisión humana.
 
 Las respuestas breves mostrarán problema, recomendación, confianza y acciones. El
-usuario podrá abrir por qué, cálculo y simulación. ORION distinguirá hechos,
+usuario podrá abrir por qué, cálculo y simulación. Yalika distinguirá hechos,
 predicciones, posibles explicaciones y recomendaciones.
 
 El ciclo futuro será observar, entender, proponer, permitir que el humano decida,
@@ -238,7 +238,7 @@ actuar, medir, aprender y recordar.
 
 ## Funciones futuras que deben permanecer en el backlog
 
-- ORION Studio para configurar módulos, menús, permisos, formularios y reglas;
+- Yalika Studio para configurar módulos, menús, permisos, formularios y reglas;
 - motor universal de formularios y campos personalizados;
 - documentos, fotografías, PDFs, garantías y evidencias;
 - motor de reglas y automatizaciones propuestas por IA y aprobadas por humanos;
@@ -246,12 +246,12 @@ actuar, medir, aprender y recordar.
 - tráfico, rutas y horarios verificados de establecimientos;
 - recurrencias avanzadas, cumpleaños calculados y mantenimiento por uso o kilometraje;
 - lectura inteligente de recibos y tickets;
-- asignación de compras e inventario entre cuentas ORION;
+- asignación de compras e inventario entre cuentas Yalika;
 - resumen de la mañana y cierre del día;
 - medición de tiempo recuperado;
 - salud de la organización en lugar de dashboards saturados;
 - preguntas naturales sustentadas en datos reales;
-- ORION Local Hub para redes internas, cuando la escala lo justifique;
+- Yalika Local Hub para redes internas, cuando la escala lo justifique;
 - importación CSV y Excel e interoperabilidad mediante estándares adecuados.
 
 ## Criterio para decidir nuevas funciones
@@ -266,7 +266,7 @@ Antes de programar una idea se debe preguntar:
 - ¿afecta privacidad, seguridad o rendimiento?
 - ¿es necesaria para el piloto actual?
 
-## Estado del primer piloto de ORION Life
+## Estado del primer piloto de Yalika Life
 
 El primer checkpoint inició la base de espacios y tareas compartidas. El segundo
 bloque agregó contraseña cifrada con scrypt, bloqueo temporal por intentos fallidos,
@@ -291,12 +291,12 @@ historial y las tareas canceladas pueden restaurarse.
 
 La captura universal distingue entre crear una tarea y dar una orden sobre una
 tarea existente. “Cancelar”, “eliminar”, “terminar” o “buscar” nunca deben producir
-otra tarea con esas palabras en el título. ORION busca solamente dentro de los
+otra tarea con esas palabras en el título. Yalika busca solamente dentro de los
 espacios visibles y editables de la sesión, muestra las coincidencias y exige elegir
 la tarea exacta antes de actuar. “Eliminar” se interpreta como cancelación
 recuperable; el borrado definitivo no forma parte de la captura rápida.
 
-Este patrón se aplicará a todo ORION: identificar la intención, buscar el elemento
+Este patrón se aplicará a todo Yalika: identificar la intención, buscar el elemento
 correcto, mostrar el efecto, confirmar cuando exista ambigüedad, ejecutar y ofrecer
 deshacer cuando la operación sea recuperable. Ventas, inventario, clientes,
 documentos y espacios compartidos no deben interpretar una orden destructiva como
@@ -304,7 +304,7 @@ una alta nueva.
 
 El sector de una tarea y su visibilidad son decisiones distintas. Detectar
 “Negocio” o “Inventario” no autoriza compartirla. Si existe un solo espacio de
-negocio accesible, ORION puede proponerlo; si existen varios, debe preguntar cuál;
+negocio accesible, Yalika puede proponerlo; si existen varios, debe preguntar cuál;
 si no existe ninguno, conservará la tarea en un espacio personal y explicará que
 seguirá privada. Una instrucción explícita como “del negocio” prevalece sobre el
 aprendizaje histórico. Los espacios con nombres repetidos se diferencian y nunca se

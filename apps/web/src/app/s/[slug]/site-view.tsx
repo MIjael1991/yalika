@@ -540,7 +540,7 @@ export function SiteView({site, products, promotions}: StoreData) {
       <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
         <div className="text-center">
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-cyan-400">
-            YALEKA
+            YALIKA
           </p>
           <h1 className="mt-4 text-3xl font-semibold">
             Sitio no encontrado
@@ -873,7 +873,7 @@ export function SiteView({site, products, promotions}: StoreData) {
                   : 'text-white/60'
               }`}
             >
-              Existencias actualizadas por Yaleka
+              Existencias actualizadas por Yalika
             </p>
           </div>
           <CatalogBrowser
@@ -922,7 +922,7 @@ export function SiteView({site, products, promotions}: StoreData) {
           </div>
         ) : null}
         <p className="mt-2">
-          Sitio conectado con Yaleka
+          Sitio conectado con Yalika
         </p>
       </footer>
       {whatsappUrl ? (

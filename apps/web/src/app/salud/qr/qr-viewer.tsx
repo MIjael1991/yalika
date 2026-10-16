@@ -42,7 +42,7 @@ export default function HealthQrViewer(){
   },[token]);
 
   return <main className={styles.page}><div className={styles.shell}>
-    <header className={styles.hero}><div><span className={styles.eyebrow}>YALEKA · QR SALUD</span><h1>Acceso clínico temporal</h1><p>El QR no contiene el expediente. El paciente decide qué categorías comparte y el acceso queda auditado.</p></div><Link href="/" className={styles.secondary}>Inicio</Link></header>
+    <header className={styles.hero}><div><span className={styles.eyebrow}>YALIKA · QR SALUD</span><h1>Acceso clínico temporal</h1><p>El QR no contiene el expediente. El paciente decide qué categorías comparte y el acceso queda auditado.</p></div><Link href="/" className={styles.secondary}>Inicio</Link></header>
     {error&&<div className={styles.error}>{error}</div>}
     {!error&&<div className={styles.offline}>{status}</div>}
     {summary&&<section className={`${styles.card} ${styles.cardFull}`}><span className={styles.kicker}>INFORMACIÓN AUTORIZADA</span><p className={styles.note}>Válido hasta {new Date(summary.expiresAt).toLocaleString('es-MX')}</p>

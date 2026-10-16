@@ -337,7 +337,7 @@ class ApiRequestError extends Error {
   }
 }
 
-const sessionExpiredEvent = "orion-session-expired";
+const sessionExpiredEvent = "yalika-session-expired";
 
 const voiceLocaleOptions = [
   { value: "es-MX", label: "Español · México" },
@@ -364,10 +364,10 @@ const spaceTypeLabels: Record<string, string> = {
   community: "Comunidad",
 };
 
-type OrionAreaKind =
+type YalikaAreaKind =
   "family" | "business" | "school" | "health" | "government" | "community";
 
-type OrionAreaAction = {
+type YalikaAreaAction = {
   title: string;
   description: string;
   taskTitle?: string;
@@ -375,13 +375,13 @@ type OrionAreaAction = {
   href?: string;
 };
 
-const orionAreaGuides: Record<
-  OrionAreaKind,
+const yalikaAreaGuides: Record<
+  YalikaAreaKind,
   {
     label: string;
     description: string;
     privacy: string;
-    actions: OrionAreaAction[];
+    actions: YalikaAreaAction[];
   }
 > = {
   family: {
@@ -464,7 +464,7 @@ const orionAreaGuides: Record<
     description:
       "Prepara consultas y recordatorios personales sin sustituir al profesional de salud.",
     privacy:
-      "Yaleka guardará estas actividades en Mi vida. No se comparten automáticamente.",
+      "Yalika guardará estas actividades en Mi vida. No se comparten automáticamente.",
     actions: [
       {
         title: "Preparar una consulta",
@@ -540,7 +540,7 @@ const orionAreaGuides: Record<
   },
 };
 
-function OrionBrandMark({ className = "h-11 w-11" }: { className?: string }) {
+function YalikaBrandMark({ className = "h-11 w-11" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 48 48"
@@ -567,7 +567,7 @@ function OrionBrandMark({ className = "h-11 w-11" }: { className?: string }) {
   );
 }
 
-function OrionAreaIcon({ kind }: { kind: OrionAreaKind }) {
+function YalikaAreaIcon({ kind }: { kind: YalikaAreaKind }) {
   const common = {
     width: 25,
     height: 25,
@@ -698,11 +698,11 @@ function getErrorMessage(payload: ApiErrorPayload | null) {
     return payload.message.join(". ");
   }
 
-  return payload?.message ?? payload?.error ?? "Ocurrió un error en Yaleka";
+  return payload?.message ?? payload?.error ?? "Ocurrió un error en Yalika";
 }
 
 async function apiRequest<T>(path: string, init?: RequestInit) {
-  const response = await fetch(`/api/orion/${path}`, {
+  const response = await fetch(`/api/yalika/${path}`, {
     ...init,
     headers: {
       "content-type": "application/json",
@@ -718,7 +718,7 @@ async function apiRequest<T>(path: string, init?: RequestInit) {
     try {
       payload = JSON.parse(text);
     } catch {
-      throw new Error("Yaleka respondió con información que no se pudo leer");
+      throw new Error("Yalika respondió con información que no se pudo leer");
     }
   }
 
@@ -1038,8 +1038,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   );
   const [appInstalled, setAppInstalled] = useState(false);
   const [deviceNotice, setDeviceNotice] = useState("");
-  const [selectedArea, setSelectedArea] = useState<OrionAreaKind | null>(null);
-  const [areaFilter, setAreaFilter] = useState<OrionAreaKind | null>(null);
+  const [selectedArea, setSelectedArea] = useState<YalikaAreaKind | null>(null);
+  const [areaFilter, setAreaFilter] = useState<YalikaAreaKind | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const voiceBaseTextRef = useRef("");
   const voiceFinalTextRef = useRef("");
@@ -1210,7 +1210,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       setAssistantPreference(preference);
     } catch {
       setVoiceSettingsNotice(
-        "Yaleka usará la voz recomendada del dispositivo hasta que guardes tu preferencia.",
+        "Yalika usará la voz recomendada del dispositivo hasta que guardes tu preferencia.",
       );
     }
   }, [userId]);
@@ -1370,7 +1370,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       setNotificationPermission(Notification.permission);
       setNotificationsEnabled(
         Notification.permission === "granted" &&
-          window.localStorage.getItem(`orion-notifications-${userId}`) ===
+          window.localStorage.getItem(`yalika-notifications-${userId}`) ===
             "enabled",
       );
     }, 0);
@@ -1395,7 +1395,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     );
     if (due.length === 0) return;
 
-    const storageKey = `orion-notified-reminders-${userId}`;
+    const storageKey = `yalika-notified-reminders-${userId}`;
     let previous: string[] = [];
     try {
       previous = JSON.parse(
@@ -1420,7 +1420,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               : `Abre Mi día para revisar ${pending.length} recordatorios.`,
           icon: "/app-icon-192.png",
           badge: "/app-icon-192.png",
-          tag: "orion-due-reminders",
+          tag: "yalika-due-reminders",
           data: { url: "/life" },
         });
 
@@ -1568,7 +1568,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     if (existingPersonal) {
       setSelectedSpaceId(existingPersonal.id);
       setCaptureNotice(
-        `Ya tienes el espacio personal ${existingPersonal.name}; Yaleka lo seleccionó en lugar de duplicarlo.`,
+        `Ya tienes el espacio personal ${existingPersonal.name}; Yalika lo seleccionó en lugar de duplicarlo.`,
       );
       setShowSpaceForm(false);
       return;
@@ -1602,7 +1602,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       setShowSpaceForm(false);
       setCaptureNotice(
         space.reused
-          ? `Ya existía el espacio personal ${space.name}; Yaleka lo reutilizó.`
+          ? `Ya existía el espacio personal ${space.name}; Yalika lo reutilizó.`
           : `Espacio creado: ${space.name}`,
       );
     } catch (saveError) {
@@ -1761,7 +1761,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     }
     if (!captureText.trim()) {
       setCaptureError(
-        "Escribe una tarea corta para que Yaleka pueda organizarla",
+        "Escribe una tarea corta para que Yalika pueda organizarla",
       );
       return;
     }
@@ -1795,7 +1795,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       setCaptureError(
         captureError instanceof Error
           ? captureError.message
-          : "Yaleka no pudo interpretar el mensaje",
+          : "Yalika no pudo interpretar el mensaje",
       );
     } finally {
       setInterpretingCapture(false);
@@ -1819,7 +1819,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     if (captureProposal.needsTemporalConfirmation && !acceptTemporalProposal) {
       completeCaptureDetails();
       setCaptureError(
-        "Yaleka necesita que revises la fecha y la hora antes de guardar.",
+        "Yalika necesita que revises la fecha y la hora antes de guardar.",
       );
       return;
     }
@@ -1993,7 +1993,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     setCaptureNotice("Completa la fecha, el aviso o la repetición");
     window.setTimeout(() => {
       document
-        .getElementById("orion-life-task-form")
+        .getElementById("yalika-life-task-form")
         ?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
   }
@@ -2053,7 +2053,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     const preferredName =
       assistantPreference.preferredName?.trim() || "Usuario";
     const utterance = prepareUtterance(
-      `Hola ${preferredName}. Soy Yaleka. Esta es la voz que usaré para acompañarte.`,
+      `Hola ${preferredName}. Soy Yalika. Esta es la voz que usaré para acompañarte.`,
     );
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
@@ -2076,7 +2076,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       );
       setAssistantPreference(savedPreference);
       setVoiceSettingsNotice(
-        "Preferencia guardada. Yaleka ya la usará al leer y escuchar.",
+        "Preferencia guardada. Yalika ya la usará al leer y escuchar.",
       );
       setError("");
     } catch (saveError) {
@@ -2654,7 +2654,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     setNotificationPermission(permission);
 
     if (permission === "granted") {
-      window.localStorage.setItem(`orion-notifications-${userId}`, "enabled");
+      window.localStorage.setItem(`yalika-notifications-${userId}`, "enabled");
       setNotificationsEnabled(true);
       setDeviceNotice(
         "Avisos activados. Solo mostraremos recordatorios importantes.",
@@ -2662,7 +2662,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       return;
     }
 
-    window.localStorage.setItem(`orion-notifications-${userId}`, "disabled");
+    window.localStorage.setItem(`yalika-notifications-${userId}`, "disabled");
     setNotificationsEnabled(false);
     setDeviceNotice(
       permission === "denied"
@@ -2672,10 +2672,10 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   }
 
   function disableNotifications() {
-    window.localStorage.setItem(`orion-notifications-${userId}`, "disabled");
+    window.localStorage.setItem(`yalika-notifications-${userId}`, "disabled");
     setNotificationsEnabled(false);
     setDeviceNotice(
-      "Avisos pausados en Yaleka. El permiso del navegador no fue modificado.",
+      "Avisos pausados en Yalika. El permiso del navegador no fue modificado.",
     );
   }
 
@@ -2696,10 +2696,10 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     try {
       const registration = await navigator.serviceWorker.ready;
       await registration.showNotification("Avisos listos", {
-        body: "Yaleka puede recordarte lo importante sin mostrar información privada.",
+        body: "Yalika puede recordarte lo importante sin mostrar información privada.",
         icon: "/app-icon-192.png",
         badge: "/app-icon-192.png",
-        tag: "orion-notification-test",
+        tag: "yalika-notification-test",
         data: { url: "/life" },
       });
       setDeviceNotice("Aviso de prueba enviado.");
@@ -2724,7 +2724,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   const capitalizedTodayLabel =
     todayLabel.charAt(0).toLocaleUpperCase("es-MX") + todayLabel.slice(1);
 
-  const countBriefingArea = (kind: OrionAreaKind) => {
+  const countBriefingArea = (kind: YalikaAreaKind) => {
     if (kind === "health") {
       return briefingTasks.filter((task) => task.category === "health").length;
     }
@@ -2739,7 +2739,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
   };
 
   const areaCards: Array<{
-    kind: OrionAreaKind;
+    kind: YalikaAreaKind;
     label: string;
     detail: string;
     color: string;
@@ -2801,12 +2801,12 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     },
   ];
 
-  function openArea(kind: OrionAreaKind) {
+  function openArea(kind: YalikaAreaKind) {
     setSelectedArea(kind);
     setError("");
   }
 
-  function getAreaSpace(kind: OrionAreaKind) {
+  function getAreaSpace(kind: YalikaAreaKind) {
     if (["health", "government", "community"].includes(kind)) {
       return spaces.find((space) => space.type === "personal");
     }
@@ -2814,10 +2814,10 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     return spaces.find((space) => space.type === kind);
   }
 
-  function prepareMissingAreaSpace(kind: OrionAreaKind) {
+  function prepareMissingAreaSpace(kind: YalikaAreaKind) {
     const isPrivateArea = ["health", "government", "community"].includes(kind);
     const type = isPrivateArea ? "personal" : kind;
-    const label = orionAreaGuides[kind].label;
+    const label = yalikaAreaGuides[kind].label;
 
     setSpaceForm({
       name: isPrivateArea ? "Mi vida" : `Mi espacio de ${label}`,
@@ -2830,13 +2830,13 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     setSelectedArea(null);
     setCaptureNotice(
       isPrivateArea
-        ? "Primero crea Mi vida. Ahí Yaleka protegerá esta información."
+        ? "Primero crea Mi vida. Ahí Yalika protegerá esta información."
         : `Primero crea tu espacio de ${label}. Después podrás agregar personas autorizadas.`,
     );
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function prepareAreaTask(kind: OrionAreaKind, action: OrionAreaAction) {
+  function prepareAreaTask(kind: YalikaAreaKind, action: YalikaAreaAction) {
     if (action.href) {
       setSelectedArea(null);
       router.push(action.href);
@@ -2863,18 +2863,18 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     }));
     setSelectedArea(null);
     setCaptureNotice(
-      `Yaleka preparó “${action.title}”. Agrega fecha o aviso y confirma para guardarlo.`,
+      `Yalika preparó “${action.title}”. Agrega fecha o aviso y confirma para guardarlo.`,
     );
     setError("");
     window.setTimeout(() => {
-      document.getElementById("orion-life-task-form")?.scrollIntoView({
+      document.getElementById("yalika-life-task-form")?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
     }, 350);
   }
 
-  function viewAreaTasks(kind: OrionAreaKind) {
+  function viewAreaTasks(kind: YalikaAreaKind) {
     const targetSpace = getAreaSpace(kind);
     if (!targetSpace) {
       prepareMissingAreaSpace(kind);
@@ -2889,14 +2889,14 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     setSelectedArea(null);
     setCaptureNotice("");
     window.setTimeout(() => {
-      document.getElementById("orion-life-workspace")?.scrollIntoView({
+      document.getElementById("yalika-life-workspace")?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     }, 350);
   }
 
-  function dictateInArea(kind: OrionAreaKind) {
+  function dictateInArea(kind: YalikaAreaKind) {
     const targetSpace = getAreaSpace(kind);
     if (!targetSpace) {
       prepareMissingAreaSpace(kind);
@@ -2911,10 +2911,10 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
     setTaskForm((current) => ({ ...current, category: kind }));
     setSelectedArea(null);
     setCaptureNotice(
-      `Listo para ${orionAreaGuides[kind].label}. Toca “Empezar a dictar” y Yaleka organizará la actividad.`,
+      `Listo para ${yalikaAreaGuides[kind].label}. Toca “Empezar a dictar” y Yalika organizará la actividad.`,
     );
     window.setTimeout(() => {
-      document.getElementById("orion-captura")?.scrollIntoView({
+      document.getElementById("yalika-captura")?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -2926,7 +2926,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
       <header className="border-b border-white/10 bg-[#07182b]/95 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <OrionBrandMark className="h-10 w-10 shrink-0" />
+            <YalikaBrandMark className="h-10 w-10 shrink-0" />
             <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-300">
                 Mi día
@@ -2937,7 +2937,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
           <div className="flex items-center gap-2">
             <span
-              title="Yaleka actualiza la información automáticamente"
+              title="Yalika actualiza la información automáticamente"
               className="hidden rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-medium text-emerald-200 xl:inline-flex"
             >
               <span className="mr-2 h-2 w-2 rounded-full bg-emerald-400" />
@@ -3019,7 +3019,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         ) : null}
 
         <section
-          id="orion-captura"
+          id="yalika-captura"
           className="mb-6 overflow-hidden rounded-3xl border border-cyan-400/30 bg-gradient-to-br from-cyan-400/10 via-slate-900 to-violet-400/10 p-5 shadow-xl shadow-cyan-950/10"
         >
           <div
@@ -3059,7 +3059,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
                 <div className="max-w-xl">
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300">
-                    Asistente Yaleka
+                    Asistente Yalika
                   </p>
                   <h2 className="mt-2 text-xl font-bold text-white">
                     ¿Qué quieres resolver?
@@ -3116,7 +3116,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 >
                   Crear actividad
                   <span className="mt-1 block text-xs font-normal opacity-75">
-                    Yaleka reconoce fecha, aviso y espacio.
+                    Yalika reconoce fecha, aviso y espacio.
                   </span>
                 </button>
                 <button
@@ -3246,7 +3246,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 <div className="mt-3 rounded-2xl border border-violet-400/20 bg-violet-400/5 px-4 py-3 text-xs leading-5 text-violet-100/75">
                   Puedes decir: “coma”, “punto”, “dos puntos”, “nueva línea” o
                   “nuevo párrafo”. También entiende “pon esto en viñetas”.
-                  Yaleka conserva el texto en esta pantalla y no lo envía hasta
+                  Yalika conserva el texto en esta pantalla y no lo envía hasta
                   que tú elijas otra acción.
                 </div>
               ) : null}
@@ -3296,8 +3296,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                     <div>
                       <p className="text-xs font-bold uppercase tracking-[0.18em] text-violet-300">
                         {captureProposal.actionProposal
-                          ? "Orden reconocida por Yaleka"
-                          : "Propuesta de Yaleka"}
+                          ? "Orden reconocida por Yalika"
+                          : "Propuesta de Yalika"}
                       </p>
                       <p className="mt-2 text-sm text-slate-400">
                         {captureProposal.actionProposal
@@ -3337,7 +3337,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                           {captureProposal.actionProposal.message}
                         </p>
                         <p className="mt-2 text-xs text-amber-100/70">
-                          Yaleka no creará una tarea nueva con esta orden.
+                          Yalika no creará una tarea nueva con esta orden.
                         </p>
                       </div>
 
@@ -3672,8 +3672,8 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-cyan-300">
-                    <OrionBrandMark className="h-7 w-7" />
-                    Yaleka Hoy
+                    <YalikaBrandMark className="h-7 w-7" />
+                    Yalika Hoy
                   </div>
                   <h2 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-4xl">
                     {personalizeGreeting(
@@ -3700,7 +3700,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                     type="button"
                     disabled={!briefing || loadingBriefing}
                     onClick={readMyDay}
-                    title="Yaleka lee el resumen solamente cuando tú lo solicitas"
+                    title="Yalika lee el resumen solamente cuando tú lo solicitas"
                     className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-200/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-bold text-cyan-50 transition hover:bg-cyan-300/20 disabled:opacity-40"
                   >
                     <span aria-hidden="true">{readingTasks ? "■" : "◖"}</span>
@@ -3712,7 +3712,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                       setShowVoiceSettings(true);
                       setVoiceSettingsNotice("");
                     }}
-                    title="Elegir cómo habla y escucha Yaleka"
+                    title="Elegir cómo habla y escucha Yalika"
                     className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/10"
                   >
                     <span aria-hidden="true">⚙</span>
@@ -3789,7 +3789,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                               {task.title}
                             </span>
                             <span className="mt-0.5 block text-[11px] text-slate-500">
-                              {task.space?.name ?? "Yaleka"}
+                              {task.space?.name ?? "Yalika"}
                               {overdueTaskIds.has(task.id) ? " · Atrasada" : ""}
                             </span>
                           </span>
@@ -3843,7 +3843,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         Todo está en orden
                       </p>
                       <p className="mt-1 text-xs text-emerald-100/70">
-                        Yaleka no encontró alertas importantes.
+                        Yalika no encontró alertas importantes.
                       </p>
                     </article>
                   )}
@@ -3871,7 +3871,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
               <button
                 type="button"
                 onClick={() =>
-                  document.getElementById("orion-captura")?.scrollIntoView({
+                  document.getElementById("yalika-captura")?.scrollIntoView({
                     behavior: "smooth",
                     block: "center",
                   })
@@ -3895,7 +3895,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           </section>
         ) : loadingBriefing ? (
           <div className="mb-6 rounded-3xl border border-slate-800 bg-slate-900 p-6 text-sm text-slate-500">
-            Yaleka está preparando tu resumen de hoy…
+            Yalika está preparando tu resumen de hoy…
           </div>
         ) : null}
 
@@ -3944,7 +3944,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         {duplicateWarning ? (
           <section className="mb-5 rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5 text-amber-100">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">
-              Yaleka evitó una tarea repetida
+              Yalika evitó una tarea repetida
             </p>
             <h2 className="mt-2 font-bold">{duplicateWarning.message}</h2>
             <div className="mt-4 space-y-3">
@@ -4124,7 +4124,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                     space.type === "personal" && space.status === "active",
                 ) ? (
                   <span className="mt-2 block text-xs text-slate-500">
-                    Ya tienes un espacio personal. Si eliges Personal, Yaleka
+                    Ya tienes un espacio personal. Si eliges Personal, Yalika
                     abrirá el existente.
                   </span>
                 ) : null}
@@ -4199,7 +4199,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
           ) : (
             <>
               <div
-                id="orion-life-workspace"
+                id="yalika-life-workspace"
                 className="mb-6 scroll-mt-24 flex gap-2 overflow-x-auto pb-2"
               >
                 {spaces.map((space) => (
@@ -4232,7 +4232,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-3 text-sm text-cyan-50 sm:flex-row sm:items-center sm:justify-between">
                   <p>
                     Mostrando únicamente actividades de{" "}
-                    <strong>{orionAreaGuides[areaFilter].label}</strong>{" "}
+                    <strong>{yalikaAreaGuides[areaFilter].label}</strong>{" "}
                     guardadas en tu espacio privado.
                   </p>
                   <button
@@ -4258,7 +4258,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         })`,
                     )
                     .join(", ")}
-                  . Yaleka los numeró para distinguirlos y no combinará sus
+                  . Yalika los numeró para distinguirlos y no combinará sus
                   tareas sin tu autorización.
                 </div>
               ) : null}
@@ -4457,7 +4457,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
                                 {lastActivity ? (
                                   <p className="mt-3 text-xs text-slate-600">
-                                    {lastActivity.actor?.name ?? "Yaleka"}{" "}
+                                    {lastActivity.actor?.name ?? "Yalika"}{" "}
                                     {actionLabels[lastActivity.action] ??
                                       lastActivity.action}
                                     {lastActivity.note
@@ -4616,7 +4616,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                         Nueva tarea
                       </p>
                       <form
-                        id="orion-life-task-form"
+                        id="yalika-life-task-form"
                         onSubmit={(event) => void createTask(event)}
                         className="mt-4 space-y-3"
                       >
@@ -4913,7 +4913,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                           className="mt-5 space-y-2 border-t border-slate-800 pt-5"
                         >
                           <p className="text-xs text-slate-500">
-                            Agregar una cuenta existente de Yaleka
+                            Agregar una cuenta existente de Yalika
                           </p>
                           <input
                             type="email"
@@ -4967,7 +4967,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="orion-agenda-title"
+          aria-labelledby="yalika-agenda-title"
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/85 p-0 backdrop-blur-sm sm:items-center sm:p-5"
         >
           <section className="max-h-[94vh] w-full max-w-6xl overflow-y-auto rounded-t-[2rem] border border-cyan-300/20 bg-[#081a2e] p-4 shadow-2xl sm:rounded-[2rem] sm:p-7">
@@ -4977,7 +4977,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   Todo en un solo lugar
                 </p>
                 <h2
-                  id="orion-agenda-title"
+                  id="yalika-agenda-title"
                   className="mt-1 text-2xl font-black text-white"
                 >
                   Mi agenda
@@ -5192,7 +5192,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="orion-area-title"
+          aria-labelledby="yalika-area-title"
           className="fixed inset-0 z-40 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
         >
           <section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-[2rem] border border-white/10 bg-[#0b1d33] p-5 shadow-2xl sm:rounded-[2rem] sm:p-7">
@@ -5207,20 +5207,20 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                       ?.color ?? "text-cyan-700"
                   }`}
                 >
-                  <OrionAreaIcon kind={selectedArea} />
+                  <YalikaAreaIcon kind={selectedArea} />
                 </span>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-cyan-300">
-                    Yaleka te guía
+                    Yalika te guía
                   </p>
                   <h2
-                    id="orion-area-title"
+                    id="yalika-area-title"
                     className="mt-1 text-2xl font-black text-white"
                   >
-                    {orionAreaGuides[selectedArea].label}
+                    {yalikaAreaGuides[selectedArea].label}
                   </h2>
                   <p className="mt-2 text-sm leading-6 text-slate-400">
-                    {orionAreaGuides[selectedArea].description}
+                    {yalikaAreaGuides[selectedArea].description}
                   </p>
                 </div>
               </div>
@@ -5235,7 +5235,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {orionAreaGuides[selectedArea].actions.map((action) => (
+              {yalikaAreaGuides[selectedArea].actions.map((action) => (
                 <button
                   key={action.title}
                   type="button"
@@ -5260,7 +5260,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 Privacidad clara
               </p>
               <p className="mt-2 text-sm leading-6 text-emerald-50/80">
-                {orionAreaGuides[selectedArea].privacy}
+                {yalikaAreaGuides[selectedArea].privacy}
               </p>
             </div>
 
@@ -5277,12 +5277,12 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                 onClick={() => viewAreaTasks(selectedArea)}
                 className="h-12 rounded-xl border border-cyan-300/30 font-bold text-cyan-100 hover:bg-cyan-300/10"
               >
-                Ver pendientes de {orionAreaGuides[selectedArea].label}
+                Ver pendientes de {yalikaAreaGuides[selectedArea].label}
               </button>
             </div>
 
             <p className="mt-4 text-center text-xs text-slate-500">
-              Yaleka prepara la acción; tú revisas y confirmas antes de
+              Yalika prepara la acción; tú revisas y confirmas antes de
               guardarla.
             </p>
           </section>
@@ -5293,7 +5293,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="orion-device-settings-title"
+          aria-labelledby="yalika-device-settings-title"
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
         >
           <section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-t-[2rem] border border-cyan-300/20 bg-[#0b1d33] p-5 shadow-2xl sm:rounded-[2rem] sm:p-7">
@@ -5303,7 +5303,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   Acceso más cómodo
                 </p>
                 <h2
-                  id="orion-device-settings-title"
+                  id="yalika-device-settings-title"
                   className="mt-2 text-2xl font-black text-white"
                 >
                   Aplicación y avisos
@@ -5423,7 +5423,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="orion-voice-settings-title"
+          aria-labelledby="yalika-voice-settings-title"
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
         >
           <section className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-[2rem] border border-cyan-300/20 bg-[#0b1d33] p-5 shadow-2xl sm:rounded-[2rem] sm:p-7">
@@ -5433,14 +5433,14 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                   Asistente personal
                 </p>
                 <h2
-                  id="orion-voice-settings-title"
+                  id="yalika-voice-settings-title"
                   className="mt-2 text-2xl font-black text-white"
                 >
-                  Voz de Yaleka
+                  Voz de Yalika
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-400">
                   Esta configuración se usa al tocar “Leer mi día” y al dictar.
-                  Yaleka nunca hablará sin que tú se lo pidas.
+                  Yalika nunca hablará sin que tú se lo pidas.
                 </p>
               </div>
               <button
@@ -5458,7 +5458,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
 
             <div className="mt-6 space-y-5">
               <label className="block text-sm font-semibold text-slate-200">
-                ¿Cómo quieres que Yaleka te llame?
+                ¿Cómo quieres que Yalika te llame?
                 <input
                   value={assistantPreference.preferredName ?? ""}
                   maxLength={80}
@@ -5490,7 +5490,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                     Adaptar la voz a este dispositivo
                   </span>
                   <span className="mt-1 block text-xs leading-5 text-slate-400">
-                    Recomendado. Yaleka usa automáticamente el idioma y región
+                    Recomendado. Yalika usa automáticamente el idioma y región
                     del teléfono o computadora.
                   </span>
                 </span>
@@ -5552,7 +5552,7 @@ export function LifeWorkspace({ currentUser }: { currentUser: CurrentUser }) {
                     ))}
                 </select>
                 <span className="mt-2 block text-xs leading-5 text-slate-500">
-                  Las voces pertenecen a tu dispositivo. Si usas otro, Yaleka
+                  Las voces pertenecen a tu dispositivo. Si usas otro, Yalika
                   elegirá una equivalente de la misma región.
                 </span>
               </label>
