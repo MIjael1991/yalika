@@ -9,7 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { CurrentAuth } from '../../auth/current-auth.decorator';
+import type { AuthContext } from '../../auth/auth.types';
 import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
+import { MobilityAccessService } from '../mobility-access.service';
 import { MobilityPhase4Service } from './phase4.service';
 import {
   CreateDriverDocumentDto,
@@ -29,10 +32,18 @@ import {
 @Controller('mobility')
 @UseGuards(SessionAuthGuard)
 export class MobilityPhase4Controller {
-  constructor(private readonly phase4: MobilityPhase4Service) {}
+  constructor(
+    private readonly phase4: MobilityPhase4Service,
+    private readonly access: MobilityAccessService,
+  ) {}
 
   @Post('trips/:tripId/ratings')
-  createRating(@Param('tripId') tripId: string, @Body() dto: CreateRatingDto) {
+  async createRating(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: CreateRatingDto,
+  ) {
+    await this.access.ratingParticipants(auth, tripId, dto);
     return this.phase4.createRating(tripId, dto);
   }
 
@@ -45,7 +56,13 @@ export class MobilityPhase4Controller {
   }
 
   @Post('support/cases')
-  createSupport(@Body() dto: CreateSupportCaseDto) {
+  async createSupport(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateSupportCaseDto,
+  ) {
+    if (dto.tripId) await this.access.tripAccess(auth, dto.tripId);
+    if (dto.driverId) await this.access.driverAccess(auth, dto.driverId);
+    dto.userId = this.access.selfUser(auth, dto.userId);
     return this.phase4.createSupportCase(dto);
   }
 
@@ -56,7 +73,11 @@ export class MobilityPhase4Controller {
   }
 
   @Post('driver-documents')
-  createDocument(@Body() dto: CreateDriverDocumentDto) {
+  async createDocument(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateDriverDocumentDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.phase4.createDriverDocument(dto);
   }
 
@@ -76,7 +97,11 @@ export class MobilityPhase4Controller {
   }
 
   @Post('trips/:tripId/receipt')
-  receipt(@Param('tripId') tripId: string) {
+  async receipt(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+  ) {
+    await this.access.tripAccess(auth, tripId);
     return this.phase4.issueReceipt(tripId);
   }
 
@@ -140,6 +165,7 @@ export class MobilityPhase4Controller {
     return this.phase4.createPayout(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Get('trips/:tripId/audit')
   auditTrail(@Param('tripId') tripId: string) {
     return this.phase4.auditTrail(tripId);

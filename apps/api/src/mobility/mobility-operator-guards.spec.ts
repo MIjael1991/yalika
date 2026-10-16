@@ -37,6 +37,7 @@ const operatorOnly: Array<[string, { prototype: object }, string[]]> = [
       'cleanup',
       'createPayout',
       'settleCancellation',
+      'auditTrail',
       'escalateSafety',
     ],
   ],

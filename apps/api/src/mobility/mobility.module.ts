@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { MobilityAccessService } from './mobility-access.service';
 import { MobilityController } from './mobility.controller';
 import { MobilityService } from './mobility.service';
 import { MobilityPhase2Controller } from './phase2/phase2.controller';
@@ -30,6 +31,7 @@ import { MobilityPhase9Service } from './phase9/phase9.service';
     MobilityPhase9Controller,
   ],
   providers: [
+    MobilityAccessService,
     MobilityService,
     MobilityPhase2Service,
     MobilityPhase3Service,

@@ -8,7 +8,10 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { CurrentAuth } from '../auth/current-auth.decorator';
+import type { AuthContext } from '../auth/auth.types';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { MobilityAccessService } from './mobility-access.service';
 import { MobilityService } from './mobility.service';
 import {
   AcceptOfferDto,
@@ -27,24 +30,34 @@ import {
 @Controller('mobility')
 @UseGuards(SessionAuthGuard)
 export class MobilityController {
-  constructor(private readonly mobilityService: MobilityService) {}
+  constructor(
+    private readonly mobilityService: MobilityService,
+    private readonly access: MobilityAccessService,
+  ) {}
 
   // CONDUCTORES
   @Post('drivers')
-  createDriver(@Body() dto: CreateDriverDto) {
+  async createDriver(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateDriverDto,
+  ) {
+    dto.userId = this.access.selfUser(auth, dto.userId);
     return this.mobilityService.createDriver(dto);
   }
 
   @Patch('drivers/:driverId/availability')
-  updateDriverAvailability(
+  async updateDriverAvailability(
+    @CurrentAuth() auth: AuthContext,
     @Param('driverId') driverId: string,
     @Body() dto: UpdateDriverAvailabilityDto,
   ) {
+    await this.access.driverAccess(auth, driverId);
     return this.mobilityService.updateDriverAvailability(driverId, dto);
   }
 
   @Get('drivers/nearby')
-  nearbyDrivers(
+  async nearbyDrivers(
+    @CurrentAuth() auth: AuthContext,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
     @Query('radiusKm') radiusKm = '5',
@@ -58,75 +71,133 @@ export class MobilityController {
 
   // VEHÍCULOS
   @Post('vehicles')
-  createVehicle(@Body() dto: CreateVehicleDto) {
+  async createVehicle(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateVehicleDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.mobilityService.createVehicle(dto);
   }
 
   // VIAJES
   @Post('trips')
-  createTrip(@Body() dto: CreateTripDto) {
+  async createTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateTripDto,
+  ) {
+    dto.passengerUserId = this.access.selfUser(auth, dto.passengerUserId);
     return this.mobilityService.createTrip(dto);
   }
 
   @Get('trips')
-  listTrips(
+  async listTrips(
+    @CurrentAuth() auth: AuthContext,
     @Query('passengerUserId') passengerUserId?: string,
     @Query('driverId') driverId?: string,
     @Query('status') status?: string,
   ) {
-    return this.mobilityService.listTrips({
-      passengerUserId,
+    const operator = this.access.isOperator(auth);
+    if (driverId) await this.access.driverAccess(auth, driverId);
+    const ownPassenger = this.access.selfUser(auth, passengerUserId);
+    const trips = await this.mobilityService.listTrips({
+      passengerUserId: driverId && !passengerUserId ? undefined : ownPassenger,
       driverId,
       status,
     });
+    return trips.map((trip) =>
+      this.access.hidePin(
+        trip,
+        trip.passengerUserId === auth.user.id || operator
+          ? 'PASSENGER'
+          : 'DRIVER',
+      ),
+    );
   }
 
   @Get('trips/:tripId')
-  getTrip(@Param('tripId') tripId: string) {
-    return this.mobilityService.getTrip(tripId);
+  async getTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+  ) {
+    const role = await this.access.tripView(auth, tripId);
+    return this.access.hidePin(
+      await this.mobilityService.getTrip(tripId),
+      role,
+    );
   }
 
   @Patch('trips/:tripId/location')
-  updateTripLocation(
+  async updateTripLocation(
+    @CurrentAuth() auth: AuthContext,
     @Param('tripId') tripId: string,
     @Body() dto: UpdateTripLocationDto,
   ) {
+    await this.access.tripAccess(auth, tripId);
+    await this.access.actorIdentity(auth, dto.actorType, dto.actorId);
     return this.mobilityService.updateTripLocation(tripId, dto);
   }
 
   // OFERTAS DE PRECIO
   @Post('trips/:tripId/offers')
-  createOffer(@Param('tripId') tripId: string, @Body() dto: CreateOfferDto) {
+  async createOffer(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: CreateOfferDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.mobilityService.createOffer(tripId, dto);
   }
 
   @Post('trips/:tripId/offers/:offerId/accept')
-  acceptOffer(
+  async acceptOffer(
+    @CurrentAuth() auth: AuthContext,
     @Param('tripId') tripId: string,
     @Param('offerId') offerId: string,
     @Body() dto: AcceptOfferDto,
   ) {
+    dto.passengerUserId = this.access.selfUser(auth, dto.passengerUserId);
     return this.mobilityService.acceptOffer(tripId, offerId, dto);
   }
 
   // CICLO DE VIAJE
   @Post('trips/:tripId/arrive')
-  arriveTrip(@Param('tripId') tripId: string, @Body() dto: ArriveTripDto) {
+  async arriveTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: ArriveTripDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.mobilityService.arriveTrip(tripId, dto);
   }
 
   @Post('trips/:tripId/start')
-  startTrip(@Param('tripId') tripId: string, @Body() dto: StartTripDto) {
+  async startTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: StartTripDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.mobilityService.startTrip(tripId, dto);
   }
 
   @Post('trips/:tripId/complete')
-  completeTrip(@Param('tripId') tripId: string, @Body() dto: CompleteTripDto) {
+  async completeTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: CompleteTripDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.mobilityService.completeTrip(tripId, dto);
   }
 
   @Post('trips/:tripId/cancel')
-  cancelTrip(@Param('tripId') tripId: string, @Body() dto: CancelTripDto) {
+  async cancelTrip(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: CancelTripDto,
+  ) {
+    await this.access.tripAccess(auth, tripId);
+    await this.access.actorIdentity(auth, dto.actorType, dto.actorId);
     return this.mobilityService.cancelTrip(tripId, dto);
   }
 }

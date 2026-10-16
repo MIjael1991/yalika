@@ -8,7 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { CurrentAuth } from '../../auth/current-auth.decorator';
+import type { AuthContext } from '../../auth/auth.types';
 import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
+import { MobilityAccessService } from '../mobility-access.service';
 import { MobilityPhase3Service } from './phase3.service';
 import {
   CreateBonusCampaignDto,
@@ -23,7 +26,10 @@ import {
 
 @Controller('mobility')
 export class MobilityPhase3Controller {
-  constructor(private readonly phase3: MobilityPhase3Service) {}
+  constructor(
+    private readonly phase3: MobilityPhase3Service,
+    private readonly access: MobilityAccessService,
+  ) {}
 
   @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('pricing/policies')
@@ -51,7 +57,11 @@ export class MobilityPhase3Controller {
 
   @UseGuards(SessionAuthGuard)
   @Get('wallet/:driverId')
-  wallet(@Param('driverId') driverId: string) {
+  async wallet(
+    @CurrentAuth() auth: AuthContext,
+    @Param('driverId') driverId: string,
+  ) {
+    await this.access.driverAccess(auth, driverId);
     return this.phase3.walletSummary(driverId);
   }
 
@@ -63,19 +73,42 @@ export class MobilityPhase3Controller {
 
   @UseGuards(SessionAuthGuard)
   @Post('devices/heartbeat')
-  heartbeat(@Body() dto: DeviceHeartbeatDto) {
+  async heartbeat(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: DeviceHeartbeatDto,
+  ) {
+    if (dto.driverId) {
+      await this.access.driverAccess(auth, dto.driverId);
+      if (dto.vehicleId) {
+        await this.access.vehicleOfDriver(dto.vehicleId, dto.driverId);
+      }
+    }
+    if (dto.tripId) await this.access.tripAccess(auth, dto.tripId);
+    if (dto.userId || !dto.driverId) {
+      dto.userId = this.access.selfUser(auth, dto.userId);
+    }
     return this.phase3.heartbeat(dto);
   }
 
   @UseGuards(SessionAuthGuard)
   @Post('trips/:tripId/risk-assessment')
-  assessRisk(@Param('tripId') tripId: string) {
+  async assessRisk(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+  ) {
+    await this.access.tripAccess(auth, tripId);
     return this.phase3.assessTripRisk(tripId);
   }
 
   @UseGuards(SessionAuthGuard)
   @Post('trips/:tripId/share')
-  share(@Param('tripId') tripId: string, @Body() dto: CreateShareSessionDto) {
+  async share(
+    @CurrentAuth() auth: AuthContext,
+    @Param('tripId') tripId: string,
+    @Body() dto: CreateShareSessionDto,
+  ) {
+    await this.access.tripAccess(auth, tripId);
+    dto.ownerUserId = this.access.selfUser(auth, dto.ownerUserId);
     return this.phase3.createShareSession(tripId, dto);
   }
 
@@ -86,25 +119,41 @@ export class MobilityPhase3Controller {
 
   @UseGuards(SessionAuthGuard)
   @Post('opportunity/preferences')
-  opportunityPreference(@Body() dto: OpportunityPreferenceDto) {
+  opportunityPreference(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: OpportunityPreferenceDto,
+  ) {
+    dto.userId = this.access.selfUser(auth, dto.userId);
     return this.phase3.upsertOpportunityPreference(dto);
   }
 
   @UseGuards(SessionAuthGuard)
   @Post('service-payment-plans')
-  servicePaymentPlan(@Body() dto: CreateServicePaymentPlanDto) {
+  async servicePaymentPlan(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CreateServicePaymentPlanDto,
+  ) {
+    await this.access.driverAccess(auth, dto.driverId);
     return this.phase3.createServicePaymentPlan(dto);
   }
 
   @UseGuards(SessionAuthGuard)
   @Get('service-payment-plans/:driverId')
-  servicePaymentPlans(@Param('driverId') driverId: string) {
+  async servicePaymentPlans(
+    @CurrentAuth() auth: AuthContext,
+    @Param('driverId') driverId: string,
+  ) {
+    await this.access.driverAccess(auth, driverId);
     return this.phase3.servicePaymentPlans(driverId);
   }
 
   @UseGuards(SessionAuthGuard)
   @Get('dashboard/driver/:driverId')
-  dashboard(@Param('driverId') driverId: string) {
+  async dashboard(
+    @CurrentAuth() auth: AuthContext,
+    @Param('driverId') driverId: string,
+  ) {
+    await this.access.driverAccess(auth, driverId);
     return this.phase3.dashboard(driverId);
   }
 }
