@@ -4,9 +4,18 @@
  * Es una lista de permitidos: todo lo que no aparezca aquí queda reservado
  * al administrador (catálogo, inventario, sitios, promociones, programas de
  * lealtad, configuración de raspaditos, devoluciones, descuentos manuales,
- * reportes y asistente). El resto de roles no pasa por esta lista.
+ * reportes y asistente). Del descuento solo puede aplicar una promoción
+ * vigente de la empresa: el servidor toma de ella el tipo y el valor, el
+ * cajero no puede escribirlos. El resto de roles no pasa por esta lista.
  */
-type Rule = { method: string; root: string; path: RegExp };
+type Body = Record<string, unknown> | undefined;
+type Rule = {
+  method: string;
+  root: string;
+  path: RegExp;
+  /** Condición extra sobre el cuerpo de la solicitud. */
+  body?: (body: Body) => boolean;
+};
 
 const any = '[^/]+';
 
@@ -42,6 +51,15 @@ const rules: Rule[] = [
     path: new RegExp(`^company/${any}/expire-abandoned$`),
   },
   { method: 'POST', root: 'payment', path: new RegExp(`^order/${any}$`) },
+  {
+    method: 'POST',
+    root: 'discount',
+    path: new RegExp(`^order/${any}$`),
+    body: (body) =>
+      body?.source === 'promotion' &&
+      typeof body.promotionId === 'string' &&
+      body.promotionId.length > 0,
+  },
   { method: '*', root: 'order-split', path: /^.*$/ },
 
   // Atender: clientes, mesas, identificación en caja, premios y recetas.
@@ -64,7 +82,11 @@ const rules: Rule[] = [
   },
 ];
 
-export function cashierMayCall(method: string, parts: string[]): boolean {
+export function cashierMayCall(
+  method: string,
+  parts: string[],
+  body?: Body,
+): boolean {
   const [root, ...rest] = parts;
   const path = rest.join('/');
   const verb = method.toUpperCase();
@@ -73,6 +95,7 @@ export function cashierMayCall(method: string, parts: string[]): boolean {
     (rule) =>
       rule.root === root &&
       (rule.method === '*' || rule.method === verb) &&
-      rule.path.test(path),
+      rule.path.test(path) &&
+      (!rule.body || rule.body(body)),
   );
 }

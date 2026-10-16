@@ -162,7 +162,10 @@ export class CommerceAccessGuard implements CanActivate {
       throw new ForbiddenException('La cuenta no tiene empresa activa');
 
     // El cajero solo vende y cobra; lo demás es del administrador.
-    if (isCashier(req.auth) && !cashierMayCall(req.method, parts)) {
+    if (
+      isCashier(req.auth) &&
+      !cashierMayCall(req.method, parts, req.body as Record<string, unknown>)
+    ) {
       throw new ForbiddenException(
         'Esta operación es solo para el administrador',
       );

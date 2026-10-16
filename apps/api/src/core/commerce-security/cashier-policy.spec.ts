@@ -11,6 +11,30 @@ function call(method: string, path: string) {
 }
 
 describe('Cajero: solo vende y cobra', () => {
+  it('puede aplicar una promoción vigente, pero no un descuento escrito a mano', () => {
+    const parts = ['discount', 'order', 'o1'];
+
+    expect(
+      cashierMayCall('POST', parts, { source: 'promotion', promotionId: 'p1' }),
+    ).toBe(true);
+    expect(
+      cashierMayCall('POST', parts, {
+        source: 'manual',
+        type: 'percentage',
+        value: 90,
+      }),
+    ).toBe(false);
+    // Una promoción sin identificador permitiría escribir tipo y valor.
+    expect(
+      cashierMayCall('POST', parts, {
+        source: 'promotion',
+        type: 'percentage',
+        value: 90,
+      }),
+    ).toBe(false);
+    expect(cashierMayCall('POST', parts)).toBe(false);
+  });
+
   it.each([
     ['GET', '/catalog/product/company/c1'],
     ['GET', '/catalog/barcode/company/c1/123'],
@@ -36,7 +60,6 @@ describe('Cajero: solo vende y cobra', () => {
     ['DELETE', '/catalog/product/p1/image/i1'],
     ['POST', '/return'],
     ['POST', '/return/r1/refund'],
-    ['POST', '/discount/order/o1'],
     ['POST', '/discount/d1/void'],
     ['POST', '/promotion'],
     ['DELETE', '/promotion/p1'],

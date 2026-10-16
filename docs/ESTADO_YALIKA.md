@@ -32,7 +32,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 - Rol **Cajero**: vende, cobra, cancela ventas, atiende mesas, da de alta clientes y canjea premios. No puede cambiar productos, inventario, promociones, sitios, programas de lealtad, devoluciones, descuentos manuales ni ver reportes. La lista permitida está en `apps/api/src/core/commerce-security/cashier-policy.ts` (todo lo que no aparece ahí es solo del administrador).
 - Cualquier otro rol (Administrador y cuentas anteriores) conserva todo el acceso.
 - El administrador crea, desactiva y cambia la contraseña de sus cajeros en la pantalla Punto de venta → Equipo (`/pos/equipo`). Al desactivar o cambiar la contraseña se cierran las sesiones abiertas del cajero.
-- Límite conocido: un descuento aplicado dentro del carrito al crear la venta todavía lo puede mandar un cajero; hoy solo se bloquea el endpoint de descuentos posteriores. Cerrarlo requiere validar en el servicio de ventas.
+- Descuentos: el cajero solo puede aplicar una promoción vigente de su empresa (el servidor toma de ella el tipo y el valor). Los descuentos manuales, VIP y anulaciones son del administrador.
 
 ## Pendiente, en este orden
 
