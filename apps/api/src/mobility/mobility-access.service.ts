@@ -6,6 +6,7 @@ import {
 import { platformOperatorIds } from '../auth/platform-operator.guard';
 import type { AuthContext } from '../auth/auth.types';
 import { PrismaService } from '../prisma/prisma.service';
+import { MobilityPinService } from './mobility-pin.service';
 
 export type TripRole = 'PASSENGER' | 'DRIVER' | 'OPERATOR';
 
@@ -16,7 +17,10 @@ export type TripRole = 'PASSENGER' | 'DRIVER' | 'OPERATOR';
  */
 @Injectable()
 export class MobilityAccessService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pins: MobilityPinService,
+  ) {}
 
   isOperator(auth: AuthContext) {
     return platformOperatorIds().has(auth.user.id);
@@ -263,12 +267,26 @@ export class MobilityAccessService {
     throw new ForbiddenException('Este viaje no es tuyo.');
   }
 
-  /** El PIN de seguridad solo lo conoce el pasajero. */
-  hidePin<T extends { safetyPin?: unknown }>(
+  /**
+   * El PIN de seguridad solo lo conoce el pasajero. En la base solo hay una
+   * marca; al pasajero se le muestra el PIN real, calculado por el servidor.
+   */
+  hidePin<T extends { id?: string; safetyPin?: unknown }>(
     trip: T,
     role: TripRole | 'CANDIDATE',
   ): T {
-    if (role === 'PASSENGER' || role === 'OPERATOR') return trip;
+    if (role === 'PASSENGER' || role === 'OPERATOR') {
+      if (typeof trip.id === 'string' && typeof trip.safetyPin === 'string') {
+        return {
+          ...trip,
+          safetyPin: this.pins.reveal({
+            id: trip.id,
+            safetyPin: trip.safetyPin,
+          }),
+        };
+      }
+      return trip;
+    }
 
     const { safetyPin: _hidden, ...rest } = trip;
     void _hidden;

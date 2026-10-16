@@ -3,11 +3,10 @@
   ConflictException,
   Injectable,
   NotFoundException,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
-import { createHash, randomBytes, randomInt } from 'crypto';
+import { randomBytes, randomInt, randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MobilityPinService } from '../mobility-pin.service';
 import {
   CheckTripPinDto,
   CreateReferralCampaignDto,
@@ -28,7 +27,10 @@ import {
 
 @Injectable()
 export class MobilityPhase5Service {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pins: MobilityPinService,
+  ) {}
 
   private money(value: number) {
     return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -41,10 +43,6 @@ export class MobilityPhase5Service {
       throw new BadRequestException(`Fecha inválida: ${value}`);
     }
     return date;
-  }
-
-  private hashPin(pin: string) {
-    return createHash('sha256').update(pin).digest('hex');
   }
 
   private async verificationEvent(
@@ -799,37 +797,12 @@ export class MobilityPhase5Service {
     });
     if (!trip) throw new NotFoundException('Viaje no encontrado.');
 
-    const since = new Date(Date.now() - 10 * 60 * 1000);
-    const failures = await this.prisma.mobilityPinAttempt.count({
-      where: {
-        tripId,
-        success: false,
-        createdAt: { gte: since },
-      },
-    });
-
-    if (failures >= 5) {
-      throw new HttpException(
-        'Demasiados intentos de PIN. Espera antes de volver a intentar.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    const success = trip.safetyPin === dto.safetyPin;
-
-    await this.prisma.mobilityPinAttempt.create({
-      data: {
-        tripId,
-        passengerUserId: dto.passengerUserId,
-        driverId: dto.driverId,
-        success,
-      },
-    });
-
-    return {
-      success,
-      attemptsRemaining: success ? 5 : Math.max(0, 4 - failures),
-    };
+    // Mismo límite que al iniciar el viaje: 5 fallos cada 10 minutos.
+    return this.pins.attempt(
+      tripId,
+      () => this.pins.matchesTrip(trip, dto.safetyPin),
+      { passengerUserId: dto.passengerUserId, driverId: dto.driverId },
+    );
   }
 
   async tripSafetyCenter(tripId: string) {
@@ -933,8 +906,10 @@ export class MobilityPhase5Service {
 
     const safetyPin = String(randomInt(1000, 10000));
 
+    const rideId = randomUUID();
     const ride = await this.prisma.mobilitySafeRide.create({
       data: {
+        id: rideId,
         driverId: dto.driverId,
         vehicleId: dto.vehicleId,
         passengerUserId: dto.passengerUserId,
@@ -944,7 +919,7 @@ export class MobilityPhase5Service {
         destinationAddress: dto.destinationAddress,
         destinationLat: dto.destinationLat,
         destinationLng: dto.destinationLng,
-        safetyPinHash: this.hashPin(safetyPin),
+        safetyPinHash: this.pins.safeRideDigest(rideId, safetyPin),
         notes: dto.notes,
       },
     });
@@ -968,7 +943,12 @@ export class MobilityPhase5Service {
       );
     }
 
-    if (ride.safetyPinHash !== this.hashPin(dto.safetyPin)) {
+    const check = await this.pins.attempt(
+      id,
+      () => this.pins.matchesSafeRide(ride, dto.safetyPin),
+      { source: 'SAFE_RIDE', driverId: ride.driverId },
+    );
+    if (!check.success) {
       throw new BadRequestException('PIN incorrecto.');
     }
 
@@ -977,6 +957,10 @@ export class MobilityPhase5Service {
       data: {
         status: 'IN_PROGRESS',
         startedAt: new Date(),
+        // Un viaje creado antes de este cambio pasa al código con clave.
+        ...(this.pins.isLegacySafeRideDigest(ride.safetyPinHash)
+          ? { safetyPinHash: this.pins.safeRideDigest(id, dto.safetyPin) }
+          : {}),
       },
     });
   }

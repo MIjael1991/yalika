@@ -2,6 +2,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
 import type { AuthContext } from '../auth/auth.types';
 import { MobilityAccessService } from './mobility-access.service';
+import { MobilityPinService } from './mobility-pin.service';
 import { MobilityController } from './mobility.controller';
 
 function auth(id: string): AuthContext {
@@ -18,8 +19,9 @@ function build() {
     mobilitySafeRide: { findUnique: jest.fn() },
     mobilityNegotiationRequest: { findUnique: jest.fn() },
   };
-  const access = new MobilityAccessService(prisma as never);
-  return { prisma, access };
+  const pins = new MobilityPinService(prisma as never);
+  const access = new MobilityAccessService(prisma as never, pins);
+  return { prisma, access, pins };
 }
 
 describe('Movilidad: cada persona solo toca lo suyo', () => {

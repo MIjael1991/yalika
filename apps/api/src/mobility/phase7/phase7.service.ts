@@ -832,18 +832,6 @@ export class MobilityPhase7Service {
       },
       knownProductionGaps: [
         {
-          code: 'AUTH_SESSION',
-          severity: 'HIGH',
-          detail:
-            'Mobility todavia debe derivar pasajero/conductor desde la sesion autenticada, no confiar en IDs enviados por el cliente.',
-        },
-        {
-          code: 'BASE_TRIP_PIN_HASH',
-          severity: 'HIGH',
-          detail:
-            'El safetyPin del viaje base debe migrar de texto plano a hash/HMAC con rate limit.',
-        },
-        {
           code: 'OTP_REAL',
           severity: 'HIGH',
           detail:

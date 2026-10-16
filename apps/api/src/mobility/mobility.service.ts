@@ -5,6 +5,7 @@
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { MobilityPinService } from './mobility-pin.service';
 import {
   AcceptOfferDto,
   ArriveTripDto,
@@ -21,7 +22,10 @@ import {
 
 @Injectable()
 export class MobilityService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly pins: MobilityPinService,
+  ) {}
 
   // ============================================================
   // CONDUCTORES
@@ -153,8 +157,6 @@ export class MobilityService {
       );
     }
 
-    const safetyPin = this.generatePin();
-
     const trip = await this.prisma.mobilityTrip.create({
       data: {
         passengerUserId: dto.passengerUserId,
@@ -167,7 +169,7 @@ export class MobilityService {
         passengerSuggestedFare: dto.passengerSuggestedFare,
         notes: dto.notes?.trim(),
         status: 'REQUESTED',
-        safetyPin,
+        safetyPin: this.pins.storedMarker(),
       },
       include: {
         offers: true,
@@ -183,7 +185,8 @@ export class MobilityService {
       },
     });
 
-    return trip;
+    // Quien pide el viaje es el pasajero: es el único que recibe su PIN.
+    return { ...trip, safetyPin: this.pins.derivePin(trip.id) };
   }
 
   async listTrips(filters: {
@@ -468,7 +471,12 @@ export class MobilityService {
       );
     }
 
-    if (trip.safetyPin !== dto.safetyPin) {
+    const check = await this.pins.attempt(
+      tripId,
+      () => this.pins.matchesTrip(trip, dto.safetyPin),
+      { driverId: dto.driverId },
+    );
+    if (!check.success) {
       throw new BadRequestException('PIN de seguridad incorrecto.');
     }
 
@@ -477,6 +485,8 @@ export class MobilityService {
       data: {
         status: 'IN_PROGRESS',
         startedAt: new Date(),
+        // Ya iniciado, el PIN deja de hacer falta: no queda ninguno en texto.
+        safetyPin: this.pins.storedMarker(),
       },
     });
 
@@ -611,10 +621,6 @@ export class MobilityService {
     }
 
     return trip;
-  }
-
-  private generatePin() {
-    return Math.floor(1000 + Math.random() * 9000).toString();
   }
 
   private haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {

@@ -38,7 +38,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 
 1. Poner `YALIKA_OPERATOR_USER_IDS` en el `.env` local y en Railway.
 2. (Hecho 16-oct) Movilidad fases 1 a 6: cada persona solo usa su cuenta, su perfil de conductor y sus viajes (`mobility-access.service.ts`). El PIN del viaje ya no se devuelve al conductor.
-3. Guardar el PIN de seguridad de Movilidad cifrado (hoy se guarda en texto en la base, aunque ya solo lo ve el pasajero).
+3. (Hecho 16-oct) PIN de seguridad de Movilidad: ya no se guarda. El PIN del viaje se calcula con una clave del servidor (`mobility-pin.service.ts`) y en la base solo queda una marca; el del viaje seguro se guarda con esa clave. Iniciar el viaje, comprobar el PIN y el viaje seguro comparten el límite de 5 fallos cada 10 minutos. Al arrancar, los viajes ya iniciados o terminados pierden su PIN en texto; los que aún no inician lo conservan hasta usarse. Requiere `YALIKA_PIN_SECRET` en el servidor (si falta usa `JWT_SECRET`; en producción sin ninguna de las dos no deja crear viajes).
 4. (Hecho 16-oct) Red de seguridad `src/security/route-protection.spec.ts`: una prueba revisa todas las rutas y falla si alguna queda abierta sin estar declarada pública a propósito.
 5. Rediseño de Salud para varias mascotas o personas.
 6. Probar Encuestas con el primer cliente real.
@@ -51,7 +51,7 @@ Los nombres internos de la base local (`orion`, usuario `orion_user`, contenedor
 
 ## Variables de entorno (nombres actuales)
 
-`YALIKA_API_URL`, `YALIKA_COMPANY_ID`, `YALIKA_AUTHORIZED_USER_ID` (web); `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`, `YALIKA_BOOTSTRAP_EMAIL`, `YALIKA_BOOTSTRAP_PASSWORD`, `YALIKA_SESSION_HOURS`, `YALIKA_TICKET_SECRET`, `YALIKA_PUBLIC_URL`, `YALIKA_EMAIL_FROM`, `YALIKA_PUBLIC_REGISTRATION`, `YALIKA_CLINICAL_PILOT_PRICE`, `YALIKA_OPERATOR_USER_IDS` (servidor). Antes empezaban con `ORION_` o `YALEKA_`: al desplegar en Railway hay que renombrarlas allá primero.
+`YALIKA_API_URL` (web); `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`, `YALIKA_BOOTSTRAP_EMAIL`, `YALIKA_BOOTSTRAP_PASSWORD`, `YALIKA_SESSION_HOURS`, `YALIKA_TICKET_SECRET`, `YALIKA_PIN_SECRET`, `YALIKA_PUBLIC_URL`, `YALIKA_EMAIL_FROM`, `YALIKA_PUBLIC_REGISTRATION`, `YALIKA_CLINICAL_PILOT_PRICE`, `YALIKA_OPERATOR_USER_IDS` (servidor). Antes empezaban con `ORION_` o `YALEKA_`: al desplegar en Railway hay que renombrarlas allá primero.
 
 Identificadores que se guardan en datos y por eso conservan el nombre viejo: plantillas de página `yaleka_*`, modo `yaleka_cloud` de encuestas, prefijo `YALEKA-` de las claves de recuperación, columna `yalekaFare`, insignias `*_VERIFICADO_YALEKA`. Los enlaces `/api/orion/...` se redirigen a `/api/yalika/...`.
 
