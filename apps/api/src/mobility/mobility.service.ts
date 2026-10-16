@@ -109,7 +109,7 @@ export class MobilityService {
   }
 
   // ============================================================
-  // VEHÃCULOS
+  // VEHÍCULOS
   // ============================================================
 
   async createVehicle(dto: CreateVehicleDto) {
@@ -122,7 +122,7 @@ export class MobilityService {
     });
 
     if (duplicate) {
-      throw new ConflictException('Las placas ya estÃ¡n registradas.');
+      throw new ConflictException('Las placas ya están registradas.');
     }
 
     return this.prisma.mobilityVehicle.create({
@@ -237,7 +237,7 @@ export class MobilityService {
       )
     ) {
       throw new BadRequestException(
-        'La ubicaciÃ³n solo puede actualizarse durante un viaje activo.',
+        'La ubicación solo puede actualizarse durante un viaje activo.',
       );
     }
 
@@ -270,7 +270,7 @@ export class MobilityService {
   }
 
   // ============================================================
-  // NEGOCIACIÃ“N / OFERTAS
+  // NEGOCIACIÓN / OFERTAS
   // ============================================================
 
   async createOffer(tripId: string, dto: CreateOfferDto) {
@@ -283,7 +283,7 @@ export class MobilityService {
 
     if (driver.status !== 'APPROVED' || !driver.isAvailable) {
       throw new BadRequestException(
-        'El conductor no estÃ¡ habilitado para recibir viajes.',
+        'El conductor no está habilitado para recibir viajes.',
       );
     }
 
@@ -297,7 +297,7 @@ export class MobilityService {
 
     if (!vehicle) {
       throw new BadRequestException(
-        'El conductor no tiene un vehÃ­culo aprobado y activo.',
+        'El conductor no tiene un vehículo aprobado y activo.',
       );
     }
 
@@ -347,7 +347,7 @@ export class MobilityService {
 
     if (trip.passengerUserId !== dto.passengerUserId) {
       throw new BadRequestException(
-        'Solo el pasajero que creÃ³ el viaje puede aceptar una oferta.',
+        'Solo el pasajero que creó el viaje puede aceptar una oferta.',
       );
     }
 
@@ -459,12 +459,12 @@ export class MobilityService {
     const trip = await this.requireTrip(tripId);
 
     if (!['DRIVER_EN_ROUTE', 'DRIVER_ARRIVED'].includes(trip.status)) {
-      throw new BadRequestException('El viaje no estÃ¡ listo para iniciar.');
+      throw new BadRequestException('El viaje no está listo para iniciar.');
     }
 
     if (!trip.driverId || trip.driverId !== dto.driverId) {
       throw new BadRequestException(
-        'Este conductor no estÃ¡ asignado al viaje.',
+        'Este conductor no está asignado al viaje.',
       );
     }
 
@@ -540,7 +540,7 @@ export class MobilityService {
     const trip = await this.requireTrip(tripId);
 
     if (['COMPLETED', 'CANCELLED'].includes(trip.status)) {
-      throw new BadRequestException('El viaje ya estÃ¡ cerrado.');
+      throw new BadRequestException('El viaje ya está cerrado.');
     }
 
     return this.prisma.$transaction(async (tx) => {

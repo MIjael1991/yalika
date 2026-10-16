@@ -38,7 +38,7 @@ export class MobilityPhase5Service {
     if (!value) return undefined;
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {
-      throw new BadRequestException(`Fecha invÃ¡lida: ${value}`);
+      throw new BadRequestException(`Fecha inválida: ${value}`);
     }
     return date;
   }
@@ -99,7 +99,7 @@ export class MobilityPhase5Service {
     const campaign = await this.prisma.mobilityReferralCampaign.findUnique({
       where: { id: dto.campaignId },
     });
-    if (!campaign) throw new NotFoundException('CampaÃ±a no encontrada.');
+    if (!campaign) throw new NotFoundException('Campaña no encontrada.');
 
     if (dto.ownerDriverId) {
       const driver = await this.prisma.mobilityDriver.findUnique({
@@ -132,15 +132,15 @@ export class MobilityPhase5Service {
       where: { code: dto.code },
     });
     if (!code || !code.isActive) {
-      throw new NotFoundException('CÃ³digo de referido no vÃ¡lido.');
+      throw new NotFoundException('Código de referido no válido.');
     }
 
     const now = new Date();
     if (code.expiresAt && code.expiresAt < now) {
-      throw new BadRequestException('El cÃ³digo de referido ya venciÃ³.');
+      throw new BadRequestException('El código de referido ya venció.');
     }
     if (code.uses >= code.maxUses) {
-      throw new BadRequestException('El cÃ³digo alcanzÃ³ su lÃ­mite de usos.');
+      throw new BadRequestException('El código alcanzó su límite de usos.');
     }
     if (code.ownerUserId === dto.referredUserId) {
       throw new BadRequestException('No puedes recomendarte a ti mismo.');
@@ -155,7 +155,7 @@ export class MobilityPhase5Service {
       campaign.startsAt > now ||
       campaign.endsAt < now
     ) {
-      throw new BadRequestException('La campaÃ±a no estÃ¡ activa.');
+      throw new BadRequestException('La campaña no está activa.');
     }
 
     if (
@@ -163,7 +163,7 @@ export class MobilityPhase5Service {
       campaign.appliesTo !== dto.referredRole
     ) {
       throw new BadRequestException(
-        'La campaÃ±a no aplica al tipo de usuario referido.',
+        'La campaña no aplica al tipo de usuario referido.',
       );
     }
 
@@ -290,7 +290,7 @@ export class MobilityPhase5Service {
         args.beneficiaryUserId,
         args.amount,
         referenceKey,
-        'Recompensa por recomendaciÃ³n Yalika',
+        'Recompensa por recomendación Yalika',
       );
     }
 
@@ -302,9 +302,9 @@ export class MobilityPhase5Service {
         data: {
           driverId: args.beneficiaryDriverId,
           code: `REF-${args.attributionId.slice(0, 8)}-${args.beneficiaryType}`,
-          title: 'Viajes con comisiÃ³n reducida por referido',
+          title: 'Viajes con comisión reducida por referido',
           description:
-            'Beneficio ganado por una recomendaciÃ³n que cumpliÃ³ los requisitos.',
+            'Beneficio ganado por una recomendación que cumplió los requisitos.',
           valuePct: 100,
           status: 'AVAILABLE',
           metadata: {
@@ -334,7 +334,7 @@ export class MobilityPhase5Service {
         where: { id: dto.attributionId },
       });
     if (!attribution) {
-      throw new NotFoundException('AtribuciÃ³n de referido no encontrada.');
+      throw new NotFoundException('Atribución de referido no encontrada.');
     }
     if (attribution.status === 'FRAUD_HOLD') {
       return {
@@ -350,7 +350,7 @@ export class MobilityPhase5Service {
     const campaign = await this.prisma.mobilityReferralCampaign.findUnique({
       where: { id: attribution.campaignId },
     });
-    if (!campaign) throw new NotFoundException('CampaÃ±a no encontrada.');
+    if (!campaign) throw new NotFoundException('Campaña no encontrada.');
 
     let qualifyingTrips = 0;
     let qualified = false;
@@ -543,7 +543,7 @@ export class MobilityPhase5Service {
       },
     });
     if (!profile) {
-      throw new NotFoundException('Perfil de verificaciÃ³n no encontrado.');
+      throw new NotFoundException('Perfil de verificación no encontrado.');
     }
 
     const updated = await this.prisma.mobilityVerificationProfile.update({
@@ -570,7 +570,7 @@ export class MobilityPhase5Service {
     return {
       ...updated,
       warning:
-        'MVP: este endpoint registra el resultado. ProducciÃ³n debe usar OTP real y no confiar en un booleano enviado por el cliente.',
+        'MVP: este endpoint registra el resultado. Producción debe usar OTP real y no confiar en un booleano enviado por el cliente.',
     };
   }
 
@@ -585,7 +585,7 @@ export class MobilityPhase5Service {
       },
     });
     if (!profile) {
-      throw new NotFoundException('Perfil de verificaciÃ³n no encontrado.');
+      throw new NotFoundException('Perfil de verificación no encontrado.');
     }
 
     if (dto.status === 'REJECTED' && !dto.reason) {
@@ -645,7 +645,7 @@ export class MobilityPhase5Service {
     const vehicle = await this.prisma.mobilityVehicle.findUnique({
       where: { id: dto.vehicleId },
     });
-    if (!vehicle) throw new NotFoundException('VehÃ­culo no encontrado.');
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado.');
 
     if (
       dto.serviceType === 'TAXI' &&
@@ -653,7 +653,7 @@ export class MobilityPhase5Service {
       !dto.taxiConcessionRef
     ) {
       throw new BadRequestException(
-        'Para taxi debes registrar permiso o referencia de concesiÃ³n.',
+        'Para taxi debes registrar permiso o referencia de concesión.',
       );
     }
 
@@ -927,7 +927,7 @@ export class MobilityPhase5Service {
       !vehicle.isActive
     ) {
       throw new BadRequestException(
-        'El vehÃ­culo debe estar aprobado, activo y pertenecer al conductor.',
+        'El vehículo debe estar aprobado, activo y pertenecer al conductor.',
       );
     }
 
@@ -988,7 +988,7 @@ export class MobilityPhase5Service {
     if (!ride) throw new NotFoundException('Viaje seguro no encontrado.');
     if (ride.status !== 'IN_PROGRESS') {
       throw new BadRequestException(
-        'Solo se registra ubicaciÃ³n durante un viaje seguro activo.',
+        'Solo se registra ubicación durante un viaje seguro activo.',
       );
     }
 
@@ -1022,7 +1022,7 @@ export class MobilityPhase5Service {
     });
     if (!ride) throw new NotFoundException('Viaje seguro no encontrado.');
     if (ride.status === 'COMPLETED') {
-      throw new BadRequestException('El viaje seguro ya terminÃ³.');
+      throw new BadRequestException('El viaje seguro ya terminó.');
     }
 
     const expiresInMinutes = dto.expiresInMinutes ?? 360;
@@ -1051,7 +1051,7 @@ export class MobilityPhase5Service {
       where: { shareToken: token },
     });
     if (!ride || !ride.shareExpiresAt || ride.shareExpiresAt < new Date()) {
-      throw new NotFoundException('Enlace invÃ¡lido o vencido.');
+      throw new NotFoundException('Enlace inválido o vencido.');
     }
 
     const [driver, vehicle] = await Promise.all([
@@ -1128,7 +1128,7 @@ export class MobilityPhase5Service {
       ],
       emergencyServiceContacted: false,
       warning:
-        'Yalika registrÃ³ el incidente. No significa que policÃ­a/911 haya sido contactado.',
+        'Yalika registró el incidente. No significa que policía/911 haya sido contactado.',
     };
   }
 
@@ -1138,7 +1138,7 @@ export class MobilityPhase5Service {
     });
     if (!ride) throw new NotFoundException('Viaje seguro no encontrado.');
     if (ride.status !== 'IN_PROGRESS') {
-      throw new BadRequestException('El viaje seguro no estÃ¡ activo.');
+      throw new BadRequestException('El viaje seguro no está activo.');
     }
 
     return this.prisma.mobilitySafeRide.update({

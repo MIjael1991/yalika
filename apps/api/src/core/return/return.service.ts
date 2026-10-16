@@ -78,7 +78,7 @@ export class ReturnService {
     });
 
     if (!returnRecord) {
-      throw new NotFoundException('La devoluciÃ³n no existe');
+      throw new NotFoundException('La devolución no existe');
     }
 
     return returnRecord;
@@ -122,7 +122,7 @@ export class ReturnService {
       }
 
       if (authorizedBy.status !== 'active') {
-        throw new BadRequestException('El usuario autorizador no estÃ¡ activo');
+        throw new BadRequestException('El usuario autorizador no está activo');
       }
 
       if (dto.operationId) {
@@ -175,7 +175,7 @@ export class ReturnService {
 
       if (order.status !== 'confirmed') {
         throw new BadRequestException(
-          'Solo una venta confirmada puede tener devoluciÃ³n',
+          'Solo una venta confirmada puede tener devolución',
         );
       }
 
@@ -196,7 +196,7 @@ export class ReturnService {
 
       if (activeReturn) {
         throw new ConflictException(
-          'Esta venta ya tiene una devoluciÃ³n pendiente de terminar',
+          'Esta venta ya tiene una devolución pendiente de terminar',
         );
       }
 
@@ -255,7 +255,7 @@ export class ReturnService {
 
         if (paidOnExchange >= exchangeOrder.total - 0.001) {
           throw new BadRequestException(
-            'La nueva orden del cambio ya estÃ¡ completamente pagada',
+            'La nueva orden del cambio ya está completamente pagada',
           );
         }
       }
@@ -291,7 +291,7 @@ export class ReturnService {
       for (const requestedItem of dto.items) {
         if (repeatedItems.has(requestedItem.orderItemId)) {
           throw new BadRequestException(
-            'Un producto no puede repetirse dentro de la misma devoluciÃ³n',
+            'Un producto no puede repetirse dentro de la misma devolución',
           );
         }
 
@@ -312,7 +312,7 @@ export class ReturnService {
 
         if (requestedItem.quantity > availableQuantity + 0.000001) {
           throw new BadRequestException(
-            `No se pueden devolver ${requestedItem.quantity} unidades de ${orderItem.productName}. Quedan ${availableQuantity} disponibles para devoluciÃ³n`,
+            `No se pueden devolver ${requestedItem.quantity} unidades de ${orderItem.productName}. Quedan ${availableQuantity} disponibles para devolución`,
           );
         }
 
@@ -321,19 +321,19 @@ export class ReturnService {
         if (requestedItem.disposition === 'restock') {
           if (requestedItem.condition !== 'sellable') {
             throw new BadRequestException(
-              `${orderItem.productName} solo puede volver al stock si su condiciÃ³n es sellable`,
+              `${orderItem.productName} solo puede volver al stock si su condición es sellable`,
             );
           }
 
           if (activeRecipe) {
             throw new BadRequestException(
-              `${orderItem.productName} utiliza receta y no puede reponer ingredientes automÃ¡ticamente`,
+              `${orderItem.productName} utiliza receta y no puede reponer ingredientes automáticamente`,
             );
           }
 
           if (!orderItem.product.trackInventory) {
             throw new BadRequestException(
-              `${orderItem.productName} no controla inventario y no puede marcarse para reposiciÃ³n`,
+              `${orderItem.productName} no controla inventario y no puede marcarse para reposición`,
             );
           }
 
@@ -416,12 +416,12 @@ export class ReturnService {
     });
 
     if (!existing) {
-      throw new NotFoundException('La devoluciÃ³n no existe');
+      throw new NotFoundException('La devolución no existe');
     }
 
     if (existing.status !== 'draft') {
       throw new BadRequestException(
-        'Solo una devoluciÃ³n en borrador puede confirmarse',
+        'Solo una devolución en borrador puede confirmarse',
       );
     }
 
@@ -445,7 +445,7 @@ export class ReturnService {
 
       if (lockResult.count === 0) {
         throw new BadRequestException(
-          'Esta devoluciÃ³n ya estÃ¡ siendo procesada o ya fue confirmada',
+          'Esta devolución ya está siendo procesada o ya fue confirmada',
         );
       }
 
@@ -479,13 +479,13 @@ export class ReturnService {
 
       if (returnRecord.order.status !== 'confirmed') {
         throw new BadRequestException(
-          'La venta original ya no estÃ¡ confirmada',
+          'La venta original ya no está confirmada',
         );
       }
 
       if (returnRecord.order.paymentStatus !== 'paid') {
         throw new BadRequestException(
-          'La venta original ya no estÃ¡ completamente pagada',
+          'La venta original ya no está completamente pagada',
         );
       }
 
@@ -534,7 +534,7 @@ export class ReturnService {
           orderItem.quantity + 0.000001
         ) {
           throw new BadRequestException(
-            `La devoluciÃ³n de ${orderItem.productName} supera la cantidad comprada`,
+            `La devolución de ${orderItem.productName} supera la cantidad comprada`,
           );
         }
 
@@ -542,20 +542,20 @@ export class ReturnService {
           inventoryEffects.push({
             product: orderItem.productName,
             type: returnItem.disposition,
-            detail: 'No regresÃ³ al stock vendible',
+            detail: 'No regresó al stock vendible',
           });
           continue;
         }
 
         if (returnItem.condition !== 'sellable') {
           throw new BadRequestException(
-            `${orderItem.productName} ya no cumple la condiciÃ³n para volver al stock`,
+            `${orderItem.productName} ya no cumple la condición para volver al stock`,
           );
         }
 
         if (orderItem.product.recipe?.status === 'active') {
           throw new BadRequestException(
-            `${orderItem.productName} utiliza receta y no puede reponer ingredientes automÃ¡ticamente`,
+            `${orderItem.productName} utiliza receta y no puede reponer ingredientes automáticamente`,
           );
         }
 
@@ -586,7 +586,7 @@ export class ReturnService {
 
           if (variantResult.count === 0) {
             throw new BadRequestException(
-              `La variante de ${orderItem.productName} ya no estÃ¡ disponible`,
+              `La variante de ${orderItem.productName} ya no está disponible`,
             );
           }
 
@@ -614,7 +614,7 @@ export class ReturnService {
 
           if (productResult.count === 0) {
             throw new BadRequestException(
-              `${orderItem.productName} ya no estÃ¡ disponible`,
+              `${orderItem.productName} ya no está disponible`,
             );
           }
 
@@ -650,7 +650,7 @@ export class ReturnService {
 
         if (!exchangeOrder) {
           throw new BadRequestException(
-            'La devoluciÃ³n de tipo cambio no tiene nueva orden relacionada',
+            'La devolución de tipo cambio no tiene nueva orden relacionada',
           );
         }
 
@@ -679,7 +679,7 @@ export class ReturnService {
 
         if (remainingBeforeCredit <= 0) {
           throw new BadRequestException(
-            'La nueva orden del cambio ya estÃ¡ completamente pagada',
+            'La nueva orden del cambio ya está completamente pagada',
           );
         }
 
@@ -696,7 +696,7 @@ export class ReturnService {
               amount: creditApplied,
               changeAmount: 0,
               reference: returnRecord.returnNumber,
-              notes: `CrÃ©dito aplicado por cambio ${returnRecord.returnNumber}`,
+              notes: `Crédito aplicado por cambio ${returnRecord.returnNumber}`,
               orderId: exchangeOrder.id,
               companyId: returnRecord.companyId,
               sourceReturnId: returnRecord.id,
@@ -796,7 +796,7 @@ export class ReturnService {
     });
 
     if (!existingReturn) {
-      throw new NotFoundException('La devoluciÃ³n no existe');
+      throw new NotFoundException('La devolución no existe');
     }
 
     if (dto.operationId) {
@@ -838,12 +838,12 @@ export class ReturnService {
       });
 
       if (!returnRecord) {
-        throw new NotFoundException('La devoluciÃ³n no existe');
+        throw new NotFoundException('La devolución no existe');
       }
 
       if (returnRecord.status !== 'completed') {
         throw new BadRequestException(
-          'La devoluciÃ³n debe estar confirmada antes de registrar el reembolso',
+          'La devolución debe estar confirmada antes de registrar el reembolso',
         );
       }
 
@@ -863,7 +863,7 @@ export class ReturnService {
 
       if (processedBy.status !== 'active') {
         throw new BadRequestException(
-          'El usuario que procesa el reembolso no estÃ¡ activo',
+          'El usuario que procesa el reembolso no está activo',
         );
       }
 
@@ -896,7 +896,7 @@ export class ReturnService {
 
       if (availableToRefund <= 0) {
         throw new BadRequestException(
-          'Esta devoluciÃ³n ya no tiene saldo disponible para reembolso',
+          'Esta devolución ya no tiene saldo disponible para reembolso',
         );
       }
 

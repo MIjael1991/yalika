@@ -131,7 +131,7 @@ export class ClinicalR30TrustService {
     dto: UpsertProfessionalProfileDto,
   ) {
     const userId = auth.user.id;
-    // YALIKA_R302_PROFILE_GATE: un profesional requiere establecimiento propio o invitaciÃ³n de uno.
+    // YALIKA_R302_PROFILE_GATE: un profesional requiere establecimiento propio o invitación de uno.
     let profileGateEmail = String(auth?.user?.email ?? '').trim().toLowerCase();
     if (!profileGateEmail) {
       const account = await this.prisma.user.findUnique({
@@ -154,7 +154,7 @@ export class ClinicalR30TrustService {
     ]);
     if (!ownedOrganizationForProfile && !invitedForProfile) {
       throw new BadRequestException(
-        'El perfil profesional debe nacer desde un establecimiento registrado o una invitaciÃ³n de su Red de Salud.',
+        'El perfil profesional debe nacer desde un establecimiento registrado o una invitación de su Red de Salud.',
       );
     }
     const license = normalizeCredential(dto.professionalLicenseNumber);

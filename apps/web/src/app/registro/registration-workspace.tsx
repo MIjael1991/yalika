@@ -48,7 +48,7 @@ export function RegistrationWorkspace() {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Las contraseÃ±as no coinciden.');
+      setError('Las contraseñas no coinciden.');
       return;
     }
 
@@ -89,7 +89,7 @@ export function RegistrationWorkspace() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yalika</p>
           <h1 className="mt-3 text-3xl font-bold">Cuenta creada</h1>
           <p className="mt-3 text-sm leading-6 text-slate-300">
-            Ya puedes ingresar y abrir el mÃ³dulo de Encuestas. Desde la misma cuenta iremos activando otros mÃ³dulos de Yalika cuando correspondan.
+            Ya puedes ingresar y abrir el módulo de Encuestas. Desde la misma cuenta iremos activando otros módulos de Yalika cuando correspondan.
           </p>
           <Link
             href={loginHref}
@@ -108,7 +108,7 @@ export function RegistrationWorkspace() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-400">Yalika</p>
         <h1 className="mt-3 text-3xl font-bold">Crear cuenta</h1>
         <p className="mt-2 text-sm leading-6 text-slate-400">
-          RegÃ­strate para crear, publicar y consultar tus encuestas en lÃ­nea.
+          Regístrate para crear, publicar y consultar tus encuestas en línea.
         </p>
 
         {error ? (
@@ -134,7 +134,7 @@ export function RegistrationWorkspace() {
           </label>
 
           <label className="block text-sm text-slate-300">
-            Negocio, organizaciÃ³n o proyecto
+            Negocio, organización o proyecto
             <input
               required
               minLength={2}
@@ -163,7 +163,7 @@ export function RegistrationWorkspace() {
           </label>
 
           <label className="block text-sm text-slate-300">
-            ContraseÃ±a
+            Contraseña
             <input
               id="yalika-register-password"
               type={showPassword ? 'text' : 'password'}
@@ -175,12 +175,12 @@ export function RegistrationWorkspace() {
               disabled={submitting}
               onChange={(event) => setPassword(event.target.value)}
               className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-cyan-400"
-              placeholder="10 caracteres o mÃ¡s"
+              placeholder="10 caracteres o más"
             />
           </label>
 
           <label className="block text-sm text-slate-300">
-            Confirmar contraseÃ±a
+            Confirmar contraseña
             <input
               type={showPassword ? 'text' : 'password'}
               required
@@ -191,7 +191,7 @@ export function RegistrationWorkspace() {
               disabled={submitting}
               onChange={(event) => setConfirmPassword(event.target.value)}
               className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-cyan-400"
-              placeholder="Repite tu contraseÃ±a"
+              placeholder="Repite tu contraseña"
             />
           </label>
 
@@ -202,7 +202,7 @@ export function RegistrationWorkspace() {
             onClick={() => setShowPassword((value) => !value)}
             className="inline-flex min-h-11 items-center rounded-lg px-2 text-sm font-semibold text-cyan-300 hover:text-cyan-200"
           >
-            {showPassword ? 'Ocultar contraseÃ±as' : 'Mostrar contraseÃ±as'}
+            {showPassword ? 'Ocultar contraseñas' : 'Mostrar contraseñas'}
           </button>
 
           <label className="flex min-h-11 items-start gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-3 text-sm text-slate-300">
@@ -214,7 +214,7 @@ export function RegistrationWorkspace() {
               onChange={(event) => setAcceptTerms(event.target.checked)}
               className="mt-1 h-5 w-5"
             />
-            <span>Acepto crear una cuenta Yalika y soy responsable de la informaciÃ³n que capture en mis encuestas.</span>
+            <span>Acepto crear una cuenta Yalika y soy responsable de la información que capture en mis encuestas.</span>
           </label>
 
           <button
@@ -222,12 +222,12 @@ export function RegistrationWorkspace() {
             disabled={submitting}
             className="h-12 w-full rounded-xl bg-cyan-400 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-wait disabled:opacity-60"
           >
-            {submitting ? 'Creando cuentaâ€¦' : 'Crear cuenta Yalika'}
+            {submitting ? 'Creando cuenta…' : 'Crear cuenta Yalika'}
           </button>
         </form>
 
         <p className="mt-5 text-center text-sm text-slate-400">
-          Â¿Ya tienes cuenta?{' '}
+          ¿Ya tienes cuenta?{' '}
           <Link href={loginHref} className="font-semibold text-cyan-300 hover:text-cyan-200">
             Ingresar
           </Link>

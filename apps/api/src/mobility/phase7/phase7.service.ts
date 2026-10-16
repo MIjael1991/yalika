@@ -30,7 +30,7 @@ export class MobilityPhase7Service {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
-      .replace(/[Â¿?Â¡!.,;:]/g, ' ')
+      .replace(/[¿?¡!.,;:]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }

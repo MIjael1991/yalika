@@ -72,7 +72,7 @@ export class MobilityPhase4Service {
       },
     });
 
-    // Actualiza la calificaciÃ³n agregada del conductor cuando el objetivo sea DRIVER.
+    // Actualiza la calificación agregada del conductor cuando el objetivo sea DRIVER.
     if (dto.targetType.toUpperCase() === 'DRIVER') {
       const aggregate = await this.prisma.mobilityRating.aggregate({
         where: {
@@ -188,7 +188,7 @@ export class MobilityPhase4Service {
     if (dto.expiresAt) {
       expiresAt = new Date(dto.expiresAt);
       if (Number.isNaN(expiresAt.getTime())) {
-        throw new BadRequestException('expiresAt no es una fecha vÃ¡lida.');
+        throw new BadRequestException('expiresAt no es una fecha válida.');
       }
     }
 
@@ -396,7 +396,7 @@ export class MobilityPhase4Service {
     });
     if (!ccase) {
       throw new BadRequestException(
-        'Primero debe existir una evaluaciÃ³n de cancelaciÃ³n.',
+        'Primero debe existir una evaluación de cancelación.',
       );
     }
 
@@ -413,7 +413,7 @@ export class MobilityPhase4Service {
       passengerChargeAmount > 0
     ) {
       throw new BadRequestException(
-        'La distribuciÃ³n no puede superar el cargo al pasajero.',
+        'La distribución no puede superar el cargo al pasajero.',
       );
     }
 
@@ -455,7 +455,7 @@ export class MobilityPhase4Service {
             walletId: wallet.id,
             type: 'CANCELLATION_COMPENSATION',
             amount: driverCompensationAmount,
-            concept: `CompensaciÃ³n por cancelaciÃ³n ${tripId}`,
+            concept: `Compensación por cancelación ${tripId}`,
             referenceId: `cancel:${tripId}`,
             metadata: { settlementId: row.id },
           },
@@ -495,7 +495,7 @@ export class MobilityPhase4Service {
         destination: dto.destination,
         template: dto.template,
         payload: {
-          note: 'Outbox Ãºnicamente. El envÃ­o real requiere proveedor SMS/push/email.',
+          note: 'Outbox únicamente. El envío real requiere proveedor SMS/push/email.',
         },
       },
     });
@@ -517,7 +517,7 @@ export class MobilityPhase4Service {
     const row = await this.prisma.mobilityNotificationOutbox.findUnique({
       where: { id },
     });
-    if (!row) throw new NotFoundException('NotificaciÃ³n no encontrada.');
+    if (!row) throw new NotFoundException('Notificación no encontrada.');
 
     return this.prisma.mobilityNotificationOutbox.update({
       where: { id },
@@ -536,7 +536,7 @@ export class MobilityPhase4Service {
     });
     if (!incident) throw new NotFoundException('Incidente no encontrado.');
 
-    // La creaciÃ³n de esta fila NO representa una llamada real a policÃ­a/911.
+    // La creación de esta fila NO representa una llamada real a policía/911.
     // Solo documenta y prepara el flujo de escalamiento.
     const escalation = await this.prisma.mobilitySafetyEscalation.create({
       data: {
@@ -564,7 +564,7 @@ export class MobilityPhase4Service {
       escalation,
       realWorldActionPerformed: false,
       warning:
-        'Registro interno Ãºnicamente; no confirma contacto con servicios de emergencia.',
+        'Registro interno únicamente; no confirma contacto con servicios de emergencia.',
     };
   }
 
@@ -715,7 +715,7 @@ export class MobilityPhase4Service {
       Number.isNaN(end.getTime()) ||
       end <= start
     ) {
-      throw new BadRequestException('Periodo invÃ¡lido.');
+      throw new BadRequestException('Periodo inválido.');
     }
 
     const wallet = await this.prisma.mobilityDriverWallet.findUnique({

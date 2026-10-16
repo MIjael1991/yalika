@@ -31,7 +31,7 @@ function companyNameFor(organizationName: string, email: string) {
     .slice(0, 6)
     .toUpperCase();
   const base = clean(organizationName).slice(0, 120);
-  return `${base} Â· ${suffix}`;
+  return `${base} · ${suffix}`;
 }
 
 @Injectable()
@@ -49,13 +49,13 @@ export class PublicRegistrationService {
   async register(dto: RegisterDto) {
     if (!registrationEnabled()) {
       throw new ForbiddenException(
-        'El registro pÃºblico estÃ¡ temporalmente cerrado. Intenta mÃ¡s tarde.',
+        'El registro público está temporalmente cerrado. Intenta más tarde.',
       );
     }
 
     if (!dto.acceptTerms) {
       throw new BadRequestException(
-        'Debes aceptar los tÃ©rminos para crear tu cuenta.',
+        'Debes aceptar los términos para crear tu cuenta.',
       );
     }
 
@@ -81,7 +81,7 @@ export class PublicRegistrationService {
 
     if (existing) {
       throw new ConflictException(
-        'Ya existe una cuenta con ese correo. Ingresa o recupera tu contraseÃ±a.',
+        'Ya existe una cuenta con ese correo. Ingresa o recupera tu contraseña.',
       );
     }
 

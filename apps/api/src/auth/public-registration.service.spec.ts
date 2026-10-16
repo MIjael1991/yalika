@@ -22,7 +22,7 @@ describe('PublicRegistrationService', () => {
     const findFirst = jest.fn().mockResolvedValue(null);
     const companyCreate = jest
       .fn()
-      .mockResolvedValue({ id: 'company-1', name: 'Proyecto Â· A1B2C3' });
+      .mockResolvedValue({ id: 'company-1', name: 'Proyecto · A1B2C3' });
     const roleCreate = jest
       .fn()
       .mockResolvedValue({ id: 'role-1', name: 'Administrador' });
