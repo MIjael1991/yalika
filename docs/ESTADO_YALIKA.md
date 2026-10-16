@@ -35,6 +35,18 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 5. Rediseño de Salud para varias mascotas o personas.
 6. Probar Encuestas con el primer cliente real.
 
+## Base de datos
+
+Una sola base PostgreSQL. Su esquema vive en `apps/api/prisma/schema/`, un archivo por módulo: `identidad`, `life`, `cerebro`, `clientes`, `comercio`, `web`, `encuestas`, `movilidad` y `salud` (más `base` con la conexión). Un módulo nuevo agrega su propio archivo ahí y su migración en `apps/api/prisma/migrations`. Después de cambiar el esquema: `npx.cmd prisma generate`.
+
+Los nombres internos de la base local (`orion`, usuario `orion_user`, contenedor `orion-postgres`) se conservan: renombrarlos obliga a mover los datos.
+
+## Variables de entorno (nombres actuales)
+
+`YALIKA_API_URL`, `YALIKA_COMPANY_ID`, `YALIKA_AUTHORIZED_USER_ID` (web); `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`, `YALIKA_BOOTSTRAP_EMAIL`, `YALIKA_BOOTSTRAP_PASSWORD`, `YALIKA_SESSION_HOURS`, `YALIKA_TICKET_SECRET`, `YALIKA_PUBLIC_URL`, `YALIKA_EMAIL_FROM`, `YALIKA_PUBLIC_REGISTRATION`, `YALIKA_CLINICAL_PILOT_PRICE`, `YALIKA_OPERATOR_USER_IDS` (servidor). Antes empezaban con `ORION_` o `YALEKA_`: al desplegar en Railway hay que renombrarlas allá primero.
+
+Identificadores que se guardan en datos y por eso conservan el nombre viejo: plantillas de página `yaleka_*`, modo `yaleka_cloud` de encuestas, prefijo `YALEKA-` de las claves de recuperación, columna `yalekaFare`, insignias `*_VERIFICADO_YALEKA`. Los enlaces `/api/orion/...` se redirigen a `/api/yalika/...`.
+
 ## Cómo comprobar que todo sigue bien
 
 Desde `apps/api`: `npm.cmd run build` y `npm.cmd test` (hoy: 78 suites, 388 pruebas). Desde `apps/web`: `npm.cmd run build`.
