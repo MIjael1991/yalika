@@ -31,7 +31,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 1. Poner `YALIKA_OPERATOR_USER_IDS` en el `.env` local y en Railway.
 2. (Hecho 16-oct) Movilidad fases 1 a 6: cada persona solo usa su cuenta, su perfil de conductor y sus viajes (`mobility-access.service.ts`). El PIN del viaje ya no se devuelve al conductor.
 3. Guardar el PIN de seguridad de Movilidad cifrado (hoy se guarda en texto en la base, aunque ya solo lo ve el pasajero).
-4. Que `CommerceAccessGuard` niegue por defecto en vez de tener lista de rutas permitidas.
+4. (Hecho 16-oct) Red de seguridad `src/security/route-protection.spec.ts`: una prueba revisa todas las rutas y falla si alguna queda abierta sin estar declarada pública a propósito.
 5. Rediseño de Salud para varias mascotas o personas.
 6. Probar Encuestas con el primer cliente real.
 

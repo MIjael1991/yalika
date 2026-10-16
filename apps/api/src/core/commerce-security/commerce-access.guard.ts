@@ -11,7 +11,7 @@ import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import { PrismaService } from '../../prisma/prisma.service';
 
 /** R6: controles en backend, independientes de botones o IDs enviados por el cliente. */
-const privateRoots = new Set([
+export const commercePrivateRoots = new Set([
   'catalog',
   'site',
   'site-team',
@@ -122,7 +122,7 @@ export class CommerceAccessGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const parts = req.path.split('/').filter(Boolean);
     const root = parts[0];
-    if (!privateRoots.has(root)) return true; // Nunca cambia Encuestas ni el Cerebro.
+    if (!commercePrivateRoots.has(root)) return true; // Nunca cambia Encuestas ni el Cerebro.
 
     const publicRoute =
       (req.method === 'GET' &&
