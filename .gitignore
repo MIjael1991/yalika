@@ -27,3 +27,9 @@ scripts/logs/
 *.zip
 *.exe
 tools/cloudflared/
+
+# copias de habilidades de asistentes (no son codigo del sistema)
+apps/api/.agents/
+apps/api/.claude/
+apps/api/.windsurf/
+apps/api/skills-lock.json
