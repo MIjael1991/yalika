@@ -1,7 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 
 import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -19,16 +16,13 @@ export class KnowledgeService {
     });
   }
 
-  async create(
-    createKnowledgeTemplateDto: CreateKnowledgeTemplateDto,
-  ) {
+  async create(createKnowledgeTemplateDto: CreateKnowledgeTemplateDto) {
     try {
       return await this.prisma.knowledgeTemplate.create({
         data: {
           name: createKnowledgeTemplateDto.name.trim(),
           category: createKnowledgeTemplateDto.category.trim(),
-          description:
-            createKnowledgeTemplateDto.description?.trim(),
+          description: createKnowledgeTemplateDto.description?.trim(),
         },
       });
     } catch (error) {

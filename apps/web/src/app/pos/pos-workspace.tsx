@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { BarcodeScanner } from './barcode-scanner';
+import QRCode from 'qrcode';
 
 import {
   FormEvent,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -22,6 +25,7 @@ export type Product = {
   id: string;
   name: string;
   sku: string | null;
+  catalogId?: string | null;
   price: number;
   stock: number;
   status: string;
@@ -39,6 +43,7 @@ type SaleOption = {
   productId: string;
   variantId?: string;
   productName: string;
+  catalogId?: string;
   variantName?: string;
   categoryId?: string;
   categoryName: string;
@@ -55,6 +60,8 @@ type CartDiscount = {
   type: DiscountType;
   value: number;
   reason: string;
+  source?: 'manual' | 'promotion';
+  promotionId?: string;
 };
 
 type CartItem = SaleOption & {
@@ -113,6 +120,38 @@ type PaymentResult = {
     remaining: number;
     status: string;
   } | null;
+  loyalty: {
+    confirmedVisits: number;
+    requiredVisits: number;
+    remainingVisits: number;
+    rewardCreated: boolean;
+  } | null;
+  benefitClaim: {
+    siteSlug: string;
+    orderId: string;
+    token: string;
+  } | null;
+};
+
+type CustomerIdentityResult = {
+  customer: {
+    id: string;
+    name: string;
+    phone: string;
+  };
+  program: {
+    id: string;
+    name: string;
+    requiredVisits: number;
+    rewardDescription: string;
+  } | null;
+};
+
+type BarcodeResolution = {
+  value: string;
+  unitsPerScan: number;
+  product: Product;
+  variant: ProductVariant | null;
 };
 
 type OrderSplit = {
@@ -176,6 +215,43 @@ type DiscountEditor = {
   value: string;
   reason: string;
   error: string;
+};
+
+type QuickProductEditor = {
+  name: string;
+  sku: string;
+  type: 'product' | 'service' | 'food' | 'beverage' | 'design';
+  price: string;
+  trackInventory: boolean;
+  stock: string;
+  categoryId: string;
+  error: string;
+};
+
+export type ActivePromotion = {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  scope: string;
+  discountValue: number | null;
+  specialPrice: number | null;
+  minimumPurchase: number | null;
+  buyQuantity: number | null;
+  getQuantity: number | null;
+  featured: boolean;
+  startsAt: string;
+  endsAt: string;
+  products: Array<{
+    productId: string;
+  }>;
+};
+
+type PromotionPlan = {
+  promotion: ActivePromotion;
+  savings: number;
+  orderDiscount?: CartDiscount;
+  itemDiscounts: Record<string, CartDiscount>;
 };
 
 const money = new Intl.NumberFormat('es-MX', {
@@ -244,6 +320,7 @@ function getSaleOptions(products: Product[]) {
       return activeVariants.map((variant) => ({
         key: `${product.id}:${variant.id}`,
         productId: product.id,
+        catalogId: product.catalogId ?? undefined,
         variantId: variant.id,
         productName: product.name,
         variantName: variant.name,
@@ -261,6 +338,7 @@ function getSaleOptions(products: Product[]) {
       {
         key: product.id,
         productId: product.id,
+        catalogId: product.catalogId ?? undefined,
         productName: product.name,
         categoryId: product.category?.id,
         categoryName: product.category?.name ?? 'Sin categoría',
@@ -322,6 +400,195 @@ function getCartTotals(cart: CartItem[], orderDiscount?: CartDiscount) {
   };
 }
 
+function buildPromotionPlan(
+  promotion: ActivePromotion,
+  cart: CartItem[],
+): PromotionPlan | null {
+  if (
+    ![
+      'percentage',
+      'fixed',
+      'special_price',
+      'buy_x_get_y',
+    ].includes(promotion.type) ||
+    cart.length === 0
+  ) {
+    return null;
+  }
+
+  const baseCents = cart.reduce(
+    (total, item) =>
+      total + toCents(item.price * item.quantity),
+    0,
+  );
+
+  if (
+    promotion.minimumPurchase &&
+    fromCents(baseCents) < promotion.minimumPurchase
+  ) {
+    return null;
+  }
+
+  const reason = `Promoción: ${promotion.title}`;
+
+  if (promotion.type === 'buy_x_get_y') {
+    if (
+      promotion.scope !== 'selected_products' ||
+      !promotion.buyQuantity ||
+      !promotion.getQuantity
+    ) {
+      return null;
+    }
+
+    const productIds = new Set(
+      promotion.products.map((item) => item.productId),
+    );
+    const itemDiscounts: Record<string, CartDiscount> = {};
+    let savingsCents = 0;
+
+    for (const item of cart.filter((cartItem) =>
+      productIds.has(cartItem.productId),
+    )) {
+      const groupSize =
+        promotion.buyQuantity + promotion.getQuantity;
+      const freeUnits =
+        Math.floor(item.quantity / groupSize) *
+        promotion.getQuantity;
+      const itemSavingsCents =
+        toCents(item.price) * freeUnits;
+
+      if (itemSavingsCents > 0) {
+        itemDiscounts[item.key] = {
+          type: 'fixed',
+          value: fromCents(itemSavingsCents),
+          reason,
+          source: 'promotion',
+          promotionId: promotion.id,
+        };
+        savingsCents += itemSavingsCents;
+      }
+    }
+
+    return savingsCents > 0
+      ? {
+          promotion,
+          savings: fromCents(savingsCents),
+          itemDiscounts,
+        }
+      : null;
+  }
+
+  const type = promotion.type as DiscountType;
+  const value =
+    type === 'special_price'
+      ? promotion.specialPrice
+      : promotion.discountValue;
+
+  if (value === null || value === undefined || value < 0) {
+    return null;
+  }
+
+  const makeDiscount = (): CartDiscount => ({
+    type,
+    value,
+    reason,
+    source: 'promotion',
+    promotionId: promotion.id,
+  });
+
+  if (promotion.scope !== 'selected_products') {
+    if (type === 'special_price') {
+      return null;
+    }
+
+    const discount = makeDiscount();
+    const savingsCents = calculateDiscountCents(
+      discount,
+      baseCents,
+    );
+
+    return savingsCents > 0
+      ? {
+          promotion,
+          savings: fromCents(savingsCents),
+          orderDiscount: discount,
+          itemDiscounts: {},
+        }
+      : null;
+  }
+
+  const productIds = new Set(
+    promotion.products.map((item) => item.productId),
+  );
+  const eligibleItems = cart.filter((item) =>
+    productIds.has(item.productId),
+  );
+
+  if (eligibleItems.length === 0) {
+    return null;
+  }
+
+  if (type === 'fixed') {
+    const bestItem = eligibleItems.reduce(
+      (best, item) => {
+        const savings = calculateDiscountCents(
+          makeDiscount(),
+          toCents(item.price * item.quantity),
+          item.quantity,
+        );
+        const bestSavings = calculateDiscountCents(
+          makeDiscount(),
+          toCents(best.price * best.quantity),
+          best.quantity,
+        );
+
+        return savings > bestSavings ? item : best;
+      },
+    );
+    const discount = makeDiscount();
+    const savingsCents = calculateDiscountCents(
+      discount,
+      toCents(bestItem.price * bestItem.quantity),
+      bestItem.quantity,
+    );
+
+    return savingsCents > 0
+      ? {
+          promotion,
+          savings: fromCents(savingsCents),
+          itemDiscounts: {
+            [bestItem.key]: discount,
+          },
+        }
+      : null;
+  }
+
+  const itemDiscounts: Record<string, CartDiscount> = {};
+  let savingsCents = 0;
+
+  for (const item of eligibleItems) {
+    const discount = makeDiscount();
+    const itemSavings = calculateDiscountCents(
+      discount,
+      toCents(item.price * item.quantity),
+      item.quantity,
+    );
+
+    if (itemSavings > 0) {
+      itemDiscounts[item.key] = discount;
+      savingsCents += itemSavings;
+    }
+  }
+
+  return savingsCents > 0
+    ? {
+        promotion,
+        savings: fromCents(savingsCents),
+        itemDiscounts,
+      }
+    : null;
+}
+
 function getEqualSplitTotals(total: number, parts: number) {
   if (!Number.isInteger(parts) || parts < 2) {
     return [];
@@ -340,11 +607,13 @@ export function PosWorkspace({
   initialCompanyId,
   initialAuthorizedUserId,
   initialProducts,
+  initialPromotions,
   initialCatalogError,
 }: {
   initialCompanyId: string;
   initialAuthorizedUserId: string;
   initialProducts: Product[];
+  initialPromotions: ActivePromotion[];
   initialCatalogError: string;
 }) {
   const [companyId, setCompanyId] = useState(initialCompanyId);
@@ -359,25 +628,42 @@ export function PosWorkspace({
   const [products, setProducts] = useState<Product[]>(
     initialProducts.filter((product) => product.status === 'active'),
   );
+  const [activePromotions, setActivePromotions] =
+    useState<ActivePromotion[]>(initialPromotions);
+  const [appliedPromotionId, setAppliedPromotionId] = useState('');
+  const [promotionNotice, setPromotionNotice] = useState('');
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [catalogError, setCatalogError] = useState(initialCatalogError);
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('all');
+  const [catalogId, setCatalogId] = useState('all');
+  const [commerceCatalogs, setCommerceCatalogs] = useState<Array<{ id: string; name: string }>>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderDiscount, setOrderDiscount] = useState<CartDiscount>();
   const [discountEditor, setDiscountEditor] = useState<DiscountEditor>();
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [receivedAmount, setReceivedAmount] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
+  const [benefitPhone, setBenefitPhone] = useState('');
   const [checkoutSession, setCheckoutSession] = useState<CheckoutSession>();
   const [checkoutError, setCheckoutError] = useState('');
   const [checkingOut, setCheckingOut] = useState(false);
   const [receipt, setReceipt] = useState<Receipt>();
+  const [receiptQr, setReceiptQr] = useState({
+    orderId: '',
+    dataUrl: '',
+  });
   const [customerReceipts, setCustomerReceipts] = useState<Receipt[]>([]);
   const [showCancelSale, setShowCancelSale] = useState(false);
+  const [showConfirmCheckout, setShowConfirmCheckout] = useState(false);
+  const [cancellingSale, setCancellingSale] = useState(false);
+  const [cancelSaleError, setCancelSaleError] = useState('');
   const [showVoidPaidSale, setShowVoidPaidSale] = useState(false);
   const [voidingPaidSale, setVoidingPaidSale] = useState(false);
   const [voidPaidSaleError, setVoidPaidSaleError] = useState('');
+  const [voidReason, setVoidReason] = useState('');
+  const [voidMerchandiseConfirmed, setVoidMerchandiseConfirmed] =
+    useState(false);
   const voidOperationIds = useRef<{
     orderId: string;
     returnId: string;
@@ -391,12 +677,116 @@ export function PosWorkspace({
   const [splitPaymentReference, setSplitPaymentReference] = useState('');
   const [splitPaymentError, setSplitPaymentError] = useState('');
   const [processingSplit, setProcessingSplit] = useState(false);
+  const [quickProductEditor, setQuickProductEditor] =
+    useState<QuickProductEditor>();
+  const [savingQuickProduct, setSavingQuickProduct] = useState(false);
+  const [showRewardRedeem, setShowRewardRedeem] =
+    useState(false);
+  const [rewardCode, setRewardCode] = useState('');
+  const [redeemingReward, setRedeemingReward] =
+    useState(false);
+  const [rewardRedeemError, setRewardRedeemError] =
+    useState('');
+  const [rewardRedeemMessage, setRewardRedeemMessage] =
+    useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!companyId) {
+      return;
+    }
+
+    let active = true;
+
+    void apiRequest<ActivePromotion[]>(
+      `promotion/public/company/${companyId}`,
+    )
+      .then((promotions) => {
+        if (active) {
+          setActivePromotions(promotions);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setActivePromotions([]);
+        }
+      });
+
+    void apiRequest<{ expired: number }>(
+      `order/company/${companyId}/expire-abandoned`,
+      { method: 'POST' },
+    )
+      .then(async (result) => {
+        if (!active || result.expired === 0) {
+          return;
+        }
+
+        const catalog = await apiRequest<Product[]>(
+          `catalog/product/company/${companyId}`,
+        );
+
+        if (active) {
+          setProducts(
+            catalog.filter(
+              (product) => product.status === 'active',
+            ),
+          );
+        }
+      })
+      .catch(() => {
+        // La caja sigue disponible aunque la limpieza automática falle.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [companyId]);
+
+  useEffect(() => {
+    const claim = receipt?.payment.benefitClaim;
+
+    if (!claim) {
+      return;
+    }
+
+    const ticketUrl = `${window.location.origin}/r/${claim.siteSlug}?ticket=${encodeURIComponent(
+      claim.orderId,
+    )}&token=${encodeURIComponent(claim.token)}`;
+    let cancelled = false;
+
+    void QRCode.toDataURL(ticketUrl, {
+      width: 320,
+      margin: 2,
+      errorCorrectionLevel: 'H',
+      color: {
+        dark: '#020617',
+        light: '#ffffff',
+      },
+    }).then((dataUrl) => {
+      if (!cancelled) {
+        setReceiptQr({
+          orderId: claim.orderId,
+          dataUrl,
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [receipt?.payment.benefitClaim]);
+
+  useEffect(() => {
+    if (cart.length === 0) {
+      setAppliedPromotionId('');
+      setPromotionNotice('');
+    }
+  }, [cart.length]);
 
   async function loadProducts(targetCompanyId = companyId) {
     if (!targetCompanyId) {
       setProducts([]);
-      return;
+      return [];
     }
 
     setLoadingProducts(true);
@@ -406,18 +796,54 @@ export function PosWorkspace({
       const catalog = await apiRequest<Product[]>(
         `catalog/product/company/${targetCompanyId}`,
       );
-      setProducts(catalog.filter((product) => product.status === 'active'));
+      const activeProducts = catalog.filter(
+        (product) => product.status === 'active',
+      );
+      setProducts(activeProducts);
+      void loadPromotions(targetCompanyId);
+      return activeProducts;
     } catch (error) {
       setProducts([]);
       setCatalogError(
         error instanceof Error ? error.message : 'No se pudo cargar el catálogo',
       );
+      return [];
     } finally {
       setLoadingProducts(false);
     }
   }
 
-  const saleOptions = useMemo(() => getSaleOptions(products), [products]);
+  async function loadPromotions(targetCompanyId = companyId) {
+    if (!targetCompanyId) {
+      setActivePromotions([]);
+      return [];
+    }
+
+    try {
+      const promotions = await apiRequest<ActivePromotion[]>(
+        `promotion/public/company/${targetCompanyId}`,
+      );
+      setActivePromotions(promotions);
+      return promotions;
+    } catch {
+      setActivePromotions([]);
+      return [];
+    }
+  }
+
+  useEffect(() => {
+    if (!companyId) return;
+    let active = true;
+    void apiRequest<Array<{ id: string; name: string }>>(`catalog/commerce/company/${companyId}`)
+      .then((result) => { if (active) setCommerceCatalogs(result); })
+      .catch(() => { if (active) setCommerceCatalogs([]); });
+    return () => { active = false; };
+  }, [companyId]);
+
+  const saleOptions = useMemo(
+    () => getSaleOptions(products).filter((option) => catalogId === 'all' || option.catalogId === catalogId),
+    [products, catalogId],
+  );
   const categories = useMemo(() => {
     const values = new Map<string, string>();
 
@@ -453,23 +879,161 @@ export function PosWorkspace({
     () => getCartTotals(cart, orderDiscount),
     [cart, orderDiscount],
   );
+  const bestPromotionPlan = useMemo(() => {
+    const plans = activePromotions
+      .map((promotion) => buildPromotionPlan(promotion, cart))
+      .filter((plan): plan is PromotionPlan => Boolean(plan))
+      .sort(
+        (left, right) =>
+          right.savings - left.savings ||
+          Number(right.promotion.featured) -
+            Number(left.promotion.featured),
+      );
+
+    return plans[0] ?? null;
+  }, [activePromotions, cart]);
+  const promotionOpportunity = useMemo(() => {
+    if (cart.length === 0) {
+      return null;
+    }
+
+    const subtotal = getCartTotals(cart).subtotal;
+    const nearestMinimum = activePromotions
+      .filter(
+        (promotion) =>
+          Boolean(promotion.minimumPurchase) &&
+          (promotion.minimumPurchase ?? 0) > subtotal &&
+          (promotion.scope !== 'selected_products' ||
+            promotion.products.some((promotionProduct) =>
+              cart.some(
+                (cartItem) =>
+                  cartItem.productId === promotionProduct.productId,
+              ),
+            )),
+      )
+      .map((promotion) => ({
+        promotion,
+        missing: (promotion.minimumPurchase ?? 0) - subtotal,
+      }))
+      .sort((left, right) => left.missing - right.missing)[0];
+
+    if (nearestMinimum) {
+      return {
+        title: nearestMinimum.promotion.title,
+        message: `Faltan ${money.format(nearestMinimum.missing)} para activar esta oferta.`,
+      };
+    }
+
+    for (const promotion of activePromotions) {
+      if (
+        promotion.type !== 'buy_x_get_y' ||
+        !promotion.buyQuantity ||
+        !promotion.getQuantity
+      ) {
+        continue;
+      }
+
+      const productIds = new Set(
+        promotion.products.map((item) => item.productId),
+      );
+      const item = cart.find((cartItem) =>
+        productIds.has(cartItem.productId),
+      );
+
+      if (!item) {
+        continue;
+      }
+
+      const groupSize =
+        promotion.buyQuantity + promotion.getQuantity;
+      const remainder = item.quantity % groupSize;
+
+      if (remainder > 0) {
+        const missing = groupSize - remainder;
+
+        return {
+          title: promotion.title,
+          message: `Agrega ${missing} ${missing === 1 ? 'unidad' : 'unidades'} de ${item.productName} para activar la oferta.`,
+        };
+      }
+    }
+
+    return null;
+  }, [activePromotions, cart]);
   const cartLocked = Boolean(checkoutSession || splitCheckout);
   const activeSplit = splitCheckout?.splits.find(
     (split) => split.status !== 'paid',
   );
   const paidSplitCount =
     splitCheckout?.splits.filter((split) => split.status === 'paid').length ?? 0;
+  const receiptQrDataUrl =
+    receipt?.payment.benefitClaim?.orderId ===
+    receiptQr.orderId
+      ? receiptQr.dataUrl
+      : '';
 
-  function addOption(option: SaleOption) {
+  function removeAppliedPromotion() {
+    setCart((current) =>
+      current.map((item) =>
+        item.discount?.source === 'promotion'
+          ? { ...item, discount: undefined }
+          : item,
+      ),
+    );
+    setOrderDiscount((current) =>
+      current?.source === 'promotion' ? undefined : current,
+    );
+    setAppliedPromotionId('');
+    setPromotionNotice('');
+  }
+
+  function applyPromotion(plan: PromotionPlan) {
+    if (cartLocked) {
+      return;
+    }
+
+    const hasDiscount =
+      Boolean(orderDiscount) ||
+      cart.some((item) => Boolean(item.discount));
+
+    if (
+      hasDiscount &&
+      !window.confirm(
+        'Esta oferta reemplazará el descuento actual. ¿Quieres continuar?',
+      )
+    ) {
+      return;
+    }
+
+    setCart((current) =>
+      current.map((item) => ({
+        ...item,
+        discount: plan.itemDiscounts[item.key],
+      })),
+    );
+    setOrderDiscount(plan.orderDiscount);
+    setAppliedPromotionId(plan.promotion.id);
+    setPromotionNotice(
+      `Aplicaste ${plan.promotion.title}. El cliente ahorra ${money.format(
+        plan.savings,
+      )}.`,
+    );
+    setCheckoutError('');
+  }
+
+  function addOption(option: SaleOption, units = 1) {
     if (cartLocked || (option.trackInventory && option.stock <= 0)) {
       return;
     }
 
+    removeAppliedPromotion();
+
     setCart((current) => {
+      const safeUnits = Number.isInteger(units) && units > 0 ? units : 1;
       const existing = current.find((item) => item.key === option.key);
 
       if (existing) {
-        const nextQuantity = existing.quantity + 1;
+        const nextQuantity = existing.quantity + safeUnits;
 
         if (option.trackInventory && nextQuantity > option.stock) {
           return current;
@@ -482,7 +1046,8 @@ export function PosWorkspace({
         );
       }
 
-      return [...current, { ...option, quantity: 1 }];
+      if (option.trackInventory && safeUnits > option.stock) return current;
+      return [...current, { ...option, quantity: safeUnits }];
     });
     setSearch('');
     setSearchError('');
@@ -493,6 +1058,8 @@ export function PosWorkspace({
     if (cartLocked) {
       return;
     }
+
+    removeAppliedPromotion();
 
     setCart((current) =>
       current.flatMap((item) => {
@@ -514,6 +1081,31 @@ export function PosWorkspace({
     );
   }
 
+  async function resolveBarcode(code: string) {
+    const normalized = code.trim();
+    if (!companyId || !normalized) return;
+    setSearchError('');
+    try {
+      const resolved = await apiRequest<BarcodeResolution>(
+        `catalog/barcode/company/${encodeURIComponent(companyId)}/${encodeURIComponent(normalized)}`,
+      );
+      const option = saleOptions.find((candidate) =>
+        resolved.variant
+          ? candidate.productId === resolved.product.id && candidate.variantId === resolved.variant.id
+          : candidate.productId === resolved.product.id && !candidate.variantId,
+      );
+      if (!option) {
+        setSearch(normalized);
+        setSearchError('El código existe, pero el producto no está disponible para venta en esta caja.');
+        return;
+      }
+      addOption(option, resolved.unitsPerScan ?? 1);
+    } catch (error) {
+      setSearch(normalized);
+      setSearchError(error instanceof Error ? error.message : 'Código no registrado');
+    }
+  }
+
   function handleSearchSubmit(event: FormEvent) {
     event.preventDefault();
     const normalized = search.trim().toLocaleLowerCase('es-MX');
@@ -531,6 +1123,11 @@ export function PosWorkspace({
       return;
     }
 
+    if (normalized && filteredOptions.length === 0) {
+      void resolveBarcode(search);
+      return;
+    }
+
     setSearchError(
       !normalized
         ? 'Escribe un producto o escanea un código registrado.'
@@ -540,8 +1137,141 @@ export function PosWorkspace({
     );
   }
 
+  function openQuickProductEditor() {
+    setQuickProductEditor({
+      name: '',
+      sku: search.trim(),
+      type: 'product',
+      price: '',
+      trackInventory: true,
+      stock: '1',
+      categoryId: categoryId === 'all' ? '' : categoryId,
+      error: '',
+    });
+  }
+
+  async function saveQuickProduct(event: FormEvent) {
+    event.preventDefault();
+
+    if (!quickProductEditor || savingQuickProduct) {
+      return;
+    }
+
+    const name = quickProductEditor.name.trim();
+    const sku = quickProductEditor.sku.trim();
+    const price = Number(quickProductEditor.price);
+    const stock = Number(quickProductEditor.stock);
+
+    if (!companyId) {
+      setQuickProductEditor({
+        ...quickProductEditor,
+        error: 'Conecta esta caja con una empresa antes de registrar productos.',
+      });
+      return;
+    }
+
+    if (!name) {
+      setQuickProductEditor({
+        ...quickProductEditor,
+        error: 'Escribe el nombre del producto.',
+      });
+      return;
+    }
+
+    if (!Number.isFinite(price) || price < 0) {
+      setQuickProductEditor({
+        ...quickProductEditor,
+        error: 'Escribe un precio válido.',
+      });
+      return;
+    }
+
+    if (
+      quickProductEditor.trackInventory &&
+      (!Number.isInteger(stock) || stock < 1)
+    ) {
+      setQuickProductEditor({
+        ...quickProductEditor,
+        error:
+          'Para agregarlo a la venta, el stock debe ser un número entero igual o mayor que uno.',
+      });
+      return;
+    }
+
+    setSavingQuickProduct(true);
+    setQuickProductEditor({ ...quickProductEditor, error: '' });
+
+    try {
+      const created = await apiRequest<{ id: string }>('catalog/product', {
+        method: 'POST',
+        body: JSON.stringify({
+          name,
+          type: quickProductEditor.type,
+          sku: sku || undefined,
+          price,
+          trackInventory: quickProductEditor.trackInventory,
+          stock: quickProductEditor.trackInventory ? stock : 0,
+          companyId,
+          catalogId: catalogId === 'all' ? undefined : catalogId,
+          categoryId: quickProductEditor.categoryId || undefined,
+        }),
+      });
+      const refreshedProducts = await loadProducts(companyId);
+      const createdProduct = refreshedProducts.find(
+        (product) => product.id === created.id,
+      );
+      const createdOptions = createdProduct
+        ? getSaleOptions([createdProduct])
+        : [];
+      const normalizedSku = sku.toLocaleLowerCase('es-MX');
+      const option =
+        createdOptions.find(
+          (candidate) =>
+            normalizedSku &&
+            candidate.sku?.toLocaleLowerCase('es-MX') === normalizedSku,
+        ) ?? createdOptions[0];
+
+      setQuickProductEditor(undefined);
+
+      if (option) {
+        addOption(option);
+      } else {
+        setSearch('');
+        setSearchError(
+          'Producto registrado. Actualiza el catálogo para agregarlo a la venta.',
+        );
+      }
+    } catch (error) {
+      setQuickProductEditor((current) =>
+        current
+          ? {
+              ...current,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : 'No fue posible registrar el producto',
+            }
+          : current,
+      );
+    } finally {
+      setSavingQuickProduct(false);
+    }
+  }
+
   async function voidPaidSale() {
     if (!receipt || !companyId || !authorizedUserId) {
+      return;
+    }
+
+    if (!voidReason) {
+      setVoidPaidSaleError('Selecciona el motivo de la anulación');
+      return;
+    }
+
+    if (!voidMerchandiseConfirmed) {
+      setVoidPaidSaleError(
+        'Confirma que la mercancía continúa físicamente en caja',
+      );
       return;
     }
 
@@ -584,8 +1314,9 @@ export function PosWorkspace({
           orderId: receipt.order.id,
           authorizedById: authorizedUserId,
           type: 'return',
-          reason: 'customer_changed_mind',
-          notes: 'Anulación inmediata realizada desde ORION Punto de Venta',
+          reason: voidReason,
+          notes:
+            'Anulación inmediata antes de entregar mercancía. El responsable confirmó que los productos permanecían físicamente en caja.',
           operationId: operationIds.returnId,
           items,
         }),
@@ -614,6 +1345,8 @@ export function PosWorkspace({
 
       const orderNumber = receipt.order.orderNumber;
       setShowVoidPaidSale(false);
+      setVoidReason('');
+      setVoidMerchandiseConfirmed(false);
       setReceipt(undefined);
       setCheckoutError(
         `Venta ${orderNumber} anulada. El pago quedó registrado como reembolsado y el inventario vendible fue repuesto.`,
@@ -715,7 +1448,10 @@ export function PosWorkspace({
       type: discountEditor.type,
       value,
       reason,
+      source: 'manual',
     };
+
+    removeAppliedPromotion();
 
     if (discountEditor.targetKey === 'order') {
       setOrderDiscount(discount);
@@ -733,6 +1469,16 @@ export function PosWorkspace({
   }
 
   function removeDiscount(targetKey: 'order' | string) {
+    const selectedDiscount =
+      targetKey === 'order'
+        ? orderDiscount
+        : cart.find((item) => item.key === targetKey)?.discount;
+
+    if (selectedDiscount?.source === 'promotion') {
+      removeAppliedPromotion();
+      return;
+    }
+
     if (targetKey === 'order') {
       setOrderDiscount(undefined);
       return;
@@ -742,6 +1488,22 @@ export function PosWorkspace({
       current.map((item) =>
         item.key === targetKey ? { ...item, discount: undefined } : item,
       ),
+    );
+  }
+
+  async function identifyBenefitCustomer() {
+    const phone = benefitPhone.trim();
+
+    if (!phone) {
+      return null;
+    }
+
+    return apiRequest<CustomerIdentityResult>(
+      `engagement/company/${companyId}/identify`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ phone }),
+      },
     );
   }
 
@@ -780,10 +1542,16 @@ export function PosWorkspace({
 
     try {
       if (!session) {
+        const identity =
+          await identifyBenefitCustomer();
         const order = await apiRequest<Order>('order', {
           method: 'POST',
           body: JSON.stringify({
             companyId,
+            catalogId: catalogId === 'all' ? undefined : catalogId,
+            customerId: identity?.customer.id,
+            loyaltyProgramId:
+              identity?.program?.id,
             source: 'counter',
             orderType: 'counter',
             notes: 'Venta creada desde ORION Punto de Venta',
@@ -846,9 +1614,16 @@ export function PosWorkspace({
               authorizedById: authorizedUserId,
               scope: 'item',
               orderItemId: orderItem.id,
-              source: 'manual',
-              type: cartItem.discount.type,
-              value: cartItem.discount.value,
+              source: cartItem.discount.source ?? 'manual',
+              promotionId: cartItem.discount.promotionId,
+              type:
+                cartItem.discount.source === 'promotion'
+                  ? undefined
+                  : cartItem.discount.type,
+              value:
+                cartItem.discount.source === 'promotion'
+                  ? undefined
+                  : cartItem.discount.value,
               reason: cartItem.discount.reason,
               operationId,
             }),
@@ -890,9 +1665,16 @@ export function PosWorkspace({
               companyId,
               authorizedById: authorizedUserId,
               scope: 'order',
-              source: 'manual',
-              type: orderDiscount.type,
-              value: orderDiscount.value,
+              source: orderDiscount.source ?? 'manual',
+              promotionId: orderDiscount.promotionId,
+              type:
+                orderDiscount.source === 'promotion'
+                  ? undefined
+                  : orderDiscount.type,
+              value:
+                orderDiscount.source === 'promotion'
+                  ? undefined
+                  : orderDiscount.value,
               reason: orderDiscount.reason,
               operationId,
             }),
@@ -946,6 +1728,7 @@ export function PosWorkspace({
       setOrderDiscount(undefined);
       setReceivedAmount('');
       setPaymentReference('');
+      setBenefitPhone('');
       await loadProducts();
     } catch (error) {
       setCheckoutError(
@@ -1000,10 +1783,16 @@ export function PosWorkspace({
 
     try {
       if (!session) {
+        const identity =
+          await identifyBenefitCustomer();
         const order = await apiRequest<Order>('order', {
           method: 'POST',
           body: JSON.stringify({
             companyId,
+            catalogId: catalogId === 'all' ? undefined : catalogId,
+            customerId: identity?.customer.id,
+            loyaltyProgramId:
+              identity?.program?.id,
             source: 'counter',
             orderType: 'counter',
             notes: 'Venta dividida desde ORION Punto de Venta',
@@ -1066,9 +1855,16 @@ export function PosWorkspace({
               authorizedById: authorizedUserId,
               scope: 'item',
               orderItemId: orderItem.id,
-              source: 'manual',
-              type: cartItem.discount.type,
-              value: cartItem.discount.value,
+              source: cartItem.discount.source ?? 'manual',
+              promotionId: cartItem.discount.promotionId,
+              type:
+                cartItem.discount.source === 'promotion'
+                  ? undefined
+                  : cartItem.discount.type,
+              value:
+                cartItem.discount.source === 'promotion'
+                  ? undefined
+                  : cartItem.discount.value,
               reason: cartItem.discount.reason,
               operationId,
             }),
@@ -1110,9 +1906,16 @@ export function PosWorkspace({
               companyId,
               authorizedById: authorizedUserId,
               scope: 'order',
-              source: 'manual',
-              type: orderDiscount.type,
-              value: orderDiscount.value,
+              source: orderDiscount.source ?? 'manual',
+              promotionId: orderDiscount.promotionId,
+              type:
+                orderDiscount.source === 'promotion'
+                  ? undefined
+                  : orderDiscount.type,
+              value:
+                orderDiscount.source === 'promotion'
+                  ? undefined
+                  : orderDiscount.value,
               reason: orderDiscount.reason,
               operationId,
             }),
@@ -1263,6 +2066,7 @@ export function PosWorkspace({
         setOrderDiscount(undefined);
         setSplitReceivedAmount('');
         setSplitPaymentReference('');
+        setBenefitPhone('');
         await loadProducts();
         return;
       }
@@ -1300,6 +2104,52 @@ export function PosWorkspace({
     void loadProducts(nextCompanyId);
   }
 
+  async function redeemReward(event: FormEvent) {
+    event.preventDefault();
+
+    if (!companyId || !authorizedUserId) {
+      setRewardRedeemError(
+        'Primero conecta esta terminal en Configuración.',
+      );
+      return;
+    }
+
+    if (!rewardCode.trim()) {
+      setRewardRedeemError('Escribe el código del premio.');
+      return;
+    }
+
+    setRedeemingReward(true);
+    setRewardRedeemError('');
+    setRewardRedeemMessage('');
+
+    try {
+      const redeemed = await apiRequest<{
+        customer: { name: string };
+        prize: { name: string };
+      }>(`scratch/company/${companyId}/redeem`, {
+        method: 'POST',
+        body: JSON.stringify({
+          claimCode: rewardCode.trim(),
+          authorizedById: authorizedUserId,
+        }),
+      });
+
+      setRewardCode('');
+      setRewardRedeemMessage(
+        `Entregado: ${redeemed.prize.name} a ${redeemed.customer.name}.`,
+      );
+    } catch (error) {
+      setRewardRedeemError(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible canjear el premio',
+      );
+    } finally {
+      setRedeemingReward(false);
+    }
+  }
+
   function newSale() {
     if (receipt) {
       setCustomerReceipts((current) => [...current, receipt]);
@@ -1319,22 +2169,70 @@ export function PosWorkspace({
     setTimeout(() => searchRef.current?.focus(), 0);
   }
 
-  function cancelCurrentSale() {
-    if (checkoutSession) {
-      setShowCancelSale(false);
-      setCheckoutError(
-        'Esta venta ya inició su cobro. Revísala en Cuentas pendientes para no perder su seguimiento.',
-      );
+  function printAndFinishCustomer() {
+    window.print();
+    finishCustomer();
+  }
+
+  function saveSplitForLater() {
+    setSplitCheckout(undefined);
+    setCheckoutSession(undefined);
+    setCart([]);
+    setOrderDiscount(undefined);
+    setSplitReceivedAmount('');
+    setSplitPaymentReference('');
+    setBenefitPhone('');
+    setSplitPaymentError('');
+    setCheckoutError('');
+    void loadProducts();
+    setTimeout(() => searchRef.current?.focus(), 0);
+  }
+
+  async function cancelCurrentSale() {
+    if (cancellingSale) {
       return;
     }
 
-    setCart([]);
-    setOrderDiscount(undefined);
-    setReceivedAmount('');
-    setPaymentReference('');
-    setCheckoutError('');
-    setShowCancelSale(false);
-    setTimeout(() => searchRef.current?.focus(), 0);
+    setCancellingSale(true);
+    setCancelSaleError('');
+
+    try {
+      const orderId =
+        splitCheckout?.order.id ??
+        checkoutSession?.order.id;
+
+      if (orderId) {
+        await apiRequest(`order/${orderId}/cancel`, {
+          method: 'POST',
+          body: JSON.stringify({
+            reason:
+              'El cliente no completó el pago en Punto de venta',
+          }),
+        });
+      }
+
+      setCart([]);
+      setOrderDiscount(undefined);
+      setReceivedAmount('');
+      setPaymentReference('');
+      setBenefitPhone('');
+      setCheckoutSession(undefined);
+      setSplitCheckout(undefined);
+      setSplitEditor(undefined);
+      setSplitPaymentError('');
+      setCheckoutError('');
+      setShowCancelSale(false);
+      await loadProducts();
+      setTimeout(() => searchRef.current?.focus(), 0);
+    } catch (error) {
+      setCancelSaleError(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible cancelar la venta',
+      );
+    } finally {
+      setCancellingSale(false);
+    }
   }
 
   return (
@@ -1343,7 +2241,7 @@ export function PosWorkspace({
         <div className="mx-auto flex max-w-[1600px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-400">
-              ORION / Ventas
+              YALEKA / Ventas
             </p>
             <h1 className="mt-1 text-2xl font-semibold tracking-tight">
               Punto de venta
@@ -1356,23 +2254,22 @@ export function PosWorkspace({
               Caja lista
             </div>
             <Link
-              href="/pos/ventas"
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800"
+              href="/asistente"
+              className="rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-2.5 text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/20"
             >
-              Historial
+              ✦ Asistente
             </Link>
-            <Link
-              href="/pos/devoluciones"
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800"
+            <button
+              type="button"
+              onClick={() => {
+                setRewardRedeemError('');
+                setRewardRedeemMessage('');
+                setShowRewardRedeem(true);
+              }}
+              className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm font-medium text-amber-200 transition hover:bg-amber-300/20"
             >
-              Devoluciones
-            </Link>
-            <Link
-              href="/pos/cuentas"
-              className="hidden rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-cyan-400/50 hover:bg-slate-800 md:block"
-            >
-              Cuentas pendientes
-            </Link>
+              Premios
+            </button>
             <button
               type="button"
               onClick={() => setShowSettings(true)}
@@ -1393,7 +2290,10 @@ export function PosWorkspace({
             <input
               ref={searchRef}
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setSearchError('');
+              }}
               autoFocus
               placeholder="Buscar producto o escanear código…"
               className="h-16 w-full rounded-2xl border border-slate-700 bg-slate-900 pl-14 pr-28 text-base text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-400/10"
@@ -1405,39 +2305,77 @@ export function PosWorkspace({
               Agregar
             </button>
           </form>
+          <div className="mt-3">
+            <BarcodeScanner onCode={resolveBarcode} disabled={cartLocked} />
+            <p className="mt-1 text-xs text-slate-500">Un lector USB/Bluetooth también funciona escribiendo el código en el campo de búsqueda y enviando Enter.</p>
+          </div>
 
           {searchError ? (
-            <p className="mt-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">
-              {searchError}
-            </p>
+            <div className="mt-3 flex flex-col gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+              <p>{searchError}</p>
+              {search.trim() &&
+              filteredOptions.length === 0 &&
+              companyId &&
+              authorizedUserId &&
+              !cartLocked ? (
+                <button
+                  type="button"
+                  onClick={openQuickProductEditor}
+                  className="shrink-0 rounded-lg bg-amber-300 px-4 py-2 font-bold text-slate-950 transition hover:bg-amber-200"
+                >
+                  Registrar producto
+                </button>
+              ) : null}
+            </div>
           ) : null}
 
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-            <button
-              type="button"
-              onClick={() => setCategoryId('all')}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
-                categoryId === 'all'
-                  ? 'bg-white text-slate-950'
-                  : 'border border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-600'
-              }`}
+          <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-3">
+            <label htmlFor="pos-catalogo-activo" className="shrink-0 text-sm font-medium text-slate-200">
+              Catálogo
+            </label>
+            <select
+              id="pos-catalogo-activo"
+              value={catalogId}
+              onChange={(event) => {
+                if (cart.length > 0) {
+                  setCheckoutError('Termina o vacía la venta antes de cambiar de catálogo');
+                  return;
+                }
+                setCatalogId(event.target.value);
+                setCategoryId('all');
+              }}
+              className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white"
             >
-              Todos
-            </button>
-            {categories.map((category) => (
+              <option value="all">Todos los catálogos</option>
+              {commerceCatalogs.map((catalog) => (
+                <option key={catalog.id} value={catalog.id}>{catalog.name}</option>
+              ))}
+            </select>
+            <label htmlFor="pos-categoria-activa" className="shrink-0 text-sm font-medium text-slate-200">
+              Categoría
+            </label>
+            <select
+              id="pos-categoria-activa"
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+              className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white outline-none focus:border-cyan-400"
+            >
+              <option value="all">Todas las categorías</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {categoryId !== 'all' ? (
               <button
-                key={category.id}
                 type="button"
-                onClick={() => setCategoryId(category.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition ${
-                  categoryId === category.id
-                    ? 'bg-white text-slate-950'
-                    : 'border border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-600'
-                }`}
+                onClick={() => setCategoryId('all')}
+                className="rounded-lg border border-slate-600 px-3 py-2 text-xs font-semibold text-cyan-300 hover:border-cyan-400"
               >
-                {category.name}
+                Ver todo
               </button>
-            ))}
+            ) : null}
           </div>
 
           <div className="mt-4 flex items-center justify-between">
@@ -1644,12 +2582,22 @@ export function PosWorkspace({
                         onClick={() => openDiscountEditor(item)}
                         className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 disabled:opacity-40"
                       >
-                        {item.discount ? 'Editar descuento' : '+ Descuento'}
+                        {item.discount?.source === 'promotion'
+                          ? 'Oferta automática'
+                          : item.discount
+                            ? 'Editar descuento'
+                            : '+ Descuento'}
                       </button>
                     </div>
 
                     {item.discount ? (
-                      <div className="mt-3 flex items-center justify-between rounded-lg bg-cyan-400/10 px-3 py-2 text-xs text-cyan-200">
+                      <div
+                        className={`mt-3 flex items-center justify-between rounded-lg px-3 py-2 text-xs ${
+                          item.discount.source === 'promotion'
+                            ? 'bg-amber-300/10 text-amber-100'
+                            : 'bg-cyan-400/10 text-cyan-200'
+                        }`}
+                      >
                         <span>
                           {item.discount.type === 'percentage'
                             ? `${item.discount.value}%`
@@ -1676,6 +2624,68 @@ export function PosWorkspace({
           </div>
 
           <div className="border-t border-slate-800 bg-slate-950/40 p-5">
+            {appliedPromotionId ? (
+              <div className="mb-4 rounded-2xl border border-emerald-300/30 bg-emerald-300/10 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-300">
+                      Mejor promoción aplicada
+                    </p>
+                    <p className="mt-1 text-sm leading-5 text-emerald-50">
+                      {promotionNotice}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={cartLocked}
+                    onClick={removeAppliedPromotion}
+                    className="shrink-0 rounded-lg border border-emerald-200/30 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 hover:bg-emerald-200/10 disabled:opacity-40"
+                  >
+                    Quitar
+                  </button>
+                </div>
+                <p className="mt-2 text-[11px] text-emerald-200/70">
+                  ORION usa una sola oferta para evitar descuentos duplicados.
+                </p>
+              </div>
+            ) : bestPromotionPlan ? (
+              <div className="mb-4 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-300">
+                  ORION encontró una oferta
+                </p>
+                <p className="mt-1 font-semibold text-white">
+                  {bestPromotionPlan.promotion.title}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">
+                  Es la promoción vigente que más conviene. El cliente ahorra{' '}
+                  <strong className="text-amber-200">
+                    {money.format(bestPromotionPlan.savings)}
+                  </strong>
+                  .
+                </p>
+                <button
+                  type="button"
+                  disabled={cartLocked}
+                  onClick={() => applyPromotion(bestPromotionPlan)}
+                  className="mt-3 h-10 w-full rounded-xl bg-amber-300 text-sm font-bold text-slate-950 hover:bg-amber-200 disabled:opacity-40"
+                >
+                  Aplicar mejor promoción
+                </button>
+              </div>
+            ) : promotionOpportunity ? (
+              <div className="mb-4 rounded-2xl border border-violet-300/25 bg-violet-300/10 p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-violet-300">
+                  Oportunidad de ahorro
+                </p>
+                <p className="mt-1 font-semibold text-white">
+                  {promotionOpportunity.title}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-300">
+                  {promotionOpportunity.message}
+                </p>
+              </div>
+            ) : null}
+
             <div className="flex items-center justify-between">
               <span className="text-sm text-slate-400">Descuento general</span>
               {orderDiscount ? (
@@ -1686,7 +2696,9 @@ export function PosWorkspace({
                     onClick={() => openDiscountEditor('order')}
                     className="text-sm font-semibold text-cyan-400"
                   >
-                    Editar
+                    {orderDiscount.source === 'promotion'
+                      ? 'Oferta automática'
+                      : 'Editar'}
                   </button>
                   <button
                     type="button"
@@ -1797,6 +2809,30 @@ export function PosWorkspace({
               </div>
             )}
 
+            <div className="mt-4 rounded-2xl border border-fuchsia-400/20 bg-fuchsia-400/5 p-3">
+              <label
+                className="text-xs font-semibold text-fuchsia-200"
+                htmlFor="benefitPhone"
+              >
+                Teléfono para beneficios (opcional)
+              </label>
+              <input
+                id="benefitPhone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={benefitPhone}
+                disabled={cartLocked}
+                onChange={(event) => setBenefitPhone(event.target.value)}
+                placeholder="Ej. 614 123 4567"
+                className="mt-2 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-fuchsia-400 disabled:opacity-50"
+              />
+              <p className="mt-2 text-[11px] leading-4 text-slate-400">
+                Si lo escribes, esta compra pagada suma su visita automáticamente.
+                También podrá registrarla escaneando el QR del ticket.
+              </p>
+            </div>
+
             {checkoutError ? (
               <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
                 {checkoutError}
@@ -1811,11 +2847,16 @@ export function PosWorkspace({
             {cart.length > 0 ? (
               <button
                 type="button"
-                disabled={checkingOut || cartLocked}
-                onClick={() => setShowCancelSale(true)}
+                disabled={checkingOut || cancellingSale}
+                onClick={() => {
+                  setCancelSaleError('');
+                  setShowCancelSale(true);
+                }}
                 className="mt-4 w-full text-center text-sm font-semibold text-red-300 transition hover:text-red-200 disabled:text-slate-600"
               >
-                Cancelar venta
+                {checkoutSession
+                  ? 'Cancelar cobro y liberar mercancía'
+                  : 'Cancelar venta'}
               </button>
             ) : null}
 
@@ -1837,7 +2878,11 @@ export function PosWorkspace({
               <button
                 type="button"
                 disabled={checkingOut || cart.length === 0 || Boolean(splitCheckout)}
-                onClick={() => void checkout()}
+                onClick={() =>
+                  checkoutSession
+                    ? void checkout()
+                    : setShowConfirmCheckout(true)
+                }
                 className="h-14 rounded-2xl bg-cyan-400 px-3 text-base font-bold text-slate-950 shadow-lg shadow-cyan-950/30 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-500"
               >
                 {checkingOut
@@ -1850,6 +2895,44 @@ export function PosWorkspace({
           </div>
         </aside>
       </div>
+
+      {showConfirmCheckout ? (
+        <div className="fixed inset-0 z-[74] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-3xl border border-cyan-400/30 bg-slate-900 p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-400/10 text-2xl text-cyan-300">
+              $
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
+              Confirmar cobro
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">
+              ¿Iniciar el cobro de esta venta?
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              Se bloquearán {cart.reduce((total, item) => total + item.quantity, 0)} artículos por un total de {money.format(totals.total)}. Ya no podrán agregarse productos durante el cobro.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setShowConfirmCheckout(false)}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
+              >
+                Seguir editando
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmCheckout(false);
+                  void checkout();
+                }}
+                className="h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
+              >
+                Sí, iniciar cobro
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
 
       {splitEditor ? (
         <div className="fixed inset-0 z-[75] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
@@ -2086,10 +3169,106 @@ export function PosWorkspace({
                 : `Cobrar ${activeSplit.label} · ${money.format(activeSplit.total)}`}
             </button>
 
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={processingSplit}
+                onClick={saveSplitForLater}
+                className="h-11 rounded-xl border border-slate-700 text-sm font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+              >
+                Guardar pendiente
+              </button>
+              <button
+                type="button"
+                disabled={processingSplit || splitCheckout.payments.length > 0}
+                onClick={() => {
+                  setCancelSaleError('');
+                  setShowCancelSale(true);
+                }}
+                className="h-11 rounded-xl border border-red-400/40 text-sm font-semibold text-red-300 hover:bg-red-400/10 disabled:border-slate-700 disabled:text-slate-600"
+              >
+                Cancelar cuenta
+              </button>
+            </div>
+
+            {splitCheckout.payments.length > 0 ? (
+              <p className="mt-2 text-center text-xs text-slate-500">
+                Una cuenta con pagos parciales debe completarse o anularse mediante reembolso.
+              </p>
+            ) : null}
+
             <p className="mt-3 text-center text-xs text-slate-500">
               Esta ventana se cerrará cuando todas las cuentas estén pagadas.
             </p>
           </section>
+        </div>
+      ) : null}
+
+      {showRewardRedeem ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={redeemReward}
+            className="w-full max-w-lg rounded-3xl border border-amber-300/25 bg-slate-900 p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+                  Club QR
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Entregar premio
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Si el cliente ganó, ORION le mostró un código en su celular. No es su teléfono ni tiene que inventarlo: copia aquí ese código para entregar el premio.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowRewardRedeem(false)}
+                className="text-2xl text-slate-500 hover:text-white"
+              >
+                ×
+              </button>
+            </div>
+
+            <label className="mt-6 block text-sm font-medium text-slate-300">
+              Código ganador creado por ORION
+              <input
+                autoFocus
+                value={rewardCode}
+                onChange={(event) => {
+                  setRewardCode(
+                    event.target.value.toUpperCase(),
+                  );
+                  setRewardRedeemError('');
+                  setRewardRedeemMessage('');
+                }}
+                placeholder="ORION-XXXXXXXXXX"
+                className="mt-2 h-14 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 text-center font-mono text-lg font-bold uppercase tracking-wider outline-none focus:border-amber-300"
+              />
+            </label>
+
+            {rewardRedeemError ? (
+              <p className="mt-4 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">
+                {rewardRedeemError}
+              </p>
+            ) : null}
+            {rewardRedeemMessage ? (
+              <p className="mt-4 rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200">
+                {rewardRedeemMessage}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={redeemingReward}
+              className="mt-5 h-12 w-full rounded-xl bg-amber-300 font-bold text-amber-950 hover:bg-amber-200 disabled:bg-slate-700 disabled:text-slate-500"
+            >
+              {redeemingReward
+                ? 'Validando…'
+                : 'Validar y marcar entregado'}
+            </button>
+          </form>
         </div>
       ) : null}
 
@@ -2148,6 +3327,253 @@ export function PosWorkspace({
             >
               Guardar y abrir caja
             </button>
+          </form>
+        </div>
+      ) : null}
+
+      {quickProductEditor ? (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center overflow-y-auto bg-slate-950/85 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={saveQuickProduct}
+            className="w-full max-w-2xl rounded-3xl border border-amber-300/30 bg-slate-900 p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+                  Alta rápida desde caja
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold">
+                  Registrar producto
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  Al guardar, el producto se agregará automáticamente a esta venta.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={savingQuickProduct}
+                onClick={() => setQuickProductEditor(undefined)}
+                className="text-2xl text-slate-500 hover:text-white disabled:opacity-50"
+                aria-label="Cerrar alta rápida"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label
+                  className="block text-sm font-medium text-slate-300"
+                  htmlFor="quickProductName"
+                >
+                  Nombre del producto
+                </label>
+                <input
+                  id="quickProductName"
+                  autoFocus
+                  required
+                  maxLength={180}
+                  value={quickProductEditor.name}
+                  onChange={(event) =>
+                    setQuickProductEditor((current) =>
+                      current
+                        ? { ...current, name: event.target.value, error: '' }
+                        : current,
+                    )
+                  }
+                  placeholder="Ej. Refresco de cola 600 ml"
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-slate-300"
+                  htmlFor="quickProductSku"
+                >
+                  Código o SKU
+                </label>
+                <input
+                  id="quickProductSku"
+                  maxLength={80}
+                  value={quickProductEditor.sku}
+                  onChange={(event) =>
+                    setQuickProductEditor((current) =>
+                      current
+                        ? { ...current, sku: event.target.value, error: '' }
+                        : current,
+                    )
+                  }
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
+                />
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-slate-300"
+                  htmlFor="quickProductType"
+                >
+                  Tipo
+                </label>
+                <select
+                  id="quickProductType"
+                  value={quickProductEditor.type}
+                  onChange={(event) =>
+                    setQuickProductEditor((current) =>
+                      current
+                        ? {
+                            ...current,
+                            type: event.target.value as QuickProductEditor['type'],
+                            error: '',
+                          }
+                        : current,
+                    )
+                  }
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
+                >
+                  <option value="product">Producto</option>
+                  <option value="beverage">Bebida</option>
+                  <option value="food">Alimento</option>
+                  <option value="service">Servicio</option>
+                  <option value="design">Diseño</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-slate-300"
+                  htmlFor="quickProductPrice"
+                >
+                  Precio de venta
+                </label>
+                <input
+                  id="quickProductPrice"
+                  required
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  inputMode="decimal"
+                  value={quickProductEditor.price}
+                  onChange={(event) =>
+                    setQuickProductEditor((current) =>
+                      current
+                        ? { ...current, price: event.target.value, error: '' }
+                        : current,
+                    )
+                  }
+                  placeholder="0.00"
+                  className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-lg font-semibold outline-none focus:border-amber-300"
+                />
+              </div>
+
+              {categories.length > 0 ? (
+                <div>
+                  <label
+                    className="block text-sm font-medium text-slate-300"
+                    htmlFor="quickProductCategory"
+                  >
+                    Categoría (opcional)
+                  </label>
+                  <select
+                    id="quickProductCategory"
+                    value={quickProductEditor.categoryId}
+                    onChange={(event) =>
+                      setQuickProductEditor((current) =>
+                        current
+                          ? {
+                              ...current,
+                              categoryId: event.target.value,
+                              error: '',
+                            }
+                          : current,
+                      )
+                    }
+                    className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
+                  >
+                    <option value="">Sin categoría</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : null}
+
+              <div className={categories.length === 0 ? 'sm:col-span-2' : ''}>
+                <label className="flex h-12 items-center gap-3 rounded-xl border border-slate-700 bg-slate-950 px-4 text-sm text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={quickProductEditor.trackInventory}
+                    onChange={(event) =>
+                      setQuickProductEditor((current) =>
+                        current
+                          ? {
+                              ...current,
+                              trackInventory: event.target.checked,
+                              error: '',
+                            }
+                          : current,
+                      )
+                    }
+                    className="h-4 w-4 accent-amber-300"
+                  />
+                  Controlar inventario
+                </label>
+              </div>
+
+              {quickProductEditor.trackInventory ? (
+                <div className="sm:col-span-2">
+                  <label
+                    className="block text-sm font-medium text-slate-300"
+                    htmlFor="quickProductStock"
+                  >
+                    Stock inicial
+                  </label>
+                  <input
+                    id="quickProductStock"
+                    required
+                    min="1"
+                    step="1"
+                    type="number"
+                    inputMode="numeric"
+                    value={quickProductEditor.stock}
+                    onChange={(event) =>
+                      setQuickProductEditor((current) =>
+                        current
+                          ? { ...current, stock: event.target.value, error: '' }
+                          : current,
+                      )
+                    }
+                    className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            {quickProductEditor.error ? (
+              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-3 text-sm text-red-200">
+                {quickProductEditor.error}
+              </p>
+            ) : null}
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={savingQuickProduct}
+                onClick={() => setQuickProductEditor(undefined)}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={savingQuickProduct}
+                className="h-12 rounded-xl bg-amber-300 font-bold text-slate-950 hover:bg-amber-200 disabled:bg-slate-700 disabled:text-slate-500"
+              >
+                {savingQuickProduct ? 'Registrando…' : 'Registrar y agregar'}
+              </button>
+            </div>
           </form>
         </div>
       ) : null}
@@ -2317,36 +3743,82 @@ export function PosWorkspace({
               ) : null}
             </div>
 
+            {receipt.payment.loyalty ? (
+              <div className="mt-5 rounded-2xl border border-fuchsia-400/30 bg-fuchsia-400/10 px-4 py-4 text-center">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-fuchsia-200">
+                  Club de beneficios
+                </p>
+                <p className="mt-2 text-lg font-bold text-white">
+                  Visita {receipt.payment.loyalty.confirmedVisits} de{' '}
+                  {receipt.payment.loyalty.requiredVisits}
+                </p>
+                <p className="mt-1 text-xs text-fuchsia-100/80">
+                  {receipt.payment.loyalty.remainingVisits === 0
+                    ? '¡Beneficio desbloqueado!'
+                    : `Le faltan ${receipt.payment.loyalty.remainingVisits} visita(s) para su recompensa.`}
+                </p>
+              </div>
+            ) : null}
+
+            {receipt.payment.benefitClaim ? (
+              <div className="mt-5 text-center">
+                {receiptQrDataUrl ? (
+                  <img
+                    src={receiptQrDataUrl}
+                    alt="QR único de esta compra pagada"
+                    className="mx-auto h-44 w-44 rounded-xl bg-white p-2"
+                  />
+                ) : (
+                  <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-white p-4 text-xs text-slate-600">
+                    Preparando QR…
+                  </div>
+                )}
+                <p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-slate-300">
+                  {receipt.payment.loyalty
+                    ? 'Escanea para consultar los beneficios de esta compra.'
+                    : 'Escanea este ticket pagado para registrar la visita. Solo puede asociarse a un teléfono.'}
+                </p>
+              </div>
+            ) : null}
+
             <p className="mt-5 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-3 py-3 text-center text-xs leading-5 text-cyan-100/80 print:hidden">
-              Si el cliente desea otro producto, continúa vendiendo. ORION lo
-              registrará como una venta adicional sin alterar este pago.
+              Imprime y termina para volver a la caja. Si el cliente desea otro
+              producto, crea una venta adicional sin alterar este pago.
             </p>
 
             <div className="mt-4 grid grid-cols-2 gap-3 print:hidden">
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
+                onClick={printAndFinishCustomer}
+                className="col-span-2 h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
               >
-                Imprimir
+                Imprimir y terminar venta
               </button>
               <button
                 type="button"
-
-                onClick={() => {
-                  setVoidPaidSaleError('');
-                  setShowVoidPaidSale(true);
-                }}
-                className="h-12 rounded-xl border border-red-400/40 font-semibold text-red-300 hover:bg-red-400/10"
+                onClick={finishCustomer}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
               >
-                Anular cobro
+                Terminar sin imprimir
               </button>
               <button
                 type="button"
                 onClick={newSale}
-                className="col-span-2 h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
+                className="h-12 rounded-xl border border-cyan-400/40 font-semibold text-cyan-300 hover:bg-cyan-400/10"
               >
-                Agregar producto adicional
+                Agregar otro producto
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setVoidPaidSaleError('');
+                  setVoidReason('');
+                  setVoidMerchandiseConfirmed(false);
+                  setShowVoidPaidSale(true);
+                }}
+                className="col-span-2 mt-1 text-sm font-semibold text-red-300 hover:text-red-200"
+              >
+                Anular antes de entregar mercancía
               </button>
             </div>
           </section>
@@ -2366,8 +3838,47 @@ export function PosWorkspace({
               ¿El cliente se arrepintió en caja?
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              ORION reembolsará {money.format(receipt.order.total)}, regresará al inventario los productos vendibles y conservará el movimiento en auditoría.
+              Usa esta opción solamente si el ticket y la mercancía aún no se
+              entregaron. ORION reembolsará {money.format(receipt.order.total)},
+              repondrá los productos vendibles y conservará la operación en
+              auditoría.
             </p>
+            <label className="mt-5 block text-left text-sm font-medium text-slate-300">
+              Motivo obligatorio
+              <select
+                value={voidReason}
+                disabled={voidingPaidSale}
+                onChange={(event) => {
+                  setVoidReason(event.target.value);
+                  setVoidPaidSaleError('');
+                }}
+                className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 outline-none focus:border-red-400"
+              >
+                <option value="">Selecciona un motivo</option>
+                <option value="customer_changed_mind">
+                  Cliente se arrepintió antes de recibir
+                </option>
+                <option value="order_error">Error al realizar el cobro</option>
+                <option value="wrong_item">Producto registrado incorrectamente</option>
+                <option value="other">Otro motivo autorizado</option>
+              </select>
+            </label>
+            <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-red-400/20 bg-red-400/5 p-3 text-left text-sm text-slate-300">
+              <input
+                type="checkbox"
+                checked={voidMerchandiseConfirmed}
+                disabled={voidingPaidSale}
+                onChange={(event) => {
+                  setVoidMerchandiseConfirmed(event.target.checked);
+                  setVoidPaidSaleError('');
+                }}
+                className="mt-1 h-4 w-4 accent-red-400"
+              />
+              <span>
+                Confirmo que toda la mercancía continúa físicamente en caja y
+                no fue entregada al cliente.
+              </span>
+            </label>
             {voidPaidSaleError ? (
               <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-3 text-sm text-red-200">
                 {voidPaidSaleError}
@@ -2377,14 +3888,23 @@ export function PosWorkspace({
               <button
                 type="button"
                 disabled={voidingPaidSale}
-                onClick={() => setShowVoidPaidSale(false)}
+                onClick={() => {
+                  setShowVoidPaidSale(false);
+                  setVoidReason('');
+                  setVoidMerchandiseConfirmed(false);
+                  setVoidPaidSaleError('');
+                }}
                 className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
               >
                 Conservar venta
               </button>
               <button
                 type="button"
-                disabled={voidingPaidSale}
+                disabled={
+                  voidingPaidSale ||
+                  !voidReason ||
+                  !voidMerchandiseConfirmed
+                }
                 onClick={() => void voidPaidSale()}
                 className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300 disabled:opacity-50"
               >
@@ -2408,22 +3928,35 @@ export function PosWorkspace({
               ¿El cliente ya no comprará?
             </h2>
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              Se vaciará el carrito. No se registrará pago ni se descontará inventario.
+              {checkoutSession || splitCheckout
+                ? 'Se cancelará el cobro y la mercancía reservada volverá al inventario. El movimiento quedará únicamente en auditoría.'
+                : 'Se vaciará el carrito. No se registrará pago ni se descontará inventario.'}
             </p>
+            {cancelSaleError ? (
+              <p className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-3 text-sm text-red-200">
+                {cancelSaleError}
+              </p>
+            ) : null}
             <div className="mt-6 grid grid-cols-2 gap-3">
               <button
                 type="button"
+                disabled={cancellingSale}
                 onClick={() => setShowCancelSale(false)}
-                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
               >
                 Continuar venta
               </button>
               <button
                 type="button"
-                onClick={cancelCurrentSale}
-                className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300"
+                disabled={cancellingSale}
+                onClick={() => void cancelCurrentSale()}
+                className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300 disabled:opacity-50"
               >
-                Sí, cancelar
+                {cancellingSale
+                  ? 'Cancelando…'
+                  : checkoutSession || splitCheckout
+                    ? 'Sí, cancelar y liberar'
+                    : 'Sí, cancelar'}
               </button>
             </div>
           </section>

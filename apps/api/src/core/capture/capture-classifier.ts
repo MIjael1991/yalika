@@ -211,24 +211,11 @@ const categorySignals: Array<{
   },
   {
     category: 'vehicle',
-    keywords: [
-      'coche',
-      'vehiculo',
-      'llantas',
-      'mantenimiento',
-      'taller',
-    ],
+    keywords: ['coche', 'vehiculo', 'llantas', 'mantenimiento', 'taller'],
   },
   {
     category: 'health',
-    keywords: [
-      'doctor',
-      'medico',
-      'dentista',
-      'medicina',
-      'salud',
-      'terapia',
-    ],
+    keywords: ['doctor', 'medico', 'dentista', 'medicina', 'salud', 'terapia'],
   },
   {
     category: 'business',
@@ -441,10 +428,7 @@ export function classifyCapture(input: {
   }
 
   for (const candidate of candidates) {
-    if (
-      requestedSpaceType &&
-      candidate.space.type !== requestedSpaceType
-    ) {
+    if (requestedSpaceType && candidate.space.type !== requestedSpaceType) {
       continue;
     }
 
@@ -462,9 +446,9 @@ export function classifyCapture(input: {
   const hasSignal = candidates.some((candidate) => candidate.score > 6);
   const missingRequestedSpace = Boolean(
     requestedSpaceType &&
-      !candidates.some(
-        (candidate) => candidate.space.type === requestedSpaceType,
-      ),
+    !candidates.some(
+      (candidate) => candidate.space.type === requestedSpaceType,
+    ),
   );
 
   if (!hasSignal) {

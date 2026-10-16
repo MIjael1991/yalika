@@ -9,12 +9,7 @@ import {
 } from 'class-validator';
 
 export class CreatePaymentDto {
-  @IsIn([
-    'cash',
-    'card',
-    'transfer',
-    'other',
-  ])
+  @IsIn(['cash', 'card', 'transfer', 'other'])
   method: string;
 
   /*

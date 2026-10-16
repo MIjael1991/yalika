@@ -1,10 +1,4 @@
-import {
-  IsIn,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength,
-} from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 
 export class CreateVisitDto {
   @IsUUID('4')
@@ -18,13 +12,7 @@ export class CreateVisitDto {
   loyaltyProgramId?: string;
 
   @IsOptional()
-  @IsIn([
-    'manual',
-    'qr',
-    'order',
-    'purchase',
-    'appointment',
-  ])
+  @IsIn(['manual', 'qr', 'order', 'purchase', 'appointment'])
   source?: string;
 
   @IsOptional()

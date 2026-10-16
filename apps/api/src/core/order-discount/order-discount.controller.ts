@@ -13,10 +13,7 @@ export class OrderDiscountController {
   }
 
   @Post('order/:orderId')
-  apply(
-    @Param('orderId') orderId: string,
-    @Body() dto: ApplyOrderDiscountDto,
-  ) {
+  apply(@Param('orderId') orderId: string, @Body() dto: ApplyOrderDiscountDto) {
     return this.orderDiscountService.apply(orderId, dto);
   }
 

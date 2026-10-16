@@ -13,6 +13,8 @@ describe('SpaceService personal space protection', () => {
     email: 'usuario@example.com',
     companyId: 'company-1',
     role: null,
+    modules: ['all'],
+    homePath: '/servicios',
   };
   const existingPersonal = {
     id: 'space-personal',

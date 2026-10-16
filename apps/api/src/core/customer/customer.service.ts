@@ -11,8 +11,9 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 export class CustomerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.customer.findMany({
+      where: { companyId },
       include: {
         company: true,
       },
@@ -56,13 +57,12 @@ export class CustomerService {
 
     const phone = createCustomerDto.phone.trim();
 
-    const existingCustomer =
-      await this.prisma.customer.findFirst({
-        where: {
-          companyId: createCustomerDto.companyId,
-          phone,
-        },
-      });
+    const existingCustomer = await this.prisma.customer.findFirst({
+      where: {
+        companyId: createCustomerDto.companyId,
+        phone,
+      },
+    });
 
     if (existingCustomer) {
       throw new ConflictException(
@@ -74,8 +74,7 @@ export class CustomerService {
       data: {
         name: createCustomerDto.name.trim(),
         phone,
-        email:
-          createCustomerDto.email?.trim().toLowerCase(),
+        email: createCustomerDto.email?.trim().toLowerCase(),
         companyId: createCustomerDto.companyId,
       },
     });

@@ -115,9 +115,7 @@ export class WorkflowService {
     }
 
     const currentStep = workflow.steps.find(
-      (step) =>
-        step.status === 'pending' ||
-        step.status === 'in_progress',
+      (step) => step.status === 'pending' || step.status === 'in_progress',
     );
 
     if (!currentStep) {
@@ -160,8 +158,7 @@ export class WorkflowService {
 
     const nextStep = workflow.steps.find(
       (step) =>
-        step.stepOrder > currentStep.stepOrder &&
-        step.status === 'pending',
+        step.stepOrder > currentStep.stepOrder && step.status === 'pending',
     );
 
     if (!nextStep) {
@@ -292,13 +289,12 @@ export class WorkflowService {
           } else if (!incident.category) {
             result = 'El incidente no tiene categoría';
           } else {
-            const knowledge =
-              await this.prisma.knowledgeTemplate.findFirst({
-                where: {
-                  category: incident.category,
-                  status: 'active',
-                },
-              });
+            const knowledge = await this.prisma.knowledgeTemplate.findFirst({
+              where: {
+                category: incident.category,
+                status: 'active',
+              },
+            });
 
             if (!knowledge) {
               result =
@@ -341,27 +337,25 @@ export class WorkflowService {
           } else if (!incident.category) {
             result = 'El incidente no tiene categoría';
           } else {
-            const knowledge =
-              await this.prisma.knowledgeTemplate.findFirst({
-                where: {
-                  category: incident.category,
-                  status: 'active',
-                },
-                include: {
-                  alternatives: {
-                    where: {
-                      status: 'active',
-                    },
-                    orderBy: {
-                      order: 'asc',
-                    },
+            const knowledge = await this.prisma.knowledgeTemplate.findFirst({
+              where: {
+                category: incident.category,
+                status: 'active',
+              },
+              include: {
+                alternatives: {
+                  where: {
+                    status: 'active',
+                  },
+                  orderBy: {
+                    order: 'asc',
                   },
                 },
-              });
+              },
+            });
 
             if (!knowledge) {
-              result =
-                'No existe conocimiento para generar alternativas';
+              result = 'No existe conocimiento para generar alternativas';
             } else {
               const existingTitles = new Set(
                 incident.alternatives.map((alternative) =>
@@ -369,13 +363,9 @@ export class WorkflowService {
                 ),
               );
 
-              const templatesToCreate =
-                knowledge.alternatives.filter(
-                  (template) =>
-                    !existingTitles.has(
-                      template.title.toLowerCase(),
-                    ),
-                );
+              const templatesToCreate = knowledge.alternatives.filter(
+                (template) => !existingTitles.has(template.title.toLowerCase()),
+              );
 
               if (templatesToCreate.length > 0) {
                 await this.prisma.incidentAlternative.createMany({
@@ -429,10 +419,7 @@ export class WorkflowService {
     };
   }
 
-  async approveAlternative(
-    workflowId: string,
-    alternativeId: string,
-  ) {
+  async approveAlternative(workflowId: string, alternativeId: string) {
     const workflow = await this.prisma.workflow.findUnique({
       where: {
         id: workflowId,
@@ -450,10 +437,7 @@ export class WorkflowService {
       throw new NotFoundException('El workflow no existe');
     }
 
-    if (
-      workflow.entityType !== 'incident' ||
-      !workflow.entityId
-    ) {
+    if (workflow.entityType !== 'incident' || !workflow.entityId) {
       throw new BadRequestException(
         'Este workflow no está asociado a un incidente',
       );
@@ -466,22 +450,17 @@ export class WorkflowService {
     });
 
     if (!incident) {
-      throw new NotFoundException(
-        'El incidente asociado no existe',
-      );
+      throw new NotFoundException('El incidente asociado no existe');
     }
 
-    const alternative =
-      await this.prisma.incidentAlternative.findUnique({
-        where: {
-          id: alternativeId,
-        },
-      });
+    const alternative = await this.prisma.incidentAlternative.findUnique({
+      where: {
+        id: alternativeId,
+      },
+    });
 
     if (!alternative) {
-      throw new NotFoundException(
-        'La alternativa seleccionada no existe',
-      );
+      throw new NotFoundException('La alternativa seleccionada no existe');
     }
 
     if (alternative.incidentId !== incident.id) {
@@ -501,9 +480,7 @@ export class WorkflowService {
     }
 
     if (humanStep.status === 'completed') {
-      throw new BadRequestException(
-        'La decisión humana ya fue registrada',
-      );
+      throw new BadRequestException('La decisión humana ya fue registrada');
     }
 
     const taskStep = workflow.steps.find(
@@ -674,250 +651,231 @@ export class WorkflowService {
       humanDecisionConfirmed: true,
     };
   }
-  async verifyResult(
-  workflowId: string,
-  verifyDto: VerifyWorkflowResultDto,
-) {
-  const workflow = await this.prisma.workflow.findUnique({
-    where: {
-      id: workflowId,
-    },
-    include: {
-      steps: {
-        orderBy: {
-          stepOrder: 'asc',
+  async verifyResult(workflowId: string, verifyDto: VerifyWorkflowResultDto) {
+    const workflow = await this.prisma.workflow.findUnique({
+      where: {
+        id: workflowId,
+      },
+      include: {
+        steps: {
+          orderBy: {
+            stepOrder: 'asc',
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!workflow) {
-    throw new NotFoundException('El workflow no existe');
-  }
+    if (!workflow) {
+      throw new NotFoundException('El workflow no existe');
+    }
 
-  if (
-    workflow.entityType !== 'incident' ||
-    !workflow.entityId
-  ) {
-    throw new BadRequestException(
-      'Este workflow no está asociado a un incidente',
+    if (workflow.entityType !== 'incident' || !workflow.entityId) {
+      throw new BadRequestException(
+        'Este workflow no está asociado a un incidente',
+      );
+    }
+
+    const incident = await this.prisma.incident.findUnique({
+      where: {
+        id: workflow.entityId,
+      },
+    });
+
+    if (!incident) {
+      throw new NotFoundException('El incidente asociado no existe');
+    }
+
+    const task = await this.prisma.task.findUnique({
+      where: {
+        id: verifyDto.taskId,
+      },
+    });
+
+    if (!task) {
+      throw new NotFoundException('La tarea de verificación no existe');
+    }
+
+    if (task.companyId !== incident.companyId) {
+      throw new BadRequestException(
+        'La tarea no pertenece a la empresa del incidente',
+      );
+    }
+
+    const expectedTitle = `Verificar resultado: ${incident.title}`;
+
+    if (task.title !== expectedTitle) {
+      throw new BadRequestException(
+        'La tarea indicada no corresponde a la verificación de este incidente',
+      );
+    }
+
+    if (task.status === 'completed') {
+      throw new BadRequestException('La verificación ya fue registrada');
+    }
+
+    const humanStep = workflow.steps.find(
+      (step) => step.actionType === 'human.approval',
     );
-  }
 
-  const incident = await this.prisma.incident.findUnique({
-    where: {
-      id: workflow.entityId,
-    },
-  });
-
-  if (!incident) {
-    throw new NotFoundException(
-      'El incidente asociado no existe',
+    const followUpStep = workflow.steps.find(
+      (step) => step.actionType === 'followup.monitor',
     );
-  }
 
-  const task = await this.prisma.task.findUnique({
-    where: {
-      id: verifyDto.taskId,
-    },
-  });
-
-  if (!task) {
-    throw new NotFoundException(
-      'La tarea de verificación no existe',
+    const closeStep = workflow.steps.find(
+      (step) => step.actionType === 'workflow.close',
     );
-  }
 
-  if (task.companyId !== incident.companyId) {
-    throw new BadRequestException(
-      'La tarea no pertenece a la empresa del incidente',
-    );
-  }
+    if (!followUpStep) {
+      throw new BadRequestException('El workflow no tiene paso de seguimiento');
+    }
 
-  const expectedTitle =
-    `Verificar resultado: ${incident.title}`;
+    if (!closeStep) {
+      throw new BadRequestException('El workflow no tiene paso de cierre');
+    }
 
-  if (task.title !== expectedTitle) {
-    throw new BadRequestException(
-      'La tarea indicada no corresponde a la verificación de este incidente',
-    );
-  }
+    const now = new Date();
 
-  if (task.status === 'completed') {
-    throw new BadRequestException(
-      'La verificación ya fue registrada',
-    );
-  }
-
-  const humanStep = workflow.steps.find(
-    (step) => step.actionType === 'human.approval',
-  );
-
-  const followUpStep = workflow.steps.find(
-    (step) => step.actionType === 'followup.monitor',
-  );
-
-  const closeStep = workflow.steps.find(
-    (step) => step.actionType === 'workflow.close',
-  );
-
-  if (!followUpStep) {
-    throw new BadRequestException(
-      'El workflow no tiene paso de seguimiento',
-    );
-  }
-
-  if (!closeStep) {
-    throw new BadRequestException(
-      'El workflow no tiene paso de cierre',
-    );
-  }
-
-  const now = new Date();
-
-  const selectedAlternative =
-  await this.prisma.incidentAlternative.findFirst({
-    where: {
-      incidentId: incident.id,
-      status: 'selected',
-    },
-  });
-
-  const resultData = {
-    success: verifyDto.success,
-    delayMinutes: verifyDto.delayMinutes ?? null,
-    extraCost: verifyDto.extraCost ?? null,
-    estimatedLoss: verifyDto.estimatedLoss ?? null,
-    customersAffected:
-      verifyDto.customersAffected ?? null,
-    notes: verifyDto.notes?.trim() ?? null,
-    verifiedAt: now.toISOString(),
-  };
-
-  await this.prisma.task.update({
-    where: {
-      id: task.id,
-    },
-    data: {
-      status: 'completed',
-    },
-  });
-  const experience = await this.prisma.experience.create({
-  data: {
-    type: 'incident_resolution',
-    category: incident.category ?? 'sin_categoria',
-
-    success: verifyDto.success,
-
-    delayMinutes: verifyDto.delayMinutes,
-    extraCost: verifyDto.extraCost,
-    estimatedLoss: verifyDto.estimatedLoss,
-    customersAffected: verifyDto.customersAffected,
-
-    notes: verifyDto.notes?.trim(),
-
-    selectedAlternativeTitle:
-      selectedAlternative?.title,
-
-    verifiedAt: now,
-
-    companyId: incident.companyId,
-    incidentId: incident.id,
-    workflowId: workflow.id,
-
-    selectedAlternativeId:
-      selectedAlternative?.id,
-  },
-});
-
-  await this.prisma.workflowStep.update({
-    where: {
-      id: followUpStep.id,
-    },
-    data: {
-      status: 'completed',
-      completedAt: now,
-      data: resultData,
-    },
-  });
-
-  if (!verifyDto.success) {
-    if (humanStep) {
-      await this.prisma.workflowStep.update({
+    const selectedAlternative = await this.prisma.incidentAlternative.findFirst(
+      {
         where: {
-          id: humanStep.id,
+          incidentId: incident.id,
+          status: 'selected',
+        },
+      },
+    );
+
+    const resultData = {
+      success: verifyDto.success,
+      delayMinutes: verifyDto.delayMinutes ?? null,
+      extraCost: verifyDto.extraCost ?? null,
+      estimatedLoss: verifyDto.estimatedLoss ?? null,
+      customersAffected: verifyDto.customersAffected ?? null,
+      notes: verifyDto.notes?.trim() ?? null,
+      verifiedAt: now.toISOString(),
+    };
+
+    await this.prisma.task.update({
+      where: {
+        id: task.id,
+      },
+      data: {
+        status: 'completed',
+      },
+    });
+    const experience = await this.prisma.experience.create({
+      data: {
+        type: 'incident_resolution',
+        category: incident.category ?? 'sin_categoria',
+
+        success: verifyDto.success,
+
+        delayMinutes: verifyDto.delayMinutes,
+        extraCost: verifyDto.extraCost,
+        estimatedLoss: verifyDto.estimatedLoss,
+        customersAffected: verifyDto.customersAffected,
+
+        notes: verifyDto.notes?.trim(),
+
+        selectedAlternativeTitle: selectedAlternative?.title,
+
+        verifiedAt: now,
+
+        companyId: incident.companyId,
+        incidentId: incident.id,
+        workflowId: workflow.id,
+
+        selectedAlternativeId: selectedAlternative?.id,
+      },
+    });
+
+    await this.prisma.workflowStep.update({
+      where: {
+        id: followUpStep.id,
+      },
+      data: {
+        status: 'completed',
+        completedAt: now,
+        data: resultData,
+      },
+    });
+
+    if (!verifyDto.success) {
+      if (humanStep) {
+        await this.prisma.workflowStep.update({
+          where: {
+            id: humanStep.id,
+          },
+          data: {
+            status: 'waiting',
+            completedAt: null,
+          },
+        });
+      }
+
+      await this.prisma.workflow.update({
+        where: {
+          id: workflow.id,
         },
         data: {
-          status: 'waiting',
-          completedAt: null,
+          status: 'waiting_human_decision',
         },
       });
+
+      return {
+        message:
+          'La solución no resolvió el incidente. ORION requiere una nueva decisión humana.',
+        workflowId: workflow.id,
+        incidentId: incident.id,
+        success: false,
+        result: resultData,
+        experienceId: experience.id,
+        nextAction: 'select_another_alternative',
+      };
     }
+
+    await this.prisma.incident.update({
+      where: {
+        id: incident.id,
+      },
+      data: {
+        status: 'resolved',
+        resolvedAt: now,
+      },
+    });
+
+    await this.prisma.workflowStep.update({
+      where: {
+        id: closeStep.id,
+      },
+      data: {
+        status: 'completed',
+        startedAt: closeStep.startedAt ?? now,
+        completedAt: now,
+        data: {
+          reason: 'incident_resolved',
+        },
+      },
+    });
 
     await this.prisma.workflow.update({
       where: {
         id: workflow.id,
       },
       data: {
-        status: 'waiting_human_decision',
+        status: 'completed',
       },
     });
 
     return {
       message:
-        'La solución no resolvió el incidente. ORION requiere una nueva decisión humana.',
+        'Resultado verificado. Incidente y workflow cerrados correctamente.',
       workflowId: workflow.id,
       incidentId: incident.id,
-      success: false,
+      success: true,
       result: resultData,
       experienceId: experience.id,
-      nextAction: 'select_another_alternative',
+      incidentStatus: 'resolved',
+      workflowStatus: 'completed',
     };
   }
-
-  await this.prisma.incident.update({
-    where: {
-      id: incident.id,
-    },
-    data: {
-      status: 'resolved',
-      resolvedAt: now,
-    },
-  });
-
-  await this.prisma.workflowStep.update({
-    where: {
-      id: closeStep.id,
-    },
-    data: {
-      status: 'completed',
-      startedAt: closeStep.startedAt ?? now,
-      completedAt: now,
-      data: {
-        reason: 'incident_resolved',
-      },
-    },
-  });
-
-  await this.prisma.workflow.update({
-    where: {
-      id: workflow.id,
-    },
-    data: {
-      status: 'completed',
-    },
-  });
-
-  return {
-    message:
-      'Resultado verificado. Incidente y workflow cerrados correctamente.',
-    workflowId: workflow.id,
-    incidentId: incident.id,
-    success: true,
-    result: resultData,
-    experienceId: experience.id,
-    incidentStatus: 'resolved',
-    workflowStatus: 'completed',
-  };
-}
 }

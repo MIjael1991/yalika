@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: orion-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: orion
+      POSTGRES_USER: orion_user
+      POSTGRES_PASSWORD: Orion2026Seguro
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - orion_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  orion_postgres_data:

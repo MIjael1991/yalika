@@ -5,7 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class OperationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getToday() {
+  async getToday(companyId: string) {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -14,6 +14,7 @@ export class OperationsService {
 
     const tasks = await this.prisma.task.findMany({
       where: {
+        companyId,
         dueAt: {
           gte: startOfDay,
           lte: endOfDay,
@@ -26,25 +27,20 @@ export class OperationsService {
 
     const urgent = tasks.filter(
       (task) =>
-        task.status === 'pending' &&
-        task.priority.toLowerCase() === 'urgente',
+        task.status === 'pending' && task.priority.toLowerCase() === 'urgente',
     );
 
     const high = tasks.filter(
       (task) =>
-        task.status === 'pending' &&
-        task.priority.toLowerCase() === 'alta',
+        task.status === 'pending' && task.priority.toLowerCase() === 'alta',
     );
 
     const normal = tasks.filter(
       (task) =>
-        task.status === 'pending' &&
-        task.priority.toLowerCase() === 'normal',
+        task.status === 'pending' && task.priority.toLowerCase() === 'normal',
     );
 
-    const completed = tasks.filter(
-      (task) => task.status === 'completed',
-    );
+    const completed = tasks.filter((task) => task.status === 'completed');
 
     return {
       date: new Date().toISOString(),

@@ -10,38 +10,32 @@ import { SaveRecipeDto } from './dto/save-recipe.dto';
 
 @Injectable()
 export class RecipeService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findByProduct(productId: string) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id: productId,
-        },
-      });
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
 
     if (!product) {
-      throw new NotFoundException(
-        'El producto o servicio no existe',
-      );
+      throw new NotFoundException('El producto o servicio no existe');
     }
 
-    const recipe =
-      await this.prisma.productRecipe.findUnique({
-        where: {
-          productId,
-        },
+    const recipe = await this.prisma.productRecipe.findUnique({
+      where: {
+        productId,
+      },
 
-        include: {
-          components: {
-            include: {
-              inventoryItem: true,
-            },
+      include: {
+        components: {
+          include: {
+            inventoryItem: true,
           },
         },
-      });
+      },
+    });
 
     return {
       product,
@@ -50,177 +44,135 @@ export class RecipeService {
     };
   }
 
-  async saveRecipe(
-    productId: string,
-    dto: SaveRecipeDto,
-  ) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id: productId,
-        },
-      });
+  async saveRecipe(productId: string, dto: SaveRecipeDto) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
 
     if (!product) {
-      throw new NotFoundException(
-        'El producto o servicio no existe',
-      );
+      throw new NotFoundException('El producto o servicio no existe');
     }
 
-    const inventoryIds =
-      dto.components.map(
-        (component) =>
-          component.inventoryItemId,
-      );
+    const inventoryIds = dto.components.map(
+      (component) => component.inventoryItemId,
+    );
 
-    const uniqueInventoryIds =
-      new Set(inventoryIds);
+    const uniqueInventoryIds = new Set(inventoryIds);
 
-    if (
-      uniqueInventoryIds.size !==
-      inventoryIds.length
-    ) {
+    if (uniqueInventoryIds.size !== inventoryIds.length) {
       throw new BadRequestException(
         'Un ingrediente no puede repetirse dentro de la misma receta',
       );
     }
 
-    const inventoryItems =
-      await this.prisma.inventoryItem.findMany({
-        where: {
-          id: {
-            in: inventoryIds,
-          },
-
-          companyId:
-            product.companyId,
+    const inventoryItems = await this.prisma.inventoryItem.findMany({
+      where: {
+        id: {
+          in: inventoryIds,
         },
-      });
 
-    if (
-      inventoryItems.length !==
-      inventoryIds.length
-    ) {
+        companyId: product.companyId,
+      },
+    });
+
+    if (inventoryItems.length !== inventoryIds.length) {
       throw new BadRequestException(
         'Uno o más artículos de inventario no existen o pertenecen a otra empresa',
       );
     }
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        const existingRecipe =
-          await tx.productRecipe.findUnique({
-            where: {
-              productId,
-            },
-          });
-
-        let recipe;
-
-        if (existingRecipe) {
-          await tx.productRecipeComponent.deleteMany({
-            where: {
-              recipeId:
-                existingRecipe.id,
-            },
-          });
-
-          recipe =
-            await tx.productRecipe.update({
-              where: {
-                id: existingRecipe.id,
-              },
-
-              data: {
-                name:
-                  dto.name?.trim(),
-
-                notes:
-                  dto.notes?.trim(),
-
-                yieldQuantity:
-                  dto.yieldQuantity ?? 1,
-
-                components: {
-                  create:
-                    dto.components.map(
-                      (component) => ({
-                        inventoryItemId:
-                          component.inventoryItemId,
-
-                        quantity:
-                          component.quantity,
-                      }),
-                    ),
-                },
-              },
-
-              include: {
-                components: {
-                  include: {
-                    inventoryItem: true,
-                  },
-                },
-              },
-            });
-        } else {
-          recipe =
-            await tx.productRecipe.create({
-              data: {
-                name:
-                  dto.name?.trim(),
-
-                notes:
-                  dto.notes?.trim(),
-
-                yieldQuantity:
-                  dto.yieldQuantity ?? 1,
-
-                status: 'active',
-
-                productId,
-
-                components: {
-                  create:
-                    dto.components.map(
-                      (component) => ({
-                        inventoryItemId:
-                          component.inventoryItemId,
-
-                        quantity:
-                          component.quantity,
-                      }),
-                    ),
-                },
-              },
-
-              include: {
-                components: {
-                  include: {
-                    inventoryItem: true,
-                  },
-                },
-              },
-            });
-        }
-
-        return recipe;
-      },
-    );
-  }
-
-  async enable(productId: string) {
-    const recipe =
-      await this.prisma.productRecipe.findUnique({
+    return this.prisma.$transaction(async (tx) => {
+      const existingRecipe = await tx.productRecipe.findUnique({
         where: {
           productId,
         },
       });
 
+      let recipe;
+
+      if (existingRecipe) {
+        await tx.productRecipeComponent.deleteMany({
+          where: {
+            recipeId: existingRecipe.id,
+          },
+        });
+
+        recipe = await tx.productRecipe.update({
+          where: {
+            id: existingRecipe.id,
+          },
+
+          data: {
+            name: dto.name?.trim(),
+
+            notes: dto.notes?.trim(),
+
+            yieldQuantity: dto.yieldQuantity ?? 1,
+
+            components: {
+              create: dto.components.map((component) => ({
+                inventoryItemId: component.inventoryItemId,
+
+                quantity: component.quantity,
+              })),
+            },
+          },
+
+          include: {
+            components: {
+              include: {
+                inventoryItem: true,
+              },
+            },
+          },
+        });
+      } else {
+        recipe = await tx.productRecipe.create({
+          data: {
+            name: dto.name?.trim(),
+
+            notes: dto.notes?.trim(),
+
+            yieldQuantity: dto.yieldQuantity ?? 1,
+
+            status: 'active',
+
+            productId,
+
+            components: {
+              create: dto.components.map((component) => ({
+                inventoryItemId: component.inventoryItemId,
+
+                quantity: component.quantity,
+              })),
+            },
+          },
+
+          include: {
+            components: {
+              include: {
+                inventoryItem: true,
+              },
+            },
+          },
+        });
+      }
+
+      return recipe;
+    });
+  }
+
+  async enable(productId: string) {
+    const recipe = await this.prisma.productRecipe.findUnique({
+      where: {
+        productId,
+      },
+    });
+
     if (!recipe) {
-      throw new NotFoundException(
-        'Este producto todavía no tiene receta',
-      );
+      throw new NotFoundException('Este producto todavía no tiene receta');
     }
 
     return this.prisma.productRecipe.update({
@@ -235,17 +187,14 @@ export class RecipeService {
   }
 
   async disable(productId: string) {
-    const recipe =
-      await this.prisma.productRecipe.findUnique({
-        where: {
-          productId,
-        },
-      });
+    const recipe = await this.prisma.productRecipe.findUnique({
+      where: {
+        productId,
+      },
+    });
 
     if (!recipe) {
-      throw new NotFoundException(
-        'Este producto todavía no tiene receta',
-      );
+      throw new NotFoundException('Este producto todavía no tiene receta');
     }
 
     return this.prisma.productRecipe.update({
@@ -259,37 +208,30 @@ export class RecipeService {
     });
   }
 
-  async consume(
-    productId: string,
-    dto: ConsumeRecipeDto,
-  ) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id: productId,
-        },
-      });
+  async consume(productId: string, dto: ConsumeRecipeDto) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
 
     if (!product) {
-      throw new NotFoundException(
-        'El producto o servicio no existe',
-      );
+      throw new NotFoundException('El producto o servicio no existe');
     }
 
-    const recipe =
-      await this.prisma.productRecipe.findUnique({
-        where: {
-          productId,
-        },
+    const recipe = await this.prisma.productRecipe.findUnique({
+      where: {
+        productId,
+      },
 
-        include: {
-          components: {
-            include: {
-              inventoryItem: true,
-            },
+      include: {
+        components: {
+          include: {
+            inventoryItem: true,
           },
         },
-      });
+      },
+    });
 
     /*
      * La receta es OPCIONAL.
@@ -316,120 +258,92 @@ export class RecipeService {
       };
     }
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        const consumptions: Array<{
-  inventoryItemId: string;
-  name: string;
-  consumed: number;
-  unit: string;
-  balanceAfter: number;
-}> = [];
+    return this.prisma.$transaction(async (tx) => {
+      const consumptions: Array<{
+        inventoryItemId: string;
+        name: string;
+        consumed: number;
+        unit: string;
+        balanceAfter: number;
+      }> = [];
 
-        for (
-          const component
-          of recipe.components
-        ) {
-          const requiredQuantity =
-            (
-              component.quantity /
-              recipe.yieldQuantity
-            ) *
-            dto.quantitySold;
+      for (const component of recipe.components) {
+        const requiredQuantity =
+          (component.quantity / recipe.yieldQuantity) * dto.quantitySold;
 
-          const result =
-            await tx.inventoryItem.updateMany({
-              where: {
-                id:
-                  component.inventoryItemId,
+        const result = await tx.inventoryItem.updateMany({
+          where: {
+            id: component.inventoryItemId,
 
-                companyId:
-                  product.companyId,
+            companyId: product.companyId,
 
-                quantity: {
-                  gte:
-                    requiredQuantity,
-                },
-              },
-
-              data: {
-                quantity: {
-                  decrement:
-                    requiredQuantity,
-                },
-              },
-            });
-
-          if (result.count === 0) {
-            throw new BadRequestException(
-              `No hay suficiente existencia de ${component.inventoryItem.name}`,
-            );
-          }
-
-          const updatedItem =
-            await tx.inventoryItem.findUniqueOrThrow({
-              where: {
-                id:
-                  component.inventoryItemId,
-              },
-            });
-
-          await tx.stockMovement.create({
-            data: {
-              direction: 'out',
-
-              reason:
-                'recipe_consumption',
-
-              quantity:
-                requiredQuantity,
-
-              balanceAfter:
-                updatedItem.quantity,
-
-              notes:
-                `Consumo por ${dto.quantitySold} x ${product.name}`,
-
-              companyId:
-                product.companyId,
-
-              inventoryItemId:
-                component.inventoryItemId,
+            quantity: {
+              gte: requiredQuantity,
             },
-          });
-
-          consumptions.push({
-            inventoryItemId:
-              updatedItem.id,
-
-            name:
-              updatedItem.name,
-
-            consumed:
-              requiredQuantity,
-
-            unit:
-              updatedItem.unit,
-
-            balanceAfter:
-              updatedItem.quantity,
-          });
-        }
-
-        return {
-          applied: true,
-
-          product: {
-            id: product.id,
-            name: product.name,
           },
 
-          quantitySold:
-            dto.quantitySold,
+          data: {
+            quantity: {
+              decrement: requiredQuantity,
+            },
+          },
+        });
 
-          consumptions,
-        };
-      },
-    );
+        if (result.count === 0) {
+          throw new BadRequestException(
+            `No hay suficiente existencia de ${component.inventoryItem.name}`,
+          );
+        }
+
+        const updatedItem = await tx.inventoryItem.findUniqueOrThrow({
+          where: {
+            id: component.inventoryItemId,
+          },
+        });
+
+        await tx.stockMovement.create({
+          data: {
+            direction: 'out',
+
+            reason: 'recipe_consumption',
+
+            quantity: requiredQuantity,
+
+            balanceAfter: updatedItem.quantity,
+
+            notes: `Consumo por ${dto.quantitySold} x ${product.name}`,
+
+            companyId: product.companyId,
+
+            inventoryItemId: component.inventoryItemId,
+          },
+        });
+
+        consumptions.push({
+          inventoryItemId: updatedItem.id,
+
+          name: updatedItem.name,
+
+          consumed: requiredQuantity,
+
+          unit: updatedItem.unit,
+
+          balanceAfter: updatedItem.quantity,
+        });
+      }
+
+      return {
+        applied: true,
+
+        product: {
+          id: product.id,
+          name: product.name,
+        },
+
+        quantitySold: dto.quantitySold,
+
+        consumptions,
+      };
+    });
   }
 }

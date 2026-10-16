@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -11,20 +12,30 @@ import { CreateEventDto } from './dto/create-event.dto';
 export class EventsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
+    if (!companyId?.trim()) {
+      throw new ForbiddenException('Falta el contexto de empresa');
+    }
+
     return this.prisma.event.findMany({
-      orderBy: {
-        occurredAt: 'desc',
+      where: { companyId },
+      select: {
+        id: true,
+        type: true,
+        source: true,
+        occurredAt: true,
       },
+      orderBy: { occurredAt: 'desc' },
       take: 100,
     });
   }
 
+  // Metodo legado: solo uso interno.
+  // En I2 se sustituira por un publicador seguro.
+
   async create(createEventDto: CreateEventDto) {
     const company = await this.prisma.company.findUnique({
-      where: {
-        id: createEventDto.companyId,
-      },
+      where: { id: createEventDto.companyId },
     });
 
     if (!company) {

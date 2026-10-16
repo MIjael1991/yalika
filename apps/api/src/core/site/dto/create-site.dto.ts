@@ -9,6 +9,10 @@ import {
 } from 'class-validator';
 
 export class CreateSiteDto {
+  @IsOptional()
+  @IsUUID('4')
+  catalogId?: string;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(150)
@@ -16,8 +20,7 @@ export class CreateSiteDto {
 
   @IsString()
   @Matches(/^[a-z0-9-]+$/, {
-    message:
-      'El slug solo puede contener letras minúsculas, números y guiones',
+    message: 'El slug solo puede contener letras minúsculas, números y guiones',
   })
   slug: string;
 
@@ -29,6 +32,16 @@ export class CreateSiteDto {
     'gallery',
     'promotions',
     'media',
+    'yaleka_cherry_nails',
+    'yaleka_luna_boutique',
+    'yaleka_prisma_papeleria',
+    'boutique_elegant',
+    'social_vibrant',
+    'minimal_catalog',
+    'artisan_warm',
+    'punk_rock',
+    'dark_neon',
+    'vacation_bright',
   ])
   template?: string;
 
@@ -74,6 +87,41 @@ export class CreateSiteDto {
   @IsOptional()
   @IsString()
   heroButtonUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(240)
+  announcementText?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  whatsappPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  facebookUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  instagramUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  tiktokUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  extraLinkLabel?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  extraLinkUrl?: string;
 
   @IsUUID('4')
   companyId: string;

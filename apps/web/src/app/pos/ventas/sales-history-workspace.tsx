@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import QRCode from 'qrcode';
+import { useEffect, useMemo, useState } from 'react';
 
 type OrderItemSummary = {
   id: string;
@@ -44,6 +45,11 @@ type Ticket = {
   orderNumber: string;
   status: string;
   paymentStatus: string;
+  benefitClaim: {
+    siteSlug: string;
+    orderId: string;
+    token: string;
+  } | null;
   date: string;
   business: {
     name: string;
@@ -129,6 +135,10 @@ export function SalesHistoryWorkspace({
   const [search, setSearch] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState('');
   const [ticket, setTicket] = useState<Ticket>();
+  const [ticketQr, setTicketQr] = useState({
+    orderId: '',
+    dataUrl: '',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(initialError);
 
@@ -215,6 +225,41 @@ export function SalesHistoryWorkspace({
     ? isFullyReturned(selectedOrder)
     : false;
 
+  useEffect(() => {
+    const claim = ticket?.benefitClaim;
+
+    if (!claim) {
+      return;
+    }
+
+    const url = `${window.location.origin}/r/${claim.siteSlug}?ticket=${encodeURIComponent(
+      claim.orderId,
+    )}&token=${encodeURIComponent(claim.token)}`;
+    let cancelled = false;
+
+    void QRCode.toDataURL(url, {
+      width: 320,
+      margin: 2,
+      errorCorrectionLevel: 'H',
+    }).then((dataUrl) => {
+      if (!cancelled) {
+        setTicketQr({
+          orderId: claim.orderId,
+          dataUrl,
+        });
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ticket?.benefitClaim]);
+
+  const ticketQrDataUrl =
+    ticket?.benefitClaim?.orderId === ticketQr.orderId
+      ? ticketQr.dataUrl
+      : '';
+
   async function selectOrder(order: OrderSummary) {
     setSelectedOrderId(order.id);
     setTicket(undefined);
@@ -281,6 +326,10 @@ export function SalesHistoryWorkspace({
         <div className="grid gap-5 xl:grid-cols-[minmax(360px,0.8fr)_minmax(0,1.2fr)]">
           <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">
             <h2 className="text-lg font-semibold">Buscar comprobante</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Aquí aparecen únicamente las ventas con cobro completado. Las
+              ventas canceladas antes de pagar no forman parte del historial.
+            </p>
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -407,6 +456,26 @@ export function SalesHistoryWorkspace({
                   ))}
                 </div>
 
+                {ticket.benefitClaim ? (
+                  <div className="mt-5 text-center">
+                    {ticketQrDataUrl ? (
+                      <img
+                        src={ticketQrDataUrl}
+                        alt="QR único de esta compra pagada"
+                        className="mx-auto h-44 w-44 rounded-xl bg-white p-2"
+                      />
+                    ) : (
+                      <div className="mx-auto flex h-44 w-44 items-center justify-center rounded-xl bg-white p-4 text-xs text-slate-600">
+                        Preparando QR…
+                      </div>
+                    )}
+                    <p className="mx-auto mt-3 max-w-sm text-xs leading-5 text-slate-400">
+                      El cliente puede escanear este ticket pagado para registrar
+                      o consultar sus beneficios.
+                    </p>
+                  </div>
+                ) : null}
+
                 {selectedRefunded > 0 ? (
                   <div className="mt-5 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-200">
                     <p className="font-semibold">
@@ -437,7 +506,7 @@ export function SalesHistoryWorkspace({
                       href={`/pos/devoluciones?orderId=${encodeURIComponent(selectedOrderId)}`}
                       className="flex h-12 items-center justify-center rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800"
                     >
-                      Devolver o anular
+                      Procesar devolución autorizada
                     </Link>
                   )}
                 </div>

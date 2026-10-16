@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 
 type SessionResponse = {
   user: {
+    modules: string[];
     id: string;
     name: string;
     email: string;
@@ -40,7 +41,10 @@ async function getCurrentUser() {
     redirect('/login');
   }
 
-  return ((await response.json()) as SessionResponse).user;
+  const user = ((await response.json()) as SessionResponse).user;
+  if (!user?.id || !user.companyId) redirect('/login');
+  if (!user.modules?.includes('all')) redirect('/encuestas');
+  return user;
 }
 
 export default async function LifePage() {

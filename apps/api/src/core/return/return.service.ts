@@ -307,8 +307,7 @@ export class ReturnService {
           );
         }
 
-        const returnedBefore =
-          previouslyReturned.get(orderItem.id) ?? 0;
+        const returnedBefore = previouslyReturned.get(orderItem.id) ?? 0;
         const availableQuantity = orderItem.quantity - returnedBefore;
 
         if (requestedItem.quantity > availableQuantity + 0.000001) {
@@ -317,8 +316,7 @@ export class ReturnService {
           );
         }
 
-        const activeRecipe =
-          orderItem.product.recipe?.status === 'active';
+        const activeRecipe = orderItem.product.recipe?.status === 'active';
 
         if (requestedItem.disposition === 'restock') {
           if (requestedItem.condition !== 'sellable') {
@@ -354,9 +352,7 @@ export class ReturnService {
         const afterCents =
           returnedAfter >= orderItem.quantity - 0.000001
             ? fullNetCents
-            : Math.round(
-                (fullNetCents * returnedAfter) / orderItem.quantity,
-              );
+            : Math.round((fullNetCents * returnedAfter) / orderItem.quantity);
         const lineTotal = fromCents(afterCents - beforeCents);
         const netUnitPrice = this.roundMoney(
           orderItem.total / orderItem.quantity,
@@ -493,9 +489,7 @@ export class ReturnService {
         );
       }
 
-      const orderItemIds = returnRecord.items.map(
-        (item) => item.orderItemId,
-      );
+      const orderItemIds = returnRecord.items.map((item) => item.orderItemId);
 
       const priorItems = await tx.returnItem.findMany({
         where: {
@@ -533,8 +527,7 @@ export class ReturnService {
 
       for (const returnItem of returnRecord.items) {
         const orderItem = returnItem.orderItem;
-        const returnedBefore =
-          previouslyReturned.get(orderItem.id) ?? 0;
+        const returnedBefore = previouslyReturned.get(orderItem.id) ?? 0;
 
         if (
           returnedBefore + returnItem.quantity >
@@ -1000,8 +993,122 @@ export class ReturnService {
         },
       });
 
+      let loyaltyRevoked = false;
+      let scratchReviewRequired = false;
+      const orderRefunds = await tx.refund.aggregate({
+        where: {
+          status: 'completed',
+          returnRecord: {
+            orderId: returnRecord.orderId,
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+      });
+
+      if (
+        (orderRefunds._sum.amount ?? 0) >= returnRecord.order.total - 0.001 &&
+        returnRecord.order.customerId &&
+        returnRecord.order.loyaltyProgramId
+      ) {
+        const orderVisits = await tx.visit.findMany({
+          where: {
+            customerId: returnRecord.order.customerId,
+            loyaltyProgramId: returnRecord.order.loyaltyProgramId,
+            source: 'order',
+            notes: `Pedido ${returnRecord.order.orderNumber}`,
+          },
+          select: { id: true },
+        });
+        const cancelledVisits = await tx.visit.updateMany({
+          where: {
+            id: { in: orderVisits.map((visit) => visit.id) },
+            status: 'confirmed',
+          },
+          data: {
+            status: 'cancelled',
+          },
+        });
+
+        loyaltyRevoked = cancelledVisits.count > 0;
+
+        if (orderVisits.length > 0) {
+          const scratchAttempts = await tx.scratchAttempt.findMany({
+            where: {
+              visitId: {
+                in: orderVisits.map((visit) => visit.id),
+              },
+              status: {
+                in: ['won', 'not_won', 'redeemed'],
+              },
+            },
+            include: { prize: true },
+          });
+
+          for (const attempt of scratchAttempts) {
+            if (attempt.status === 'redeemed') {
+              await tx.scratchAttempt.update({
+                where: { id: attempt.id },
+                data: { status: 'review_required' },
+              });
+              scratchReviewRequired = true;
+              continue;
+            }
+
+            await tx.scratchAttempt.update({
+              where: { id: attempt.id },
+              data: { status: 'cancelled' },
+            });
+
+            if (
+              attempt.status === 'won' &&
+              attempt.prize &&
+              attempt.prize.remaining !== null
+            ) {
+              await tx.scratchPrize.update({
+                where: { id: attempt.prize.id },
+                data: { remaining: { increment: 1 } },
+              });
+            }
+          }
+        }
+
+        const program = await tx.loyaltyProgram.findUnique({
+          where: {
+            id: returnRecord.order.loyaltyProgramId,
+          },
+        });
+
+        if (program) {
+          const confirmedVisits = await tx.visit.count({
+            where: {
+              customerId: returnRecord.order.customerId,
+              loyaltyProgramId: returnRecord.order.loyaltyProgramId,
+              source: 'order',
+              status: 'confirmed',
+            },
+          });
+
+          if (confirmedVisits < program.requiredVisits) {
+            await tx.customerReward.updateMany({
+              where: {
+                customerId: returnRecord.order.customerId,
+                loyaltyProgramId: returnRecord.order.loyaltyProgramId,
+                status: 'available',
+              },
+              data: {
+                status: 'cancelled',
+              },
+            });
+          }
+        }
+      }
+
       return {
         refund,
+        loyaltyRevoked,
+        scratchReviewRequired,
         summary: {
           returnAmount: returnRecord.totalAmount,
           exchangeCreditApplied: creditApplied,

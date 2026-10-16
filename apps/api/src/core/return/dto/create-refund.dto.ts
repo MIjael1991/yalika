@@ -12,12 +12,7 @@ export class CreateRefundDto {
   @IsUUID('4')
   processedById: string;
 
-  @IsIn([
-    'cash',
-    'card',
-    'transfer',
-    'other',
-  ])
+  @IsIn(['cash', 'card', 'transfer', 'other'])
   method: string;
 
   @IsOptional()

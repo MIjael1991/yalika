@@ -30,9 +30,7 @@ class ItemSplitPartDto {
   @ValidateNested({
     each: true,
   })
-  @Type(
-    () => ItemAllocationDto,
-  )
+  @Type(() => ItemAllocationDto)
   items: ItemAllocationDto[];
 }
 
@@ -42,8 +40,6 @@ export class CreateItemSplitDto {
   @ValidateNested({
     each: true,
   })
-  @Type(
-    () => ItemSplitPartDto,
-  )
+  @Type(() => ItemSplitPartDto)
   splits: ItemSplitPartDto[];
 }

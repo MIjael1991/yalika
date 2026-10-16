@@ -17,11 +17,7 @@ import { InterpretCaptureDto } from './dto/interpret-capture.dto';
 export class CaptureService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async interpret(
-    dto: InterpretCaptureDto,
-    userId: string,
-    companyId: string,
-  ) {
+  async interpret(dto: InterpretCaptureDto, userId: string, companyId: string) {
     const spaces = await this.prisma.space.findMany({
       where: {
         companyId,

@@ -8,8 +8,7 @@ describe('capture temporal interpretation', () => {
     const result = interpretCaptureTemporal({
       message:
         'Recuérdame 15 min antes de las 4 hoy y mañana apagar el servidor',
-      title:
-        'Recuérdame 15 min antes de las 4 hoy y mañana apagar el servidor',
+      title: 'Recuérdame 15 min antes de las 4 hoy y mañana apagar el servidor',
       timezone,
       now: new Date('2026-08-27T18:00:00.000Z'),
     });
@@ -71,8 +70,7 @@ describe('capture temporal interpretation', () => {
 
   it('understands a weekly voice-style instruction', () => {
     const result = interpretCaptureTemporal({
-      message:
-        'Recuérdame hacer ejercicio cada martes a las 6 de la tarde',
+      message: 'Recuérdame hacer ejercicio cada martes a las 6 de la tarde',
       title: 'Hacer ejercicio cada martes a las 6 de la tarde',
       timezone,
       now,

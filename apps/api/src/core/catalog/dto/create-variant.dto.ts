@@ -26,6 +26,11 @@ export class CreateVariantDto {
   price?: number;
 
   @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0)
+  unitCost?: number;
+
+  @IsOptional()
   @IsInt()
   @Min(0)
   stock?: number;

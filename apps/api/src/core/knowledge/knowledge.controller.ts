@@ -5,9 +5,7 @@ import { KnowledgeService } from './knowledge.service';
 
 @Controller('knowledge')
 export class KnowledgeController {
-  constructor(
-    private readonly knowledgeService: KnowledgeService,
-  ) {}
+  constructor(private readonly knowledgeService: KnowledgeService) {}
 
   @Get()
   findAll() {
@@ -19,8 +17,6 @@ export class KnowledgeController {
     @Body()
     createKnowledgeTemplateDto: CreateKnowledgeTemplateDto,
   ) {
-    return this.knowledgeService.create(
-      createKnowledgeTemplateDto,
-    );
+    return this.knowledgeService.create(createKnowledgeTemplateDto);
   }
-}           
+}

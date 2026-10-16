@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
@@ -60,29 +57,27 @@ export class IncidentService {
 
     if (!incident.category) {
       return {
-        message:
-          'El incidente no tiene una categoría para buscar conocimiento',
+        message: 'El incidente no tiene una categoría para buscar conocimiento',
         generated: 0,
       };
     }
 
-    const knowledge =
-      await this.prisma.knowledgeTemplate.findFirst({
-        where: {
-          category: incident.category,
-          status: 'active',
-        },
-        include: {
-          alternatives: {
-            where: {
-              status: 'active',
-            },
-            orderBy: {
-              order: 'asc',
-            },
+    const knowledge = await this.prisma.knowledgeTemplate.findFirst({
+      where: {
+        category: incident.category,
+        status: 'active',
+      },
+      include: {
+        alternatives: {
+          where: {
+            status: 'active',
+          },
+          orderBy: {
+            order: 'asc',
           },
         },
-      });
+      },
+    });
 
     if (!knowledge) {
       return {
@@ -100,8 +95,7 @@ export class IncidentService {
     );
 
     const templatesToCreate = knowledge.alternatives.filter(
-      (template) =>
-        !existingTitles.has(template.title.toLowerCase()),
+      (template) => !existingTitles.has(template.title.toLowerCase()),
     );
 
     if (templatesToCreate.length === 0) {

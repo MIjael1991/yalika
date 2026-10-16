@@ -127,15 +127,18 @@ export function PendingAccountsWorkspace({
   const [reference, setReference] = useState('');
   const [loading, setLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [showCancelPending, setShowCancelPending] = useState(false);
   const [error, setError] = useState(initialError);
   const [completedOrderNumber, setCompletedOrderNumber] = useState('');
+  const [cancelledOrderNumber, setCancelledOrderNumber] = useState('');
 
   const pendingOrders = useMemo(() => {
     const normalized = search.trim().toLocaleLowerCase('es-MX');
 
     return orders.filter(
       (order) =>
-        order.status === 'confirmed' &&
+        order.status === 'held' &&
         ['pending', 'partial'].includes(order.paymentStatus) &&
         order.orderNumber.toLocaleLowerCase('es-MX').includes(normalized),
     );
@@ -160,6 +163,7 @@ export function PendingAccountsWorkspace({
     setSplits([]);
     setError('');
     setCompletedOrderNumber('');
+    setCancelledOrderNumber('');
     setLoading(true);
 
     try {
@@ -285,6 +289,50 @@ export function PendingAccountsWorkspace({
     }
   }
 
+  async function cancelSelectedOrder() {
+    if (
+      !selectedOrder ||
+      selectedOrder.paymentStatus !== 'pending' ||
+      cancelling
+    ) {
+      return;
+    }
+
+    setCancelling(true);
+    setError('');
+
+    try {
+      await apiRequest(
+        `order/${selectedOrder.id}/cancel`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            reason:
+              'Cuenta pendiente cancelada desde recuperación de caja',
+          }),
+        },
+      );
+
+      const orderNumber =
+        selectedOrder.orderNumber;
+
+      setShowCancelPending(false);
+      setSelectedOrder(undefined);
+      setSplits([]);
+      setCancelledOrderNumber(orderNumber);
+      await refreshOrders();
+    } catch (cancelError) {
+      setError(
+        cancelError instanceof Error
+          ? cancelError.message
+          : 'No fue posible cancelar la cuenta',
+      );
+      setShowCancelPending(false);
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-[#07101f] text-slate-100">
       <header className="border-b border-slate-800/80 bg-slate-950/70 px-4 py-4 md:px-6">
@@ -311,7 +359,7 @@ export function PendingAccountsWorkspace({
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">
                 Recuperación
               </p>
-              <h2 className="mt-1 text-lg font-semibold">Ventas sin terminar</h2>
+              <h2 className="mt-1 text-lg font-semibold">Cuentas guardadas</h2>
             </div>
             <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
               {pendingOrders.length}
@@ -351,14 +399,36 @@ export function PendingAccountsWorkspace({
 
             {pendingOrders.length === 0 ? (
               <p className="rounded-2xl border border-dashed border-slate-700 p-8 text-center text-sm text-slate-500">
-                No hay cuentas divididas pendientes.
+                No hay cuentas guardadas pendientes.
               </p>
             ) : null}
           </div>
         </section>
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5 md:p-6">
-          {completedOrderNumber ? (
+          {cancelledOrderNumber ? (
+            <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-300 text-3xl font-bold text-slate-950">
+                ↶
+              </div>
+              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+                Cuenta cancelada
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold">
+                {cancelledOrderNumber}
+              </h2>
+              <p className="mt-3 text-sm text-slate-500">
+                La mercancía quedó liberada y el movimiento permanece únicamente en auditoría.
+              </p>
+              <button
+                type="button"
+                onClick={() => setCancelledOrderNumber('')}
+                className="mt-7 h-12 rounded-xl bg-cyan-400 px-7 font-bold text-slate-950"
+              >
+                Revisar otra cuenta
+              </button>
+            </div>
+          ) : completedOrderNumber ? (
             <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400 text-3xl font-bold text-slate-950">
                 ✓
@@ -509,6 +579,21 @@ export function PendingAccountsWorkspace({
                   ? 'Registrando pago…'
                   : `Cobrar ${activeSplit.label} · ${money.format(splitRemaining(activeSplit))}`}
               </button>
+
+              {selectedOrder.paymentStatus === 'pending' ? (
+                <button
+                  type="button"
+                  disabled={processing || cancelling}
+                  onClick={() => setShowCancelPending(true)}
+                  className="mt-3 h-12 w-full rounded-xl border border-red-400/40 font-semibold text-red-300 hover:bg-red-400/10 disabled:opacity-50"
+                >
+                  Cancelar cuenta y liberar mercancía
+                </button>
+              ) : (
+                <p className="mt-3 text-center text-xs text-slate-500">
+                  Esta cuenta ya tiene pagos y solamente puede anularse mediante reembolso.
+                </p>
+              )}
             </div>
           ) : (
             <div className="flex min-h-[520px] flex-col items-center justify-center text-center">
@@ -533,6 +618,45 @@ export function PendingAccountsWorkspace({
           )}
         </section>
       </div>
+
+      {showCancelPending && selectedOrder ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
+          <section className="w-full max-w-md rounded-3xl border border-red-400/30 bg-slate-900 p-6 text-center shadow-2xl">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-400/10 text-2xl text-red-300">
+              ×
+            </div>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-red-300">
+              Cancelar cuenta pendiente
+            </p>
+            <h2 className="mt-2 text-xl font-semibold">
+              {selectedOrder.orderNumber}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              Se liberará toda la mercancía reservada. La cuenta dejará de aparecer como pendiente, pero seguirá registrada en auditoría.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={cancelling}
+                onClick={() => setShowCancelPending(false)}
+                className="h-12 rounded-xl border border-slate-700 font-semibold text-slate-300 hover:bg-slate-800 disabled:opacity-50"
+              >
+                Conservar cuenta
+              </button>
+              <button
+                type="button"
+                disabled={cancelling}
+                onClick={() => void cancelSelectedOrder()}
+                className="h-12 rounded-xl bg-red-400 font-bold text-slate-950 hover:bg-red-300 disabled:opacity-50"
+              >
+                {cancelling
+                  ? 'Cancelando…'
+                  : 'Sí, cancelar'}
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

@@ -11,6 +11,8 @@ export type AuthenticatedUser = {
     id: string;
     name: string;
   } | null;
+  modules: string[];
+  homePath: string;
 };
 
 export type AuthContext = {

@@ -6,18 +6,8 @@ import {
 describe('task recurrence calendar', () => {
   it('keeps the original day after a short month', () => {
     const startsAt = new Date('2027-01-31T15:00:00.000Z');
-    const february = calculateNextOccurrence(
-      startsAt,
-      startsAt,
-      'monthly',
-      1,
-    );
-    const march = calculateNextOccurrence(
-      february,
-      startsAt,
-      'monthly',
-      1,
-    );
+    const february = calculateNextOccurrence(startsAt, startsAt, 'monthly', 1);
+    const march = calculateNextOccurrence(february, startsAt, 'monthly', 1);
 
     expect(february.toISOString()).toBe('2027-02-28T15:00:00.000Z');
     expect(march.toISOString()).toBe('2027-03-31T15:00:00.000Z');
@@ -25,12 +15,7 @@ describe('task recurrence calendar', () => {
 
   it('handles leap-day yearly schedules without drifting the anchor', () => {
     const startsAt = new Date('2028-02-29T18:30:00.000Z');
-    const nextYear = calculateNextOccurrence(
-      startsAt,
-      startsAt,
-      'yearly',
-      1,
-    );
+    const nextYear = calculateNextOccurrence(startsAt, startsAt, 'yearly', 1);
     const leapYear = calculateNextOccurrence(
       new Date('2031-02-28T18:30:00.000Z'),
       startsAt,
@@ -63,9 +48,7 @@ describe('task recurrence calendar', () => {
       new Date('2026-08-25T19:00:00.000Z'),
     );
 
-    expect(latest.occurrenceAt.toISOString()).toBe(
-      '2026-08-25T18:00:00.000Z',
-    );
+    expect(latest.occurrenceAt.toISOString()).toBe('2026-08-25T18:00:00.000Z');
     expect(latest.nextOccurrenceAt.toISOString()).toBe(
       '2026-08-26T18:00:00.000Z',
     );
@@ -82,9 +65,7 @@ describe('task recurrence calendar', () => {
       new Date('2024-04-15T12:00:00.000Z'),
     );
 
-    expect(latest.occurrenceAt.toISOString()).toBe(
-      '2024-03-31T15:00:00.000Z',
-    );
+    expect(latest.occurrenceAt.toISOString()).toBe('2024-03-31T15:00:00.000Z');
     expect(latest.nextOccurrenceAt.toISOString()).toBe(
       '2024-04-30T15:00:00.000Z',
     );

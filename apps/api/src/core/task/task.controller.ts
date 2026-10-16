@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -11,6 +12,7 @@ import { type AuthContext } from '../../auth/auth.types';
 import { CurrentAuth } from '../../auth/current-auth.decorator';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { TaskAgendaQueryDto } from './dto/task-agenda-query.dto';
 import {
   AddTaskNoteDto,
   CompleteTaskDto,
@@ -45,6 +47,19 @@ export class TaskController {
     );
   }
 
+  @Get('agenda')
+  findAgenda(
+    @Query() query: TaskAgendaQueryDto,
+    @CurrentAuth() auth: AuthContext,
+  ) {
+    return this.taskService.findAgenda(
+      query.from,
+      query.to,
+      auth.user.companyId,
+      auth.user.id,
+    );
+  }
+
   @Get('space/:spaceId')
   findBySpace(
     @Param('spaceId') spaceId: string,
@@ -55,11 +70,7 @@ export class TaskController {
 
   @Post()
   create(@Body() dto: CreateTaskDto, @CurrentAuth() auth: AuthContext) {
-    return this.taskService.create(
-      dto,
-      auth.user.id,
-      auth.user.companyId,
-    );
+    return this.taskService.create(dto, auth.user.id, auth.user.companyId);
   }
 
   @Post(':id/claim')
@@ -105,10 +116,7 @@ export class TaskController {
   }
 
   @Post(':id/recurrence/cancel')
-  cancelRecurrence(
-    @Param('id') id: string,
-    @CurrentAuth() auth: AuthContext,
-  ) {
+  cancelRecurrence(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
     return this.taskService.cancelRecurrence(id, auth.user.id);
   }
 }

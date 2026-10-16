@@ -7,10 +7,7 @@ import {
 import type { Request } from 'express';
 
 import { AuthService } from './auth.service';
-import {
-  type AuthenticatedRequest,
-  sessionCookieName,
-} from './auth.types';
+import { type AuthenticatedRequest, sessionCookieName } from './auth.types';
 
 function getCookie(request: Request, name: string) {
   const cookieHeader = request.headers.cookie;

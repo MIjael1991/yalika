@@ -1,0 +1,2 @@
+import { redirect } from 'next/navigation';
+export default function FilesPage() { redirect('/estudio?tab=archivos'); }

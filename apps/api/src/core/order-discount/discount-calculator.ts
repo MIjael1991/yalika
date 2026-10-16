@@ -57,6 +57,33 @@ export function calculateDiscountCents(
   return baseCents - specialTotalCents;
 }
 
+export function calculateBuyXGetYDiscountCents(
+  unitPrice: number,
+  quantity: number,
+  buyQuantity: number,
+  getQuantity: number,
+) {
+  if (
+    !Number.isFinite(unitPrice) ||
+    unitPrice < 0 ||
+    !Number.isInteger(quantity) ||
+    !Number.isInteger(buyQuantity) ||
+    !Number.isInteger(getQuantity) ||
+    quantity < 0 ||
+    buyQuantity < 1 ||
+    getQuantity < 1
+  ) {
+    throw new BadRequestException(
+      'Las cantidades de Compra X y recibe Y no son válidas',
+    );
+  }
+
+  const groupSize = buyQuantity + getQuantity;
+  const freeUnits = Math.floor(quantity / groupSize) * getQuantity;
+
+  return toCents(unitPrice) * freeUnits;
+}
+
 export function allocateCents(totalCents: number, weights: number[]) {
   if (totalCents < 0 || !Number.isInteger(totalCents)) {
     throw new BadRequestException('El importe a distribuir no es válido');
@@ -75,7 +102,9 @@ export function allocateCents(totalCents: number, weights: number[]) {
     );
   }
 
-  const rawShares = weights.map((weight) => (totalCents * weight) / totalWeight);
+  const rawShares = weights.map(
+    (weight) => (totalCents * weight) / totalWeight,
+  );
   const shares = rawShares.map((share) => Math.floor(share));
   let remainder = totalCents - shares.reduce((sum, share) => sum + share, 0);
 

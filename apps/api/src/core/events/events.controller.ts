@@ -1,21 +1,40 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  ForbiddenException,
+  Get,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 
-import { CreateEventDto } from './dto/create-event.dto';
+import type { AuthContext } from '../../auth/auth.types';
+import { CurrentAuth } from '../../auth/current-auth.decorator';
+import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import { EventsService } from './events.service';
 
 @Controller('events')
+@UseGuards(SessionAuthGuard)
 export class EventsController {
-  constructor(
-    private readonly eventsService: EventsService,
-  ) {}
+  constructor(private readonly eventsService: EventsService) {}
 
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  findAll(@CurrentAuth() auth: AuthContext) {
+    const roleName = (auth.user.role?.name ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase();
+
+    if (roleName !== 'administrador') {
+      throw new ForbiddenException('No tienes permiso para consultar eventos');
+    }
+
+    return this.eventsService.findAll(auth.user.companyId);
   }
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  create(): never {
+    throw new ForbiddenException(
+      'La creación de eventos por HTTP está deshabilitada',
+    );
   }
 }

@@ -27,14 +27,16 @@ import {
   taskTitleSimilarity,
 } from './task-similarity';
 
-const activeStatuses = [
-  'pending',
-  'assigned',
-  'in_progress',
-  'postponed',
-];
+const activeStatuses = ['pending', 'assigned', 'in_progress', 'postponed'];
 
 const taskInclude = {
+  space: {
+    select: {
+      id: true,
+      name: true,
+      type: true,
+    },
+  },
   user: {
     select: {
       id: true,
@@ -142,13 +144,52 @@ export class TaskService {
         companyId,
         ...this.accessibleTaskScope(actorUserId),
       },
-      include: {
-        company: true,
-        user: true,
-      },
+      include: taskInclude,
       orderBy: {
         createdAt: 'desc',
       },
+    });
+  }
+
+  async findAgenda(
+    fromValue: string,
+    toValue: string,
+    companyId: string,
+    actorUserId: string,
+  ) {
+    const from = new Date(fromValue);
+    const to = new Date(toValue);
+    const maximumRangeMilliseconds = 93 * 24 * 60 * 60 * 1000;
+
+    if (to <= from) {
+      throw new BadRequestException(
+        'La fecha final de la agenda debe ser posterior a la inicial',
+      );
+    }
+
+    if (to.getTime() - from.getTime() > maximumRangeMilliseconds) {
+      throw new BadRequestException(
+        'La agenda puede consultar como máximo 93 días por vez',
+      );
+    }
+
+    return this.prisma.task.findMany({
+      where: {
+        companyId,
+        ...this.accessibleTaskScope(actorUserId),
+        dueAt: {
+          gte: from,
+          lt: to,
+        },
+        status: {
+          in: activeStatuses,
+        },
+      },
+      include: taskInclude,
+      orderBy: {
+        dueAt: 'asc',
+      },
+      take: 500,
     });
   }
 
@@ -222,11 +263,7 @@ export class TaskService {
     });
   }
 
-  async create(
-    dto: CreateTaskDto,
-    actorUserId: string,
-    companyId: string,
-  ) {
+  async create(dto: CreateTaskDto, actorUserId: string, companyId: string) {
     const company = await this.prisma.company.findUnique({
       where: {
         id: companyId,
@@ -237,8 +274,11 @@ export class TaskService {
       throw new NotFoundException('La empresa no existe');
     }
 
-    let taskSpace: { companyId: string; status: string; timezone: string } | null =
-      null;
+    let taskSpace: {
+      companyId: string;
+      status: string;
+      timezone: string;
+    } | null = null;
 
     if (dto.spaceId) {
       taskSpace = await this.prisma.space.findUnique({
@@ -284,9 +324,7 @@ export class TaskService {
       if (dto.spaceId) {
         await this.requireSpaceMembership(dto.spaceId, dto.userId);
       } else if (user.companyId !== companyId) {
-        throw new BadRequestException(
-          'El usuario no pertenece a esta empresa',
-        );
+        throw new BadRequestException('El usuario no pertenece a esta empresa');
       }
     }
 
@@ -636,9 +674,7 @@ export class TaskService {
       task.userId !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
-      throw new ForbiddenException(
-        'Esta tarea está asignada a otra persona',
-      );
+      throw new ForbiddenException('Esta tarea está asignada a otra persona');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -715,9 +751,7 @@ export class TaskService {
       task.claimedById !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
-      throw new ForbiddenException(
-        'Otra persona está realizando esta tarea',
-      );
+      throw new ForbiddenException('Otra persona está realizando esta tarea');
     }
 
     if (
@@ -725,9 +759,7 @@ export class TaskService {
       task.userId !== actorUserId &&
       !['owner', 'admin'].includes(role)
     ) {
-      throw new ForbiddenException(
-        'Esta tarea está asignada a otra persona',
-      );
+      throw new ForbiddenException('Esta tarea está asignada a otra persona');
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -777,11 +809,7 @@ export class TaskService {
     });
   }
 
-  async postpone(
-    taskId: string,
-    actorUserId: string,
-    dto: PostponeTaskDto,
-  ) {
+  async postpone(taskId: string, actorUserId: string, dto: PostponeTaskDto) {
     const task = await this.getTask(taskId);
     const role = await this.requireActorAccess(task, actorUserId);
 
@@ -827,8 +855,7 @@ export class TaskService {
 
       if (task.reminder) {
         const remindAt = new Date(
-          postponedUntil.getTime() -
-            task.reminder.leadMinutes * 60_000,
+          postponedUntil.getTime() - task.reminder.leadMinutes * 60_000,
         );
 
         await tx.taskReminder.update({
@@ -1019,11 +1046,7 @@ export class TaskService {
     });
   }
 
-  async addNote(
-    taskId: string,
-    actorUserId: string,
-    dto: AddTaskNoteDto,
-  ) {
+  async addNote(taskId: string, actorUserId: string, dto: AddTaskNoteDto) {
     const task = await this.getTask(taskId);
     const role = await this.requireActorAccess(task, actorUserId);
 
@@ -1195,8 +1218,7 @@ export class TaskService {
       nextOccurrenceAt.getTime() > recurrence.endsAt.getTime()
         ? 'finished'
         : 'active';
-    const reminderRecipientId =
-      recurrence.userId ?? recurrence.createdById;
+    const reminderRecipientId = recurrence.userId ?? recurrence.createdById;
     const reminder =
       recurrence.reminderMinutesBefore !== null && reminderRecipientId
         ? this.buildReminderCreate(
@@ -1337,8 +1359,7 @@ export class TaskService {
     if (exact.length > 0) {
       throw new ConflictException({
         code: 'DUPLICATE_TASK',
-        message:
-          'Esta tarea ya existe en este espacio y con el mismo horario.',
+        message: 'Esta tarea ya existe en este espacio y con el mismo horario.',
         similarTasks: exact,
       });
     }

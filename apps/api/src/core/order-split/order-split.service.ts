@@ -17,47 +17,35 @@ import { CreateItemSplitDto } from './dto/create-item-split.dto';
 
 @Injectable()
 export class OrderSplitService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /*
    * =====================================================
    * VALIDAR QUE UNA CUENTA PUEDA DIVIDIRSE
    * =====================================================
    */
-  private async getSplittableOrder(
-    orderId: string,
-  ) {
-    const order =
-      await this.prisma.order.findUnique({
-        where: {
-          id: orderId,
-        },
+  private async getSplittableOrder(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        id: orderId,
+      },
 
-        include: {
-          items: true,
-        },
-      });
+      include: {
+        items: true,
+      },
+    });
 
     if (!order) {
-      throw new NotFoundException(
-        'El pedido no existe',
-      );
+      throw new NotFoundException('El pedido no existe');
     }
 
-    if (
-      order.status !== 'confirmed'
-    ) {
+    if (!['confirmed', 'held'].includes(order.status)) {
       throw new BadRequestException(
         'El pedido debe estar confirmado antes de dividir la cuenta',
       );
     }
 
-    if (
-      order.paymentStatus !==
-      'pending'
-    ) {
+    if (order.paymentStatus !== 'pending') {
       throw new BadRequestException(
         'No se puede volver a dividir una cuenta que ya tiene pagos',
       );
@@ -71,9 +59,7 @@ export class OrderSplitService {
    * CONSULTAR DIVISIONES
    * =====================================================
    */
-  async findByOrder(
-    orderId: string,
-  ) {
+  async findByOrder(orderId: string) {
     return this.prisma.orderSplit.findMany({
       where: {
         orderId,
@@ -108,168 +94,109 @@ export class OrderSplitService {
    * DIVIDIR EN PARTES IGUALES
    * =====================================================
    */
-  async createEqual(
-    orderId: string,
-    dto: CreateEqualSplitDto,
-  ) {
-    const order =
-      await this.getSplittableOrder(
-        orderId,
-      );
+  async createEqual(orderId: string, dto: CreateEqualSplitDto) {
+    const order = await this.getSplittableOrder(orderId);
 
-    const totalCents =
-      Math.round(
-        order.total * 100,
-      );
+    const totalCents = Math.round(order.total * 100);
 
-    if (
-      totalCents <
-      dto.parts
-    ) {
+    if (totalCents < dto.parts) {
       throw new BadRequestException(
         'El total es demasiado pequeño para dividirlo en tantas partes',
       );
     }
 
-    const baseCents =
-      Math.floor(
-        totalCents /
-          dto.parts,
-      );
+    const baseCents = Math.floor(totalCents / dto.parts);
 
-    const remainder =
-      totalCents %
-      dto.parts;
+    const remainder = totalCents % dto.parts;
 
-    const splitTotalsCents =
-      Array.from(
-        {
-          length:
-            dto.parts,
+    const splitTotalsCents = Array.from(
+      {
+        length: dto.parts,
+      },
+      (_, index) => baseCents + (index < remainder ? 1 : 0),
+    );
+
+    const splitDiscountsCents = allocateCents(
+      toCents(order.discount),
+      splitTotalsCents,
+    );
+
+    return this.prisma.$transaction(async (tx) => {
+      /*
+       * Reemplazamos cualquier división
+       * anterior porque todavía no hay pagos.
+       */
+      await tx.orderSplit.deleteMany({
+        where: {
+          orderId: order.id,
         },
-        (
-          _,
-          index,
-        ) =>
-          baseCents +
-          (
-            index <
-            remainder
-              ? 1
-              : 0
-          ),
-      );
+      });
 
-    const splitDiscountsCents =
-      allocateCents(
-        toCents(
-          order.discount,
-        ),
-        splitTotalsCents,
-      );
+      await tx.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'held',
+        },
+      });
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        /*
-         * Reemplazamos cualquier división
-         * anterior porque todavía no hay pagos.
-         */
-        await tx.orderSplit.deleteMany({
-          where: {
-            orderId:
-              order.id,
+      const created: Array<{
+        id: string;
+        label: string;
+        mode: string;
+        status: string;
+        subtotal: number;
+        discount: number;
+        total: number;
+      }> = [];
+
+      for (let index = 0; index < dto.parts; index++) {
+        const totalCentsForSplit = splitTotalsCents[index];
+
+        const discountCentsForSplit = splitDiscountsCents[index];
+
+        const total = fromCents(totalCentsForSplit);
+
+        const discount = fromCents(discountCentsForSplit);
+
+        const subtotal = fromCents(totalCentsForSplit + discountCentsForSplit);
+
+        const split = await tx.orderSplit.create({
+          data: {
+            label: `Cuenta ${index + 1}`,
+
+            mode: 'equal',
+
+            status: 'open',
+
+            subtotal: subtotal,
+
+            discount: discount,
+
+            total: total,
+
+            orderId: order.id,
+
+            companyId: order.companyId,
           },
         });
 
-        const created: Array<{
-          id: string;
-          label: string;
-          mode: string;
-          status: string;
-          subtotal: number;
-          discount: number;
-          total: number;
-        }> = [];
+        created.push(split);
+      }
 
-        for (
-          let index = 0;
-          index < dto.parts;
-          index++
-        ) {
-          const totalCentsForSplit =
-            splitTotalsCents[index];
+      return {
+        orderId: order.id,
 
-          const discountCentsForSplit =
-            splitDiscountsCents[index];
+        orderTotal: order.total,
 
-          const total =
-            fromCents(
-              totalCentsForSplit,
-            );
+        mode: 'equal',
 
-          const discount =
-            fromCents(
-              discountCentsForSplit,
-            );
+        parts: created.length,
 
-          const subtotal =
-            fromCents(
-              totalCentsForSplit +
-                discountCentsForSplit,
-            );
-
-          const split =
-            await tx.orderSplit.create({
-              data: {
-                label:
-                  `Cuenta ${index + 1}`,
-
-                mode:
-                  'equal',
-
-                status:
-                  'open',
-
-                subtotal:
-                  subtotal,
-
-                discount:
-                  discount,
-
-                total:
-                  total,
-
-                orderId:
-                  order.id,
-
-                companyId:
-                  order.companyId,
-              },
-            });
-
-          created.push(
-            split,
-          );
-        }
-
-        return {
-          orderId:
-            order.id,
-
-          orderTotal:
-            order.total,
-
-          mode:
-            'equal',
-
-          parts:
-            created.length,
-
-          splits:
-            created,
-        };
-      },
-    );
+        splits: created,
+      };
+    });
   }
 
   /*
@@ -277,154 +204,103 @@ export class OrderSplitService {
    * DIVISIÓN PERSONALIZADA POR MONTO
    * =====================================================
    */
-  async createCustom(
-    orderId: string,
-    dto: CreateCustomSplitDto,
-  ) {
-    const order =
-      await this.getSplittableOrder(
-        orderId,
-      );
+  async createCustom(orderId: string, dto: CreateCustomSplitDto) {
+    const order = await this.getSplittableOrder(orderId);
 
-    const orderCents =
-      Math.round(
-        order.total * 100,
-      );
+    const orderCents = Math.round(order.total * 100);
 
-    const requestedTotalsCents =
-      dto.splits.map(
-        (split) =>
-          toCents(
-            split.amount,
-          ),
-      );
+    const requestedTotalsCents = dto.splits.map((split) =>
+      toCents(split.amount),
+    );
 
-    const splitCents =
-      requestedTotalsCents.reduce(
-        (
-          accumulator,
-          value,
-        ) =>
-          accumulator +
-          value,
-        0,
-      );
+    const splitCents = requestedTotalsCents.reduce(
+      (accumulator, value) => accumulator + value,
+      0,
+    );
 
-    if (
-      splitCents !==
-      orderCents
-    ) {
+    if (splitCents !== orderCents) {
       throw new BadRequestException(
         `Las partes deben sumar exactamente $${order.total.toFixed(2)}`,
       );
     }
 
-    const requestedDiscountsCents =
-      allocateCents(
-        toCents(
-          order.discount,
-        ),
-        requestedTotalsCents,
-      );
+    const requestedDiscountsCents = allocateCents(
+      toCents(order.discount),
+      requestedTotalsCents,
+    );
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        await tx.orderSplit.deleteMany({
-          where: {
-            orderId:
-              order.id,
+    return this.prisma.$transaction(async (tx) => {
+      await tx.orderSplit.deleteMany({
+        where: {
+          orderId: order.id,
+        },
+      });
+
+      await tx.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'held',
+        },
+      });
+
+      const created: Array<{
+        id: string;
+        label: string;
+        mode: string;
+        status: string;
+        subtotal: number;
+        discount: number;
+        total: number;
+      }> = [];
+
+      for (let index = 0; index < dto.splits.length; index++) {
+        const requestedSplit = dto.splits[index];
+
+        const totalCentsForSplit = requestedTotalsCents[index];
+
+        const discountCentsForSplit = requestedDiscountsCents[index];
+
+        const total = fromCents(totalCentsForSplit);
+
+        const discount = fromCents(discountCentsForSplit);
+
+        const subtotal = fromCents(totalCentsForSplit + discountCentsForSplit);
+
+        const split = await tx.orderSplit.create({
+          data: {
+            label: requestedSplit.label.trim(),
+
+            mode: 'custom',
+
+            status: 'open',
+
+            subtotal: subtotal,
+
+            discount: discount,
+
+            total: total,
+
+            orderId: order.id,
+
+            companyId: order.companyId,
           },
         });
 
-        const created: Array<{
-          id: string;
-          label: string;
-          mode: string;
-          status: string;
-          subtotal: number;
-          discount: number;
-          total: number;
-        }> = [];
+        created.push(split);
+      }
 
-        for (
-          let index = 0;
-          index < dto.splits.length;
-          index++
-        ) {
-          const requestedSplit =
-            dto.splits[index];
+      return {
+        orderId: order.id,
 
-          const totalCentsForSplit =
-            requestedTotalsCents[index];
+        orderTotal: order.total,
 
-          const discountCentsForSplit =
-            requestedDiscountsCents[index];
+        mode: 'custom',
 
-          const total =
-            fromCents(
-              totalCentsForSplit,
-            );
-
-          const discount =
-            fromCents(
-              discountCentsForSplit,
-            );
-
-          const subtotal =
-            fromCents(
-              totalCentsForSplit +
-                discountCentsForSplit,
-            );
-
-          const split =
-            await tx.orderSplit.create({
-              data: {
-                label:
-                  requestedSplit.label.trim(),
-
-                mode:
-                  'custom',
-
-                status:
-                  'open',
-
-                subtotal:
-                  subtotal,
-
-                discount:
-                  discount,
-
-                total:
-                  total,
-
-                orderId:
-                  order.id,
-
-                companyId:
-                  order.companyId,
-              },
-            });
-
-          created.push(
-            split,
-          );
-        }
-
-        return {
-          orderId:
-            order.id,
-
-          orderTotal:
-            order.total,
-
-          mode:
-            'custom',
-
-          splits:
-            created,
-        };
-      },
-    );
+        splits: created,
+      };
+    });
   }
 
   /*
@@ -432,56 +308,30 @@ export class OrderSplitService {
    * DIVIDIR POR PRODUCTOS
    * =====================================================
    */
-  async createByItems(
-    orderId: string,
-    dto: CreateItemSplitDto,
-  ) {
-    const order =
-      await this.getSplittableOrder(
-        orderId,
-      );
+  async createByItems(orderId: string, dto: CreateItemSplitDto) {
+    const order = await this.getSplittableOrder(orderId);
 
     /*
      * Cuánto se está asignando de
      * cada OrderItem.
      */
-    const allocations =
-      new Map<
-        string,
-        number
-      >();
+    const allocations = new Map<string, number>();
 
-    for (
-      const split
-      of dto.splits
-    ) {
-      const repeatedItems =
-        new Set<string>();
+    for (const split of dto.splits) {
+      const repeatedItems = new Set<string>();
 
-      for (
-        const allocation
-        of split.items
-      ) {
-        if (
-          repeatedItems.has(
-            allocation.orderItemId,
-          )
-        ) {
+      for (const allocation of split.items) {
+        if (repeatedItems.has(allocation.orderItemId)) {
           throw new BadRequestException(
             'Un producto no puede repetirse dentro de la misma cuenta',
           );
         }
 
-        repeatedItems.add(
-          allocation.orderItemId,
-        );
+        repeatedItems.add(allocation.orderItemId);
 
-        const orderItem =
-          order.items.find(
-            (item) =>
-              item.id ===
-              allocation.orderItemId,
-          );
+        const orderItem = order.items.find(
+          (item) => item.id === allocation.orderItemId,
+        );
 
         if (!orderItem) {
           throw new BadRequestException(
@@ -489,29 +339,17 @@ export class OrderSplitService {
           );
         }
 
-        const previous =
-          allocations.get(
-            allocation.orderItemId,
-          ) ?? 0;
+        const previous = allocations.get(allocation.orderItemId) ?? 0;
 
-        const newQuantity =
-          previous +
-          allocation.quantity;
+        const newQuantity = previous + allocation.quantity;
 
-        if (
-          newQuantity >
-          orderItem.quantity +
-            0.000001
-        ) {
+        if (newQuantity > orderItem.quantity + 0.000001) {
           throw new BadRequestException(
             `Se está asignando una cantidad mayor a la comprada de ${orderItem.productName}`,
           );
         }
 
-        allocations.set(
-          allocation.orderItemId,
-          newQuantity,
-        );
+        allocations.set(allocation.orderItemId, newQuantity);
       }
     }
 
@@ -519,326 +357,219 @@ export class OrderSplitService {
      * Todos los productos deben quedar
      * asignados a alguna cuenta.
      */
-    for (
-      const orderItem
-      of order.items
-    ) {
-      const assigned =
-        allocations.get(
-          orderItem.id,
-        ) ?? 0;
+    for (const orderItem of order.items) {
+      const assigned = allocations.get(orderItem.id) ?? 0;
 
-      if (
-        Math.abs(
-          assigned -
-            orderItem.quantity,
-        ) >
-        0.000001
-      ) {
+      if (Math.abs(assigned - orderItem.quantity) > 0.000001) {
         throw new BadRequestException(
           `Falta asignar completamente ${orderItem.productName}`,
         );
       }
     }
 
-    const pricedAllocations =
-      new Map<
-        string,
-        {
-          subtotalCents: number;
-          totalCents: number;
-        }
-      >();
+    const pricedAllocations = new Map<
+      string,
+      {
+        subtotalCents: number;
+        totalCents: number;
+      }
+    >();
 
-    for (
-      const orderItem
-      of order.items
-    ) {
+    for (const orderItem of order.items) {
       const itemAllocations: Array<{
         key: string;
         quantity: number;
       }> = [];
 
-      for (
-        let splitIndex = 0;
-        splitIndex < dto.splits.length;
-        splitIndex++
-      ) {
-        const allocation =
-          dto.splits[splitIndex].items.find(
-            (item) =>
-              item.orderItemId ===
-              orderItem.id,
-          );
+      for (let splitIndex = 0; splitIndex < dto.splits.length; splitIndex++) {
+        const allocation = dto.splits[splitIndex].items.find(
+          (item) => item.orderItemId === orderItem.id,
+        );
 
         if (allocation) {
           itemAllocations.push({
-            key:
-              `${splitIndex}:${orderItem.id}`,
+            key: `${splitIndex}:${orderItem.id}`,
 
-            quantity:
-              allocation.quantity,
+            quantity: allocation.quantity,
           });
         }
       }
 
-      const subtotalAllocations =
-        allocateCents(
-          toCents(
-            orderItem.lineTotal,
-          ),
-          itemAllocations.map(
-            (allocation) =>
-              allocation.quantity,
-          ),
-        );
+      const subtotalAllocations = allocateCents(
+        toCents(orderItem.lineTotal),
+        itemAllocations.map((allocation) => allocation.quantity),
+      );
 
-      const totalAllocations =
-        allocateCents(
-          toCents(
-            orderItem.total,
-          ),
-          itemAllocations.map(
-            (allocation) =>
-              allocation.quantity,
-          ),
-        );
+      const totalAllocations = allocateCents(
+        toCents(orderItem.total),
+        itemAllocations.map((allocation) => allocation.quantity),
+      );
 
       for (
         let allocationIndex = 0;
         allocationIndex < itemAllocations.length;
         allocationIndex++
       ) {
-        pricedAllocations.set(
-          itemAllocations[allocationIndex].key,
-          {
-            subtotalCents:
-              subtotalAllocations[allocationIndex],
+        pricedAllocations.set(itemAllocations[allocationIndex].key, {
+          subtotalCents: subtotalAllocations[allocationIndex],
 
-            totalCents:
-              totalAllocations[allocationIndex],
-          },
-        );
+          totalCents: totalAllocations[allocationIndex],
+        });
       }
     }
 
-    return this.prisma.$transaction(
-      async (tx) => {
-        await tx.orderSplit.deleteMany({
-          where: {
-            orderId:
-              order.id,
-          },
-        });
+    return this.prisma.$transaction(async (tx) => {
+      await tx.orderSplit.deleteMany({
+        where: {
+          orderId: order.id,
+        },
+      });
 
-        const result: Array<{
-          id: string;
-          label: string;
-          total: number;
+      await tx.order.update({
+        where: {
+          id: order.id,
+        },
+        data: {
+          status: 'held',
+        },
+      });
+
+      const result: Array<{
+        id: string;
+        label: string;
+        total: number;
+      }> = [];
+
+      let calculatedGrandTotalCents = 0;
+
+      let calculatedGrandSubtotalCents = 0;
+
+      for (let splitIndex = 0; splitIndex < dto.splits.length; splitIndex++) {
+        const requestedSplit = dto.splits[splitIndex];
+
+        let splitSubtotalCents = 0;
+
+        let splitTotalCents = 0;
+
+        const preparedItems: Array<{
+          orderItemId: string;
+          quantity: number;
+          amount: number;
         }> = [];
 
-        let calculatedGrandTotalCents =
-          0;
+        for (const allocation of requestedSplit.items) {
+          const orderItem = order.items.find(
+            (item) => item.id === allocation.orderItemId,
+          );
 
-        let calculatedGrandSubtotalCents =
-          0;
-
-        for (
-          let splitIndex = 0;
-          splitIndex < dto.splits.length;
-          splitIndex++
-        ) {
-          const requestedSplit =
-            dto.splits[splitIndex];
-
-          let splitSubtotalCents =
-            0;
-
-          let splitTotalCents =
-            0;
-
-          const preparedItems: Array<{
-            orderItemId: string;
-            quantity: number;
-            amount: number;
-          }> = [];
-
-          for (
-            const allocation
-            of requestedSplit.items
-          ) {
-            const orderItem =
-              order.items.find(
-                (item) =>
-                  item.id ===
-                  allocation.orderItemId,
-              );
-
-            if (!orderItem) {
-              throw new BadRequestException(
-                'El producto del pedido no existe',
-              );
-            }
-
-            const pricedAllocation =
-              pricedAllocations.get(
-                `${splitIndex}:${orderItem.id}`,
-              );
-
-            if (!pricedAllocation) {
-              throw new BadRequestException(
-                'No fue posible calcular el importe del producto dividido',
-              );
-            }
-
-            splitSubtotalCents +=
-              pricedAllocation.subtotalCents;
-
-            splitTotalCents +=
-              pricedAllocation.totalCents;
-
-            preparedItems.push({
-              orderItemId:
-                orderItem.id,
-
-              quantity:
-                allocation.quantity,
-
-              amount:
-                fromCents(
-                  pricedAllocation.totalCents,
-                ),
-            });
+          if (!orderItem) {
+            throw new BadRequestException('El producto del pedido no existe');
           }
 
-          calculatedGrandSubtotalCents +=
-            splitSubtotalCents;
+          const pricedAllocation = pricedAllocations.get(
+            `${splitIndex}:${orderItem.id}`,
+          );
 
-          calculatedGrandTotalCents +=
-            splitTotalCents;
-
-          const splitSubtotal =
-            fromCents(
-              splitSubtotalCents,
+          if (!pricedAllocation) {
+            throw new BadRequestException(
+              'No fue posible calcular el importe del producto dividido',
             );
+          }
 
-          const splitTotal =
-            fromCents(
-              splitTotalCents,
-            );
+          splitSubtotalCents += pricedAllocation.subtotalCents;
 
-          const splitDiscount =
-            fromCents(
-              splitSubtotalCents -
-                splitTotalCents,
-            );
+          splitTotalCents += pricedAllocation.totalCents;
 
-          const split =
-            await tx.orderSplit.create({
-              data: {
-                label:
-                  requestedSplit.label.trim(),
+          preparedItems.push({
+            orderItemId: orderItem.id,
 
-                mode:
-                  'items',
+            quantity: allocation.quantity,
 
-                status:
-                  'open',
-
-                subtotal:
-                  splitSubtotal,
-
-                discount:
-                  splitDiscount,
-
-                total:
-                  splitTotal,
-
-                orderId:
-                  order.id,
-
-                companyId:
-                  order.companyId,
-
-                items: {
-                  create:
-                    preparedItems.map(
-                      (item) => ({
-                        orderItemId:
-                          item.orderItemId,
-
-                        quantity:
-                          item.quantity,
-
-                        amount:
-                          item.amount,
-                      }),
-                    ),
-                },
-              },
-
-              include: {
-                items: {
-                  include: {
-                    orderItem:
-                      true,
-                  },
-                },
-              },
-            });
-
-          result.push({
-            id:
-              split.id,
-
-            label:
-              split.label,
-
-            total:
-              split.total,
+            amount: fromCents(pricedAllocation.totalCents),
           });
         }
 
-        const orderTotalCents =
-          toCents(
-            order.total,
-          );
+        calculatedGrandSubtotalCents += splitSubtotalCents;
 
-        const orderSubtotalCents =
-          toCents(
-            order.subtotal,
-          );
+        calculatedGrandTotalCents += splitTotalCents;
 
-        if (
-          calculatedGrandTotalCents !==
-            orderTotalCents ||
-          calculatedGrandSubtotalCents !==
-            orderSubtotalCents ||
-          calculatedGrandSubtotalCents -
-              calculatedGrandTotalCents !==
-            toCents(
-              order.discount,
-            )
-        ) {
-          throw new BadRequestException(
-            'La división por productos no coincide con los totales y descuentos del pedido',
-          );
-        }
+        const splitSubtotal = fromCents(splitSubtotalCents);
 
-        return {
-          orderId:
-            order.id,
+        const splitTotal = fromCents(splitTotalCents);
 
-          orderTotal:
-            order.total,
+        const splitDiscount = fromCents(splitSubtotalCents - splitTotalCents);
 
-          mode:
-            'items',
+        const split = await tx.orderSplit.create({
+          data: {
+            label: requestedSplit.label.trim(),
 
-          splits:
-            result,
-        };
-      },
-    );
+            mode: 'items',
+
+            status: 'open',
+
+            subtotal: splitSubtotal,
+
+            discount: splitDiscount,
+
+            total: splitTotal,
+
+            orderId: order.id,
+
+            companyId: order.companyId,
+
+            items: {
+              create: preparedItems.map((item) => ({
+                orderItemId: item.orderItemId,
+
+                quantity: item.quantity,
+
+                amount: item.amount,
+              })),
+            },
+          },
+
+          include: {
+            items: {
+              include: {
+                orderItem: true,
+              },
+            },
+          },
+        });
+
+        result.push({
+          id: split.id,
+
+          label: split.label,
+
+          total: split.total,
+        });
+      }
+
+      const orderTotalCents = toCents(order.total);
+
+      const orderSubtotalCents = toCents(order.subtotal);
+
+      if (
+        calculatedGrandTotalCents !== orderTotalCents ||
+        calculatedGrandSubtotalCents !== orderSubtotalCents ||
+        calculatedGrandSubtotalCents - calculatedGrandTotalCents !==
+          toCents(order.discount)
+      ) {
+        throw new BadRequestException(
+          'La división por productos no coincide con los totales y descuentos del pedido',
+        );
+      }
+
+      return {
+        orderId: order.id,
+
+        orderTotal: order.total,
+
+        mode: 'items',
+
+        splits: result,
+      };
+    });
   }
 }

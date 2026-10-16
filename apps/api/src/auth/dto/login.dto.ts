@@ -10,9 +10,12 @@ export class LoginDto {
   @MaxLength(200)
   email: string;
 
+  // El login acepta credenciales existentes; la regla de 10 caracteres se aplica
+  // sólo al crear/cambiar/restablecer contraseñas. Esto permite migrar cuentas
+  // antiguas sin bloquearlas antes de verificar su credencial.
   @IsString()
-  @MinLength(10, {
-    message: 'La contraseña debe tener al menos 10 caracteres',
+  @MinLength(1, {
+    message: 'Escribe tu contraseña',
   })
   @MaxLength(200)
   password: string;

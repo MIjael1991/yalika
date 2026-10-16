@@ -1,8 +1,14 @@
-import { PosWorkspace, type Product } from './pos-workspace';
+import { cookies } from 'next/headers';
+import { requireBusinessSession } from '../../lib/yalika-business-session';
+import {
+  PosWorkspace,
+  type ActivePromotion,
+  type Product,
+} from './pos-workspace';
 
 export const dynamic = 'force-dynamic';
 
-async function getProducts(companyId: string) {
+async function getProducts(companyId: string, cookieHeader: string) {
   if (!companyId) {
     return {
       products: [] as Product[],
@@ -17,7 +23,7 @@ async function getProducts(companyId: string) {
   try {
     const response = await fetch(
       `${apiUrl}/catalog/product/company/${encodeURIComponent(companyId)}`,
-      { cache: 'no-store' },
+      { headers: { cookie: cookieHeader }, cache: 'no-store' },
     );
 
     if (!response.ok) {
@@ -39,15 +45,44 @@ async function getProducts(companyId: string) {
   }
 }
 
+async function getPromotions(companyId: string) {
+  if (!companyId) {
+    return [] as ActivePromotion[];
+  }
+
+  const apiUrl = (
+    process.env.ORION_API_URL ?? 'http://localhost:3000'
+  ).replace(/\/+$/, '');
+
+  try {
+    const response = await fetch(
+      `${apiUrl}/promotion/public/company/${encodeURIComponent(companyId)}`,
+      { cache: 'no-store' },
+    );
+
+    return response.ok
+      ? ((await response.json()) as ActivePromotion[])
+      : [];
+  } catch {
+    return [] as ActivePromotion[];
+  }
+}
+
 export default async function PosPage() {
-  const companyId = process.env.ORION_COMPANY_ID ?? '';
-  const catalog = await getProducts(companyId);
+  const user = await requireBusinessSession();
+  const companyId = user.companyId;
+  const cookieHeader = (await cookies()).toString();
+  const [catalog, promotions] = await Promise.all([
+    getProducts(companyId, cookieHeader),
+    getPromotions(companyId),
+  ]);
 
   return (
     <PosWorkspace
       initialCompanyId={companyId}
-      initialAuthorizedUserId={process.env.ORION_AUTHORIZED_USER_ID ?? ''}
+      initialAuthorizedUserId={user.id}
       initialProducts={catalog.products}
+      initialPromotions={promotions}
       initialCatalogError={catalog.error}
     />
   );

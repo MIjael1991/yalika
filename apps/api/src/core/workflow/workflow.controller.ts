@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { WorkflowService } from './workflow.service';
 import { CreateWorkflowDto } from './dto/create-workflow.dto';
@@ -12,9 +6,7 @@ import { VerifyWorkflowResultDto } from './dto/verify-workflow-result.dto';
 
 @Controller('workflow')
 export class WorkflowController {
-  constructor(
-    private readonly workflowService: WorkflowService,
-  ) {}
+  constructor(private readonly workflowService: WorkflowService) {}
 
   @Get()
   findAll() {
@@ -41,19 +33,13 @@ export class WorkflowController {
     @Param('id') id: string,
     @Param('alternativeId') alternativeId: string,
   ) {
-    return this.workflowService.approveAlternative(
-      id,
-      alternativeId,
-    );
+    return this.workflowService.approveAlternative(id, alternativeId);
   }
   @Post(':id/verify-result')
-verifyResult(
-  @Param('id') id: string,
-  @Body() verifyDto: VerifyWorkflowResultDto,
-) {
-  return this.workflowService.verifyResult(
-    id,
-    verifyDto,
-  );
-}
+  verifyResult(
+    @Param('id') id: string,
+    @Body() verifyDto: VerifyWorkflowResultDto,
+  ) {
+    return this.workflowService.verifyResult(id, verifyDto);
+  }
 }

@@ -26,8 +26,6 @@ export class CreateCustomSplitDto {
   @ValidateNested({
     each: true,
   })
-  @Type(
-    () => CustomSplitPartDto,
-  )
+  @Type(() => CustomSplitPartDto)
   splits: CustomSplitPartDto[];
 }

@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "auth:set-password": "node --env-file=.env scripts/set-user-password.mjs"
+    "auth:set-password": "node --env-file=.env scripts/set-user-password.mjs",
+    "auth:create-survey-owner": "node --env-file=.env scripts/create-survey-owner.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -29,6 +30,8 @@
     "@prisma/client": "^7.9.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "exceljs": "4.4.0",
+    "jszip": "3.10.1",
     "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
@@ -66,6 +69,9 @@
       "ts"
     ],
     "rootDir": "src",
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

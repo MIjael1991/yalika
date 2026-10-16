@@ -11,10 +11,7 @@ import {
 import type { Request, Response } from 'express';
 
 import { AuthService } from './auth.service';
-import {
-  type AuthContext,
-  sessionCookieName,
-} from './auth.types';
+import { type AuthContext, sessionCookieName } from './auth.types';
 import { CurrentAuth } from './current-auth.decorator';
 import { LoginDto } from './dto/login.dto';
 import { SessionAuthGuard } from './session-auth.guard';

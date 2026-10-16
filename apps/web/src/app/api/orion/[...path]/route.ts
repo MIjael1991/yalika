@@ -7,18 +7,31 @@ type RouteParameters = {
 };
 
 const allowedRoots = new Set([
+  'site-team',
+  'reservation',
+  'business-assistant',
+  'clinical',
+  'assistant-preference',
   'auth',
+  'briefing',
   'capture',
   'catalog',
   'discount',
+  'engagement',
   'health',
+  'media',
+  'loyalty-program',
   'order',
   'order-split',
   'payment',
   'reminder',
   'return',
+  'scratch',
   'space',
+  'site',
+  'survey',
   'task',
+  'promotion',
 ]);
 
 function getTargetUrl(request: NextRequest, path: string[]) {
@@ -46,12 +59,16 @@ async function forward(request: NextRequest, context: RouteParameters) {
 
   if (!target) {
     return Response.json(
-      { message: 'Ruta de ORION no permitida' },
+      { message: 'Ruta de Yalika no permitida' },
       { status: 404 },
     );
   }
 
   const headers = new Headers();
+  const cookie = request.headers.get('cookie');
+  if (cookie) {
+    headers.set('cookie', cookie);
+  }
   const contentType = request.headers.get('content-type');
 
   if (contentType) {
@@ -62,7 +79,6 @@ async function forward(request: NextRequest, context: RouteParameters) {
     'authorization',
     'cookie',
     'user-agent',
-    'x-forwarded-for',
   ]) {
     const value = request.headers.get(name);
 
@@ -87,6 +103,25 @@ async function forward(request: NextRequest, context: RouteParameters) {
       responseHeaders.set('content-type', apiContentType);
     }
 
+    for (const name of [
+
+      'content-disposition',
+
+      'cache-control',
+
+      'pragma',
+
+      'x-content-type-options',
+
+    ]) {
+
+      const value = apiResponse.headers.get(name);
+
+      if (value) responseHeaders.set(name, value);
+
+    }
+
+
     const setCookie = apiResponse.headers.get('set-cookie');
 
     if (setCookie) {
@@ -99,7 +134,7 @@ async function forward(request: NextRequest, context: RouteParameters) {
     });
   } catch {
     return Response.json(
-      { message: 'ORION API no está disponible' },
+      { message: 'Yalika no pudo comunicarse con el servicio local' },
       { status: 503 },
     );
   }
@@ -124,3 +159,4 @@ export function PUT(request: NextRequest, context: RouteParameters) {
 export function DELETE(request: NextRequest, context: RouteParameters) {
   return forward(request, context);
 }
+

@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 
 import { type AuthContext } from '../../auth/auth.types';
 import { CurrentAuth } from '../../auth/current-auth.decorator';
@@ -33,10 +26,7 @@ export class ReminderController {
   }
 
   @Post(':id/acknowledge')
-  acknowledge(
-    @Param('id') id: string,
-    @CurrentAuth() auth: AuthContext,
-  ) {
+  acknowledge(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
     return this.reminderService.acknowledge(id, auth.user.id);
   }
 }

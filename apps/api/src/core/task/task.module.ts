@@ -8,5 +8,6 @@ import { TaskService } from './task.service';
   imports: [AuthModule],
   controllers: [TaskController],
   providers: [TaskService],
+  exports: [TaskService],
 })
 export class TaskModule {}

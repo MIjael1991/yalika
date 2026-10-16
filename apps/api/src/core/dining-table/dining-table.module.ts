@@ -4,16 +4,10 @@ import { DiningTableController } from './dining-table.controller';
 import { DiningTableService } from './dining-table.service';
 
 @Module({
-  controllers: [
-    DiningTableController,
-  ],
+  controllers: [DiningTableController],
 
-  providers: [
-    DiningTableService,
-  ],
+  providers: [DiningTableService],
 
-  exports: [
-    DiningTableService,
-  ],
+  exports: [DiningTableService],
 })
 export class DiningTableModule {}

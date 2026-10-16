@@ -10,8 +10,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class CompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.company.findMany({
+      where: { id: companyId },
       orderBy: {
         createdAt: 'desc',
       },

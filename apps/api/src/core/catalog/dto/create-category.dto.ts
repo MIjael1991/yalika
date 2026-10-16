@@ -9,6 +9,10 @@ import {
 } from 'class-validator';
 
 export class CreateCategoryDto {
+  @IsOptional()
+  @IsUUID('4')
+  catalogId?: string;
+
   @IsString()
   @IsNotEmpty()
   @MaxLength(120)

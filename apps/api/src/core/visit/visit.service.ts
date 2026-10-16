@@ -11,8 +11,9 @@ import { CreateVisitDto } from './dto/create-visit.dto';
 export class VisitService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.visit.findMany({
+      where: { companyId },
       include: {
         customer: true,
         company: true,
@@ -32,9 +33,7 @@ export class VisitService {
     });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     return this.prisma.visit.findMany({
@@ -51,23 +50,22 @@ export class VisitService {
     });
   }
 
-  async findByCustomer(customerId: string) {
-    const customer =
-      await this.prisma.customer.findUnique({
-        where: {
-          id: customerId,
-        },
-      });
+  async findByCustomer(customerId: string, companyId: string) {
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        id: customerId,
+        companyId,
+      },
+    });
 
     if (!customer) {
-      throw new NotFoundException(
-        'El cliente no existe',
-      );
+      throw new NotFoundException('El cliente no existe');
     }
 
     return this.prisma.visit.findMany({
       where: {
         customerId,
+        companyId,
       },
       include: {
         loyaltyProgram: true,
@@ -78,23 +76,22 @@ export class VisitService {
     });
   }
 
-  async countByCustomer(customerId: string) {
-    const customer =
-      await this.prisma.customer.findUnique({
-        where: {
-          id: customerId,
-        },
-      });
+  async countByCustomer(customerId: string, companyId: string) {
+    const customer = await this.prisma.customer.findFirst({
+      where: {
+        id: customerId,
+        companyId,
+      },
+    });
 
     if (!customer) {
-      throw new NotFoundException(
-        'El cliente no existe',
-      );
+      throw new NotFoundException('El cliente no existe');
     }
 
     const visits = await this.prisma.visit.count({
       where: {
         customerId,
+        companyId,
         status: 'confirmed',
       },
     });
@@ -107,26 +104,18 @@ export class VisitService {
   }
 
   async create(createVisitDto: CreateVisitDto) {
-    const customer =
-      await this.prisma.customer.findUnique({
-        where: {
-          id: createVisitDto.customerId,
-        },
-      });
+    const customer = await this.prisma.customer.findUnique({
+      where: {
+        id: createVisitDto.customerId,
+      },
+    });
 
     if (!customer) {
-      throw new NotFoundException(
-        'El cliente no existe',
-      );
+      throw new NotFoundException('El cliente no existe');
     }
 
-    if (
-      customer.companyId !==
-      createVisitDto.companyId
-    ) {
-      throw new BadRequestException(
-        'El cliente no pertenece a esta empresa',
-      );
+    if (customer.companyId !== createVisitDto.companyId) {
+      throw new BadRequestException('El cliente no pertenece a esta empresa');
     }
 
     /*
@@ -134,25 +123,19 @@ export class VisitService {
      * No pertenece a una campaña.
      */
     if (!createVisitDto.loyaltyProgramId) {
-      const visit =
-        await this.prisma.visit.create({
-          data: {
-            customerId:
-              createVisitDto.customerId,
+      const visit = await this.prisma.visit.create({
+        data: {
+          customerId: createVisitDto.customerId,
 
-            companyId:
-              createVisitDto.companyId,
+          companyId: createVisitDto.companyId,
 
-            source:
-              createVisitDto.source ??
-              'manual',
+          source: createVisitDto.source ?? 'manual',
 
-            notes:
-              createVisitDto.notes?.trim(),
+          notes: createVisitDto.notes?.trim(),
 
-            status: 'confirmed',
-          },
-        });
+          status: 'confirmed',
+        },
+      });
 
       return {
         visit,
@@ -165,43 +148,28 @@ export class VisitService {
     /*
      * VISITA DE UNA CAMPAÑA
      */
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id: createVisitDto.loyaltyProgramId,
-        },
-      });
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id: createVisitDto.loyaltyProgramId,
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'La campaña no existe',
-      );
+      throw new NotFoundException('La campaña no existe');
     }
 
-    if (
-      program.companyId !==
-      createVisitDto.companyId
-    ) {
-      throw new BadRequestException(
-        'La campaña no pertenece a esta empresa',
-      );
+    if (program.companyId !== createVisitDto.companyId) {
+      throw new BadRequestException('La campaña no pertenece a esta empresa');
     }
 
     if (program.status !== 'active') {
-      throw new BadRequestException(
-        'La campaña no está activa',
-      );
+      throw new BadRequestException('La campaña no está activa');
     }
 
     const now = new Date();
 
-    if (
-      now < program.startsAt ||
-      now > program.endsAt
-    ) {
-      throw new BadRequestException(
-        'La campaña está fuera de vigencia',
-      );
+    if (now < program.startsAt || now > program.endsAt) {
+      throw new BadRequestException('La campaña está fuera de vigencia');
     }
 
     /*
@@ -212,132 +180,98 @@ export class VisitService {
      * 3. Comprobar premio.
      * 4. Crear premio si corresponde.
      */
-    return this.prisma.$transaction(
-      async (tx) => {
-        const visit = await tx.visit.create({
+    return this.prisma.$transaction(async (tx) => {
+      const visit = await tx.visit.create({
+        data: {
+          customerId: createVisitDto.customerId,
+
+          companyId: createVisitDto.companyId,
+
+          loyaltyProgramId: program.id,
+
+          source: createVisitDto.source ?? 'manual',
+
+          notes: createVisitDto.notes?.trim(),
+
+          status: 'confirmed',
+        },
+      });
+
+      const confirmedVisits = await tx.visit.count({
+        where: {
+          customerId: createVisitDto.customerId,
+
+          companyId: createVisitDto.companyId,
+
+          loyaltyProgramId: program.id,
+
+          status: 'confirmed',
+        },
+      });
+
+      let reward = await tx.customerReward.findFirst({
+        where: {
+          customerId: createVisitDto.customerId,
+
+          loyaltyProgramId: program.id,
+        },
+      });
+
+      let rewardCreated = false;
+
+      if (confirmedVisits >= program.requiredVisits && !reward) {
+        const expiresAt = new Date();
+
+        expiresAt.setUTCDate(expiresAt.getUTCDate() + program.rewardValidDays);
+
+        reward = await tx.customerReward.create({
           data: {
-            customerId:
-              createVisitDto.customerId,
+            rewardType: program.rewardType,
 
-            companyId:
-              createVisitDto.companyId,
+            rewardDescription: program.rewardDescription,
 
-            loyaltyProgramId:
-              program.id,
+            status: 'available',
 
-            source:
-              createVisitDto.source ??
-              'manual',
+            expiresAt,
 
-            notes:
-              createVisitDto.notes?.trim(),
+            customerId: createVisitDto.customerId,
 
-            status: 'confirmed',
+            companyId: createVisitDto.companyId,
+
+            loyaltyProgramId: program.id,
           },
         });
 
-        const confirmedVisits =
-          await tx.visit.count({
-            where: {
-              customerId:
-                createVisitDto.customerId,
+        rewardCreated = true;
+      }
 
-              companyId:
-                createVisitDto.companyId,
+      const remainingVisits = Math.max(
+        program.requiredVisits - confirmedVisits,
+        0,
+      );
 
-              loyaltyProgramId:
-                program.id,
+      return {
+        visit,
 
-              status: 'confirmed',
-            },
-          });
+        loyalty: {
+          programId: program.id,
+          programName: program.name,
 
-        let reward =
-  await tx.customerReward.findFirst({
-    where: {
-      customerId:
-        createVisitDto.customerId,
+          confirmedVisits,
 
-      loyaltyProgramId:
-        program.id,
-    },
-  });
+          requiredVisits: program.requiredVisits,
 
-        let rewardCreated = false;
+          remainingVisits,
 
-        if (
-          confirmedVisits >=
-            program.requiredVisits &&
-          !reward
-        ) {
-          const expiresAt = new Date();
+          percentage: Math.min(
+            Math.round((confirmedVisits / program.requiredVisits) * 100),
+            100,
+          ),
+        },
 
-          expiresAt.setUTCDate(
-            expiresAt.getUTCDate() +
-              program.rewardValidDays,
-          );
-
-          reward =
-            await tx.customerReward.create({
-              data: {
-                rewardType:
-                  program.rewardType,
-
-                rewardDescription:
-                  program.rewardDescription,
-
-                status: 'available',
-
-                expiresAt,
-
-                customerId:
-                  createVisitDto.customerId,
-
-                companyId:
-                  createVisitDto.companyId,
-
-                loyaltyProgramId:
-                  program.id,
-              },
-            });
-
-          rewardCreated = true;
-        }
-
-        const remainingVisits = Math.max(
-          program.requiredVisits -
-            confirmedVisits,
-          0,
-        );
-
-        return {
-          visit,
-
-          loyalty: {
-            programId: program.id,
-            programName: program.name,
-
-            confirmedVisits,
-
-            requiredVisits:
-              program.requiredVisits,
-
-            remainingVisits,
-
-            percentage: Math.min(
-              Math.round(
-                (confirmedVisits /
-                  program.requiredVisits) *
-                  100,
-              ),
-              100,
-            ),
-          },
-
-          rewardCreated,
-          reward,
-        };
-      },
-    );
+        rewardCreated,
+        reward,
+      };
+    });
   }
 }

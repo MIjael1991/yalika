@@ -1,5 +1,6 @@
 import {
   allocateCents,
+  calculateBuyXGetYDiscountCents,
   calculateDiscountCents,
   fromCents,
   toCents,
@@ -13,6 +14,12 @@ describe('discount-calculator', () => {
 
   it('calculates a special price for all units', () => {
     expect(calculateDiscountCents('special_price', 25, 7000, 2)).toBe(2000);
+  });
+
+  it('calculates only the free units in Compra X y recibe Y', () => {
+    expect(calculateBuyXGetYDiscountCents(35, 3, 2, 1)).toBe(3500);
+    expect(calculateBuyXGetYDiscountCents(35, 6, 2, 1)).toBe(7000);
+    expect(calculateBuyXGetYDiscountCents(35, 2, 2, 1)).toBe(0);
   });
 
   it('allocates every cent exactly once', () => {

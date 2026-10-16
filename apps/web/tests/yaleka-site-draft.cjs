@@ -1,0 +1,13 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path'),ts=require('typescript');
+const compiled=ts.transpileModule(fs.readFileSync(path.join(__dirname,'../src/lib/yaleka-site-draft.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+const sandbox={exports:{}};vm.runInNewContext(compiled,sandbox);const {draftKey,parseDraft,sectionPayload}=sandbox.exports;
+assert.notEqual(draftKey('u1','c1','s1'),draftKey('u2','c1','s1'));
+assert.notEqual(draftKey('u1','c1','s1'),draftKey('u1','c2','s1'));
+assert.notEqual(draftKey('u1','c1','s1'),draftKey('u1','c1','s2'));
+const d={version:1,siteId:'s1',baseUpdatedAt:'2026-10-07T12:00:00Z',savedAt:'2026-10-07T12:01:00Z',sections:[{id:'local',type:'text',title:'Hola',enabled:true,sortOrder:10,layout:'default',content:{text:'Contenido'}}]};
+assert.equal(parseDraft(JSON.stringify(d),'s1').sections[0].content.text,'Contenido');
+assert.throws(()=>parseDraft(JSON.stringify(d),'s2'));
+assert.throws(()=>parseDraft('{','s1'));assert.throws(()=>parseDraft(JSON.stringify({...d,sections:Array(31).fill(d.sections[0])}),'s1'));
+assert.throws(()=>parseDraft('x'.repeat(200001),'s1'));
+const body=sectionPayload(d.sections);assert.equal(body[0].id,undefined);assert.equal(body[0].sortOrder,0);assert.equal(body[0].content.text,'Contenido');
+console.log('BORRADOR_OK: cuenta, empresa, sitio, formato, límites y payload sin IDs locales.');

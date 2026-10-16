@@ -23,9 +23,7 @@ export class KnowledgeAlternativeService {
     });
   }
 
-  async create(
-    createKnowledgeAlternativeDto: CreateKnowledgeAlternativeDto,
-  ) {
+  async create(createKnowledgeAlternativeDto: CreateKnowledgeAlternativeDto) {
     const knowledge = await this.prisma.knowledgeTemplate.findUnique({
       where: {
         id: createKnowledgeAlternativeDto.knowledgeTemplateId,
@@ -33,17 +31,14 @@ export class KnowledgeAlternativeService {
     });
 
     if (!knowledge) {
-      throw new NotFoundException(
-        'La plantilla de conocimiento no existe',
-      );
+      throw new NotFoundException('La plantilla de conocimiento no existe');
     }
 
     try {
       return await this.prisma.knowledgeAlternativeTemplate.create({
         data: {
           title: createKnowledgeAlternativeDto.title.trim(),
-          description:
-            createKnowledgeAlternativeDto.description?.trim(),
+          description: createKnowledgeAlternativeDto.description?.trim(),
           defaultPriority:
             createKnowledgeAlternativeDto.defaultPriority ?? 'normal',
           order: createKnowledgeAlternativeDto.order ?? 0,

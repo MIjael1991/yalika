@@ -8,6 +8,7 @@ import {
   hashSessionToken,
   verifyPassword,
 } from './password';
+import { homePathForRole, modulesForRole } from './module-access';
 
 const sessionUserSelect = {
   id: true,
@@ -137,6 +138,9 @@ export class AuthService {
       });
     });
 
+    const modules = modulesForRole(user.role?.name);
+    const homePath = homePathForRole(user.role?.name);
+
     return {
       token,
       expiresAt,
@@ -147,6 +151,8 @@ export class AuthService {
         email: user.email,
         companyId: user.companyId,
         role: user.role,
+        modules,
+        homePath,
       },
     };
   }
@@ -184,11 +190,18 @@ export class AuthService {
       });
     }
 
+    const modules = modulesForRole(session.user.role?.name);
+    const homePath = homePathForRole(session.user.role?.name);
+
     return {
       sessionId: session.id,
       sessionToken: token,
       expiresAt: session.expiresAt,
-      user: session.user,
+      user: {
+        ...session.user,
+        modules,
+        homePath,
+      },
     };
   }
 

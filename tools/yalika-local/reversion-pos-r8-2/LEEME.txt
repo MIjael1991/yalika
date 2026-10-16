@@ -1,0 +1,3 @@
+YALEKA POS R8.2 - reversion minima
+Solo contiene archivos sustituidos por esta entrega.
+No contiene base de datos, credenciales ni Railway.

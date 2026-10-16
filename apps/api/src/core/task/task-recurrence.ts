@@ -5,8 +5,7 @@ export const recurrenceFrequencies = [
   'yearly',
 ] as const;
 
-export type RecurrenceFrequency =
-  (typeof recurrenceFrequencies)[number];
+export type RecurrenceFrequency = (typeof recurrenceFrequencies)[number];
 
 export function isRecurrenceFrequency(
   value: string | undefined,
@@ -34,20 +33,14 @@ export function calculateNextOccurrence(
       interval;
     const year = Math.floor(monthIndex / 12);
     const month = monthIndex % 12;
-    const day = Math.min(
-      startsAt.getUTCDate(),
-      daysInUtcMonth(year, month),
-    );
+    const day = Math.min(startsAt.getUTCDate(), daysInUtcMonth(year, month));
 
     return buildUtcDate(startsAt, year, month, day);
   }
 
   const year = occurrenceAt.getUTCFullYear() + interval;
   const month = startsAt.getUTCMonth();
-  const day = Math.min(
-    startsAt.getUTCDate(),
-    daysInUtcMonth(year, month),
-  );
+  const day = Math.min(startsAt.getUTCDate(), daysInUtcMonth(year, month));
 
   return buildUtcDate(startsAt, year, month, day);
 }
@@ -168,19 +161,13 @@ function addOccurrences(
       interval * count;
     const year = Math.floor(monthIndex / 12);
     const month = monthIndex % 12;
-    const day = Math.min(
-      startsAt.getUTCDate(),
-      daysInUtcMonth(year, month),
-    );
+    const day = Math.min(startsAt.getUTCDate(), daysInUtcMonth(year, month));
     return buildUtcDate(startsAt, year, month, day);
   }
 
   const year = firstOccurrenceAt.getUTCFullYear() + interval * count;
   const month = startsAt.getUTCMonth();
-  const day = Math.min(
-    startsAt.getUTCDate(),
-    daysInUtcMonth(year, month),
-  );
+  const day = Math.min(startsAt.getUTCDate(), daysInUtcMonth(year, month));
   return buildUtcDate(startsAt, year, month, day);
 }
 
@@ -188,12 +175,7 @@ function daysInUtcMonth(year: number, month: number) {
   return new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
 }
 
-function buildUtcDate(
-  anchor: Date,
-  year: number,
-  month: number,
-  day: number,
-) {
+function buildUtcDate(anchor: Date, year: number, month: number, day: number) {
   return new Date(
     Date.UTC(
       year,

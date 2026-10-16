@@ -6,12 +6,7 @@ import {
 
 import { PrismaService } from '../../prisma/prisma.service';
 
-const activeTaskStatuses = [
-  'pending',
-  'assigned',
-  'in_progress',
-  'postponed',
-];
+const activeTaskStatuses = ['pending', 'assigned', 'in_progress', 'postponed'];
 
 const reminderInclude = {
   task: {
@@ -70,10 +65,7 @@ export class ReminderService {
   }
 
   async snooze(reminderId: string, actorUserId: string, minutes: number) {
-    const reminder = await this.requireOwnedReminder(
-      reminderId,
-      actorUserId,
-    );
+    const reminder = await this.requireOwnedReminder(reminderId, actorUserId);
 
     this.requireActiveReminder(reminder);
 
@@ -118,10 +110,7 @@ export class ReminderService {
   }
 
   async acknowledge(reminderId: string, actorUserId: string) {
-    const reminder = await this.requireOwnedReminder(
-      reminderId,
-      actorUserId,
-    );
+    const reminder = await this.requireOwnedReminder(reminderId, actorUserId);
 
     this.requireActiveReminder(reminder);
 
@@ -155,10 +144,7 @@ export class ReminderService {
     });
   }
 
-  private async requireOwnedReminder(
-    reminderId: string,
-    actorUserId: string,
-  ) {
+  private async requireOwnedReminder(reminderId: string, actorUserId: string) {
     const reminder = await this.prisma.taskReminder.findFirst({
       where: {
         id: reminderId,

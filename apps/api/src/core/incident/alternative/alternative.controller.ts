@@ -5,9 +5,7 @@ import { CreateAlternativeDto } from './dto/create-alternative.dto';
 
 @Controller('incident-alternative')
 export class AlternativeController {
-  constructor(
-    private readonly alternativeService: AlternativeService,
-  ) {}
+  constructor(private readonly alternativeService: AlternativeService) {}
 
   @Get('incident/:incidentId')
   findByIncident(@Param('incidentId') incidentId: string) {

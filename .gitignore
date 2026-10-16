@@ -1,6 +1,29 @@
 node_modules/
 dist/
-.env
+.next/
 coverage/
+.env
+.env.*
+!.env.example
 .vscode/
 .idea/
+
+# generado por Prisma (se regenera con prisma generate)
+apps/api/src/generated/
+
+# datos privados y de prueba local
+apps/api/uploads/
+apps/api/.yalika-clinical-dev/
+apps/api/yaleka-test-results/
+ACCESOS_DEMO*
+*.pid
+logs/
+scripts/logs/
+
+# respaldos, temporales y binarios
+*.bak
+*.temporal
+*.prismarespaldo
+*.zip
+*.exe
+tools/cloudflared/

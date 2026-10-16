@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { CreateEqualSplitDto } from './dto/create-equal-split.dto';
 import { CreateCustomSplitDto } from './dto/create-custom-split.dto';
@@ -14,17 +8,11 @@ import { OrderSplitService } from './order-split.service';
 
 @Controller('order-split')
 export class OrderSplitController {
-  constructor(
-    private readonly orderSplitService: OrderSplitService,
-  ) {}
+  constructor(private readonly orderSplitService: OrderSplitService) {}
 
   @Get('order/:orderId')
-  findByOrder(
-    @Param('orderId') orderId: string,
-  ) {
-    return this.orderSplitService.findByOrder(
-      orderId,
-    );
+  findByOrder(@Param('orderId') orderId: string) {
+    return this.orderSplitService.findByOrder(orderId);
   }
 
   @Post('order/:orderId/equal')
@@ -32,10 +20,7 @@ export class OrderSplitController {
     @Param('orderId') orderId: string,
     @Body() dto: CreateEqualSplitDto,
   ) {
-    return this.orderSplitService.createEqual(
-      orderId,
-      dto,
-    );
+    return this.orderSplitService.createEqual(orderId, dto);
   }
 
   @Post('order/:orderId/custom')
@@ -43,10 +28,7 @@ export class OrderSplitController {
     @Param('orderId') orderId: string,
     @Body() dto: CreateCustomSplitDto,
   ) {
-    return this.orderSplitService.createCustom(
-      orderId,
-      dto,
-    );
+    return this.orderSplitService.createCustom(orderId, dto);
   }
 
   @Post('order/:orderId/items')
@@ -54,9 +36,6 @@ export class OrderSplitController {
     @Param('orderId') orderId: string,
     @Body() dto: CreateItemSplitDto,
   ) {
-    return this.orderSplitService.createByItems(
-      orderId,
-      dto,
-    );
+    return this.orderSplitService.createByItems(orderId, dto);
   }
 }

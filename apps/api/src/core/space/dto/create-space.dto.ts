@@ -28,5 +28,4 @@ export class CreateSpaceDto {
   @IsString()
   @MaxLength(100)
   timezone?: string;
-
 }

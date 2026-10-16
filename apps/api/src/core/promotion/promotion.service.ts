@@ -9,22 +9,17 @@ import { CreatePromotionDto } from './dto/create-promotion.dto';
 
 @Injectable()
 export class PromotionService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreatePromotionDto) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: dto.companyId,
-        },
-      });
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: dto.companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     const startsAt = new Date(dto.startsAt);
@@ -38,11 +33,9 @@ export class PromotionService {
 
     if (
       dto.type === 'percentage' &&
-      (
-        dto.discountValue === undefined ||
+      (dto.discountValue === undefined ||
         dto.discountValue <= 0 ||
-        dto.discountValue > 100
-      )
+        dto.discountValue > 100)
     ) {
       throw new BadRequestException(
         'El porcentaje debe ser mayor a 0 y máximo 100',
@@ -51,58 +44,43 @@ export class PromotionService {
 
     if (
       dto.type === 'fixed' &&
-      (
-        dto.discountValue === undefined ||
-        dto.discountValue <= 0
-      )
+      (dto.discountValue === undefined || dto.discountValue <= 0)
     ) {
-      throw new BadRequestException(
-        'El descuento debe ser mayor a 0',
-      );
+      throw new BadRequestException('El descuento debe ser mayor a 0');
     }
 
-    if (
-      dto.type === 'special_price' &&
-      dto.specialPrice === undefined
-    ) {
-      throw new BadRequestException(
-        'La promoción necesita un precio especial',
-      );
+    if (dto.type === 'special_price' && dto.specialPrice === undefined) {
+      throw new BadRequestException('La promoción necesita un precio especial');
     }
 
-    if (
-      dto.type === 'buy_x_get_y' &&
-      (
-        !dto.buyQuantity ||
-        !dto.getQuantity
-      )
-    ) {
+    if (dto.type === 'buy_x_get_y' && (!dto.buyQuantity || !dto.getQuantity)) {
       throw new BadRequestException(
         'La promoción necesita cantidad de compra y cantidad de regalo',
       );
     }
 
-    const productIds =
-      dto.productIds ?? [];
+    const productIds = dto.productIds ?? [];
+
+    if (dto.type === 'buy_x_get_y' && productIds.length !== 1) {
+      throw new BadRequestException(
+        'Compra X y recibe Y debe aplicarse a un solo producto',
+      );
+    }
 
     if (productIds.length > 0) {
-      const products =
-        await this.prisma.product.findMany({
-          where: {
-            id: {
-              in: productIds,
-            },
-            companyId: dto.companyId,
+      const products = await this.prisma.product.findMany({
+        where: {
+          id: {
+            in: productIds,
           },
-          select: {
-            id: true,
-          },
-        });
+          companyId: dto.companyId,
+        },
+        select: {
+          id: true,
+        },
+      });
 
-      if (
-        products.length !==
-        productIds.length
-      ) {
+      if (products.length !== productIds.length) {
         throw new BadRequestException(
           'Uno o más productos no pertenecen a esta empresa',
         );
@@ -113,36 +91,27 @@ export class PromotionService {
       data: {
         title: dto.title.trim(),
 
-        description:
-          dto.description?.trim(),
+        description: dto.description?.trim(),
 
         type: dto.type,
 
-        scope:
-          productIds.length > 0
-            ? 'selected_products'
-            : 'all',
+        scope: productIds.length > 0 ? 'selected_products' : 'all',
 
-        discountValue:
-          dto.discountValue,
+        discountValue: dto.discountValue,
 
-        specialPrice:
-          dto.specialPrice,
+        specialPrice: dto.specialPrice,
 
-        buyQuantity:
-          dto.buyQuantity,
+        minimumPurchase: dto.minimumPurchase,
 
-        getQuantity:
-          dto.getQuantity,
+        buyQuantity: dto.buyQuantity,
 
-        rewardDescription:
-          dto.rewardDescription?.trim(),
+        getQuantity: dto.getQuantity,
 
-        imageUrl:
-          dto.imageUrl?.trim(),
+        rewardDescription: dto.rewardDescription?.trim(),
 
-        featured:
-          dto.featured ?? false,
+        imageUrl: dto.imageUrl?.trim(),
+
+        featured: dto.featured ?? false,
 
         status: 'draft',
 
@@ -154,12 +123,9 @@ export class PromotionService {
         products:
           productIds.length > 0
             ? {
-                create:
-                  productIds.map(
-                    (productId) => ({
-                      productId,
-                    }),
-                  ),
+                create: productIds.map((productId) => ({
+                  productId,
+                })),
               }
             : undefined,
       },
@@ -175,17 +141,14 @@ export class PromotionService {
   }
 
   async findByCompany(companyId: string) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: companyId,
-        },
-      });
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     return this.prisma.promotion.findMany({
@@ -212,9 +175,14 @@ export class PromotionService {
     });
   }
 
-  async findPublicByCompany(
-    companyId: string,
-  ) {
+  async findPublicByCompany(companyId: string) {
+    const published = await this.prisma.site.findFirst({
+        where: { companyId, isPrimary: true },
+      select: { status: true },
+    });
+    if (published?.status !== 'published') {
+      throw new NotFoundException('El escaparate no está publicado');
+    }
     const now = new Date();
 
     return this.prisma.promotion.findMany({
@@ -254,49 +222,43 @@ export class PromotionService {
   }
 
   async findOne(id: string) {
-    const promotion =
-      await this.prisma.promotion.findUnique({
-        where: {
-          id,
-        },
+    const promotion = await this.prisma.promotion.findUnique({
+      where: {
+        id,
+      },
 
-        include: {
-          company: true,
+      include: {
+        company: true,
 
-          products: {
-            include: {
-              product: {
-                include: {
-                  images: true,
-                  variants: true,
-                },
+        products: {
+          include: {
+            product: {
+              include: {
+                images: true,
+                variants: true,
               },
             },
           },
         },
-      });
+      },
+    });
 
     if (!promotion) {
-      throw new NotFoundException(
-        'La promoción no existe',
-      );
+      throw new NotFoundException('La promoción no existe');
     }
 
     return promotion;
   }
 
   async activate(id: string) {
-    const promotion =
-      await this.prisma.promotion.findUnique({
-        where: {
-          id,
-        },
-      });
+    const promotion = await this.prisma.promotion.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!promotion) {
-      throw new NotFoundException(
-        'La promoción no existe',
-      );
+      throw new NotFoundException('La promoción no existe');
     }
 
     if (promotion.status === 'closed') {
@@ -305,12 +267,8 @@ export class PromotionService {
       );
     }
 
-    if (
-      new Date() > promotion.endsAt
-    ) {
-      throw new BadRequestException(
-        'La promoción ya terminó su vigencia',
-      );
+    if (new Date() > promotion.endsAt) {
+      throw new BadRequestException('La promoción ya terminó su vigencia');
     }
 
     return this.prisma.promotion.update({
@@ -325,25 +283,18 @@ export class PromotionService {
   }
 
   async pause(id: string) {
-    const promotion =
-      await this.prisma.promotion.findUnique({
-        where: {
-          id,
-        },
-      });
+    const promotion = await this.prisma.promotion.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!promotion) {
-      throw new NotFoundException(
-        'La promoción no existe',
-      );
+      throw new NotFoundException('La promoción no existe');
     }
 
-    if (
-      promotion.status !== 'active'
-    ) {
-      throw new BadRequestException(
-        'Solo una promoción activa puede pausarse',
-      );
+    if (promotion.status !== 'active') {
+      throw new BadRequestException('Solo una promoción activa puede pausarse');
     }
 
     return this.prisma.promotion.update({
@@ -358,22 +309,17 @@ export class PromotionService {
   }
 
   async close(id: string) {
-    const promotion =
-      await this.prisma.promotion.findUnique({
-        where: {
-          id,
-        },
-      });
+    const promotion = await this.prisma.promotion.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!promotion) {
-      throw new NotFoundException(
-        'La promoción no existe',
-      );
+      throw new NotFoundException('La promoción no existe');
     }
 
-    if (
-      promotion.status === 'closed'
-    ) {
+    if (promotion.status === 'closed') {
       return promotion;
     }
 
@@ -390,22 +336,17 @@ export class PromotionService {
   }
 
   async removeDraft(id: string) {
-    const promotion =
-      await this.prisma.promotion.findUnique({
-        where: {
-          id,
-        },
-      });
+    const promotion = await this.prisma.promotion.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!promotion) {
-      throw new NotFoundException(
-        'La promoción no existe',
-      );
+      throw new NotFoundException('La promoción no existe');
     }
 
-    if (
-      promotion.status !== 'draft'
-    ) {
+    if (promotion.status !== 'draft') {
       throw new BadRequestException(
         'Solo se pueden eliminar promociones que nunca han sido publicadas',
       );

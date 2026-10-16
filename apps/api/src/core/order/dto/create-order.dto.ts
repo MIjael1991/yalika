@@ -27,6 +27,10 @@ class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
+  @IsOptional()
+  @IsUUID('4')
+  catalogId?: string;
+
   @IsUUID('4')
   companyId: string;
 
@@ -39,24 +43,15 @@ export class CreateOrderDto {
   loyaltyProgramId?: string;
 
   @IsOptional()
-  @IsIn([
-    'counter',
-    'qr',
-    'web',
-    'whatsapp',
-    'didi',
-    'uber',
-    'manual',
-  ])
+  @IsUUID('4')
+  reservationId?: string;
+
+  @IsOptional()
+  @IsIn(['counter', 'qr', 'web', 'whatsapp', 'didi', 'uber', 'manual'])
   source?: string;
 
   @IsOptional()
-  @IsIn([
-    'counter',
-    'pickup',
-    'delivery',
-    'appointment',
-  ])
+  @IsIn(['counter', 'pickup', 'delivery', 'appointment'])
   orderType?: string;
 
   @IsOptional()

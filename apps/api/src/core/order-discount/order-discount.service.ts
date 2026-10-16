@@ -8,6 +8,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   allocateCents,
+  calculateBuyXGetYDiscountCents,
   calculateDiscountCents,
   DiscountType,
   fromCents,
@@ -292,9 +293,28 @@ export class OrderDiscountService {
       ) {
         throw new BadRequestException('La promoción no está vigente');
       }
-      if (!['percentage', 'fixed', 'special_price'].includes(promotion.type)) {
+      if (
+        !['percentage', 'fixed', 'special_price', 'buy_x_get_y'].includes(
+          promotion.type,
+        )
+      ) {
         throw new BadRequestException(
           'Esta promoción requiere el motor automático de Checkout',
+        );
+      }
+
+      const subtotal = order.items.reduce(
+        (total, item) => total + item.lineTotal,
+        0,
+      );
+
+      if (
+        promotion.minimumPurchase !== null &&
+        promotion.minimumPurchase > 0 &&
+        subtotal < promotion.minimumPurchase
+      ) {
+        throw new BadRequestException(
+          `Esta promoción requiere una compra mínima de ${promotion.minimumPurchase.toFixed(2)}`,
         );
       }
       if (promotion.scope === 'selected_products') {
@@ -312,6 +332,39 @@ export class OrderDiscountService {
             'El producto no pertenece a esta promoción',
           );
         }
+      }
+
+      if (promotion.type === 'buy_x_get_y') {
+        if (
+          dto.scope !== 'item' ||
+          !orderItem ||
+          !promotion.buyQuantity ||
+          !promotion.getQuantity
+        ) {
+          throw new BadRequestException(
+            'Compra X y recibe Y debe aplicarse a un producto válido',
+          );
+        }
+
+        const discountCents = calculateBuyXGetYDiscountCents(
+          orderItem.unitPrice,
+          orderItem.quantity,
+          promotion.buyQuantity,
+          promotion.getQuantity,
+        );
+
+        if (discountCents <= 0) {
+          throw new BadRequestException(
+            `Agrega ${promotion.buyQuantity + promotion.getQuantity} unidades para usar esta promoción`,
+          );
+        }
+
+        return {
+          type: 'fixed',
+          value: fromCents(discountCents),
+          orderItemId: orderItem.id,
+          promotionId: promotion.id,
+        };
       }
 
       const type = this.asDiscountType(promotion.type);
@@ -362,7 +415,10 @@ export class OrderDiscountService {
     };
   }
 
-  private async recalculateOrder(tx: Prisma.TransactionClient, orderId: string) {
+  private async recalculateOrder(
+    tx: Prisma.TransactionClient,
+    orderId: string,
+  ) {
     const order = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
       include: {
@@ -378,7 +434,9 @@ export class OrderDiscountService {
       (discount) => discount.scope === 'order',
     );
     if (orderDiscounts.length > 1) {
-      throw new ConflictException('El pedido tiene más de un descuento general');
+      throw new ConflictException(
+        'El pedido tiene más de un descuento general',
+      );
     }
 
     const itemDiscountByItem = new Map(
@@ -433,8 +491,10 @@ export class OrderDiscountService {
         );
       }
 
-      const eligibleCents =
-        afterItemDiscountCents.reduce((sum, value) => sum + value, 0);
+      const eligibleCents = afterItemDiscountCents.reduce(
+        (sum, value) => sum + value,
+        0,
+      );
       if (eligibleCents <= 0) {
         throw new BadRequestException(
           'El pedido ya no tiene saldo disponible para otro descuento',

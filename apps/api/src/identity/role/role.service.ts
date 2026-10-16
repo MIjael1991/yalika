@@ -11,8 +11,9 @@ import { CreateRoleDto } from './dto/create-role.dto';
 export class RoleService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.role.findMany({
+      where: { companyId },
       include: {
         company: true,
       },

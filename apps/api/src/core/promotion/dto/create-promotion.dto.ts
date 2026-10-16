@@ -25,13 +25,7 @@ export class CreatePromotionDto {
   @MaxLength(1000)
   description?: string;
 
-  @IsIn([
-    'percentage',
-    'fixed',
-    'buy_x_get_y',
-    'special_price',
-    'custom',
-  ])
+  @IsIn(['percentage', 'fixed', 'buy_x_get_y', 'special_price', 'custom'])
   type: string;
 
   @IsOptional()
@@ -43,6 +37,11 @@ export class CreatePromotionDto {
   @IsNumber()
   @Min(0)
   specialPrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  minimumPurchase?: number;
 
   @IsOptional()
   @IsInt()

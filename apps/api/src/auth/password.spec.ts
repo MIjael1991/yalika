@@ -11,9 +11,9 @@ describe('ORION authentication secrets', () => {
     const secondHash = await hashPassword('OrionSeguro2026');
 
     expect(firstHash).not.toBe(secondHash);
-    await expect(
-      verifyPassword('OrionSeguro2026', firstHash),
-    ).resolves.toBe(true);
+    await expect(verifyPassword('OrionSeguro2026', firstHash)).resolves.toBe(
+      true,
+    );
     await expect(verifyPassword('otra-clave', firstHash)).resolves.toBe(false);
   });
 

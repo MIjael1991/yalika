@@ -65,11 +65,7 @@ export function interpretCaptureTemporal(input: {
     ? { frequency: 'daily' as const, interval: 1 }
     : inferRecurrence(normalized);
   const time = inferTime(normalized);
-  const date = inferDate(
-    normalizedDateSignals,
-    localNow,
-    recurrence.frequency,
-  );
+  const date = inferDate(normalizedDateSignals, localNow, recurrence.frequency);
   const hasTemporalSignal = Boolean(
     time.explicit || date.explicit || recurrence.frequency,
   );
@@ -79,7 +75,8 @@ export function interpretCaptureTemporal(input: {
   let explicitTimeAlreadyPassed = false;
 
   if (hasTemporalSignal) {
-    const selectedDate = date.value ?? defaultDate(localNow, recurrence.frequency);
+    const selectedDate =
+      date.value ?? defaultDate(localNow, recurrence.frequency);
     const selectedTime = time.value ?? { hour: 9, minute: 0 };
     usedDefaultTime = !time.value;
     invalidDate = !isValidLocalDate(selectedDate);
@@ -106,9 +103,7 @@ export function interpretCaptureTemporal(input: {
     }
   }
 
-  const dueAt = localDue
-    ? zonedDateTimeToUtc(localDue, input.timezone)
-    : null;
+  const dueAt = localDue ? zonedDateTimeToUtc(localDue, input.timezone) : null;
   const recurrenceEndsAt = todayAndTomorrow
     ? zonedDateTimeToUtc(
         {
@@ -171,7 +166,10 @@ function inferRecurrence(normalized: string) {
   const interval = intervalMatch ? Math.max(1, Number(intervalMatch[1])) : 1;
   const unit = intervalMatch?.[2] ?? '';
 
-  if (unit.startsWith('dia') || /\b(?:cada dia|diario|diaria)\b/.test(normalized)) {
+  if (
+    unit.startsWith('dia') ||
+    /\b(?:cada dia|diario|diaria)\b/.test(normalized)
+  ) {
     return { frequency: 'daily' as const, interval };
   }
 
@@ -197,7 +195,7 @@ function inferRecurrence(normalized: string) {
 
 function inferTime(normalized: string) {
   const periodMatch = normalized.match(
-    /\ba\s+las?\s+(\d{1,2})(?::(\d{2}))?\s*(?:de\s+la\s+)?(manana|tarde|noche)\b/,
+    /\b(?:a\s+las?\s+)?(\d{1,2})(?::(\d{2}))?\s*(?:de\s+la\s+)?(manana|tarde|noche)\b/,
   );
   const amPmMatch = normalized.match(
     /\b(?:a\s+las?\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b/,
@@ -316,16 +314,12 @@ function inferReminder(normalized: string, hasDueAt: boolean) {
     return null;
   }
 
-  const minuteMatch = normalized.match(
-    /\b(\d{1,4})\s+min(?:uto)?s?\s+antes\b/,
-  );
+  const minuteMatch = normalized.match(/\b(\d{1,4})\s+min(?:uto)?s?\s+antes\b/);
   if (minuteMatch) {
     return Math.min(10080, Number(minuteMatch[1]));
   }
 
-  const hourMatch = normalized.match(
-    /\b(?:(\d{1,3})|una?)\s+horas?\s+antes\b/,
-  );
+  const hourMatch = normalized.match(/\b(?:(\d{1,3})|una?)\s+horas?\s+antes\b/);
   if (hourMatch) {
     return Math.min(10080, Number(hourMatch[1] ?? 1) * 60);
   }
@@ -364,7 +358,11 @@ function defaultDate(
 
 function cleanTemporalTitle(title: string) {
   const cleaned = title
-    .replace(/\b(?:recu[eé]rdame|av[ií]same|pon(?:me)?\s+una?\s+alarma)\b/gi, ' ')
+    .replace(/\b(?:a\s+las?\s+)?\d{1,2}(?::\d{2})?\s*(?:de\s+la\s+)?(?:mañana|tarde|noche)\b/gi, ' ')
+    .replace(
+      /\b(?:recu[eé]rdame|av[ií]same|pon(?:me)?\s+una?\s+alarma)\b/gi,
+      ' ',
+    )
     .replace(
       /\b(?:a\s+las?|de\s+las?)\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
       ' ',
@@ -376,17 +374,14 @@ function cleanTemporalTitle(title: string) {
       ' ',
     )
     .replace(
-      /\b(?:el\s+)?(?:lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)\b/gi,
+      /\b(?:el\s+)?(?:d[ií]a\s+)?(?:lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)\b/gi,
       ' ',
     )
     .replace(
       /\b(?:el\s+)?\d{1,2}\s+de\s+(?:enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)(?:\s+de\s+\d{4})?\b/gi,
       ' ',
     )
-    .replace(
-      /\b(?:\d+|un|una)\s+(?:min(?:uto)?s?|horas?)\s+antes\b/gi,
-      ' ',
-    )
+    .replace(/\b(?:\d+|un|una)\s+(?:min(?:uto)?s?|horas?)\s+antes\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/^(?:y|para|que)\s+|\s+(?:y|para|que)$/gi, '')
@@ -555,11 +550,7 @@ function compareLocalDate(
   return asSyntheticDate(left).getTime() - asSyntheticDate(right).getTime();
 }
 
-function isValidLocalDate(value: {
-  year: number;
-  month: number;
-  day: number;
-}) {
+function isValidLocalDate(value: { year: number; month: number; day: number }) {
   const synthetic = asSyntheticDate(value);
   return (
     synthetic.getUTCFullYear() === value.year &&

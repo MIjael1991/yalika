@@ -1,0 +1,15 @@
+**/node_modules
+**/.next
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+.git
+.github
+.railway
+respaldo_*
+backup*
+*.zip
+*.log
+coverage
+**/tsconfig.build.tsbuildinfo

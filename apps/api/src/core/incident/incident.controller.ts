@@ -1,19 +1,11 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { IncidentService } from './incident.service';
 
 @Controller('incident')
 export class IncidentController {
-  constructor(
-    private readonly incidentService: IncidentService,
-  ) {}
+  constructor(private readonly incidentService: IncidentService) {}
 
   @Get()
   findAll() {
@@ -27,8 +19,6 @@ export class IncidentController {
 
   @Post(':id/generate-alternatives')
   generateAlternatives(@Param('id') id: string) {
-    return this.incidentService.generateAlternativesFromKnowledge(
-      id,
-    );
+    return this.incidentService.generateAlternativesFromKnowledge(id);
   }
 }

@@ -41,54 +41,42 @@ export class LoyaltyService {
   }
 
   async findOne(id: string) {
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id,
-        },
-        include: {
-          company: true,
-          _count: {
-            select: {
-              visits: true,
-              rewards: true,
-            },
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        company: true,
+        _count: {
+          select: {
+            visits: true,
+            rewards: true,
           },
         },
-      });
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'El programa de fidelización no existe',
-      );
+      throw new NotFoundException('El programa de fidelización no existe');
     }
 
     return program;
   }
 
-  async create(
-    createLoyaltyProgramDto: CreateLoyaltyProgramDto,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: createLoyaltyProgramDto.companyId,
-        },
-      });
+  async create(createLoyaltyProgramDto: CreateLoyaltyProgramDto) {
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: createLoyaltyProgramDto.companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
-    const startsAt = new Date(
-      createLoyaltyProgramDto.startsAt,
-    );
+    const startsAt = new Date(createLoyaltyProgramDto.startsAt);
 
-    const endsAt = new Date(
-      createLoyaltyProgramDto.endsAt,
-    );
+    const endsAt = new Date(createLoyaltyProgramDto.endsAt);
 
     if (endsAt <= startsAt) {
       throw new BadRequestException(
@@ -99,45 +87,35 @@ export class LoyaltyService {
     return this.prisma.loyaltyProgram.create({
       data: {
         name: createLoyaltyProgramDto.name.trim(),
-        description:
-          createLoyaltyProgramDto.description?.trim(),
+        description: createLoyaltyProgramDto.description?.trim(),
 
-        requiredVisits:
-          createLoyaltyProgramDto.requiredVisits,
+        requiredVisits: createLoyaltyProgramDto.requiredVisits,
 
-        rewardType:
-          createLoyaltyProgramDto.rewardType?.trim() ??
-          'custom',
+        rewardType: createLoyaltyProgramDto.rewardType?.trim() ?? 'custom',
 
-        rewardDescription:
-          createLoyaltyProgramDto.rewardDescription.trim(),
+        rewardDescription: createLoyaltyProgramDto.rewardDescription.trim(),
 
-        rewardValidDays:
-          createLoyaltyProgramDto.rewardValidDays,
+        rewardValidDays: createLoyaltyProgramDto.rewardValidDays,
 
         startsAt,
         endsAt,
 
         status: 'draft',
 
-        companyId:
-          createLoyaltyProgramDto.companyId,
+        companyId: createLoyaltyProgramDto.companyId,
       },
     });
   }
 
   async activate(id: string) {
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id,
-        },
-      });
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'El programa de fidelización no existe',
-      );
+      throw new NotFoundException('El programa de fidelización no existe');
     }
 
     if (program.status === 'closed') {
@@ -149,9 +127,7 @@ export class LoyaltyService {
     const now = new Date();
 
     if (now > program.endsAt) {
-      throw new BadRequestException(
-        'La campaña ya terminó su vigencia',
-      );
+      throw new BadRequestException('La campaña ya terminó su vigencia');
     }
 
     return this.prisma.loyaltyProgram.update({
@@ -165,29 +141,22 @@ export class LoyaltyService {
   }
 
   async pause(id: string) {
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id,
-        },
-      });
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'El programa de fidelización no existe',
-      );
+      throw new NotFoundException('El programa de fidelización no existe');
     }
 
     if (program.status === 'closed') {
-      throw new BadRequestException(
-        'Una campaña cerrada no puede pausarse',
-      );
+      throw new BadRequestException('Una campaña cerrada no puede pausarse');
     }
 
     if (program.status !== 'active') {
-      throw new BadRequestException(
-        'Solo una campaña activa puede pausarse',
-      );
+      throw new BadRequestException('Solo una campaña activa puede pausarse');
     }
 
     return this.prisma.loyaltyProgram.update({
@@ -201,17 +170,14 @@ export class LoyaltyService {
   }
 
   async close(id: string) {
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id,
-        },
-      });
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'El programa de fidelización no existe',
-      );
+      throw new NotFoundException('El programa de fidelización no existe');
     }
 
     if (program.status === 'closed') {
@@ -229,34 +195,25 @@ export class LoyaltyService {
     });
   }
 
-  async progress(
-    programId: string,
-    customerId: string,
-  ) {
-    const program =
-      await this.prisma.loyaltyProgram.findUnique({
-        where: {
-          id: programId,
-        },
-      });
+  async progress(programId: string, customerId: string) {
+    const program = await this.prisma.loyaltyProgram.findUnique({
+      where: {
+        id: programId,
+      },
+    });
 
     if (!program) {
-      throw new NotFoundException(
-        'El programa de fidelización no existe',
-      );
+      throw new NotFoundException('El programa de fidelización no existe');
     }
 
-    const customer =
-      await this.prisma.customer.findUnique({
-        where: {
-          id: customerId,
-        },
-      });
+    const customer = await this.prisma.customer.findUnique({
+      where: {
+        id: customerId,
+      },
+    });
 
     if (!customer) {
-      throw new NotFoundException(
-        'El cliente no existe',
-      );
+      throw new NotFoundException('El cliente no existe');
     }
 
     if (customer.companyId !== program.companyId) {
@@ -265,26 +222,24 @@ export class LoyaltyService {
       );
     }
 
-    const confirmedVisits =
-      await this.prisma.visit.count({
-        where: {
-          customerId,
-          companyId: program.companyId,
-          loyaltyProgramId: program.id,
-          status: 'confirmed',
-        },
-      });
+    const confirmedVisits = await this.prisma.visit.count({
+      where: {
+        customerId,
+        companyId: program.companyId,
+        loyaltyProgramId: program.id,
+        status: 'confirmed',
+      },
+    });
 
-    const reward =
-      await this.prisma.customerReward.findFirst({
-        where: {
-          customerId,
-          loyaltyProgramId: program.id,
-        },
-        orderBy: {
-          earnedAt: 'desc',
-        },
-      });
+    const reward = await this.prisma.customerReward.findFirst({
+      where: {
+        customerId,
+        loyaltyProgramId: program.id,
+      },
+      orderBy: {
+        earnedAt: 'desc',
+      },
+    });
 
     const remainingVisits = Math.max(
       program.requiredVisits - confirmedVisits,
@@ -292,11 +247,7 @@ export class LoyaltyService {
     );
 
     const percentage = Math.min(
-      Math.round(
-        (confirmedVisits /
-          program.requiredVisits) *
-          100,
-      ),
+      Math.round((confirmedVisits / program.requiredVisits) * 100),
       100,
     );
 
@@ -306,8 +257,7 @@ export class LoyaltyService {
         name: program.name,
         status: program.status,
         requiredVisits: program.requiredVisits,
-        rewardDescription:
-          program.rewardDescription,
+        rewardDescription: program.rewardDescription,
         startsAt: program.startsAt,
         endsAt: program.endsAt,
       },
@@ -321,9 +271,7 @@ export class LoyaltyService {
         confirmedVisits,
         remainingVisits,
         percentage,
-        completed:
-          confirmedVisits >=
-          program.requiredVisits,
+        completed: confirmedVisits >= program.requiredVisits,
       },
 
       reward,

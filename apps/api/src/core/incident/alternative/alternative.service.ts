@@ -91,9 +91,7 @@ export class AlternativeService {
       };
     });
 
-    analyzed.sort(
-      (a, b) => b.analysis.score - a.analysis.score,
-    );
+    analyzed.sort((a, b) => b.analysis.score - a.analysis.score);
 
     const recommendation = analyzed[0];
 
@@ -110,8 +108,7 @@ export class AlternativeService {
         reason:
           'Presenta el mejor equilibrio estimado entre continuidad, tiempo y costo.',
         score: recommendation.analysis.score,
-        totalEconomicImpact:
-          recommendation.analysis.totalEconomicImpact,
+        totalEconomicImpact: recommendation.analysis.totalEconomicImpact,
       },
 
       alternatives: analyzed,
@@ -121,30 +118,25 @@ export class AlternativeService {
   }
 
   async select(alternativeId: string) {
-    const alternative =
-      await this.prisma.incidentAlternative.findUnique({
-        where: {
-          id: alternativeId,
-        },
-        include: {
-          incident: true,
-        },
-      });
+    const alternative = await this.prisma.incidentAlternative.findUnique({
+      where: {
+        id: alternativeId,
+      },
+      include: {
+        incident: true,
+      },
+    });
 
     if (!alternative) {
       throw new NotFoundException('La alternativa no existe');
     }
 
     if (alternative.incident.status === 'resolved') {
-      throw new BadRequestException(
-        'El incidente ya está resuelto',
-      );
+      throw new BadRequestException('El incidente ya está resuelto');
     }
 
     if (alternative.status === 'selected') {
-      throw new BadRequestException(
-        'Esta alternativa ya fue seleccionada',
-      );
+      throw new BadRequestException('Esta alternativa ya fue seleccionada');
     }
 
     const now = new Date();
@@ -209,8 +201,7 @@ export class AlternativeService {
     const followUpTask = results[4];
 
     return {
-      message:
-        'Alternativa seleccionada y plan de acción creado correctamente',
+      message: 'Alternativa seleccionada y plan de acción creado correctamente',
       incidentId: alternative.incidentId,
       alternativeId: alternative.id,
       selectedAlternative: alternative.title,

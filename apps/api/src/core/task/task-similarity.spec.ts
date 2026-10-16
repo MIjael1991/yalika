@@ -6,9 +6,7 @@ import {
 
 describe('task duplicate protection', () => {
   it('recognizes accent and punctuation variants as the same task', () => {
-    expect(
-      taskTitleSimilarity('Pagar la luz', '¡Pagar la lúz!'),
-    ).toBe(1);
+    expect(taskTitleSimilarity('Pagar la luz', '¡Pagar la lúz!')).toBe(1);
   });
 
   it('recognizes a task with an added detail as similar', () => {
@@ -28,9 +26,7 @@ describe('task duplicate protection', () => {
       dueAt: null,
     };
 
-    expect(
-      buildTaskDedupeKey({ ...common, spaceId: 'family-space' }),
-    ).not.toBe(
+    expect(buildTaskDedupeKey({ ...common, spaceId: 'family-space' })).not.toBe(
       buildTaskDedupeKey({ ...common, spaceId: 'personal-space' }),
     );
   });

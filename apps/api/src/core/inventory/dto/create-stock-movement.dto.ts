@@ -19,26 +19,26 @@ export class CreateStockMovementDto {
   direction: string;
 
   @IsIn([
-  'supplier_delivery',
-  'manual_purchase',
-  'return',
+    'supplier_delivery',
+    'manual_purchase',
+    'return',
 
-  'sale',
-  'consumption',
-  'recipe_consumption',
+    'sale',
+    'consumption',
+    'recipe_consumption',
 
-  'spoilage',
-  'overportion',
-  'complimentary',
-  'staff_consumption',
+    'spoilage',
+    'overportion',
+    'complimentary',
+    'staff_consumption',
 
-  'damage',
-  'expiration',
+    'damage',
+    'expiration',
 
-  'adjustment_in',
-  'adjustment_out',
-])
-reason: string;
+    'adjustment_in',
+    'adjustment_out',
+  ])
+  reason: string;
 
   @IsNumber()
   @Min(0.001)

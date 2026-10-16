@@ -5,8 +5,8 @@ import { OrionShell } from '@/components/orion-shell';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ORION',
-  description: 'ORION Intelligence Platform',
+  title: 'Yaleka',
+  description: 'Yaleka Intelligence Platform',
 };
 
 export default function RootLayout({

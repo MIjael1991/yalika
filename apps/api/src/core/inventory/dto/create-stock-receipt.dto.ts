@@ -35,10 +35,7 @@ export class CreateStockReceiptDto {
   @IsUUID('4')
   companyId: string;
 
-  @IsIn([
-    'supplier',
-    'manual_purchase',
-  ])
+  @IsIn(['supplier', 'manual_purchase'])
   sourceType: string;
 
   @IsOptional()

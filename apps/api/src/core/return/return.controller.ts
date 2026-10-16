@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { CreateReturnDto } from './dto/create-return.dto';
@@ -40,10 +34,7 @@ export class ReturnController {
   }
 
   @Post(':id/refund')
-  createRefund(
-    @Param('id') id: string,
-    @Body() dto: CreateRefundDto,
-  ) {
+  createRefund(@Param('id') id: string, @Body() dto: CreateRefundDto) {
     return this.returnService.createRefund(id, dto);
   }
 }

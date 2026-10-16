@@ -49,13 +49,13 @@ export class CreateInventoryItemDto {
   unit: string;
 
   @IsOptional()
-@IsString()
-purchaseUnit?: string;
+  @IsString()
+  purchaseUnit?: string;
 
-@IsOptional()
-@IsNumber()
-@Min(0.001)
-purchaseConversion?: number;
+  @IsOptional()
+  @IsNumber()
+  @Min(0.001)
+  purchaseConversion?: number;
 
   @IsOptional()
   @IsNumber()
@@ -73,11 +73,7 @@ purchaseConversion?: number;
   averageCost?: number;
 
   @IsOptional()
-  @IsIn([
-    'exact',
-    'estimated',
-    'count_only',
-  ])
+  @IsIn(['exact', 'estimated', 'count_only'])
   trackingMode?: string;
 
   @IsOptional()

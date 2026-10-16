@@ -32,12 +32,7 @@ class CreateReturnItemDto {
   ])
   condition: string;
 
-  @IsIn([
-    'restock',
-    'quarantine',
-    'discard',
-    'no_restock',
-  ])
+  @IsIn(['restock', 'quarantine', 'discard', 'no_restock'])
   disposition: string;
 
   @IsOptional()
@@ -62,10 +57,7 @@ export class CreateReturnDto {
   authorizedById: string;
 
   @IsOptional()
-  @IsIn([
-    'return',
-    'exchange',
-  ])
+  @IsIn(['return', 'exchange'])
   type?: string;
 
   @IsIn([

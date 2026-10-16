@@ -1,13 +1,12 @@
-import { normalizeTaskTitle, taskTitleSimilarity } from '../task/task-similarity';
+import {
+  normalizeTaskTitle,
+  taskTitleSimilarity,
+} from '../task/task-similarity';
 
 export type CaptureIntent = 'create' | 'cancel' | 'complete' | 'find';
 
 export type CaptureActionScope =
-  | 'today'
-  | 'tomorrow'
-  | 'today_and_tomorrow'
-  | 'series'
-  | 'unspecified';
+  'today' | 'tomorrow' | 'today_and_tomorrow' | 'series' | 'unspecified';
 
 export type CaptureActionCandidate = {
   id: string;
@@ -86,9 +85,9 @@ export function rankCaptureActionCandidates(input: {
 
       const dateMatches = Boolean(
         input.requestedDate &&
-          candidate.dueAt &&
-          localDateKey(input.requestedDate, input.timezone) ===
-            localDateKey(candidate.dueAt, input.timezone),
+        candidate.dueAt &&
+        localDateKey(input.requestedDate, input.timezone) ===
+          localDateKey(candidate.dueAt, input.timezone),
       );
 
       if (input.requestedDate) {
@@ -113,7 +112,11 @@ export function rankCaptureActionCandidates(input: {
 }
 
 function inferActionScope(normalized: string): CaptureActionScope {
-  if (/\b(?:toda|todas|completa)\s+(?:la\s+)?(?:serie|repeticion)\b/.test(normalized)) {
+  if (
+    /\b(?:toda|todas|completa)\s+(?:la\s+)?(?:serie|repeticion)\b/.test(
+      normalized,
+    )
+  ) {
     return 'series';
   }
 
@@ -143,7 +146,10 @@ function cleanActionQuery(value: string) {
     .replace(/\b(?:de|para)\s+(?:el\s+)?(?:dia\s+de\s+)?(?:hoy|manana)\b/g, ' ')
     .replace(/\b(?:hoy|manana)\b/g, ' ')
     .replace(/\b(?:que\s+)?(?:debo|tengo\s+que|hay\s+que)\b/g, ' ')
-    .replace(/\b(?:toda|todas|completa)\s+(?:la\s+)?(?:serie|repeticion)\b/g, ' ')
+    .replace(
+      /\b(?:toda|todas|completa)\s+(?:la\s+)?(?:serie|repeticion)\b/g,
+      ' ',
+    )
     .replace(/\ba\s+las?\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?\b/g, ' ')
     .replace(
       /\b\d{1,4}\s+min(?:uto)?s?\s+antes(?:\s+de\s+las?\s+\d{1,2})?\b/g,

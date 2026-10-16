@@ -11,67 +11,49 @@ import { UpdateDiningTableStatusDto } from './dto/update-dining-table-status.dto
 
 @Injectable()
 export class DiningTableService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /*
    * =====================================================
    * CREAR MESA
    * =====================================================
    */
-  async create(
-    dto: CreateDiningTableDto,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: dto.companyId,
-        },
-      });
+  async create(dto: CreateDiningTableDto) {
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: dto.companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
-    const existing =
-      await this.prisma.diningTable.findFirst({
-        where: {
-          companyId:
-            dto.companyId,
+    const existing = await this.prisma.diningTable.findFirst({
+      where: {
+        companyId: dto.companyId,
 
-          code:
-            dto.code.trim(),
-        },
-      });
+        code: dto.code.trim(),
+      },
+    });
 
     if (existing) {
-      throw new ConflictException(
-        'Ya existe una mesa con este código',
-      );
+      throw new ConflictException('Ya existe una mesa con este código');
     }
 
     return this.prisma.diningTable.create({
       data: {
-        name:
-          dto.name.trim(),
+        name: dto.name.trim(),
 
-        code:
-          dto.code.trim(),
+        code: dto.code.trim(),
 
-        area:
-          dto.area?.trim(),
+        area: dto.area?.trim(),
 
-        capacity:
-          dto.capacity,
+        capacity: dto.capacity,
 
-        status:
-          'available',
+        status: 'available',
 
-        companyId:
-          dto.companyId,
+        companyId: dto.companyId,
       },
     });
   }
@@ -81,9 +63,7 @@ export class DiningTableService {
    * LISTAR MESAS
    * =====================================================
    */
-  async findByCompany(
-    companyId: string,
-  ) {
+  async findByCompany(companyId: string) {
     return this.prisma.diningTable.findMany({
       where: {
         companyId,
@@ -93,11 +73,7 @@ export class DiningTableService {
         orders: {
           where: {
             status: {
-              in: [
-                'draft',
-                'processing',
-                'confirmed',
-              ],
+              in: ['draft', 'processing', 'confirmed'],
             },
           },
 
@@ -128,21 +104,15 @@ export class DiningTableService {
    * CAMBIAR ESTADO
    * =====================================================
    */
-  async updateStatus(
-    id: string,
-    dto: UpdateDiningTableStatusDto,
-  ) {
-    const table =
-      await this.prisma.diningTable.findUnique({
-        where: {
-          id,
-        },
-      });
+  async updateStatus(id: string, dto: UpdateDiningTableStatusDto) {
+    const table = await this.prisma.diningTable.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!table) {
-      throw new NotFoundException(
-        'La mesa no existe',
-      );
+      throw new NotFoundException('La mesa no existe');
     }
 
     return this.prisma.diningTable.update({
@@ -151,8 +121,7 @@ export class DiningTableService {
       },
 
       data: {
-        status:
-          dto.status,
+        status: dto.status,
       },
     });
   }
@@ -162,108 +131,78 @@ export class DiningTableService {
    * ASIGNAR PEDIDO A MESA
    * =====================================================
    */
-  async assignOrder(
-    tableId: string,
-    orderId: string,
-  ) {
-    return this.prisma.$transaction(
-      async (tx) => {
-        const table =
-          await tx.diningTable.findUnique({
-            where: {
-              id: tableId,
-            },
-          });
+  async assignOrder(tableId: string, orderId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const table = await tx.diningTable.findUnique({
+        where: {
+          id: tableId,
+        },
+      });
 
-        if (!table) {
-          throw new NotFoundException(
-            'La mesa no existe',
-          );
-        }
+      if (!table) {
+        throw new NotFoundException('La mesa no existe');
+      }
 
-        if (
-          table.status ===
-          'disabled'
-        ) {
-          throw new BadRequestException(
-            'La mesa está deshabilitada',
-          );
-        }
+      if (table.status === 'disabled') {
+        throw new BadRequestException('La mesa está deshabilitada');
+      }
 
-        const order =
-          await tx.order.findUnique({
-            where: {
-              id: orderId,
-            },
-          });
+      const order = await tx.order.findUnique({
+        where: {
+          id: orderId,
+        },
+      });
 
-        if (!order) {
-          throw new NotFoundException(
-            'El pedido no existe',
-          );
-        }
+      if (!order) {
+        throw new NotFoundException('El pedido no existe');
+      }
 
-        if (
-          order.companyId !==
-          table.companyId
-        ) {
-          throw new BadRequestException(
-            'El pedido y la mesa pertenecen a empresas diferentes',
-          );
-        }
+      if (order.companyId !== table.companyId) {
+        throw new BadRequestException(
+          'El pedido y la mesa pertenecen a empresas diferentes',
+        );
+      }
 
-        if (
-          order.status !== 'draft' &&
-          order.status !== 'confirmed'
-        ) {
-          throw new BadRequestException(
-            'Este pedido no puede asignarse a una mesa en su estado actual',
-          );
-        }
+      if (order.status !== 'draft' && order.status !== 'confirmed') {
+        throw new BadRequestException(
+          'Este pedido no puede asignarse a una mesa en su estado actual',
+        );
+      }
 
-        const updatedOrder =
-          await tx.order.update({
-            where: {
-              id: order.id,
-            },
+      const updatedOrder = await tx.order.update({
+        where: {
+          id: order.id,
+        },
 
-            data: {
-              diningTableId:
-                table.id,
-            },
-          });
+        data: {
+          diningTableId: table.id,
+        },
+      });
 
-        await tx.diningTable.update({
-          where: {
-            id: table.id,
-          },
+      await tx.diningTable.update({
+        where: {
+          id: table.id,
+        },
 
-          data: {
-            status:
-              'occupied',
-          },
-        });
+        data: {
+          status: 'occupied',
+        },
+      });
 
-        return {
-          table: {
-            id:
-              table.id,
+      return {
+        table: {
+          id: table.id,
 
-            name:
-              table.name,
+          name: table.name,
 
-            code:
-              table.code,
+          code: table.code,
 
-            status:
-              'occupied',
-          },
+          status: 'occupied',
+        },
 
-          order:
-            updatedOrder,
-        };
-      },
-    );
+        order: updatedOrder,
+      };
+    });
   }
 
   /*
@@ -271,46 +210,32 @@ export class DiningTableService {
    * LIBERAR MESA
    * =====================================================
    */
-  async release(
-    id: string,
-  ) {
-    const table =
-      await this.prisma.diningTable.findUnique({
-        where: {
-          id,
-        },
+  async release(id: string) {
+    const table = await this.prisma.diningTable.findUnique({
+      where: {
+        id,
+      },
 
-        include: {
-          orders: {
-            where: {
-              paymentStatus: {
-                in: [
-                  'pending',
-                  'partial',
-                ],
-              },
+      include: {
+        orders: {
+          where: {
+            paymentStatus: {
+              in: ['pending', 'partial'],
+            },
 
-              status: {
-                in: [
-                  'draft',
-                  'confirmed',
-                  'processing',
-                ],
-              },
+            status: {
+              in: ['draft', 'confirmed', 'processing'],
             },
           },
         },
-      });
+      },
+    });
 
     if (!table) {
-      throw new NotFoundException(
-        'La mesa no existe',
-      );
+      throw new NotFoundException('La mesa no existe');
     }
 
-    if (
-      table.orders.length > 0
-    ) {
+    if (table.orders.length > 0) {
       throw new BadRequestException(
         'La mesa todavía tiene una cuenta pendiente',
       );
@@ -322,8 +247,7 @@ export class DiningTableService {
       },
 
       data: {
-        status:
-          'available',
+        status: 'available',
       },
     });
   }

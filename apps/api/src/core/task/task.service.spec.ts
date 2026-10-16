@@ -3,6 +3,7 @@ jest.mock('../../prisma/prisma.service', () => ({
 }));
 
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
@@ -115,9 +116,9 @@ describe('TaskService shared work', () => {
   it('prevents a duplicated claim when another person won the race', async () => {
     const { service, transaction } = createFixture(0);
 
-    await expect(
-      service.claim('task-1', 'user-1'),
-    ).rejects.toBeInstanceOf(ConflictException);
+    await expect(service.claim('task-1', 'user-1')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
     expect(transaction.taskActivity.create).not.toHaveBeenCalled();
   });
 
@@ -158,6 +159,61 @@ describe('TaskService shared work', () => {
         }),
       }),
     );
+  });
+});
+
+describe('TaskService agenda', () => {
+  it('returns only accessible active tasks inside the requested range', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const service = new TaskService({
+      task: { findMany },
+    } as unknown as PrismaService);
+
+    await service.findAgenda(
+      '2026-09-01T00:00:00.000Z',
+      '2026-10-01T00:00:00.000Z',
+      'company-1',
+      'user-1',
+    );
+
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          companyId: 'company-1',
+          status: { in: expect.arrayContaining(['pending', 'in_progress']) },
+          dueAt: {
+            gte: new Date('2026-09-01T00:00:00.000Z'),
+            lt: new Date('2026-10-01T00:00:00.000Z'),
+          },
+          OR: expect.any(Array),
+        }),
+        take: 500,
+      }),
+    );
+  });
+
+  it('rejects inverted or excessively large agenda ranges', async () => {
+    const service = new TaskService({
+      task: { findMany: jest.fn() },
+    } as unknown as PrismaService);
+
+    await expect(
+      service.findAgenda(
+        '2026-09-10T00:00:00.000Z',
+        '2026-09-01T00:00:00.000Z',
+        'company-1',
+        'user-1',
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+
+    await expect(
+      service.findAgenda(
+        '2026-01-01T00:00:00.000Z',
+        '2026-12-31T00:00:00.000Z',
+        'company-1',
+        'user-1',
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });
 
@@ -242,7 +298,9 @@ describe('TaskService recurring work', () => {
 
     await fixture.service.materializeDueRecurrences('space-1');
 
-    expect(fixture.transaction.taskRecurrence.updateMany).not.toHaveBeenCalled();
+    expect(
+      fixture.transaction.taskRecurrence.updateMany,
+    ).not.toHaveBeenCalled();
     expect(fixture.transaction.task.create).not.toHaveBeenCalled();
   });
 });

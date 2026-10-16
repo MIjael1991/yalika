@@ -1,27 +1,15 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
 import { CreateLoyaltyProgramDto } from './dto/create-loyalty-program.dto';
 import { LoyaltyService } from './loyalty.service';
 
 @Controller('loyalty-program')
 export class LoyaltyController {
-  constructor(
-    private readonly loyaltyService: LoyaltyService,
-  ) {}
+  constructor(private readonly loyaltyService: LoyaltyService) {}
 
   @Get('company/:companyId')
-  findByCompany(
-    @Param('companyId') companyId: string,
-  ) {
-    return this.loyaltyService.findByCompany(
-      companyId,
-    );
+  findByCompany(@Param('companyId') companyId: string) {
+    return this.loyaltyService.findByCompany(companyId);
   }
 
   @Get(':id')
@@ -30,14 +18,8 @@ export class LoyaltyController {
   }
 
   @Get(':id/progress/:customerId')
-  progress(
-    @Param('id') id: string,
-    @Param('customerId') customerId: string,
-  ) {
-    return this.loyaltyService.progress(
-      id,
-      customerId,
-    );
+  progress(@Param('id') id: string, @Param('customerId') customerId: string) {
+    return this.loyaltyService.progress(id, customerId);
   }
 
   @Post()
@@ -45,9 +27,7 @@ export class LoyaltyController {
     @Body()
     createLoyaltyProgramDto: CreateLoyaltyProgramDto,
   ) {
-    return this.loyaltyService.create(
-      createLoyaltyProgramDto,
-    );
+    return this.loyaltyService.create(createLoyaltyProgramDto);
   }
 
   @Post(':id/activate')

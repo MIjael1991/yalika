@@ -12,68 +12,127 @@ import { CreateImageDto } from './dto/create-image.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
+import { UpdateVariantDto } from './dto/update-variant.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { CreateProductBarcodeDto } from './dto/barcode.dto';
 
 @Injectable()
 export class CatalogService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async createCategory(
-    dto: CreateCategoryDto,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: dto.companyId,
-        },
+  async listCatalogs(companyId: string) {
+    return this.prisma.commerceCatalog.findMany({
+      where: { companyId, status: 'active' },
+      orderBy: [{ isDefault: 'desc' }, { name: 'asc' }],
+    });
+  }
+
+  async createCommerceCatalog(companyId: string, name: string) {
+    const normalized = name?.trim();
+    if (!normalized || normalized.length > 120) {
+      throw new BadRequestException('El nombre del catálogo no es válido');
+    }
+    const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+    if (!company) throw new NotFoundException('La empresa no existe');
+    const existing = await this.prisma.commerceCatalog.findFirst({ where: { companyId, name: normalized } });
+    if (existing) throw new ConflictException('Ya existe este catálogo');
+    return this.prisma.commerceCatalog.create({ data: { companyId, name: normalized } });
+  }
+
+  private async resolveCatalog(companyId: string, desiredId?: string) {
+    let catalog = await this.prisma.commerceCatalog.findFirst({
+      where: desiredId
+        ? { id: desiredId, companyId, status: 'active' }
+        : { companyId, isDefault: true, status: 'active' },
+    });
+    if (!catalog && !desiredId) {
+      const company = await this.prisma.company.findUnique({ where: { id: companyId } });
+      if (!company) throw new NotFoundException('La empresa no existe');
+      catalog = await this.prisma.commerceCatalog.upsert({
+        where: { companyId_name: { companyId, name: 'General' } },
+        update: {},
+        create: { companyId, name: 'General', isDefault: true },
       });
+    }
+    if (!catalog) throw new BadRequestException('No existe el catálogo autorizado de la empresa');
+    return catalog;
+  }
+
+  async assignProductCatalog(companyId: string, productId: string, catalogId: string) {
+    const catalog = await this.resolveCatalog(companyId, catalogId);
+    const product = await this.prisma.product.findFirst({ where: { id: productId, companyId } });
+    if (!product) throw new NotFoundException('El producto no existe');
+    if (product.catalogId !== catalog.id) {
+      const pending = await this.prisma.commerceReservationItem.count({
+        where: { productId, reservation: { companyId, status: { in: ['hold','active','review_expired'] } } },
+      });
+      if (pending > 0) throw new BadRequestException('El producto tiene apartados activos; no puede cambiar de catálogo');
+    }
+    const category = product.categoryId
+      ? await this.prisma.productCategory.findUnique({ where: { id: product.categoryId } })
+      : null;
+    // When switching catalogs, keep the product and stock, detach category if it belongs elsewhere.
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: { catalogId: catalog.id, categoryId: category?.catalogId === catalog.id ? undefined : null },
+    });
+  }
+
+  async assignCategoryCatalog(companyId: string, categoryId: string, catalogId: string) {
+    const catalog = await this.resolveCatalog(companyId, catalogId);
+    const category = await this.prisma.productCategory.findFirst({ where: { id: categoryId, companyId } });
+    if (!category) throw new NotFoundException('La categoría no existe');
+    const conflictingProducts = await this.prisma.product.count({
+      where: { categoryId, companyId, catalogId: { not: catalog.id } },
+    });
+    if (conflictingProducts) throw new BadRequestException('La categoría contiene productos de otro catálogo');
+    return this.prisma.productCategory.update({ where: { id: categoryId }, data: { catalogId: catalog.id } });
+  }
+
+  async createCategory(dto: CreateCategoryDto) {
+    const catalog = await this.resolveCatalog(dto.companyId, dto.catalogId);
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: dto.companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
-    const existing =
-      await this.prisma.productCategory.findFirst({
-        where: {
-          companyId: dto.companyId,
-          name: dto.name.trim(),
-        },
-      });
+    const existing = await this.prisma.productCategory.findFirst({
+      where: {
+        companyId: dto.companyId,
+        catalogId: catalog.id,
+        name: dto.name.trim(),
+      },
+    });
 
     if (existing) {
-      throw new ConflictException(
-        'Ya existe una categoría con este nombre',
-      );
+      throw new ConflictException('Ya existe una categoría con este nombre');
     }
 
     return this.prisma.productCategory.create({
       data: {
         name: dto.name.trim(),
-        description:
-          dto.description?.trim(),
+        description: dto.description?.trim(),
         sortOrder: dto.sortOrder ?? 0,
         companyId: dto.companyId,
+        catalogId: catalog.id,
       },
     });
   }
 
-  async findCategoriesByCompany(
-    companyId: string,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: companyId,
-        },
-      });
+  async findCategoriesByCompany(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     return this.prisma.productCategory.findMany({
@@ -91,40 +150,34 @@ export class CatalogService {
     });
   }
 
-  async createProduct(
-    dto: CreateProductDto,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: dto.companyId,
-        },
-      });
+  async createProduct(dto: CreateProductDto) {
+    const catalog = await this.resolveCatalog(dto.companyId, dto.catalogId);
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: dto.companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     if (dto.categoryId) {
-      const category =
-        await this.prisma.productCategory.findUnique({
-          where: {
-            id: dto.categoryId,
-          },
-        });
+      const category = await this.prisma.productCategory.findUnique({
+        where: {
+          id: dto.categoryId,
+        },
+      });
 
       if (!category) {
-        throw new NotFoundException(
-          'La categoría no existe',
-        );
+        throw new NotFoundException('La categoría no existe');
       }
 
-      if (
-        category.companyId !==
-        dto.companyId
-      ) {
+      if (category.catalogId !== catalog.id) {
+        throw new BadRequestException('La categoría pertenece a otro catálogo');
+      }
+
+      if (category.companyId !== dto.companyId) {
         throw new BadRequestException(
           'La categoría no pertenece a esta empresa',
         );
@@ -132,46 +185,41 @@ export class CatalogService {
     }
 
     if (dto.sku?.trim()) {
-      const existingSku =
-        await this.prisma.product.findFirst({
-          where: {
-            companyId: dto.companyId,
-            sku: dto.sku.trim(),
-          },
-        });
+      const existingSku = await this.prisma.product.findFirst({
+        where: {
+          companyId: dto.companyId,
+          sku: dto.sku.trim(),
+        },
+      });
 
       if (existingSku) {
-        throw new ConflictException(
-          'Ya existe un producto con este SKU',
-        );
+        throw new ConflictException('Ya existe un producto con este SKU');
       }
     }
 
-    let seasonStartsAt:
-      | Date
-      | undefined;
+    const variantSkus = (dto.variants ?? [])
+      .map((variant) => variant.sku?.trim())
+      .filter((sku): sku is string => Boolean(sku));
 
-    let seasonEndsAt:
-      | Date
-      | undefined;
+    if (new Set(variantSkus).size !== variantSkus.length) {
+      throw new ConflictException(
+        'Hay códigos repetidos entre las tallas u opciones',
+      );
+    }
+
+    let seasonStartsAt: Date | undefined;
+
+    let seasonEndsAt: Date | undefined;
 
     if (dto.seasonStartsAt) {
-      seasonStartsAt = new Date(
-        dto.seasonStartsAt,
-      );
+      seasonStartsAt = new Date(dto.seasonStartsAt);
     }
 
     if (dto.seasonEndsAt) {
-      seasonEndsAt = new Date(
-        dto.seasonEndsAt,
-      );
+      seasonEndsAt = new Date(dto.seasonEndsAt);
     }
 
-    if (
-      seasonStartsAt &&
-      seasonEndsAt &&
-      seasonEndsAt <= seasonStartsAt
-    ) {
+    if (seasonStartsAt && seasonEndsAt && seasonEndsAt <= seasonStartsAt) {
       throw new BadRequestException(
         'La fecha final de temporada debe ser posterior a la fecha inicial',
       );
@@ -181,67 +229,70 @@ export class CatalogService {
       data: {
         name: dto.name.trim(),
 
-        description:
-          dto.description?.trim(),
+        description: dto.description?.trim(),
 
-        type:
-          dto.type ?? 'product',
+        type: dto.type ?? 'product',
 
-        sku:
-          dto.sku?.trim(),
+        sku: dto.sku?.trim(),
 
         price: dto.price,
+        unitCost: dto.unitCost,
+        unitsPerPack: dto.unitsPerPack ?? 1,
+        packSalePrice: dto.packSalePrice,
+        webVisible: dto.webVisible ?? false,
 
-        compareAtPrice:
-          dto.compareAtPrice,
+        compareAtPrice: dto.compareAtPrice,
 
-        trackInventory:
-          dto.trackInventory ?? true,
+        trackInventory: dto.trackInventory ?? true,
 
-        stock:
-          dto.stock ?? 0,
+        stock: dto.variants?.length ? 0 : (dto.stock ?? 0),
 
-        lowStockAt:
-          dto.lowStockAt ?? 5,
+        lowStockAt: dto.lowStockAt ?? 5,
 
-        featured:
-          dto.featured ?? false,
+        featured: dto.featured ?? false,
 
-        seasonal:
-          dto.seasonal ?? false,
+        seasonal: dto.seasonal ?? false,
 
         seasonStartsAt,
         seasonEndsAt,
 
-        companyId:
-          dto.companyId,
+        companyId: dto.companyId,
+        catalogId: catalog.id,
 
-        categoryId:
-          dto.categoryId,
+        categoryId: dto.categoryId,
+
+        variants: dto.variants?.length
+          ? {
+              create: dto.variants.map((variant) => ({
+                name: variant.name.trim(),
+                sku: variant.sku?.trim(),
+                price: variant.price,
+                unitCost: variant.unitCost,
+                stock: variant.stock ?? 0,
+                attributes: variant.attributes,
+              })),
+            }
+          : undefined,
       },
 
       include: {
         category: true,
         variants: true,
         images: true,
+        barcodes: true,
       },
     });
   }
 
-  async findProductsByCompany(
-    companyId: string,
-  ) {
-    const company =
-      await this.prisma.company.findUnique({
-        where: {
-          id: companyId,
-        },
-      });
+  async findProductsByCompany(companyId: string) {
+    const company = await this.prisma.company.findUnique({
+      where: {
+        id: companyId,
+      },
+    });
 
     if (!company) {
-      throw new NotFoundException(
-        'La empresa no existe',
-      );
+      throw new NotFoundException('La empresa no existe');
     }
 
     return this.prisma.product.findMany({
@@ -253,6 +304,7 @@ export class CatalogService {
         category: true,
         variants: true,
         images: true,
+        barcodes: true,
       },
 
       orderBy: {
@@ -261,60 +313,140 @@ export class CatalogService {
     });
   }
 
-  async findProduct(id: string) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id,
+  // Vista pública limitada: no exponer el registro completo del inventario/empresa.
+  async findPublicProductsByCompany(companyId: string) {
+    const site = await this.prisma.site.findFirst({
+      where: { companyId, status: 'published' },
+      select: { status: true },
+      orderBy: [{ isPrimary: 'desc' }, { updatedAt: 'desc' }],
+    });
+    if (!site) {
+      throw new NotFoundException('El escaparate no está publicado');
+    }
+    return this.prisma.product.findMany({
+      where: { companyId, status: 'active', webVisible: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        type: true,
+        price: true,
+        compareAtPrice: true,
+        trackInventory: true,
+        stock: true,
+        status: true,
+        featured: true,
+        category: { select: { id: true, name: true } },
+        images: {
+          select: { id: true, url: true, isPrimary: true, sortOrder: true },
         },
+        variants: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            stock: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
 
-        include: {
-          company: true,
-          category: true,
-          variants: true,
-          images: true,
-        },
-      });
+  async findProduct(id: string) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id,
+      },
+
+      include: {
+        company: true,
+        category: true,
+        variants: true,
+        images: true,
+        barcodes: true,
+      },
+    });
 
     if (!product) {
-      throw new NotFoundException(
-        'El producto no existe',
-      );
+      throw new NotFoundException('El producto no existe');
     }
 
     return product;
   }
 
-  async addVariant(
-    productId: string,
-    dto: CreateVariantDto,
-  ) {
-    const product =
-      await this.prisma.product.findUnique({
+  async updateProduct(productId: string, dto: UpdateProductDto) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      throw new NotFoundException('El producto no existe');
+    }
+
+    const sku = dto.sku?.trim();
+
+    if (sku && sku !== product.sku) {
+      const existingSku = await this.prisma.product.findFirst({
         where: {
-          id: productId,
+          companyId: product.companyId,
+          sku,
+          id: { not: productId },
         },
       });
 
+      if (existingSku) {
+        throw new ConflictException('Ya existe un producto con este SKU');
+      }
+    }
+
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        name: dto.name === undefined ? undefined : dto.name.trim(),
+        description:
+          dto.description === undefined
+            ? undefined
+            : dto.description.trim() || null,
+        sku: dto.sku === undefined ? undefined : sku || null,
+        price: dto.price,
+        unitCost: dto.unitCost,
+        unitsPerPack: dto.unitsPerPack,
+        packSalePrice: dto.packSalePrice,
+        webVisible: dto.webVisible,
+        stock: dto.stock === undefined ? undefined : dto.stock,
+      },
+      include: {
+        category: true,
+        variants: true,
+        images: true,
+        barcodes: true,
+      },
+    });
+  }
+
+  async addVariant(productId: string, dto: CreateVariantDto) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
     if (!product) {
-      throw new NotFoundException(
-        'El producto no existe',
-      );
+      throw new NotFoundException('El producto no existe');
     }
 
     if (dto.sku?.trim()) {
-      const existing =
-        await this.prisma.productVariant.findFirst({
-          where: {
-            productId,
-            sku: dto.sku.trim(),
-          },
-        });
+      const existing = await this.prisma.productVariant.findFirst({
+        where: {
+          productId,
+          sku: dto.sku.trim(),
+        },
+      });
 
       if (existing) {
-        throw new ConflictException(
-          'Ya existe una variante con este SKU',
-        );
+        throw new ConflictException('Ya existe una variante con este SKU');
       }
     }
 
@@ -322,81 +454,205 @@ export class CatalogService {
       data: {
         name: dto.name.trim(),
 
-        sku:
-          dto.sku?.trim(),
+        sku: dto.sku?.trim(),
 
-        price:
-          dto.price,
+        price: dto.price,
+        unitCost: dto.unitCost,
 
-        stock:
-          dto.stock ?? 0,
+        stock: dto.stock ?? 0,
 
-        attributes:
-          dto.attributes,
+        attributes: dto.attributes,
 
         productId,
       },
     });
   }
 
-  async addImage(
+  async updateVariant(variantId: string, dto: UpdateVariantDto) {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: variantId },
+    });
+
+    if (!variant) {
+      throw new NotFoundException('La opción no existe');
+    }
+
+    return this.prisma.productVariant.update({
+      where: { id: variantId },
+      data: {
+        name: dto.name === undefined ? undefined : dto.name.trim(),
+        price: dto.price,
+        unitCost: dto.unitCost,
+        stock: dto.stock,
+      },
+    });
+  }
+
+  async listBarcodes(productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true },
+    });
+    if (!product) throw new NotFoundException('El producto no existe');
+    return this.prisma.productBarcode.findMany({
+      where: { productId, active: true },
+      orderBy: [{ generated: 'desc' }, { createdAt: 'asc' }],
+    });
+  }
+
+  async addBarcode(
     productId: string,
-    dto: CreateImageDto,
+    dto: CreateProductBarcodeDto,
+    companyId: string,
   ) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id: productId,
-        },
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, companyId: true },
+    });
+    if (!product || product.companyId !== companyId) {
+      throw new NotFoundException('El producto no existe');
+    }
+    const value = dto.value.trim();
+    if (!value) throw new BadRequestException('El código está vacío');
+    if (dto.variantId) {
+      const variant = await this.prisma.productVariant.findUnique({
+        where: { id: dto.variantId },
+        select: { productId: true },
       });
+      if (!variant || variant.productId !== productId) {
+        throw new BadRequestException('La variante no pertenece al producto');
+      }
+    }
+    const existing = await this.prisma.productBarcode.findFirst({
+      where: { companyId, value },
+    });
+    if (existing) {
+      throw new ConflictException('Este código ya está asignado a otro artículo');
+    }
+    return this.prisma.productBarcode.create({
+      data: {
+        value,
+        format: dto.format ?? 'CODE128',
+        kind: dto.kind ?? 'unit',
+        unitsPerScan: dto.unitsPerScan ?? 1,
+        active: dto.active ?? true,
+        generated: false,
+        companyId,
+        productId,
+        variantId: dto.variantId,
+      },
+    });
+  }
+
+  async generateInternalBarcode(productId: string, companyId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      select: { id: true, companyId: true },
+    });
+    if (!product || product.companyId !== companyId) {
+      throw new NotFoundException('El producto no existe');
+    }
+    const existing = await this.prisma.productBarcode.findFirst({
+      where: { companyId, productId, generated: true, active: true },
+    });
+    if (existing) return existing;
+    const base = product.id.replace(/-/g, '').slice(0, 16).toUpperCase();
+    let value = `YLK-${base}`;
+    const collision = await this.prisma.productBarcode.findFirst({
+      where: { companyId, value },
+    });
+    if (collision) value = `YLK-${base}-${Date.now().toString(36).toUpperCase()}`;
+    return this.prisma.productBarcode.create({
+      data: {
+        value,
+        format: 'CODE39',
+        kind: 'internal',
+        unitsPerScan: 1,
+        active: true,
+        generated: true,
+        companyId,
+        productId,
+      },
+    });
+  }
+
+  async resolveBarcode(companyId: string, rawValue: string) {
+    const value = rawValue.trim();
+    const barcode = await this.prisma.productBarcode.findFirst({
+      where: { companyId, value, active: true },
+      include: {
+        product: {
+          include: { category: true, images: true, variants: true },
+        },
+        variant: true,
+      },
+    });
+    if (barcode) return barcode;
+
+    const product = await this.prisma.product.findFirst({
+      where: { companyId, sku: value, status: 'active' },
+      include: { category: true, images: true, variants: true },
+    });
+    if (product) {
+      return { value, format: 'SKU', kind: 'unit', unitsPerScan: 1, product, variant: null };
+    }
+
+    const variant = await this.prisma.productVariant.findFirst({
+      where: { sku: value, status: 'active', product: { companyId } },
+      include: { product: { include: { category: true, images: true, variants: true } } },
+    });
+    if (variant) {
+      return { value, format: 'SKU', kind: 'unit', unitsPerScan: 1, product: variant.product, variant };
+    }
+    throw new NotFoundException('Código no registrado');
+  }
+
+  async addImage(productId: string, dto: CreateImageDto) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
 
     if (!product) {
-      throw new NotFoundException(
-        'El producto no existe',
-      );
+      throw new NotFoundException('El producto no existe');
     }
 
     if (dto.isPrimary) {
-      return this.prisma.$transaction(
-        async (tx) => {
-          await tx.productImage.updateMany({
-            where: {
-              productId,
-              isPrimary: true,
-            },
-            data: {
-              isPrimary: false,
-            },
-          });
+      return this.prisma.$transaction(async (tx) => {
+        await tx.productImage.updateMany({
+          where: {
+            productId,
+            isPrimary: true,
+          },
+          data: {
+            isPrimary: false,
+          },
+        });
 
-          return tx.productImage.create({
-            data: {
-              url: dto.url.trim(),
+        return tx.productImage.create({
+          data: {
+            url: dto.url.trim(),
 
-              altText:
-                dto.altText?.trim(),
+            altText: dto.altText?.trim(),
 
-              sortOrder:
-                dto.sortOrder ?? 0,
+            sortOrder: dto.sortOrder ?? 0,
 
-              isPrimary: true,
+            isPrimary: true,
 
-              productId,
-            },
-          });
-        },
-      );
+            productId,
+          },
+        });
+      });
     }
 
     return this.prisma.productImage.create({
       data: {
         url: dto.url.trim(),
 
-        altText:
-          dto.altText?.trim(),
+        altText: dto.altText?.trim(),
 
-        sortOrder:
-          dto.sortOrder ?? 0,
+        sortOrder: dto.sortOrder ?? 0,
 
         isPrimary: false,
 
@@ -405,27 +661,82 @@ export class CatalogService {
     });
   }
 
-  async updateProductStock(
-    productId: string,
-    dto: UpdateStockDto,
-  ) {
-    const product =
-      await this.prisma.product.findUnique({
-        where: {
-          id: productId,
-        },
+  async makeImagePrimary(productId: string, imageId: string) {
+    const image = await this.prisma.productImage.findFirst({
+      where: {
+        id: imageId,
+        productId,
+      },
+    });
+
+    if (!image) {
+      throw new NotFoundException('La fotografía no pertenece a este producto');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.productImage.updateMany({
+        where: { productId },
+        data: { isPrimary: false },
       });
 
+      return tx.productImage.update({
+        where: { id: imageId },
+        data: { isPrimary: true },
+      });
+    });
+  }
+
+  async removeImage(productId: string, imageId: string) {
+    const image = await this.prisma.productImage.findFirst({
+      where: {
+        id: imageId,
+        productId,
+      },
+    });
+
+    if (!image) {
+      throw new NotFoundException('La fotografía no pertenece a este producto');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.productImage.delete({
+        where: { id: imageId },
+      });
+
+      if (image.isPrimary) {
+        const replacement = await tx.productImage.findFirst({
+          where: { productId },
+          orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+        });
+
+        if (replacement) {
+          await tx.productImage.update({
+            where: { id: replacement.id },
+            data: { isPrimary: true },
+          });
+        }
+      }
+    });
+
+    return {
+      deleted: true,
+      imageId,
+    };
+  }
+
+  async updateProductStock(productId: string, dto: UpdateStockDto) {
+    const product = await this.prisma.product.findUnique({
+      where: {
+        id: productId,
+      },
+    });
+
     if (!product) {
-      throw new NotFoundException(
-        'El producto no existe',
-      );
+      throw new NotFoundException('El producto no existe');
     }
 
     if (!product.trackInventory) {
-      throw new BadRequestException(
-        'Este producto no controla inventario',
-      );
+      throw new BadRequestException('Este producto no controla inventario');
     }
 
     return this.prisma.product.update({
@@ -439,21 +750,15 @@ export class CatalogService {
     });
   }
 
-  async updateVariantStock(
-    variantId: string,
-    dto: UpdateStockDto,
-  ) {
-    const variant =
-      await this.prisma.productVariant.findUnique({
-        where: {
-          id: variantId,
-        },
-      });
+  async updateVariantStock(variantId: string, dto: UpdateStockDto) {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: {
+        id: variantId,
+      },
+    });
 
     if (!variant) {
-      throw new NotFoundException(
-        'La variante no existe',
-      );
+      throw new NotFoundException('La variante no existe');
     }
 
     return this.prisma.productVariant.update({
