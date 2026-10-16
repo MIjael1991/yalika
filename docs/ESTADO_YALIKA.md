@@ -15,7 +15,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 | --- | --- |
 | Encuestas | Hecho en código. Falta probar con un cliente real y desde datos móviles. |
 | Punto de venta, Web/Mi página, Apartados | En uso. Catálogos R11B-3 aplicados, multipáginas R10B. |
-| Salud (clínico) | Hecho hasta R30.4. Pendiente: varias mascotas/personas por cuenta (hoy es un perfil por usuario). |
+| Salud (clínico) | Hecho hasta R30.4. Pendiente: varias personas por cuenta (hoy es un perfil por usuario). Las mascotas van en Veterinaria. |
 | Movilidad | Fases 2 a 9 en código. Fase 10F (`phase10f/policy.ts`, comisión y cancelaciones) escrita pero sin conectar. |
 | Expedientes, Educación, Life, Cerebro | Life y Cerebro en la app; Expedientes y Educación en diseño. |
 | Veterinaria | Solo diseño. |
@@ -40,7 +40,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 2. (Hecho 16-oct) Movilidad fases 1 a 6: cada persona solo usa su cuenta, su perfil de conductor y sus viajes (`mobility-access.service.ts`). El PIN del viaje ya no se devuelve al conductor.
 3. (Hecho 16-oct) PIN de seguridad de Movilidad: ya no se guarda. El PIN del viaje se calcula con una clave del servidor (`mobility-pin.service.ts`) y en la base solo queda una marca; el del viaje seguro se guarda con esa clave. Iniciar el viaje, comprobar el PIN y el viaje seguro comparten el límite de 5 fallos cada 10 minutos. Al arrancar, los viajes ya iniciados o terminados pierden su PIN en texto; los que aún no inician lo conservan hasta usarse. Requiere `YALIKA_PIN_SECRET` en el servidor (si falta usa `JWT_SECRET`; en producción sin ninguna de las dos no deja crear viajes).
 4. (Hecho 16-oct) Red de seguridad `src/security/route-protection.spec.ts`: una prueba revisa todas las rutas y falla si alguna queda abierta sin estar declarada pública a propósito.
-5. Rediseño de Salud para varias mascotas o personas.
+5. Salud es solo para personas; las mascotas van en su propio módulo (Veterinaria), sin compartir tablas. Pendiente diseñar aparte: varias personas por cuenta en Salud (familiares o cuidador). Hoy es un perfil por usuario y tocarlo afecta unos 100 puntos del código clínico.
 6. Probar Encuestas con el primer cliente real.
 
 ## Base de datos

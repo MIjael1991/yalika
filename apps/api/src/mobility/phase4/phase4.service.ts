@@ -1,5 +1,6 @@
 ﻿import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -60,20 +61,31 @@ export class MobilityPhase4Service {
       );
     }
 
-    const rating = await this.prisma.mobilityRating.create({
-      data: {
-        tripId,
-        authorType: dto.authorType,
-        authorId: dto.authorId,
-        targetType: dto.targetType,
-        targetId: dto.targetId,
-        stars: dto.stars,
-        comment: dto.comment,
-      },
-    });
+    // Siempre en mayúsculas: así "driver" y "DRIVER" no cuentan como dos personas distintas.
+    const authorType = dto.authorType.toUpperCase();
+    const targetType = dto.targetType.toUpperCase();
+
+    const rating = await this.prisma.mobilityRating
+      .create({
+        data: {
+          tripId,
+          authorType,
+          authorId: dto.authorId,
+          targetType,
+          targetId: dto.targetId,
+          stars: dto.stars,
+          comment: dto.comment,
+        },
+      })
+      .catch((error: unknown) => {
+        if ((error as { code?: string }).code === 'P2002') {
+          throw new ConflictException('Ya calificaste este viaje.');
+        }
+        throw error;
+      });
 
     // Actualiza la calificación agregada del conductor cuando el objetivo sea DRIVER.
-    if (dto.targetType.toUpperCase() === 'DRIVER') {
+    if (targetType === 'DRIVER') {
       const aggregate = await this.prisma.mobilityRating.aggregate({
         where: {
           targetType: 'DRIVER',
@@ -94,7 +106,7 @@ export class MobilityPhase4Service {
       'RATING_CREATED',
       'MobilityRating',
       rating.id,
-      dto.authorType,
+      authorType,
       dto.authorId,
       tripId,
       { stars: dto.stars, targetType: dto.targetType, targetId: dto.targetId },

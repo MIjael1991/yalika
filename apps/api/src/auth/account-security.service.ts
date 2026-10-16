@@ -14,18 +14,14 @@ import {
   recoveryKeyHash,
   validateNewPasswordPair,
 } from './account-security.helpers';
+import { publicBaseUrl } from '../common/public-url';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const GENERIC_RESET_MESSAGE =
   'Si el correo corresponde a una cuenta activa y la recuperación por correo está disponible, recibirás instrucciones para continuar.';
 
-function getPublicUrl() {
-  const value = (process.env.YALIKA_PUBLIC_URL ?? '')
-    .trim()
-    .replace(/\/+$/, '');
-  return /^https?:\/\//i.test(value) ? value : '';
-}
+const getPublicUrl = publicBaseUrl;
 
 function emailDeliveryAvailable() {
   return Boolean(

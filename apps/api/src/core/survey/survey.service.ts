@@ -16,6 +16,7 @@ import {
 import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 
+import { publicBaseUrl } from '../../common/public-url';
 import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ExtractSurveyIneDto } from './dto/extract-survey-ine.dto';
@@ -181,6 +182,12 @@ export class SurveyService implements OnModuleInit {
       'Enlace individual',
       'Estado',
     ]);
+    const publicUrl = publicBaseUrl();
+    if (!publicUrl) {
+      throw new BadRequestException(
+        'Falta configurar la dirección pública de Yalika (YALIKA_PUBLIC_URL) en el servidor para generar los enlaces individuales.',
+      );
+    }
     for (const invite of invites) {
       const contact = JSON.parse(
         decryptSurveyValue(invite.detailsCipher),
@@ -194,7 +201,7 @@ export class SurveyService implements OnModuleInit {
         contact.reference,
         invite.usedAt
           ? ''
-          : `https://yaleka-production.up.railway.app/e/${encodeURIComponent(survey.slug)}?invitation=${encodeURIComponent(token)}`,
+          : `${publicUrl}/e/${encodeURIComponent(survey.slug)}?invitation=${encodeURIComponent(token)}`,
         invite.usedAt ? 'Respondida' : 'Pendiente',
       ]);
     }
