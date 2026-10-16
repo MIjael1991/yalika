@@ -1,0 +1,180 @@
+// Identidad: empresas, usuarios, sesiones y roles
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sites     Site[]
+
+  users             User[]
+  roles             Role[]
+  tasks             Task[]
+  incidents         Incident[]
+  events            Event[]
+  workflows         Workflow[]
+  experiences       Experience[]
+  customers         Customer[]
+  visits            Visit[]
+  loyaltyPrograms   LoyaltyProgram[]
+  customerRewards   CustomerReward[]
+  commerceCatalogs  CommerceCatalog[]
+  productCategories ProductCategory[]
+  products          Product[]
+  productBarcodes   ProductBarcode[]
+  promotions        Promotion[]
+  suppliers         Supplier[]
+  inventoryItems    InventoryItem[]
+  stockMovements    StockMovement[]
+  inventoryCounts   InventoryCount[]
+  stockReceipts     StockReceipt[]
+  posStockReceipts PosStockReceipt[]
+  posStockMovements PosStockMovement[]
+  orders            Order[]
+  payments          Payment[]
+  diningTables      DiningTable[]
+  orderSplits       OrderSplit[]
+  orderDiscounts    OrderDiscount[]
+  returns           Return[]
+  refunds           Refund[]
+  scratchCampaigns  ScratchCampaign[]
+  scratchPrizes     ScratchPrize[]
+  scratchAttempts   ScratchAttempt[]
+  spaces            Space[]
+  taskRecurrences   TaskRecurrence[]
+  surveys           Survey[]
+  surveyRespondents SurveyRespondent[]
+  assistantBusinessMemories BusinessAssistantMemory[]
+  assistantBusinessActions  BusinessAssistantAction[]
+
+  @@map("companies")
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  name                String
+  email               String    @unique
+  status              String    @default("active")
+  passwordHash        String?
+  passwordChangedAt   DateTime?
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int       @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  roleId String?
+  role   Role?   @relation(fields: [roleId], references: [id])
+
+  tasks                   Task[]               @relation("TaskAssignee")
+  ownedSpaces             Space[]              @relation("SpaceOwner")
+  spaceMemberships        SpaceMember[]
+  createdTasks            Task[]               @relation("TaskCreator")
+  claimedTasks            Task[]               @relation("TaskClaimer")
+  completedTasks          Task[]               @relation("TaskCompleter")
+  taskActivities          TaskActivity[]       @relation("TaskActivityActor")
+  createdTaskRecurrences  TaskRecurrence[]     @relation("TaskRecurrenceCreator")
+  assignedTaskRecurrences TaskRecurrence[]     @relation("TaskRecurrenceAssignee")
+  taskReminders           TaskReminder[]
+  authSessions            AuthSession[]
+  authorizedReturns       Return[]             @relation("ReturnAuthorizedBy")
+  processedRefunds        Refund[]             @relation("RefundProcessedBy")
+  authorizedDiscounts     OrderDiscount[]      @relation("DiscountAuthorizedBy")
+  voidedDiscounts         OrderDiscount[]      @relation("DiscountVoidedBy")
+  redeemedScratchAttempts ScratchAttempt[]     @relation("ScratchRedeemedBy")
+  assistantPreference     AssistantPreference?
+  assistantBusinessMemories BusinessAssistantMemory[]
+  assistantBusinessActions  BusinessAssistantAction[]
+  createdSurveys          Survey[]             @relation("SurveyCreator")
+
+  // Yalika Mobility
+  mobilityDriver         MobilityDriver?
+  mobilityPassengerTrips MobilityTrip[]       @relation("MobilityPassenger")
+  passwordResetTokens    PasswordResetToken[]
+  recoveryKey            AuthRecoveryKey?
+
+  @@map("users")
+}
+
+model AssistantPreference {
+  id              String   @id @default(uuid())
+  preferredName   String?
+  automaticLocale Boolean  @default(true)
+  voiceLocale     String   @default("es-MX")
+  voiceName       String?
+  voiceRate       Float    @default(0.95)
+  visibleModules  Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("assistant_preferences")
+}
+
+model AuthSession {
+  id         String    @id @default(uuid())
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  lastSeenAt DateTime  @default(now())
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@index([expiresAt, revokedAt])
+  @@map("auth_sessions")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  users User[]
+
+  @@unique([companyId, name])
+  @@map("roles")
+}
+
+model PasswordResetToken {
+  id          String    @id @default(uuid())
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  usedAt      DateTime?
+  requestedIp String?
+  createdAt   DateTime  @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([expiresAt, usedAt])
+  @@map("password_reset_tokens")
+}
+
+model AuthRecoveryKey {
+  userId    String   @id
+  keyHash   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("auth_recovery_keys")
+}

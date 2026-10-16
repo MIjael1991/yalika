@@ -1,0 +1,1179 @@
+// Movilidad
+
+enum MobilityDriverStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum MobilityVehicleStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum MobilityTripStatus {
+  REQUESTED
+  NEGOTIATING
+  DRIVER_EN_ROUTE
+  DRIVER_ARRIVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MobilityOfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+model MobilityDriver {
+  id          String               @id @default(uuid())
+  displayName String
+  phone       String
+  status      MobilityDriverStatus @default(PENDING_REVIEW)
+  isAvailable Boolean              @default(false)
+  rating      Float                @default(5)
+  totalTrips  Int                  @default(0)
+
+  currentLat     Float?
+  currentLng     Float?
+  lastLocationAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  vehicles MobilityVehicle[]
+  offers   MobilityOffer[]
+  trips    MobilityTrip[]
+
+  @@index([status, isAvailable])
+  @@index([currentLat, currentLng])
+  @@map("mobility_drivers")
+}
+
+model MobilityVehicle {
+  id       String                @id @default(uuid())
+  brand    String
+  model    String
+  year     Int
+  color    String
+  plate    String                @unique
+  status   MobilityVehicleStatus @default(PENDING_REVIEW)
+  isActive Boolean               @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  driverId String
+  driver   MobilityDriver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  offers MobilityOffer[]
+  trips  MobilityTrip[]
+
+  @@index([driverId])
+  @@index([status, isActive])
+  @@map("mobility_vehicles")
+}
+
+model MobilityTrip {
+  id String @id @default(uuid())
+
+  originAddress      String
+  originLat          Float
+  originLng          Float
+  destinationAddress String
+  destinationLat     Float
+  destinationLng     Float
+
+  passengerSuggestedFare Float
+  agreedFare             Float?
+  finalFare              Float?
+
+  status    MobilityTripStatus @default(REQUESTED)
+  safetyPin String
+  notes     String?
+
+  assignedAt         DateTime?
+  driverArrivedAt    DateTime?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  cancelledBy        String?
+  cancellationReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  passengerUserId String
+  passenger       User   @relation("MobilityPassenger", fields: [passengerUserId], references: [id], onDelete: Restrict)
+
+  driverId String?
+  driver   MobilityDriver? @relation(fields: [driverId], references: [id], onDelete: SetNull)
+
+  vehicleId String?
+  vehicle   MobilityVehicle? @relation(fields: [vehicleId], references: [id], onDelete: SetNull)
+
+  acceptedOfferId String?        @unique
+  acceptedOffer   MobilityOffer? @relation("AcceptedMobilityOffer", fields: [acceptedOfferId], references: [id], onDelete: SetNull)
+
+  offers MobilityOffer[]     @relation("MobilityTripOffers")
+  events MobilityTripEvent[]
+
+  @@index([passengerUserId, status])
+  @@index([driverId, status])
+  @@index([status, createdAt])
+  @@map("mobility_trips")
+}
+
+model MobilityOffer {
+  id         String              @id @default(uuid())
+  amount     Float
+  etaMinutes Int
+  status     MobilityOfferStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tripId String
+  trip   MobilityTrip @relation("MobilityTripOffers", fields: [tripId], references: [id], onDelete: Cascade)
+
+  driverId String
+  driver   MobilityDriver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  vehicleId String
+  vehicle   MobilityVehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+
+  acceptedFor MobilityTrip? @relation("AcceptedMobilityOffer")
+
+  @@index([tripId, status])
+  @@index([driverId, status])
+  @@map("mobility_offers")
+}
+
+model MobilityTripEvent {
+  id        String   @id @default(uuid())
+  type      String
+  actorType String
+  actorId   String?
+  lat       Float?
+  lng       Float?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  tripId String
+  trip   MobilityTrip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, createdAt])
+  @@index([type])
+  @@map("mobility_trip_events")
+}
+
+model MobilityLocationTrace {
+  id             String   @id @default(uuid())
+  tripId         String
+  actorType      String
+  actorId        String
+  source         String   @default("PHONE")
+  lat            Float
+  lng            Float
+  accuracyMeters Float?
+  speedKmh       Float?
+  batteryPct     Int?
+  isBackground   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([tripId, createdAt])
+  @@index([actorType, actorId, createdAt])
+  @@map("mobility_location_traces")
+}
+
+model MobilityCancellationCase {
+  id                       String    @id @default(uuid())
+  tripId                   String    @unique
+  requestedByType          String
+  requestedById            String
+  reason                   String?
+  decision                 String    @default("PENDING")
+  chargePassenger          Boolean   @default(false)
+  compensateDriver         Boolean   @default(false)
+  passengerChargeAmount    Float     @default(0)
+  driverCompensationAmount Float     @default(0)
+  driverDistanceToPickupKm Float?
+  driverWaitSeconds        Int?
+  routeDeviationKm         Float?
+  evidence                 Json?
+  reviewedAt               DateTime?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  @@index([decision, createdAt])
+  @@map("mobility_cancellation_cases")
+}
+
+model MobilitySafetyIncident {
+  id            String    @id @default(uuid())
+  tripId        String?
+  driverId      String?
+  userId        String?
+  type          String
+  severity      String    @default("HIGH")
+  status        String    @default("OPEN")
+  triggerSource String    @default("APP")
+  silentMode    Boolean   @default(true)
+  lat           Float?
+  lng           Float?
+  notes         String?
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  resolvedAt    DateTime?
+
+  @@index([status, createdAt])
+  @@index([driverId, createdAt])
+  @@map("mobility_safety_incidents")
+}
+
+model MobilityTrustedContact {
+  id                String   @id @default(uuid())
+  ownerUserId       String
+  name              String
+  phone             String
+  priority          Int      @default(1)
+  notifyOnTrip      Boolean  @default(false)
+  notifyOnEmergency Boolean  @default(true)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([ownerUserId, isActive])
+  @@map("mobility_trusted_contacts")
+}
+
+model MobilityVehicleTracker {
+  id          String    @id @default(uuid())
+  driverId    String
+  vehicleId   String?
+  deviceLabel String
+  provider    String?
+  deviceUid   String?
+  active      Boolean   @default(true)
+  monthlyCost Float?
+  lastLat     Float?
+  lastLng     Float?
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([driverId, active])
+  @@index([vehicleId, active])
+  @@map("mobility_vehicle_trackers")
+}
+
+model MobilityLostItemCase {
+  id              String    @id @default(uuid())
+  tripId          String
+  passengerUserId String
+  description     String
+  status          String    @default("OPEN")
+  lastKnownPlace  String?
+  contactAttempts Int       @default(0)
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  resolvedAt      DateTime?
+
+  @@index([tripId, status])
+  @@index([passengerUserId, createdAt])
+  @@map("mobility_lost_item_cases")
+}
+
+model MobilityRewardLedger {
+  id           String   @id @default(uuid())
+  driverId     String
+  type         String
+  points       Int      @default(0)
+  creditAmount Float    @default(0)
+  reason       String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([driverId, createdAt])
+  @@map("mobility_reward_ledger")
+}
+
+model MobilityScheduledRoute {
+  id                    String   @id @default(uuid())
+  userId                String
+  originAddress         String
+  originLat             Float
+  originLng             Float
+  destinationAddress    String
+  destinationLat        Float
+  destinationLng        Float
+  departureAt           DateTime
+  seatsAvailable        Int      @default(1)
+  suggestedContribution Float?
+  status                String   @default("OPEN")
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([status, departureAt])
+  @@index([userId, departureAt])
+  @@map("mobility_scheduled_routes")
+}
+
+model MobilityPricingPolicy {
+  id                   String   @id @default(uuid())
+  name                 String
+  isActive             Boolean  @default(true)
+  city                 String?
+  country              String   @default("MX")
+  baseFare             Float    @default(10)
+  perKm                Float    @default(5)
+  perMinute            Float    @default(1)
+  minimumFare          Float    @default(30)
+  platformPercent      Float    @default(8)
+  driverMinimumPercent Float    @default(85)
+  maxSurgeMultiplier   Float    @default(1.25)
+  driverRewardPercent  Float    @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([isActive, city])
+  @@map("mobility_pricing_policies")
+}
+
+model MobilityFareQuote {
+  id                  String   @id @default(uuid())
+  passengerUserId     String?
+  driverId            String?
+  originLat           Float
+  originLng           Float
+  destinationLat      Float
+  destinationLng      Float
+  estimatedKm         Float
+  estimatedMinutes    Int
+  competitorReference Float?
+  yalekaFare          Float
+  driverGross         Float
+  platformFee         Float
+  savingsVsReference  Float?
+  pricingPolicyId     String?
+  expiresAt           DateTime
+  createdAt           DateTime @default(now())
+
+  @@index([passengerUserId, createdAt])
+  @@index([driverId, createdAt])
+  @@map("mobility_fare_quotes")
+}
+
+model MobilityDriverWallet {
+  id             String   @id @default(uuid())
+  driverId       String   @unique
+  available      Float    @default(0)
+  reserved       Float    @default(0)
+  lifetimeEarned Float    @default(0)
+  lifetimeSpent  Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("mobility_driver_wallets")
+}
+
+model MobilityWalletMovement {
+  id          String   @id @default(uuid())
+  driverId    String
+  walletId    String
+  type        String
+  amount      Float
+  concept     String
+  referenceId String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([driverId, createdAt])
+  @@index([walletId, createdAt])
+  @@index([referenceId])
+  @@map("mobility_wallet_movements")
+}
+
+model MobilityDriverBenefit {
+  id          String    @id @default(uuid())
+  driverId    String
+  code        String
+  title       String
+  description String?
+  valueAmount Float?
+  valuePct    Float?
+  status      String    @default("AVAILABLE")
+  expiresAt   DateTime?
+  redeemedAt  DateTime?
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+
+  @@index([driverId, status])
+  @@map("mobility_driver_benefits")
+}
+
+model MobilityBonusCampaign {
+  id                  String   @id @default(uuid())
+  name                String
+  isActive            Boolean  @default(true)
+  startsAt            DateTime
+  endsAt              DateTime
+  minTrips            Int      @default(1)
+  rewardPoints        Int      @default(0)
+  rewardAmount        Float    @default(0)
+  maxRewardsPerDriver Int      @default(1)
+  city                String?
+  rules               Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([isActive, startsAt, endsAt])
+  @@map("mobility_bonus_campaigns")
+}
+
+model MobilityBonusGrant {
+  id         String   @id @default(uuid())
+  campaignId String
+  driverId   String
+  amount     Float    @default(0)
+  points     Int      @default(0)
+  reason     String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([campaignId, driverId])
+  @@index([driverId, createdAt])
+  @@map("mobility_bonus_grants")
+}
+
+model MobilityDeviceHeartbeat {
+  id            String   @id @default(uuid())
+  deviceType    String
+  deviceId      String
+  userId        String?
+  driverId      String?
+  vehicleId     String?
+  tripId        String?
+  lat           Float?
+  lng           Float?
+  batteryPct    Int?
+  networkType   String?
+  signalQuality Int?
+  appState      String?
+  createdAt     DateTime @default(now())
+
+  @@index([deviceType, deviceId, createdAt])
+  @@index([driverId, createdAt])
+  @@index([tripId, createdAt])
+  @@map("mobility_device_heartbeats")
+}
+
+model MobilityRiskAssessment {
+  id                String    @id @default(uuid())
+  tripId            String
+  riskScore         Int       @default(0)
+  level             String    @default("LOW")
+  reasons           Json?
+  phoneLastSeenAt   DateTime?
+  trackerLastSeenAt DateTime?
+  routeDeviationKm  Float?
+  createdAt         DateTime  @default(now())
+
+  @@index([tripId, createdAt])
+  @@map("mobility_risk_assessments")
+}
+
+model MobilityShareSession {
+  id          String   @id @default(uuid())
+  tripId      String
+  ownerUserId String
+  token       String   @unique
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([tripId, isActive])
+  @@map("mobility_share_sessions")
+}
+
+model MobilityOpportunityPreference {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  enabled             Boolean  @default(false)
+  maxDetourKm         Float    @default(3)
+  minimumContribution Float    @default(0)
+  seats               Int      @default(1)
+  allowedDays         Json?
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("mobility_opportunity_preferences")
+}
+
+model MobilityServicePaymentPlan {
+  id            String   @id @default(uuid())
+  driverId      String
+  name          String
+  category      String
+  amount        Float
+  cadence       String   @default("MONTHLY")
+  dayOfMonth    Int?
+  isActive      Boolean  @default(true)
+  autoUseWallet Boolean  @default(false)
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([driverId, isActive])
+  @@map("mobility_service_payment_plans")
+}
+
+model MobilityRating {
+  id         String   @id @default(uuid())
+  tripId     String
+  authorType String
+  authorId   String
+  targetType String
+  targetId   String
+  stars      Int
+  comment    String?
+  tags       Json?
+  createdAt  DateTime @default(now())
+
+  @@unique([tripId, authorType, authorId, targetType, targetId])
+  @@index([targetType, targetId, createdAt])
+  @@map("mobility_ratings")
+}
+
+model MobilitySupportCase {
+  id          String    @id @default(uuid())
+  tripId      String?
+  userId      String?
+  driverId    String?
+  category    String
+  priority    String    @default("NORMAL")
+  status      String    @default("OPEN")
+  subject     String
+  description String
+  assignedTo  String?
+  resolution  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  resolvedAt  DateTime?
+
+  @@index([status, priority, createdAt])
+  @@index([tripId, createdAt])
+  @@map("mobility_support_cases")
+}
+
+model MobilityDriverDocument {
+  id              String    @id @default(uuid())
+  driverId        String
+  type            String
+  documentNumber  String?
+  fileRef         String?
+  expiresAt       DateTime?
+  status          String    @default("PENDING")
+  rejectionReason String?
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([driverId, type, status])
+  @@index([expiresAt])
+  @@map("mobility_driver_documents")
+}
+
+model MobilityTripReceipt {
+  id           String   @id @default(uuid())
+  tripId       String   @unique
+  receiptNo    String   @unique
+  fare         Float
+  platformFee  Float    @default(0)
+  driverAmount Float    @default(0)
+  currency     String   @default("MXN")
+  snapshot     Json
+  issuedAt     DateTime @default(now())
+
+  @@index([issuedAt])
+  @@map("mobility_trip_receipts")
+}
+
+model MobilityCancellationSettlement {
+  id                       String   @id @default(uuid())
+  tripId                   String   @unique
+  cancellationCaseId       String?
+  decision                 String
+  passengerChargeAmount    Float    @default(0)
+  driverCompensationAmount Float    @default(0)
+  platformAmount           Float    @default(0)
+  currency                 String   @default("MXN")
+  reason                   String?
+  settledBy                String
+  settledAt                DateTime @default(now())
+  metadata                 Json?
+
+  @@index([decision, settledAt])
+  @@map("mobility_cancellation_settlements")
+}
+
+model MobilityNotificationOutbox {
+  id             String    @id @default(uuid())
+  idempotencyKey String    @unique
+  userId         String?
+  driverId       String?
+  tripId         String?
+  channel        String
+  destination    String?
+  template       String
+  payload        Json?
+  status         String    @default("PENDING")
+  attempts       Int       @default(0)
+  lastError      String?
+  scheduledAt    DateTime  @default(now())
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([tripId, createdAt])
+  @@map("mobility_notification_outbox")
+}
+
+model MobilitySafetyEscalation {
+  id           String    @id @default(uuid())
+  incidentId   String
+  step         String
+  status       String    @default("PENDING")
+  contactName  String?
+  contactPhone String?
+  notes        String?
+  executedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([incidentId, createdAt])
+  @@map("mobility_safety_escalations")
+}
+
+model MobilityPrivacyPolicy {
+  id                     String   @id @default(uuid())
+  name                   String
+  isActive               Boolean  @default(true)
+  locationRetentionDays  Int      @default(30)
+  heartbeatRetentionDays Int      @default(30)
+  incidentRetentionDays  Int      @default(365)
+  preciseLocationPurpose String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([isActive])
+  @@map("mobility_privacy_policies")
+}
+
+model MobilityAuditEvent {
+  id         String   @id @default(uuid())
+  actorType  String
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  tripId     String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId, createdAt])
+  @@index([tripId, createdAt])
+  @@index([actorType, actorId, createdAt])
+  @@map("mobility_audit_events")
+}
+
+model MobilityPayoutBatch {
+  id          String    @id @default(uuid())
+  driverId    String
+  amount      Float
+  currency    String    @default("MXN")
+  status      String    @default("PENDING")
+  periodStart DateTime
+  periodEnd   DateTime
+  reference   String?   @unique
+  notes       String?
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+
+  @@index([driverId, status, createdAt])
+  @@map("mobility_payout_batches")
+}
+
+model MobilityReferralCampaign {
+  id                   String   @id @default(uuid())
+  name                 String
+  isActive             Boolean  @default(true)
+  appliesTo            String   @default("BOTH")
+  startsAt             DateTime
+  endsAt               DateTime
+  inviterRewardType    String   @default("PROMO_CREDIT")
+  inviterRewardAmount  Float    @default(0)
+  invitedRewardType    String   @default("PROMO_CREDIT")
+  invitedRewardAmount  Float    @default(0)
+  qualificationType    String   @default("FIRST_COMPLETED_TRIP")
+  qualificationCount   Int      @default(1)
+  maxRewardsPerInviter Int      @default(20)
+  minQualifyingFare    Float    @default(0)
+  metadata             Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([isActive, startsAt, endsAt])
+  @@map("mobility_referral_campaigns")
+}
+
+model MobilityReferralCode {
+  id            String    @id @default(uuid())
+  campaignId    String
+  code          String    @unique
+  ownerUserId   String
+  ownerDriverId String?
+  isActive      Boolean   @default(true)
+  uses          Int       @default(0)
+  maxUses       Int       @default(100)
+  expiresAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([campaignId, ownerUserId])
+  @@index([ownerDriverId])
+  @@map("mobility_referral_codes")
+}
+
+model MobilityReferralAttribution {
+  id              String    @id @default(uuid())
+  campaignId      String
+  codeId          String
+  inviterUserId   String
+  inviterDriverId String?
+  referredUserId  String    @unique
+  referredRole    String
+  status          String    @default("PENDING")
+  qualifyingTrips Int       @default(0)
+  fraudReason     String?
+  qualifiedAt     DateTime?
+  rewardedAt      DateTime?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([campaignId, inviterUserId, status])
+  @@index([inviterDriverId, status])
+  @@map("mobility_referral_attributions")
+}
+
+model MobilityReferralReward {
+  id                  String   @id @default(uuid())
+  attributionId       String
+  beneficiaryType     String
+  beneficiaryUserId   String?
+  beneficiaryDriverId String?
+  rewardType          String
+  amount              Float    @default(0)
+  status              String   @default("ISSUED")
+  referenceKey        String   @unique
+  metadata            Json?
+  issuedAt            DateTime @default(now())
+
+  @@index([attributionId])
+  @@index([beneficiaryUserId, issuedAt])
+  @@index([beneficiaryDriverId, issuedAt])
+  @@map("mobility_referral_rewards")
+}
+
+model MobilityPromoBalance {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  available      Float    @default(0)
+  lifetimeEarned Float    @default(0)
+  lifetimeSpent  Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("mobility_promo_balances")
+}
+
+model MobilityPromoMovement {
+  id           String   @id @default(uuid())
+  balanceId    String
+  userId       String
+  type         String
+  amount       Float
+  referenceKey String   @unique
+  description  String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("mobility_promo_movements")
+}
+
+model MobilityVerificationProfile {
+  id               String    @id @default(uuid())
+  subjectType      String
+  subjectId        String
+  phone            String?
+  phoneVerified    Boolean   @default(false)
+  identityStatus   String    @default("PENDING")
+  selfieVerified   Boolean   @default(false)
+  documentVerified Boolean   @default(false)
+  trustLevel       String    @default("BASIC")
+  blocked          Boolean   @default(false)
+  riskFlags        Json?
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([subjectType, subjectId])
+  @@index([identityStatus, trustLevel])
+  @@map("mobility_verification_profiles")
+}
+
+model MobilityVerificationEvent {
+  id          String   @id @default(uuid())
+  subjectType String
+  subjectId   String
+  action      String
+  status      String
+  actorId     String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([subjectType, subjectId, createdAt])
+  @@map("mobility_verification_events")
+}
+
+model MobilityVehicleCompliance {
+  id                 String    @id @default(uuid())
+  vehicleId          String    @unique
+  serviceType        String    @default("PRIVATE")
+  taxiPermitNumber   String?
+  taxiConcessionRef  String?
+  permitExpiresAt    DateTime?
+  insuranceExpiresAt DateTime?
+  inspectionStatus   String    @default("PENDING")
+  status             String    @default("PENDING")
+  reviewedBy         String?
+  reviewedAt         DateTime?
+  rejectionReason    String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([serviceType, status])
+  @@index([permitExpiresAt])
+  @@index([insuranceExpiresAt])
+  @@map("mobility_vehicle_compliance")
+}
+
+model MobilityPinAttempt {
+  id              String   @id @default(uuid())
+  tripId          String
+  passengerUserId String?
+  driverId        String?
+  success         Boolean
+  source          String   @default("APP")
+  createdAt       DateTime @default(now())
+
+  @@index([tripId, createdAt])
+  @@index([passengerUserId, createdAt])
+  @@map("mobility_pin_attempts")
+}
+
+model MobilitySafeRide {
+  id                 String    @id @default(uuid())
+  driverId           String
+  passengerUserId    String?
+  vehicleId          String
+  originAddress      String
+  originLat          Float?
+  originLng          Float?
+  destinationAddress String
+  destinationLat     Float?
+  destinationLng     Float?
+  status             String    @default("CREATED")
+  safetyPinHash      String
+  shareToken         String?   @unique
+  shareExpiresAt     DateTime?
+  lastLat            Float?
+  lastLng            Float?
+  lastLocationAt     DateTime?
+  notes              String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([driverId, status, createdAt])
+  @@index([passengerUserId, createdAt])
+  @@map("mobility_safe_rides")
+}
+
+model MobilitySafeRideTrace {
+  id             String   @id @default(uuid())
+  safeRideId     String
+  lat            Float
+  lng            Float
+  accuracyMeters Float?
+  source         String   @default("PHONE")
+  isBackground   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@index([safeRideId, createdAt])
+  @@map("mobility_safe_ride_traces")
+}
+
+model MobilitySafeRideIncident {
+  id         String    @id @default(uuid())
+  safeRideId String
+  type       String
+  severity   String    @default("HIGH")
+  silentMode Boolean   @default(false)
+  status     String    @default("OPEN")
+  lat        Float?
+  lng        Float?
+  notes      String?
+  metadata   Json?
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([safeRideId, status, createdAt])
+  @@map("mobility_safe_ride_incidents")
+}
+
+model MobilityNegotiationPolicy {
+  id                    String   @id @default(uuid())
+  name                  String
+  city                  String?
+  country               String   @default("MX")
+  isActive              Boolean  @default(true)
+  baseFare              Float    @default(15)
+  perKm                 Float    @default(10)
+  perMinuteTarget       Float    @default(3)
+  minimumFare           Float    @default(50)
+  minimumAllowedRatio   Float    @default(0.75)
+  reasonableOfferRatio  Float    @default(0.85)
+  fastMatchRatio        Float    @default(1.05)
+  maxDriverCounterRatio Float    @default(1.25)
+  platformPercent       Float    @default(8)
+  freePickupKm          Float    @default(2)
+  pickupPerKm           Float    @default(4)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([isActive, city])
+  @@map("mobility_negotiation_policies")
+}
+
+model MobilityRouteEstimate {
+  id                     String   @id @default(uuid())
+  provider               String   @default("FALLBACK")
+  city                   String?
+  originLat              Float
+  originLng              Float
+  destinationLat         Float
+  destinationLng         Float
+  straightLineKm         Float
+  distanceKm             Float
+  durationMinutes        Int
+  trafficDurationMinutes Int
+  trafficLevel           String   @default("NORMAL")
+  geometry               Json?
+  metadata               Json?
+  createdAt              DateTime @default(now())
+
+  @@index([provider, createdAt])
+  @@map("mobility_route_estimates")
+}
+
+model MobilityNegotiationRequest {
+  id                 String   @id @default(uuid())
+  clientRequestId    String?  @unique
+  passengerUserId    String
+  routeEstimateId    String?
+  originAddress      String
+  originLat          Float
+  originLng          Float
+  destinationAddress String
+  destinationLat     Float
+  destinationLng     Float
+  distanceKm         Float
+  durationMinutes    Int
+  trafficMinutes     Int
+  recommendedFare    Float
+  minimumAllowedFare Float
+  reasonableFare     Float
+  fastMatchFare      Float
+  passengerOffer     Float
+  status             String   @default("OPEN")
+  selectedProposalId String?
+  agreedFare         Float?
+  currency           String   @default("MXN")
+  expiresAt          DateTime
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([passengerUserId, status, createdAt])
+  @@index([status, expiresAt])
+  @@map("mobility_negotiation_requests")
+}
+
+model MobilityFareProposal {
+  id              String   @id @default(uuid())
+  clientRequestId String?  @unique
+  requestId       String
+  proposerType    String
+  proposerId      String
+  driverId        String?
+  amount          Float
+  etaMinutes      Int?
+  status          String   @default("ACTIVE")
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([requestId, status, createdAt])
+  @@index([driverId, status, createdAt])
+  @@map("mobility_fare_proposals")
+}
+
+model MobilityNegotiationAudit {
+  id         String   @id @default(uuid())
+  requestId  String
+  actorType  String
+  actorId    String?
+  action     String
+  proposalId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([requestId, createdAt])
+  @@index([actorType, actorId, createdAt])
+  @@map("mobility_negotiation_audit")
+}
+
+model MobilityRequestThrottle {
+  id        String   @id @default(uuid())
+  action    String
+  actorId   String
+  createdAt DateTime @default(now())
+
+  @@index([action, actorId, createdAt])
+  @@map("mobility_request_throttle")
+}
+
+model MobilityExperiencePreference {
+  id                  String   @id @default(uuid())
+  subjectType         String
+  subjectId           String
+  language            String   @default("es-MX")
+  voiceEnabled        Boolean  @default(true)
+  spokenConfirmations Boolean  @default(true)
+  fareMode            String   @default("BALANCED")
+  searchRadiusKm      Float    @default(8)
+  simpleMode          Boolean  @default(true)
+  largeControls       Boolean  @default(false)
+  reduceMotion        Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([subjectType, subjectId])
+  @@index([subjectType, subjectId])
+  @@map("mobility_experience_preferences")
+}
+
+model MobilityVoiceCommand {
+  id                   String    @id @default(uuid())
+  subjectType          String
+  subjectId            String
+  rawText              String
+  normalizedText       String
+  intent               String
+  confidence           Float     @default(0)
+  requiresConfirmation Boolean   @default(false)
+  status               String    @default("INTERPRETED")
+  requestId            String?
+  proposalId           String?
+  amount               Float?
+  payload              Json?
+  result               Json?
+  expiresAt            DateTime
+  executedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([subjectType, subjectId, createdAt])
+  @@index([status, expiresAt])
+  @@index([requestId, createdAt])
+  @@map("mobility_voice_commands")
+}
+
+model MobilityNegotiationContext {
+  id                      String   @id @default(uuid())
+  requestId               String   @unique
+  city                    String?
+  requestedMode           String   @default("BALANCED")
+  createdByVoice          Boolean  @default(false)
+  preferredSearchRadiusKm Float    @default(8)
+  source                  String   @default("YALEKA")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([city, createdAt])
+  @@map("mobility_negotiation_contexts")
+}
+
+model MobilitySavedPlace {
+  id         String    @id @default(uuid())
+  userId     String
+  label      String
+  kind       String    @default("CUSTOM")
+  address    String
+  lat        Float
+  lng        Float
+  visits     Int       @default(0)
+  score      Float     @default(0)
+  source     String    @default("MANUAL")
+  lastUsedAt DateTime?
+  isPinned   Boolean   @default(false)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([userId, address])
+  @@index([userId, isActive])
+  @@index([userId, visits, lastUsedAt])
+}
+
+model MobilitySearchPreference {
+  id                     String   @id @default(uuid())
+  userId                 String   @unique
+  rememberFrequentPlaces Boolean  @default(true)
+  showPremiumUi          Boolean  @default(true)
+  theme                  String   @default("PREMIUM_DARK")
+  homeLabel              String?
+  workLabel              String?
+  lastDestinationAddress String?
+  lastDestinationLat     Float?
+  lastDestinationLng     Float?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}

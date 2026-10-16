@@ -1,0 +1,227 @@
+// Clientes: visitas, lealtad y rascaditos
+
+model Customer {
+  id String @id @default(uuid())
+
+  name  String
+  phone String
+  email String?
+
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  visits          Visit[]
+  rewards         CustomerReward[]
+  orders          Order[]
+  scratchAttempts ScratchAttempt[]
+
+  @@unique([companyId, phone])
+  @@index([companyId])
+  @@index([phone])
+  @@map("customers")
+}
+
+model Visit {
+  id String @id @default(uuid())
+
+  source String  @default("manual")
+  status String  @default("confirmed")
+  notes  String?
+
+  occurredAt DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  loyaltyProgramId String?
+  loyaltyProgram   LoyaltyProgram? @relation(fields: [loyaltyProgramId], references: [id], onDelete: SetNull)
+
+  scratchAttempt ScratchAttempt?
+
+  @@index([customerId])
+  @@index([companyId])
+  @@index([companyId, occurredAt])
+  @@index([loyaltyProgramId])
+  @@map("visits")
+}
+
+model LoyaltyProgram {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  requiredVisits Int
+
+  rewardType        String @default("custom")
+  rewardDescription String
+
+  rewardValidDays Int @default(30)
+
+  status String @default("draft")
+
+  startsAt DateTime
+  endsAt   DateTime
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  visits           Visit[]
+  rewards          CustomerReward[]
+  orders           Order[]
+  scratchCampaigns ScratchCampaign[]
+
+  @@index([companyId])
+  @@index([companyId, status])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@map("loyalty_programs")
+}
+
+model CustomerReward {
+  id String @id @default(uuid())
+
+  rewardType        String
+  rewardDescription String
+
+  status String @default("available")
+
+  earnedAt   DateTime  @default(now())
+  expiresAt  DateTime
+  redeemedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  loyaltyProgramId String
+  loyaltyProgram   LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, loyaltyProgramId])
+  @@index([customerId])
+  @@index([companyId])
+  @@index([loyaltyProgramId])
+  @@index([status])
+  @@index([expiresAt])
+  @@map("customer_rewards")
+}
+
+model ScratchCampaign {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  status    String @default("active")
+  validDays Int    @default(30)
+
+  startsAt DateTime
+  endsAt   DateTime
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  loyaltyProgramId String
+  loyaltyProgram   LoyaltyProgram @relation(fields: [loyaltyProgramId], references: [id], onDelete: Cascade)
+
+  prizes   ScratchPrize[]
+  attempts ScratchAttempt[]
+
+  @@index([companyId, status])
+  @@index([loyaltyProgramId])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@map("scratch_campaigns")
+}
+
+model ScratchPrize {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  probabilityBasisPoints Int
+  stock                  Int?
+  remaining              Int?
+  sortOrder              Int    @default(0)
+  status                 String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  campaignId String
+  campaign   ScratchCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  attempts ScratchAttempt[]
+
+  @@index([companyId])
+  @@index([campaignId, status])
+  @@map("scratch_prizes")
+}
+
+model ScratchAttempt {
+  id String @id @default(uuid())
+
+  status    String
+  claimCode String? @unique
+
+  playedAt   DateTime  @default(now())
+  expiresAt  DateTime?
+  redeemedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  visitId String @unique
+  visit   Visit  @relation(fields: [visitId], references: [id], onDelete: Restrict)
+
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  campaignId String
+  campaign   ScratchCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  prizeId String?
+  prize   ScratchPrize? @relation(fields: [prizeId], references: [id], onDelete: SetNull)
+
+  redeemedById String?
+  redeemedBy   User?   @relation("ScratchRedeemedBy", fields: [redeemedById], references: [id], onDelete: Restrict)
+
+  @@index([customerId])
+  @@index([companyId, status])
+  @@index([campaignId])
+  @@index([prizeId])
+  @@index([redeemedById])
+  @@index([expiresAt])
+  @@map("scratch_attempts")
+}

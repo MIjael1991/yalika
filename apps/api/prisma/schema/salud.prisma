@@ -1,0 +1,870 @@
+// Salud
+
+model ClinicalProfile {
+  id          String   @id @default(uuid())
+  ownerUserId String   @unique
+  displayName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  documents       ClinicalDocument[]
+  events          ClinicalTimelineEvent[]
+  prescriptions   ClinicalPrescription[]
+  shareLinks      ClinicalShareLink[]
+  accessGrants    ClinicalAccessGrant[]
+  auditEvents     ClinicalAuditEvent[]
+
+  @@map("clinical_profiles")
+}
+
+model ClinicalDocument {
+  id                 String   @id @default(uuid())
+  profileId          String
+  profile            ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  title              String
+  documentType       String
+  originalName       String
+  mimeType           String
+  byteSize           Int
+  sha256             String
+  storageKey         String
+  source             String   @default("PATIENT_PROVIDED")
+  verificationStatus String   @default("UNVERIFIED")
+  clinicalDate       DateTime?
+  createdByUserId    String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  deletedAt          DateTime?
+
+  versions      ClinicalDocumentVersion[]
+  prescriptions ClinicalPrescription[]
+
+  @@unique([profileId, sha256])
+  @@index([profileId, clinicalDate])
+  @@index([profileId, createdAt])
+  @@map("clinical_documents")
+}
+
+model ClinicalDocumentVersion {
+  id            String   @id @default(uuid())
+  documentId    String
+  document      ClinicalDocument @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  versionNumber Int
+  storageKey    String
+  sha256        String
+  mimeType      String
+  byteSize      Int
+  kind          String   @default("ORIGINAL")
+  createdByUserId String
+  createdAt     DateTime @default(now())
+
+  @@unique([documentId, versionNumber])
+  @@index([documentId, createdAt])
+  @@map("clinical_document_versions")
+}
+
+model ClinicalTimelineEvent {
+  id                 String   @id @default(uuid())
+  profileId          String
+  profile            ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  kind               String
+  title              String
+  status             String   @default("COMPLETED")
+  occurredAt         DateTime
+  resourceType       String?
+  resourceId         String?
+  source             String   @default("PATIENT")
+  verificationStatus String   @default("UNVERIFIED")
+  metadata           Json?
+  createdByUserId    String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([profileId, occurredAt])
+  @@index([profileId, kind, occurredAt])
+  @@map("clinical_timeline_events")
+}
+
+model ClinicalPrescription {
+  id                 String   @id @default(uuid())
+  profileId          String
+  profile            ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  documentId         String?
+  document           ClinicalDocument? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  source             String   @default("PATIENT_PROVIDED")
+  verificationStatus String   @default("UNVERIFIED")
+  status             String   @default("ACTIVE")
+  prescriberName     String?
+  institutionName    String?
+  issuedAt           DateTime
+  createdByUserId    String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  items ClinicalPrescriptionItem[]
+
+  @@index([profileId, issuedAt])
+  @@map("clinical_prescriptions")
+}
+
+model ClinicalPrescriptionItem {
+  id               String   @id @default(uuid())
+  prescriptionId   String
+  prescription     ClinicalPrescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  medicationName   String
+  strength         String?
+  form             String?
+  route            String?
+  dosageText       String?
+  frequencyText    String?
+  durationText     String?
+  quantityText     String?
+  instructions     String?
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+
+  @@index([prescriptionId, sortOrder])
+  @@map("clinical_prescription_items")
+}
+
+model ClinicalShareLink {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  tokenHash   String   @unique
+  tokenPrefix String
+  resources   Json
+  permissions Json
+  purpose     String?
+  status      String   @default("ACTIVE")
+  maxUses     Int      @default(1)
+  usedCount   Int      @default(0)
+  expiresAt   DateTime
+  createdByUserId String
+  createdAt   DateTime @default(now())
+  revokedAt   DateTime?
+
+  requests ClinicalAccessRequest[]
+  grants   ClinicalAccessGrant[]
+
+  @@index([profileId, status, expiresAt])
+  @@map("clinical_share_links")
+}
+
+model ClinicalAccessRequest {
+  id              String   @id @default(uuid())
+  shareLinkId     String
+  shareLink       ClinicalShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Restrict)
+  requesterUserId String
+  status          String   @default("PENDING")
+  requestedAt     DateTime @default(now())
+  decidedAt       DateTime?
+  decidedByUserId String?
+
+  grant ClinicalAccessGrant?
+
+  @@unique([shareLinkId, requesterUserId])
+  @@index([requesterUserId, status])
+  @@map("clinical_access_requests")
+}
+
+model ClinicalAccessGrant {
+  id              String   @id @default(uuid())
+  profileId       String
+  profile         ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  shareLinkId     String
+  shareLink       ClinicalShareLink @relation(fields: [shareLinkId], references: [id], onDelete: Restrict)
+  accessRequestId String   @unique
+  accessRequest   ClinicalAccessRequest @relation(fields: [accessRequestId], references: [id], onDelete: Restrict)
+  granteeUserId   String
+  resources       Json
+  permissions     Json
+  purpose         String?
+  status          String   @default("ACTIVE")
+  startsAt        DateTime @default(now())
+  expiresAt       DateTime
+  revokedAt       DateTime?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+
+  sessions ClinicalAccessSession[]
+
+  @@index([profileId, status, expiresAt])
+  @@index([granteeUserId, status, expiresAt])
+  @@map("clinical_access_grants")
+}
+
+model ClinicalAccessSession {
+  id           String   @id @default(uuid())
+  grantId      String
+  grant        ClinicalAccessGrant @relation(fields: [grantId], references: [id], onDelete: Restrict)
+  viewerUserId String
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+  lastUsedAt   DateTime @default(now())
+  revokedAt    DateTime?
+
+  @@index([grantId, status])
+  @@index([viewerUserId, status, expiresAt])
+  @@map("clinical_access_sessions")
+}
+
+model ClinicalAuditEvent {
+  id          String   @id @default(uuid())
+  profileId   String
+  profile     ClinicalProfile @relation(fields: [profileId], references: [id], onDelete: Restrict)
+  actorUserId String
+  action      String
+  resourceType String?
+  resourceId  String?
+  result      String
+  purpose     String?
+  grantId     String?
+  correlationId String?
+  operationId String?
+  metadata    Json?
+  occurredAt  DateTime @default(now())
+
+  @@index([profileId, occurredAt])
+  @@index([actorUserId, occurredAt])
+  @@map("clinical_audit_events")
+}
+
+model ClinicalSubjectExtension {
+  id                String   @id @default(uuid())
+  clinicalProfileId String   @unique
+  subjectType       String   @default("HUMAN")
+  species           String?
+  breed             String?
+  sex               String?
+  birthDate         DateTime?
+  guardianUserId    String?
+  animalIdentifier  String?
+  weightValue       Float?
+  weightUnit        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([subjectType])
+  @@index([guardianUserId])
+  @@map("clinical_subject_extensions")
+}
+
+model ClinicalConsultation {
+  id                  String   @id @default(uuid())
+  clinicalProfileId   String
+  patientUserId       String?
+  clinicianUserId     String?
+  subjectType         String   @default("HUMAN")
+  mode                String   @default("online")
+  status              String   @default("scheduled")
+  scheduledAt         DateTime
+  startedAt           DateTime?
+  completedAt         DateTime?
+  timezone            String   @default("America/Mexico_City")
+  reason              String?
+  professionalSummary String?
+  priceCents          Int      @default(500)
+  currency            String   @default("MXN")
+  paymentStatus       String   @default("pending")
+  paymentReference    String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  links    ClinicalConsultationLink[]
+  regimens ClinicalMedicationRegimen[]
+
+  @@index([clinicalProfileId, scheduledAt])
+  @@index([patientUserId, status, scheduledAt])
+  @@index([clinicianUserId, status, scheduledAt])
+  @@map("clinical_consultations")
+}
+
+model ClinicalConsultationLink {
+  id             String   @id @default(uuid())
+  consultationId String
+  tokenHash      String   @unique
+  purpose        String   @default("consultation_access")
+  expiresAt      DateTime
+  maxUses        Int      @default(1)
+  useCount       Int      @default(0)
+  revokedAt      DateTime?
+  createdById    String?
+  createdAt      DateTime @default(now())
+
+  consultation ClinicalConsultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@index([consultationId, expiresAt])
+  @@index([expiresAt, revokedAt])
+  @@map("clinical_consultation_links")
+}
+
+model ClinicalMedicationRegimen {
+  id                      String   @id @default(uuid())
+  clinicalProfileId       String
+  consultationId          String?
+  prescriptionId          String?
+  prescriptionItemId      String?
+  instructions            String
+  doseAmount              Float
+  doseUnit                String
+  administrationsPerDay   Float
+  durationDays            Float
+  requiredUnits           Float
+  dispensedUnits          Float    @default(0)
+  remainingUnits          Float
+  packageUnits            Float?
+  supplyStatus            String   @default("PENDING")
+  firstDoseAt             DateTime?
+  timezone                String   @default("America/Mexico_City")
+  createdById             String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  consultation ClinicalConsultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  dispenses    ClinicalDispenseEvent[]
+
+  @@index([clinicalProfileId, supplyStatus])
+  @@index([prescriptionId])
+  @@index([prescriptionItemId])
+  @@index([consultationId])
+  @@map("clinical_medication_regimens")
+}
+
+model ClinicalDispenseEvent {
+  id                       String   @id @default(uuid())
+  regimenId                String
+  quantityPresented        Float
+  packageUnits             Float?
+  packagesPresented        Int?
+  prescriptionUnitsCovered Float
+  surplusUnits             Float    @default(0)
+  providerUserId           String?
+  providerName             String?
+  inventoryReference       String?
+  idempotencyKey           String   @unique
+  dispensedAt              DateTime @default(now())
+  createdAt                DateTime @default(now())
+
+  regimen ClinicalMedicationRegimen @relation(fields: [regimenId], references: [id], onDelete: Cascade)
+
+  @@index([regimenId, dispensedAt])
+  @@index([providerUserId, dispensedAt])
+  @@map("clinical_dispense_events")
+}
+
+model ClinicalIntegrationEvent {
+  id         String   @id @default(uuid())
+  eventType  String
+  userId     String
+  sourceId   String
+  dueAt      DateTime?
+  title      String
+  sensitivity String  @default("PRIVATE")
+  metadata   Json?
+  status     String   @default("pending")
+  dedupeKey  String   @unique
+  deliveredAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, status, dueAt])
+  @@index([eventType, status])
+  @@map("clinical_integration_events")
+}
+
+model ClinicalVisitCapture {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  consultationId     String?
+  sourceType         String
+  documentId         String?
+  sourceText         String?
+  proposedData       Json?
+  confirmedData      Json?
+  confirmationStatus String   @default("PENDING")
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, createdAt])
+  @@index([consultationId])
+  @@index([documentId])
+  @@map("clinical_visit_captures")
+}
+
+model ClinicalMedicationSchedule {
+  id                String   @id @default(uuid())
+  clinicalProfileId String
+  regimenId         String
+  firstDoseAt       DateTime
+  intervalMinutes   Int
+  endAt             DateTime
+  nextDoseAt        DateTime?
+  timezone          String   @default("America/Mexico_City")
+  status            String   @default("ACTIVE")
+  createdById       String
+  operationId       String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  administrations ClinicalMedicationAdministration[]
+
+  @@index([clinicalProfileId, status, nextDoseAt])
+  @@index([regimenId, status])
+  @@map("clinical_medication_schedules")
+}
+
+model ClinicalMedicationAdministration {
+  id          String   @id @default(uuid())
+  scheduleId  String
+  scheduledAt DateTime
+  occurredAt  DateTime?
+  status      String
+  note        String?
+  operationId String   @unique
+  createdById String
+  createdAt   DateTime @default(now())
+
+  schedule ClinicalMedicationSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId, scheduledAt])
+  @@index([status, scheduledAt])
+  @@map("clinical_medication_administrations")
+}
+
+model ClinicalAllergy {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  substance          String
+  allergyType        String
+  reaction           String?
+  severity           String   @default("UNSPECIFIED")
+  approximateDate    DateTime?
+  source             String   @default("PATIENT")
+  confirmationStatus String   @default("REPORTED")
+  sourceDocumentId   String?
+  active             Boolean  @default(true)
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, active, allergyType])
+  @@map("clinical_allergies")
+}
+
+model ClinicalRestriction {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  itemName           String
+  restrictionType    String
+  reactionOrReason   String?
+  source             String   @default("PATIENT")
+  confirmationStatus String   @default("REPORTED")
+  sourceDocumentId   String?
+  active             Boolean  @default(true)
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, active, restrictionType])
+  @@map("clinical_restrictions")
+}
+
+model ClinicalProcedure {
+  id                  String   @id @default(uuid())
+  clinicalProfileId   String
+  consultationId      String?
+  procedureName       String
+  occurredAt          DateTime
+  hospitalName        String?
+  clinicianName       String?
+  notes               String?
+  dischargeDocumentId String?
+  followUpAt          DateTime?
+  operationId         String?  @unique
+  createdById         String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([clinicalProfileId, occurredAt])
+  @@map("clinical_procedures")
+}
+
+model ClinicalFollowUpProposal {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  consultationId     String?
+  sourceDocumentId   String?
+  recommendationText String
+  targetAt           DateTime
+  status             String   @default("PROPOSED")
+  acceptedConsultationId String?
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, status, targetAt])
+  @@map("clinical_follow_up_proposals")
+}
+
+model ClinicalOperationReceipt {
+  id                String   @id @default(uuid())
+  operationId       String   @unique
+  clinicalProfileId String
+  actorUserId       String
+  operationType     String
+  resourceType      String?
+  resourceId        String?
+  createdAt         DateTime @default(now())
+
+  @@index([clinicalProfileId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("clinical_operation_receipts")
+}
+
+model ClinicalCareOrganization {
+  id                             String   @id @default(uuid())
+  ownerUserId                    String
+  organizationType               String
+  displayName                    String
+  legalName                      String?
+  rfc                            String?
+  phone                          String?
+  email                          String?
+  addressLine1                   String?
+  addressLine2                   String?
+  neighborhood                   String?
+  municipality                   String?
+  state                          String?
+  postalCode                     String?
+  sanitaryNoticeNumber           String?
+  healthAuthorizationNumber      String?
+  responsibleName                String?
+  responsibleRole                String?
+  responsibleProfessionalLicense String?
+  verificationStatus             String   @default("PENDING")
+  verificationSource             String?
+  verificationNotes              String?
+  verifiedAt                     DateTime?
+  verifiedById                   String?
+  active                         Boolean  @default(true)
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+
+  memberships   ClinicalOrganizationProfessional[]
+  verifications ClinicalOrganizationVerification[]
+
+  @@index([ownerUserId, active])
+  @@index([verificationStatus, organizationType])
+  @@map("clinical_care_organizations")
+}
+
+model ClinicalProfessionalProfile {
+  id                        String   @id @default(uuid())
+  userId                    String   @unique
+  displayName               String
+  professionalLicenseNumber String   @unique
+  profession                String
+  specialty                 String?
+  specialistLicenseNumber   String?
+  verificationStatus        String   @default("PENDING")
+  canPrescribe              Boolean  @default(false)
+  verificationSource        String?
+  verificationReference     String?
+  verificationNotes         String?
+  verifiedAt                DateTime?
+  verifiedById              String?
+  active                    Boolean  @default(true)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  memberships ClinicalOrganizationProfessional[]
+  checks      ClinicalCredentialVerification[]
+
+  @@index([verificationStatus, active])
+  @@map("clinical_professional_profiles")
+}
+
+model ClinicalOrganizationProfessional {
+  id                    String   @id @default(uuid())
+  organizationId        String
+  professionalProfileId String
+  invitedById           String
+  relationshipType      String   @default("AGREEMENT")
+  status                String   @default("INVITED")
+  startsAt              DateTime?
+  endsAt                DateTime?
+  acceptedAt            DateTime?
+  endedAt               DateTime?
+  endReason             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  organization ClinicalCareOrganization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  professional ClinicalProfessionalProfile @relation(fields: [professionalProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, professionalProfileId])
+  @@index([professionalProfileId, status])
+  @@index([organizationId, status])
+  @@map("clinical_organization_professionals")
+}
+
+model ClinicalCredentialVerification {
+  id                    String   @id @default(uuid())
+  professionalProfileId String
+  verificationType      String
+  credentialValue       String
+  source                String
+  sourceReference       String?
+  result                String
+  notes                 String?
+  checkedById           String
+  checkedAt             DateTime @default(now())
+
+  professional ClinicalProfessionalProfile @relation(fields: [professionalProfileId], references: [id], onDelete: Cascade)
+
+  @@index([professionalProfileId, checkedAt])
+  @@index([result, verificationType])
+  @@map("clinical_credential_verifications")
+}
+
+model ClinicalOrganizationVerification {
+  id               String   @id @default(uuid())
+  organizationId   String
+  verificationType String
+  source           String
+  sourceReference  String?
+  result           String
+  notes            String?
+  checkedById      String
+  checkedAt        DateTime @default(now())
+
+  organization ClinicalCareOrganization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, checkedAt])
+  @@index([result, verificationType])
+  @@map("clinical_organization_verifications")
+}
+
+model ClinicalOrganizationLocation {
+  id             String   @id @default(uuid())
+  organizationId String   @unique
+  latitude       Float
+  longitude      Float
+  accuracyMeters Float?
+  source         String   @default("DEVICE")
+  capturedById   String
+  capturedAt     DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([capturedById, capturedAt])
+  @@map("clinical_organization_locations")
+}
+
+model ClinicalOrganizationEvidence {
+  id             String    @id @default(uuid())
+  organizationId String
+  kind           String
+  storageKey     String
+  originalName   String
+  mimeType       String
+  sizeBytes      Int
+  note           String?
+  status         String    @default("SUBMITTED")
+  createdById    String
+  createdAt      DateTime  @default(now())
+  deletedAt      DateTime?
+
+  @@index([organizationId, kind, deletedAt])
+  @@index([createdById, createdAt])
+  @@map("clinical_organization_evidence")
+}
+
+model ClinicalProfessionalInvitation {
+  id               String   @id @default(uuid())
+  organizationId   String
+  invitedEmail     String
+  invitedUserId    String?
+  relationshipType String   @default("AGREEMENT")
+  startsAt         DateTime?
+  endsAt           DateTime?
+  status           String   @default("INVITED")
+  createdById      String
+  acceptedAt       DateTime?
+  membershipId     String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@index([invitedEmail, status])
+  @@index([invitedUserId, status])
+  @@map("clinical_professional_invitations")
+}
+
+model ClinicalOrganizationReviewSubmission {
+  id             String   @id @default(uuid())
+  organizationId String
+  status         String   @default("SUBMITTED")
+  snapshot       Json
+  submittedById  String
+  submittedAt    DateTime @default(now())
+
+  @@index([organizationId, submittedAt])
+  @@index([status, submittedAt])
+  @@map("clinical_organization_review_submissions")
+}
+
+model ClinicalEmergencyProfile {
+  id                          String   @id @default(uuid())
+  clinicalProfileId           String   @unique
+  bloodType                   String?
+  bloodTypeSource             String   @default("PATIENT")
+  bloodTypeConfirmationStatus String   @default("REPORTED")
+  emergencyContactName        String?
+  emergencyContactRelationship String?
+  emergencyContactPhone       String?
+  emergencyNotes              String?
+  updatedById                 String
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  @@index([clinicalProfileId])
+  @@map("clinical_emergency_profiles")
+}
+
+model ClinicalChronicCondition {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  conditionName      String
+  diagnosedAt        DateTime?
+  status             String   @default("ACTIVE")
+  source             String   @default("PATIENT")
+  confirmationStatus String   @default("REPORTED")
+  notes              String?
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, status])
+  @@index([clinicalProfileId, createdAt])
+  @@map("clinical_chronic_conditions")
+}
+
+model ClinicalHealthEpisode {
+  id                 String   @id @default(uuid())
+  clinicalProfileId  String
+  episodeType        String
+  title              String
+  bodyRegion         String?
+  startedAt          DateTime?
+  endedAt            DateTime?
+  status             String   @default("ACTIVE")
+  source             String   @default("PATIENT")
+  confirmationStatus String   @default("REPORTED")
+  notes              String?
+  operationId        String?  @unique
+  createdById        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([clinicalProfileId, status, startedAt])
+  @@index([clinicalProfileId, episodeType])
+  @@map("clinical_health_episodes")
+}
+
+model ClinicalHealthRecordLink {
+  id                String   @id @default(uuid())
+  clinicalProfileId String
+  parentType        String
+  parentId          String
+  resourceType      String
+  resourceId        String
+  relationType      String   @default("RELATED")
+  operationId       String?  @unique
+  createdById       String
+  createdAt         DateTime @default(now())
+
+  @@unique([clinicalProfileId, parentType, parentId, resourceType, resourceId])
+  @@index([clinicalProfileId, parentType, parentId])
+  @@index([clinicalProfileId, resourceType, resourceId])
+  @@map("clinical_health_record_links")
+}
+
+model ClinicalHealthPrivacySetting {
+  id                            String   @id @default(uuid())
+  clinicalProfileId             String
+  resourceType                  String
+  resourceId                    String
+  sensitivity                   String   @default("STANDARD")
+  shareWithVerifiedProfessional Boolean  @default(false)
+  emergencyShare                Boolean  @default(false)
+  updatedById                   String
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  @@unique([clinicalProfileId, resourceType, resourceId])
+  @@index([clinicalProfileId, shareWithVerifiedProfessional])
+  @@index([clinicalProfileId, emergencyShare])
+  @@map("clinical_health_privacy_settings")
+}
+
+model ClinicalEmergencySharePolicy {
+  id                       String   @id @default(uuid())
+  clinicalProfileId        String   @unique
+  includeBloodType         Boolean  @default(true)
+  includeAllergies         Boolean  @default(true)
+  includeCurrentMedications Boolean @default(true)
+  includeEmergencyContact  Boolean  @default(true)
+  includeSharedConditions  Boolean  @default(true)
+  includeSharedProcedures  Boolean  @default(false)
+  updatedById              String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("clinical_emergency_share_policies")
+}
+
+model ClinicalEmergencyRelayAuthorization {
+  id                String   @id @default(uuid())
+  clinicalProfileId String
+  delegateUserId    String
+  relationship      String?
+  status            String   @default("ACTIVE")
+  canRelay          Boolean  @default(true)
+  expiresAt         DateTime?
+  revokedAt         DateTime?
+  createdById       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([clinicalProfileId, delegateUserId])
+  @@index([delegateUserId, status])
+  @@index([clinicalProfileId, status])
+  @@map("clinical_emergency_relay_authorizations")
+}
+
+model ClinicalEmergencyRelayLink {
+  id                String   @id @default(uuid())
+  clinicalProfileId String
+  authorizationId   String
+  tokenHash         String   @unique
+  tokenPrefix       String
+  status            String   @default("ACTIVE")
+  maxUses           Int      @default(10)
+  usedCount         Int      @default(0)
+  expiresAt         DateTime
+  lastUsedAt        DateTime?
+  createdByUserId   String
+  createdAt         DateTime @default(now())
+
+  @@index([clinicalProfileId, status, expiresAt])
+  @@index([authorizationId, status])
+  @@map("clinical_emergency_relay_links")
+}

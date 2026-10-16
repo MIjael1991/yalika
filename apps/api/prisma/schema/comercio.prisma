@@ -1,0 +1,1002 @@
+// Comercio: catalogo, inventario, ventas, pagos, devoluciones y apartados
+
+model CommerceCatalog {
+  id String @id @default(uuid())
+  name String
+  status String @default("active")
+  isDefault Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  products Product[]
+  categories ProductCategory[]
+  orders Order[]
+  reservations CommerceReservation[]
+  sites Site[]
+
+  @@unique([companyId, name])
+  @@index([companyId, status])
+  @@map("commerce_catalogs")
+}
+
+model ProductCategory {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  status    String @default("active")
+  sortOrder Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  products Product[]
+  catalogId String?
+  catalog CommerceCatalog? @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+
+  @@unique([catalogId, name])
+  @@index([catalogId])
+  @@index([companyId])
+  @@index([status])
+  @@map("product_categories")
+}
+
+model Product {
+  id String @id @default(uuid())
+
+  name        String
+  description String?
+
+  type String @default("product")
+
+  sku String?
+
+  price          Float
+  compareAtPrice Float?
+  unitCost       Float?
+  unitsPerPack   Int      @default(1)
+  packSalePrice  Float?
+  webVisible     Boolean  @default(false)
+
+  trackInventory Boolean @default(true)
+  stock          Int     @default(0)
+  lowStockAt     Int     @default(5)
+
+  status   String  @default("active")
+  featured Boolean @default(false)
+
+  seasonal       Boolean   @default(false)
+  seasonStartsAt DateTime?
+  seasonEndsAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  catalogId String?
+  catalog CommerceCatalog? @relation(fields: [catalogId], references: [id], onDelete: Restrict)
+
+  categoryId String?
+  category   ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  variants       ProductVariant[]
+  images         ProductImage[]
+  promotionLinks PromotionProduct[]
+  recipe         ProductRecipe?
+  orderItems     OrderItem[]
+  posStockMovements PosStockMovement[]
+  barcodes          ProductBarcode[]
+
+  @@unique([companyId, sku])
+  @@index([companyId])
+  @@index([categoryId])
+  @@index([catalogId])
+  @@index([type])
+  @@index([status])
+  @@index([seasonal])
+  @@index([companyId, webVisible, status])
+  @@map("products")
+}
+
+model ProductVariant {
+  id String @id @default(uuid())
+
+  name String
+  sku  String?
+
+  price Float?
+  unitCost Float?
+  stock Int    @default(0)
+
+  attributes Json?
+
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
+  posStockMovements PosStockMovement[]
+  barcodes          ProductBarcode[]
+
+  @@unique([productId, sku])
+  @@index([productId])
+  @@index([status])
+  @@map("product_variants")
+}
+
+model ProductImage {
+  id String @id @default(uuid())
+
+  url     String
+  altText String?
+
+  sortOrder Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([isPrimary])
+  @@map("product_images")
+}
+
+model Promotion {
+  id String @id @default(uuid())
+
+  title       String
+  description String?
+
+  type  String @default("custom")
+  scope String @default("all")
+
+  discountValue   Float?
+  specialPrice    Float?
+  minimumPurchase Float?
+
+  buyQuantity Int?
+  getQuantity Int?
+
+  rewardDescription String?
+  imageUrl          String?
+
+  featured Boolean @default(false)
+
+  status String @default("draft")
+
+  startsAt DateTime
+  endsAt   DateTime
+  closedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  products  PromotionProduct[]
+  discounts OrderDiscount[]
+
+  @@index([companyId])
+  @@index([companyId, status])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@index([featured])
+  @@map("promotions")
+}
+
+model PromotionProduct {
+  promotionId String
+  productId   String
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([promotionId, productId])
+  @@index([productId])
+  @@map("promotion_products")
+}
+
+model PosStockReceipt {
+  id          String   @id @default(uuid())
+  operationId String   @unique
+  payloadHash String
+  sourceName  String
+  reference   String?
+  notes       String?
+  actorId     String
+  totalCost   Float?
+  createdAt   DateTime @default(now())
+
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  movements   PosStockMovement[]
+
+  @@index([companyId, createdAt])
+  @@map("pos_stock_receipts")
+}
+
+// Movimientos de existencias de productos vendibles. No reemplaza InventoryItem para recetas/insumos.
+model PosStockMovement {
+  id            String   @id @default(uuid())
+  direction     String
+  reason        String
+  quantity      Int
+  balanceAfter  Int
+  unitCost      Float?
+  packs         Int?
+  unitsPerPack  Int?
+  costPerPack   Float?
+  totalCost     Float?
+  reference     String?
+  actorId       String?
+  createdAt     DateTime @default(now())
+
+  companyId     String
+  company       Company @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  productId     String
+  product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variantId     String?
+  variant       ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  receiptId     String?
+  receipt       PosStockReceipt? @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+
+  @@index([companyId, createdAt])
+  @@index([productId, createdAt])
+  @@index([receiptId])
+  @@map("pos_stock_movements")
+}
+
+model ProductBarcode {
+  id String @id @default(uuid())
+
+  value  String
+  format String @default("CODE128")
+  kind   String @default("unit")
+
+  unitsPerScan Int @default(1)
+  active       Boolean @default(true)
+  generated    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, value])
+  @@index([productId])
+  @@index([variantId])
+  @@index([companyId, active])
+  @@map("product_barcodes")
+}
+
+model Supplier {
+  id String @id @default(uuid())
+
+  name        String
+  contactName String?
+  phone       String?
+  email       String?
+  notes       String?
+
+  trusted Boolean @default(false)
+  status  String  @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  stockMovements StockMovement[]
+  stockReceipts  StockReceipt[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+  @@index([status])
+  @@index([trusted])
+  @@map("suppliers")
+}
+
+model InventoryItem {
+  id String @id @default(uuid())
+
+  name String
+  sku  String?
+
+  kind               String  @default("merchandise")
+  unit               String  @default("piece")
+  purchaseUnit       String?
+  purchaseConversion Float   @default(1)
+
+  quantity     Float @default(0)
+  minimumStock Float @default(0)
+  averageCost  Float @default(0)
+
+  trackingMode   String    @default("exact")
+  countEveryDays Int?
+  lastCountedAt  DateTime?
+
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  movements        StockMovement[]
+  counts           InventoryCount[]
+  receiptLines     StockReceiptLine[]
+  recipeComponents ProductRecipeComponent[]
+
+  @@unique([companyId, sku])
+  @@index([companyId])
+  @@index([kind])
+  @@index([status])
+  @@map("inventory_items")
+}
+
+model StockMovement {
+  id String @id @default(uuid())
+
+  direction String
+  reason    String
+
+  quantity Float
+
+  unitCost  Float?
+  totalCost Float?
+
+  balanceAfter Float
+
+  sourceName String?
+  reference  String?
+  notes      String?
+
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  @@index([companyId])
+  @@index([inventoryItemId])
+  @@index([supplierId])
+  @@index([direction])
+  @@index([reason])
+  @@index([occurredAt])
+  @@map("stock_movements")
+}
+
+model InventoryCount {
+  id String @id @default(uuid())
+
+  expectedQuantity Float
+  countedQuantity  Float
+  variance         Float
+
+  reason String?
+  notes  String?
+
+  countedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+  @@index([inventoryItemId])
+  @@index([countedAt])
+  @@map("inventory_counts")
+}
+
+model StockReceipt {
+  id String @id @default(uuid())
+
+  sourceType String @default("supplier")
+
+  sourceName String?
+  reference  String?
+  notes      String?
+
+  totalCost Float @default(0)
+
+  receivedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+
+  lines StockReceiptLine[]
+
+  @@index([companyId])
+  @@index([supplierId])
+  @@index([receivedAt])
+  @@map("stock_receipts")
+}
+
+model StockReceiptLine {
+  id String @id @default(uuid())
+
+  quantity Float
+
+  receivedUnit String
+
+  conversionToBase Float
+  stockQuantity    Float
+
+  unitCost     Float?
+  baseUnitCost Float?
+  totalCost    Float?
+
+  createdAt DateTime @default(now())
+
+  stockReceiptId String
+  stockReceipt   StockReceipt @relation(fields: [stockReceiptId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@index([stockReceiptId])
+  @@index([inventoryItemId])
+  @@map("stock_receipt_lines")
+}
+
+model ProductRecipe {
+  id String @id @default(uuid())
+
+  name  String?
+  notes String?
+
+  yieldQuantity Float @default(1)
+
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  components ProductRecipeComponent[]
+
+  @@index([status])
+  @@map("product_recipes")
+}
+
+model ProductRecipeComponent {
+  id String @id @default(uuid())
+
+  quantity Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipeId String
+  recipe   ProductRecipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id], onDelete: Restrict)
+
+  @@unique([recipeId, inventoryItemId])
+  @@index([recipeId])
+  @@index([inventoryItemId])
+  @@map("product_recipe_components")
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  orderNumber String
+
+  source    String @default("manual")
+  orderType String @default("counter")
+
+  status        String @default("draft")
+  paymentStatus String @default("pending")
+
+  subtotal Float @default(0)
+  discount Float @default(0)
+  total    Float @default(0)
+
+  notes String?
+
+  reservationId String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  confirmedAt DateTime?
+  cancelledAt DateTime?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  catalogId String?
+  catalog CommerceCatalog? @relation(fields: [catalogId], references: [id], onDelete: SetNull)
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  loyaltyProgramId String?
+  loyaltyProgram   LoyaltyProgram? @relation(fields: [loyaltyProgramId], references: [id], onDelete: SetNull)
+
+  items           OrderItem[]
+  payments        Payment[]
+  splits          OrderSplit[]
+  discounts       OrderDiscount[]
+  returns         Return[]        @relation("OriginalOrderReturns")
+  exchangeReturns Return[]        @relation("ExchangeOrderReturns")
+
+  diningTableId String?
+  diningTable   DiningTable? @relation(fields: [diningTableId], references: [id], onDelete: SetNull)
+
+  @@unique([companyId, orderNumber])
+  @@index([companyId])
+  @@index([customerId])
+  @@index([loyaltyProgramId])
+  @@index([status])
+  @@index([reservationId])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(uuid())
+
+  productName String
+  sku         String?
+
+  quantity  Float
+  unitPrice Float
+  lineTotal Float
+  discount  Float @default(0)
+  total     Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+
+  splitItems  OrderSplitItem[]
+  returnItems ReturnItem[]
+  discounts   OrderDiscount[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
+  @@map("order_items")
+}
+
+model OrderDiscount {
+  id String @id @default(uuid())
+
+  scope  String
+  source String @default("manual")
+  type   String
+
+  value  Float
+  amount Float @default(0)
+
+  reason String
+  notes  String?
+
+  status String @default("applied")
+
+  operationId String?
+
+  appliedAt  DateTime  @default(now())
+  voidedAt   DateTime?
+  voidReason String?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  orderItemId String?
+  orderItem   OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  promotionId String?
+  promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+
+  authorizedById String
+  authorizedBy   User   @relation("DiscountAuthorizedBy", fields: [authorizedById], references: [id], onDelete: Restrict)
+
+  voidedById String?
+  voidedBy   User?   @relation("DiscountVoidedBy", fields: [voidedById], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([orderId])
+  @@index([orderItemId])
+  @@index([promotionId])
+  @@index([authorizedById])
+  @@index([voidedById])
+  @@index([status])
+  @@index([appliedAt])
+  @@map("order_discounts")
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  method String
+  status String @default("completed")
+
+  amount         Float
+  receivedAmount Float?
+  changeAmount   Float  @default(0)
+
+  reference String?
+  notes     String?
+
+  paidAt    DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  refunds Refund[]
+
+  sourceReturnId String? @unique
+  sourceReturn   Return? @relation("ReturnCreditPayment", fields: [sourceReturnId], references: [id], onDelete: Restrict)
+
+  orderSplitId String?
+  orderSplit   OrderSplit? @relation(fields: [orderSplitId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([orderSplitId])
+  @@index([companyId])
+  @@index([method])
+  @@index([paidAt])
+  @@map("payments")
+}
+
+model DiningTable {
+  id String @id @default(uuid())
+
+  name String
+  code String
+
+  area     String?
+  capacity Int?
+
+  status String @default("available")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@unique([companyId, code])
+  @@index([companyId])
+  @@index([status])
+  @@map("dining_tables")
+}
+
+model OrderSplit {
+  id String @id @default(uuid())
+
+  label String
+
+  mode String
+
+  status String @default("open")
+
+  subtotal Float @default(0)
+  discount Float @default(0)
+  total    Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  items    OrderSplitItem[]
+  payments Payment[]
+
+  @@index([orderId])
+  @@index([companyId])
+  @@index([status])
+  @@map("order_splits")
+}
+
+model OrderSplitItem {
+  id String @id @default(uuid())
+
+  quantity Float
+  amount   Float
+
+  createdAt DateTime @default(now())
+
+  orderSplitId String
+  orderSplit   OrderSplit @relation(fields: [orderSplitId], references: [id], onDelete: Cascade)
+
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@unique([orderSplitId, orderItemId])
+  @@index([orderSplitId])
+  @@index([orderItemId])
+  @@map("order_split_items")
+}
+
+model Return {
+  id String @id @default(uuid())
+
+  returnNumber String
+
+  type   String @default("return")
+  status String @default("draft")
+
+  reason String
+  notes  String?
+
+  totalAmount Float @default(0)
+
+  operationId String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  orderId String
+  order   Order  @relation("OriginalOrderReturns", fields: [orderId], references: [id], onDelete: Restrict)
+
+  exchangeOrderId String?
+  exchangeOrder   Order?  @relation("ExchangeOrderReturns", fields: [exchangeOrderId], references: [id], onDelete: Restrict)
+
+  authorizedById String
+  authorizedBy   User   @relation("ReturnAuthorizedBy", fields: [authorizedById], references: [id], onDelete: Restrict)
+
+  items         ReturnItem[]
+  refunds       Refund[]
+  creditPayment Payment?     @relation("ReturnCreditPayment")
+
+  @@unique([companyId, returnNumber])
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([orderId])
+  @@index([exchangeOrderId])
+  @@index([authorizedById])
+  @@index([status])
+  @@index([createdAt])
+  @@map("returns")
+}
+
+model ReturnItem {
+  id String @id @default(uuid())
+
+  quantity     Float
+  unitPrice    Float
+  lineTotal    Float
+  refundAmount Float
+
+  condition         String @default("sellable")
+  disposition       String @default("no_restock")
+  restockedQuantity Float  @default(0)
+
+  reason String?
+  notes  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  returnId     String
+  returnRecord Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  orderItemId String
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@unique([returnId, orderItemId])
+  @@index([returnId])
+  @@index([orderItemId])
+  @@index([condition])
+  @@index([disposition])
+  @@map("return_items")
+}
+
+model Refund {
+  id String @id @default(uuid())
+
+  method String
+  status String @default("completed")
+
+  amount Float
+
+  reference String?
+  notes     String?
+
+  operationId String?
+
+  refundedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  returnId     String
+  returnRecord Return @relation(fields: [returnId], references: [id], onDelete: Cascade)
+
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+
+  processedById String
+  processedBy   User   @relation("RefundProcessedBy", fields: [processedById], references: [id], onDelete: Restrict)
+
+  @@unique([companyId, operationId])
+  @@index([companyId])
+  @@index([returnId])
+  @@index([paymentId])
+  @@index([processedById])
+  @@index([status])
+  @@index([refundedAt])
+  @@map("refunds")
+}
+
+model CommerceReservationPolicy {
+  id String @id @default(uuid())
+
+  enabled         Boolean @default(false)
+  depositRequired Boolean @default(true)
+  depositType     String  @default("fixed")
+  depositValue    Float   @default(100)
+  holdMinutes     Int     @default(15)
+  activeDays      Int     @default(2)
+
+  companyId String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("commerce_reservation_policies")
+}
+
+model CommerceReservation {
+  id String @id @default(uuid())
+
+  reservationNumber String
+  publicToken       String @unique @default(uuid())
+  operationId       String
+
+  status String @default("hold")
+  source String @default("web")
+
+  holdExpiresAt DateTime?
+  pickupDeadline DateTime?
+
+  depositRequiredAmount Float @default(0)
+  depositAmount         Float @default(0)
+  depositStatus         String @default("pending")
+  depositMethod         String?
+  depositReference      String?
+
+  contactName  String
+  contactPhone String
+  deliveryMode String @default("arrange")
+  notes        String?
+
+  companyId String
+  siteId    String?
+  orderId   String?
+  catalogId String?
+  catalog CommerceCatalog? @relation(fields: [catalogId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  confirmedAt DateTime?
+  releasedAt  DateTime?
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  items  CommerceReservationItem[]
+  events CommerceReservationEvent[]
+
+  @@unique([companyId, reservationNumber])
+  @@unique([companyId, operationId])
+  @@index([companyId, status])
+  @@index([companyId, holdExpiresAt])
+  @@index([companyId, pickupDeadline])
+  @@index([catalogId])
+  @@index([siteId])
+  @@index([orderId])
+  @@map("commerce_reservations")
+}
+
+model CommerceReservationItem {
+  id String @id @default(uuid())
+
+  productId String
+  variantId String?
+  quantity  Int
+
+  unitPriceSnapshot   Float
+  productNameSnapshot String
+  variantSnapshot     String?
+
+  createdAt  DateTime @default(now())
+  releasedAt DateTime?
+
+  reservationId String
+  reservation   CommerceReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId])
+  @@index([productId, variantId])
+  @@map("commerce_reservation_items")
+}
+
+model CommerceReservationEvent {
+  id String @id @default(uuid())
+
+  type    String
+  note    String?
+  actorId String?
+
+  createdAt DateTime @default(now())
+
+  reservationId String
+  reservation   CommerceReservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+
+  @@index([reservationId, createdAt])
+  @@index([type])
+  @@map("commerce_reservation_events")
+}

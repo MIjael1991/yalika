@@ -1,0 +1,100 @@
+// Web: paginas, secciones y equipo
+
+model Site {
+  id String @id @default(uuid())
+
+  name String
+  slug String @unique
+
+  template String @default("hero")
+  status   String @default("draft")
+
+  primaryColor String?
+  accentColor  String?
+
+  backgroundType  String  @default("color")
+  backgroundValue String?
+
+  logoUrl      String?
+  heroImageUrl String?
+
+  heroTitle      String?
+  heroSubtitle   String?
+  heroButtonText String?
+  heroButtonUrl  String?
+
+  announcementText String?
+  whatsappPhone    String?
+  facebookUrl      String?
+  instagramUrl     String?
+  tiktokUrl        String?
+  extraLinkLabel   String?
+  extraLinkUrl     String?
+
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isPrimary Boolean @default(false)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  catalogId String?
+  catalog CommerceCatalog? @relation(fields: [catalogId], references: [id], onDelete: SetNull)
+
+  sections SiteSection[]
+
+  @@index([companyId])
+  @@index([catalogId])
+  @@index([status])
+  @@index([template])
+  @@map("sites")
+}
+
+model SiteSection {
+  id String @id @default(uuid())
+
+  type String
+
+  title String?
+
+  enabled   Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  layout  String @default("default")
+  content Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  siteId String
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+  @@index([siteId, sortOrder])
+  @@index([type])
+  @@map("site_sections")
+}
+
+model SiteMember {
+  id String @id @default(uuid())
+
+  role   String @default("viewer")
+  status String @default("active")
+
+  siteId          String
+  companyId       String
+  userId          String
+  invitedByUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([siteId, userId])
+  @@index([companyId, status])
+  @@index([userId, status])
+  @@index([siteId, status])
+  @@map("site_members")
+}

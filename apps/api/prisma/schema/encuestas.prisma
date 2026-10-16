@@ -1,0 +1,192 @@
+// Encuestas
+
+model Survey {
+  id                    String             @id @default(uuid())
+  title                 String
+  slug                  String             @unique
+  description           String?
+  status                String             @default("draft")
+  identityMode          String             @default("phone")
+  accessMode            String             @default("public")
+  personalFields        Json?
+  invitations           SurveyInvitation[]
+  collectMunicipality   Boolean            @default(false)
+  collectLocality       Boolean            @default(false)
+  collectLeaderProposal Boolean            @default(false)
+  showPublicResults     Boolean            @default(false)
+  privacyNotice         String
+  thankYouMessage       String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?   @relation("SurveyCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  questions               SurveyQuestion[]
+  responses               SurveyResponse[]
+  collectIne              Boolean               @default(false)
+  ineRequired             Boolean               @default(false)
+  ineRetentionDays        Int                   @default(30)
+  ineSubmissions          SurveyIneSubmission[]
+  ineCaptureMode          String                @default("front")
+  ineAutoExtract          Boolean               @default(false)
+  collectPostalCode       Boolean               @default(false)
+  collectAddress          Boolean               @default(false)
+  collectCurp             Boolean               @default(false)
+  collectVoterKey         Boolean               @default(false)
+  collectElectoralSection Boolean               @default(false)
+  nextFolio               Int                   @default(0)
+  ineStorageMode          String                @default("temporary")
+
+  @@index([companyId, status, createdAt])
+  @@map("surveys")
+}
+
+model SurveyQuestion {
+  id              String   @id @default(uuid())
+  prompt          String
+  type            String   @default("choice")
+  options         Json     @default("[]")
+  required        Boolean  @default(true)
+  publicAggregate Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  answers    SurveyAnswer[]
+  aggregates SurveyAnswerAggregate[]
+
+  @@index([surveyId, sortOrder])
+  @@map("survey_questions")
+}
+
+model SurveyRespondent {
+  id                 String   @id @default(uuid())
+  nameCipher         String?
+  emailCipher        String?
+  emailHash          String?
+  phoneCipher        String?
+  phoneHash          String?
+  municipalityCipher String?
+  localityCipher     String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  responses              SurveyResponse[]
+  postalCodeCipher       String?
+  addressCipher          String?
+  curpCipher             String?
+  voterKeyCipher         String?
+  electoralSectionCipher String?
+
+  @@index([companyId, emailHash])
+  @@index([companyId, phoneHash])
+  @@map("survey_respondents")
+}
+
+model SurveyResponse {
+  id                String   @id @default(uuid())
+  privacyAcceptedAt DateTime
+  privacyNoticeHash String
+  consentContact    Boolean  @default(false)
+  contactChannels   Json     @default("[]")
+  completedAt       DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  respondentId String?
+  respondent   SurveyRespondent? @relation(fields: [respondentId], references: [id], onDelete: Restrict)
+
+  answers       SurveyAnswer[]
+  ineSubmission SurveyIneSubmission?
+  folio         Int
+
+  @@unique([surveyId, folio])
+  @@unique([surveyId, respondentId])
+  @@index([surveyId, completedAt])
+  @@index([respondentId])
+  @@map("survey_responses")
+}
+
+model SurveyAnswer {
+  id        String   @id @default(uuid())
+  value     Json
+  createdAt DateTime @default(now())
+
+  responseId String
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  questionId String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+  @@index([questionId])
+  @@map("survey_answers")
+}
+
+model SurveyAnswerAggregate {
+  optionKey String
+  count     Int    @default(0)
+
+  surveyId   String
+  questionId String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([surveyId, questionId, optionKey])
+  @@index([surveyId])
+  @@map("survey_answer_aggregates")
+}
+
+model SurveyIneSubmission {
+  id             String    @id @default(uuid())
+  frontObjectKey String?
+  frontMimeType  String?
+  frontBytes     Int       @default(0)
+  backObjectKey  String?
+  backMimeType   String?
+  backBytes      Int       @default(0)
+  downloadedAt   DateTime?
+  downloadCount  Int       @default(0)
+  expiresAt      DateTime
+  deletedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  surveyId String
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  responseId        String         @unique
+  response          SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  backupConfirmedAt DateTime?
+
+  @@index([surveyId, deletedAt, createdAt])
+  @@index([expiresAt, deletedAt])
+  @@map("survey_ine_submissions")
+}
+
+model SurveyInvitation {
+  id            String    @id @default(uuid())
+  surveyId      String
+  survey        Survey    @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  tokenHash     String    @unique
+  tokenCipher   String
+  contactHash   String
+  detailsCipher String
+  usedAt        DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@unique([surveyId, contactHash])
+  @@index([surveyId, usedAt])
+  @@map("survey_invitations")
+}

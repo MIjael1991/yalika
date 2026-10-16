@@ -1,0 +1,222 @@
+// Cerebro: incidentes, conocimiento, flujos, experiencias y asistente de negocio
+
+model Incident {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  category    String?
+  severity    String    @default("medium")
+  status      String    @default("open")
+  occurredAt  DateTime  @default(now())
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  alternatives IncidentAlternative[]
+  experiences  Experience[]
+
+  @@map("incidents")
+}
+
+model IncidentAlternative {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  cost            Float?
+  delayMinutes    Int?
+  estimatedLoss   Float?
+  continuityScore Int?
+  impact          String?
+  status          String   @default("proposed")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  incidentId  String
+  incident    Incident     @relation(fields: [incidentId], references: [id])
+  experiences Experience[]
+
+  @@map("incident_alternatives")
+}
+
+model KnowledgeTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  description String?
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  alternatives KnowledgeAlternativeTemplate[]
+
+  @@unique([category, name])
+  @@map("knowledge_templates")
+}
+
+model KnowledgeAlternativeTemplate {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  defaultPriority String   @default("normal")
+  order           Int      @default(0)
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  knowledgeTemplateId String
+  knowledgeTemplate   KnowledgeTemplate @relation(fields: [knowledgeTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([knowledgeTemplateId, title])
+  @@map("knowledge_alternative_templates")
+}
+
+model Event {
+  id         String   @id @default(uuid())
+  type       String
+  source     String?
+  entityType String?
+  entityId   String?
+  data       Json?
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@index([companyId, type])
+  @@index([occurredAt])
+  @@map("events")
+}
+
+model Workflow {
+  id         String   @id @default(uuid())
+  name       String
+  type       String
+  status     String   @default("active")
+  entityType String?
+  entityId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  steps       WorkflowStep[]
+  experiences Experience[]
+
+  @@index([companyId, type])
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id          String    @id @default(uuid())
+  name        String
+  stepOrder   Int
+  status      String    @default("pending")
+  actionType  String?
+  data        Json?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@unique([workflowId, stepOrder])
+  @@map("workflow_steps")
+}
+
+model Experience {
+  id String @id @default(uuid())
+
+  type     String @default("incident_resolution")
+  category String
+
+  success Boolean
+
+  delayMinutes      Int?
+  extraCost         Float?
+  estimatedLoss     Float?
+  customersAffected Int?
+
+  notes String?
+
+  selectedAlternativeTitle String?
+
+  verifiedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  incidentId String
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  selectedAlternativeId String?
+  selectedAlternative   IncidentAlternative? @relation(fields: [selectedAlternativeId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, category])
+  @@index([incidentId])
+  @@index([workflowId])
+  @@index([selectedAlternativeId])
+  @@map("experiences")
+}
+
+model BusinessAssistantMemory {
+  id String @id @default(uuid())
+
+  scope String @default("business")
+  key   String
+  value Json
+  source String @default("user_confirmed")
+  status String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scope, key])
+  @@index([companyId, status])
+  @@map("business_assistant_memories")
+}
+
+model BusinessAssistantAction {
+  id String @id @default(uuid())
+
+  kind        String
+  risk        String @default("low")
+  status      String @default("proposed")
+  input       Json
+  proposal    Json
+  result      Json?
+  operationId String? @unique
+
+  confirmedAt DateTime?
+  executedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@index([userId, status])
+  @@map("business_assistant_actions")
+}

@@ -1,0 +1,175 @@
+// Life: espacios y tareas
+
+model Space {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  type        String   @default("personal")
+  timezone    String   @default("UTC")
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  ownerUserId String
+  owner       User   @relation("SpaceOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+
+  members         SpaceMember[]
+  tasks           Task[]
+  taskRecurrences TaskRecurrence[]
+
+  @@index([companyId, type, status])
+  @@index([ownerUserId, status])
+  @@map("spaces")
+}
+
+model SpaceMember {
+  id        String   @id @default(uuid())
+  role      String   @default("member")
+  status    String   @default("active")
+  joinedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  spaceId String
+  space   Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([spaceId, userId])
+  @@index([userId, status])
+  @@index([spaceId, role, status])
+  @@map("space_members")
+}
+
+model Task {
+  id               String    @id @default(uuid())
+  title            String
+  description      String?
+  category         String?
+  priority         String    @default("normal")
+  status           String    @default("pending")
+  dueAt            DateTime?
+  estimatedMinutes Int?
+  postponedUntil   DateTime?
+  completedAt      DateTime?
+  version          Int       @default(0)
+  dedupeKey        String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+
+  userId String?
+  user   User?   @relation("TaskAssignee", fields: [userId], references: [id], onDelete: SetNull)
+
+  spaceId String?
+  space   Space?  @relation(fields: [spaceId], references: [id], onDelete: SetNull)
+
+  createdById String?
+  createdBy   User?   @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  claimedById String?
+  claimedBy   User?   @relation("TaskClaimer", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  completedById String?
+  completedBy   User?   @relation("TaskCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+
+  recurrenceId           String?
+  recurrence             TaskRecurrence? @relation(fields: [recurrenceId], references: [id], onDelete: SetNull)
+  recurrenceOccurrenceAt DateTime?
+
+  activities TaskActivity[]
+  reminder   TaskReminder?
+
+  @@unique([recurrenceId, recurrenceOccurrenceAt])
+  @@index([companyId, status, dueAt])
+  @@index([spaceId, status, dueAt])
+  @@index([userId, status])
+  @@index([recurrenceId, status])
+  @@map("tasks")
+}
+
+model TaskRecurrence {
+  id                    String    @id @default(uuid())
+  title                 String
+  description           String?
+  category              String?
+  priority              String    @default("normal")
+  estimatedMinutes      Int?
+  reminderMinutesBefore Int?
+  frequency             String
+  interval              Int       @default(1)
+  timezone              String    @default("UTC")
+  status                String    @default("active")
+  startsAt              DateTime
+  nextOccurrenceAt      DateTime
+  endsAt                DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  spaceId String
+  space   Space  @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  createdById String?
+  createdBy   User?   @relation("TaskRecurrenceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?   @relation("TaskRecurrenceAssignee", fields: [userId], references: [id], onDelete: SetNull)
+
+  tasks Task[]
+
+  @@index([spaceId, status, nextOccurrenceAt])
+  @@index([companyId, status, nextOccurrenceAt])
+  @@index([userId, status])
+  @@map("task_recurrences")
+}
+
+model TaskReminder {
+  id               String    @id @default(uuid())
+  leadMinutes      Int
+  remindAt         DateTime
+  originalRemindAt DateTime
+  status           String    @default("scheduled")
+  snoozeCount      Int       @default(0)
+  acknowledgedAt   DateTime?
+  cancelledAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  taskId String @unique
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([userId, status, remindAt])
+  @@index([taskId, status])
+  @@map("task_reminders")
+}
+
+model TaskActivity {
+  id         String   @id @default(uuid())
+  action     String
+  fromStatus String?
+  toStatus   String?
+  note       String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  actorUserId String?
+  actor       User?   @relation("TaskActivityActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("task_activities")
+}
