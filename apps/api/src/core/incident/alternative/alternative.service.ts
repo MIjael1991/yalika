@@ -11,10 +11,11 @@ import { CreateAlternativeDto } from './dto/create-alternative.dto';
 export class AlternativeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByIncident(incidentId: string) {
+  async findByIncident(incidentId: string, companyId: string) {
     return this.prisma.incidentAlternative.findMany({
       where: {
         incidentId,
+        incident: { companyId },
       },
       orderBy: {
         createdAt: 'asc',
@@ -22,14 +23,14 @@ export class AlternativeService {
     });
   }
 
-  async create(createAlternativeDto: CreateAlternativeDto) {
+  async create(createAlternativeDto: CreateAlternativeDto, companyId: string) {
     const incident = await this.prisma.incident.findUnique({
       where: {
         id: createAlternativeDto.incidentId,
       },
     });
 
-    if (!incident) {
+    if (!incident || incident.companyId !== companyId) {
       throw new NotFoundException('El incidente no existe');
     }
 
@@ -47,7 +48,7 @@ export class AlternativeService {
     });
   }
 
-  async analyze(incidentId: string) {
+  async analyze(incidentId: string, companyId: string) {
     const incident = await this.prisma.incident.findUnique({
       where: {
         id: incidentId,
@@ -57,7 +58,7 @@ export class AlternativeService {
       },
     });
 
-    if (!incident) {
+    if (!incident || incident.companyId !== companyId) {
       throw new NotFoundException('El incidente no existe');
     }
 
@@ -117,7 +118,7 @@ export class AlternativeService {
     };
   }
 
-  async select(alternativeId: string) {
+  async select(alternativeId: string, companyId: string) {
     const alternative = await this.prisma.incidentAlternative.findUnique({
       where: {
         id: alternativeId,
@@ -127,7 +128,7 @@ export class AlternativeService {
       },
     });
 
-    if (!alternative) {
+    if (!alternative || alternative.incident.companyId !== companyId) {
       throw new NotFoundException('La alternativa no existe');
     }
 

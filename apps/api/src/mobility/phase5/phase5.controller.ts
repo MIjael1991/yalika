@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
 import { MobilityPhase5Service } from './phase5.service';
 import {
   CheckTripPinDto,
@@ -31,7 +32,7 @@ import {
 export class MobilityPhase5Controller {
   constructor(private readonly phase5: MobilityPhase5Service) {}
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('referrals/campaigns')
   createReferralCampaign(@Body() dto: CreateReferralCampaignDto) {
     return this.phase5.createReferralCampaign(dto);
@@ -49,7 +50,7 @@ export class MobilityPhase5Controller {
     return this.phase5.redeemReferral(dto);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('referrals/evaluate')
   evaluateReferral(@Body() dto: EvaluateReferralDto) {
     return this.phase5.evaluateReferral(dto);
@@ -67,7 +68,7 @@ export class MobilityPhase5Controller {
     return this.phase5.upsertVerificationProfile(dto);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Patch('verification/:subjectType/:subjectId/phone')
   verifyPhone(
     @Param('subjectType') subjectType: string,
@@ -77,7 +78,7 @@ export class MobilityPhase5Controller {
     return this.phase5.verifyPhone(subjectType, subjectId, dto);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Patch('verification/:subjectType/:subjectId/identity')
   reviewIdentity(
     @Param('subjectType') subjectType: string,
@@ -105,7 +106,7 @@ export class MobilityPhase5Controller {
     return this.phase5.upsertVehicleCompliance(dto);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Patch('vehicle-compliance/:id/review')
   reviewVehicleCompliance(
     @Param('id') id: string,

@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
 import { MobilityPhase2Service } from './phase2.service';
 import {
   AddLocationTraceDto,
@@ -46,10 +47,14 @@ export class MobilityPhase2Controller {
   ) {
     return this.phase2.triggerSafetyIncident(dto);
   }
-  @Get('safety/incidents/open') listOpenSafety() {
+  @UseGuards(PlatformOperatorGuard)
+  @Get('safety/incidents/open')
+  listOpenSafety() {
     return this.phase2.listOpenSafetyIncidents();
   }
-  @Patch('safety/incidents/:id/resolve') resolveSafety(
+  @UseGuards(PlatformOperatorGuard)
+  @Patch('safety/incidents/:id/resolve')
+  resolveSafety(
     @Param('id') id: string,
     @Body() dto: ResolveSafetyIncidentDto,
   ) {
@@ -87,9 +92,9 @@ export class MobilityPhase2Controller {
   ) {
     return this.phase2.rewardSummary(driverId);
   }
-  @Post('rewards/trips/:tripId/apply') applyTripReward(
-    @Param('tripId') tripId: string,
-  ) {
+  @UseGuards(PlatformOperatorGuard)
+  @Post('rewards/trips/:tripId/apply')
+  applyTripReward(@Param('tripId') tripId: string) {
     return this.phase2.applyTripReward(tripId);
   }
   @Post('scheduled-routes') createScheduledRoute(

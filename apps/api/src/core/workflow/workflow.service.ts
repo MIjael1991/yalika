@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,8 +13,9 @@ import { VerifyWorkflowResultDto } from './dto/verify-workflow-result.dto';
 export class WorkflowService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.workflow.findMany({
+      where: { companyId },
       include: {
         steps: {
           orderBy: {
@@ -27,7 +29,11 @@ export class WorkflowService {
     });
   }
 
-  async create(createWorkflowDto: CreateWorkflowDto) {
+  async create(createWorkflowDto: CreateWorkflowDto, companyId: string) {
+    if (createWorkflowDto.companyId !== companyId) {
+      throw new ForbiddenException('Esta empresa no corresponde a tu sesión');
+    }
+
     const company = await this.prisma.company.findUnique({
       where: {
         id: createWorkflowDto.companyId,
@@ -36,6 +42,17 @@ export class WorkflowService {
 
     if (!company) {
       throw new NotFoundException('La empresa no existe');
+    }
+
+    if (createWorkflowDto.entityType?.trim() === 'incident') {
+      const incident = await this.prisma.incident.findFirst({
+        where: { id: createWorkflowDto.entityId?.trim() ?? '', companyId },
+        select: { id: true },
+      });
+
+      if (!incident) {
+        throw new NotFoundException('El incidente asociado no existe');
+      }
     }
 
     return this.prisma.workflow.create({
@@ -96,7 +113,7 @@ export class WorkflowService {
     });
   }
 
-  async advance(workflowId: string) {
+  async advance(workflowId: string, companyId: string) {
     const workflow = await this.prisma.workflow.findUnique({
       where: {
         id: workflowId,
@@ -110,7 +127,7 @@ export class WorkflowService {
       },
     });
 
-    if (!workflow) {
+    if (!workflow || workflow.companyId !== companyId) {
       throw new NotFoundException('El workflow no existe');
     }
 
@@ -192,7 +209,7 @@ export class WorkflowService {
     };
   }
 
-  async runUntilHumanDecision(workflowId: string) {
+  async runUntilHumanDecision(workflowId: string, companyId: string) {
     const workflow = await this.prisma.workflow.findUnique({
       where: {
         id: workflowId,
@@ -206,7 +223,7 @@ export class WorkflowService {
       },
     });
 
-    if (!workflow) {
+    if (!workflow || workflow.companyId !== companyId) {
       throw new NotFoundException('El workflow no existe');
     }
 
@@ -278,9 +295,10 @@ export class WorkflowService {
         if (!workflow.entityId) {
           result = 'El workflow no tiene una entidad asociada';
         } else {
-          const incident = await this.prisma.incident.findUnique({
+          const incident = await this.prisma.incident.findFirst({
             where: {
               id: workflow.entityId,
+              companyId: workflow.companyId,
             },
           });
 
@@ -323,9 +341,10 @@ export class WorkflowService {
         if (!workflow.entityId) {
           result = 'El workflow no tiene incidente asociado';
         } else {
-          const incident = await this.prisma.incident.findUnique({
+          const incident = await this.prisma.incident.findFirst({
             where: {
               id: workflow.entityId,
+              companyId: workflow.companyId,
             },
             include: {
               alternatives: true,
@@ -419,7 +438,11 @@ export class WorkflowService {
     };
   }
 
-  async approveAlternative(workflowId: string, alternativeId: string) {
+  async approveAlternative(
+    workflowId: string,
+    alternativeId: string,
+    companyId: string,
+  ) {
     const workflow = await this.prisma.workflow.findUnique({
       where: {
         id: workflowId,
@@ -433,7 +456,7 @@ export class WorkflowService {
       },
     });
 
-    if (!workflow) {
+    if (!workflow || workflow.companyId !== companyId) {
       throw new NotFoundException('El workflow no existe');
     }
 
@@ -449,7 +472,7 @@ export class WorkflowService {
       },
     });
 
-    if (!incident) {
+    if (!incident || incident.companyId !== companyId) {
       throw new NotFoundException('El incidente asociado no existe');
     }
 
@@ -651,7 +674,11 @@ export class WorkflowService {
       humanDecisionConfirmed: true,
     };
   }
-  async verifyResult(workflowId: string, verifyDto: VerifyWorkflowResultDto) {
+  async verifyResult(
+    workflowId: string,
+    verifyDto: VerifyWorkflowResultDto,
+    companyId: string,
+  ) {
     const workflow = await this.prisma.workflow.findUnique({
       where: {
         id: workflowId,
@@ -665,7 +692,7 @@ export class WorkflowService {
       },
     });
 
-    if (!workflow) {
+    if (!workflow || workflow.companyId !== companyId) {
       throw new NotFoundException('El workflow no existe');
     }
 
@@ -681,7 +708,7 @@ export class WorkflowService {
       },
     });
 
-    if (!incident) {
+    if (!incident || incident.companyId !== companyId) {
       throw new NotFoundException('El incidente asociado no existe');
     }
 

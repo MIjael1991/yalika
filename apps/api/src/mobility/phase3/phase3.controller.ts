@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
 import { MobilityPhase3Service } from './phase3.service';
 import {
   CreateBonusCampaignDto,
@@ -24,7 +25,7 @@ import {
 export class MobilityPhase3Controller {
   constructor(private readonly phase3: MobilityPhase3Service) {}
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('pricing/policies')
   createPricingPolicy(@Body() dto: CreatePricingPolicyDto) {
     return this.phase3.createPricingPolicy(dto);
@@ -42,7 +43,7 @@ export class MobilityPhase3Controller {
     return this.phase3.quote(dto, city);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('wallet/credit-trip')
   creditTrip(@Body() dto: CreditTripEarningsDto) {
     return this.phase3.creditTripEarnings(dto);
@@ -54,7 +55,7 @@ export class MobilityPhase3Controller {
     return this.phase3.walletSummary(driverId);
   }
 
-  @UseGuards(SessionAuthGuard)
+  @UseGuards(SessionAuthGuard, PlatformOperatorGuard)
   @Post('bonuses/campaigns')
   createBonusCampaign(@Body() dto: CreateBonusCampaignDto) {
     return this.phase3.createBonusCampaign(dto);

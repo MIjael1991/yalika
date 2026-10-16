@@ -6,8 +6,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class ExperienceService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.experience.findMany({
+      where: { companyId },
       include: {
         incident: true,
         selectedAlternative: true,

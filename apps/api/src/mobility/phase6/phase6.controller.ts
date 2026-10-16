@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
 import { MobilityPhase6Service } from './phase6.service';
 import {
   AcceptProposalDto,
@@ -30,6 +31,7 @@ export class MobilityPhase6Controller {
     return this.phase6.estimateRoute(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('negotiation-policies')
   createPolicy(@Body() dto: CreateNegotiationPolicyDto) {
     return this.phase6.createPolicy(dto);

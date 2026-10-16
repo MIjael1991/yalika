@@ -1,6 +1,7 @@
 ﻿import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -205,7 +206,51 @@ export class MobilityPhase7Service {
     };
   }
 
-  async preference(subjectType: string, subjectId: string) {
+  /**
+   * El sujeto de la voz/preferencias debe ser quien tiene la sesión:
+   * PASSENGER = su propio userId; DRIVER = el perfil de conductor que le pertenece.
+   */
+  private async isSubject(
+    actorUserId: string,
+    subjectType: string,
+    subjectId: string,
+  ): Promise<boolean> {
+    if (subjectType === 'PASSENGER') return subjectId === actorUserId;
+    if (subjectType === 'DRIVER') {
+      const driver = await this.prisma.mobilityDriver.findUnique({
+        where: { id: subjectId },
+        select: { userId: true },
+      });
+      return driver?.userId === actorUserId;
+    }
+    return false;
+  }
+
+  private async assertSubject(
+    actorUserId: string,
+    subjectType: string,
+    subjectId: string,
+  ) {
+    if (!['PASSENGER', 'DRIVER'].includes(subjectType)) {
+      throw new BadRequestException('Tipo de usuario no valido.');
+    }
+    if (!(await this.isSubject(actorUserId, subjectType, subjectId))) {
+      throw new ForbiddenException(
+        'Solo puedes usar tu propia cuenta de pasajero o conductor.',
+      );
+    }
+  }
+
+  async preferenceFor(
+    actorUserId: string,
+    subjectType: string,
+    subjectId: string,
+  ) {
+    await this.assertSubject(actorUserId, subjectType, subjectId);
+    return this.preference(subjectType, subjectId);
+  }
+
+  private async preference(subjectType: string, subjectId: string) {
     const existing = await this.prisma.mobilityExperiencePreference.findUnique({
       where: {
         subjectType_subjectId: {
@@ -224,7 +269,11 @@ export class MobilityPhase7Service {
     });
   }
 
-  async updatePreference(dto: UpdateExperiencePreferenceDto) {
+  async updatePreference(
+    actorUserId: string,
+    dto: UpdateExperiencePreferenceDto,
+  ) {
+    await this.assertSubject(actorUserId, dto.subjectType, dto.subjectId);
     return this.prisma.mobilityExperiencePreference.upsert({
       where: {
         subjectType_subjectId: {
@@ -257,7 +306,12 @@ export class MobilityPhase7Service {
     });
   }
 
-  async quickRide(dto: QuickRideRequestDto) {
+  async quickRide(actorUserId: string, dto: QuickRideRequestDto) {
+    if (dto.passengerUserId !== actorUserId) {
+      throw new ForbiddenException(
+        'Solo puedes pedir viajes con tu propia cuenta de pasajero.',
+      );
+    }
     const pref = await this.preference('PASSENGER', dto.passengerUserId);
     const mode = dto.mode ?? pref.fareMode ?? 'BALANCED';
 
@@ -410,7 +464,7 @@ export class MobilityPhase7Service {
             'La voz necesita coordenadas ya resueltas por el mapa para crear el viaje.',
           );
         }
-        return this.quickRide({
+        return this.quickRide(command.subjectId, {
           passengerUserId: command.subjectId,
           originAddress: payload.originAddress,
           originLat: Number(payload.originLat),
@@ -433,7 +487,37 @@ export class MobilityPhase7Service {
     }
   }
 
-  async interpret(dto: VoiceInterpretDto) {
+  async interpret(actorUserId: string, dto: VoiceInterpretDto) {
+    await this.assertSubject(actorUserId, dto.subjectType, dto.subjectId);
+
+    if (
+      dto.subjectType === 'PASSENGER' &&
+      dto.passengerUserId !== undefined &&
+      dto.passengerUserId !== actorUserId
+    ) {
+      throw new ForbiddenException(
+        'El pasajero debe ser quien tiene la sesion.',
+      );
+    }
+    if (
+      dto.subjectType === 'DRIVER' &&
+      dto.driverId !== undefined &&
+      dto.driverId !== dto.subjectId
+    ) {
+      throw new ForbiddenException(
+        'El conductor debe ser quien tiene la sesion.',
+      );
+    }
+    if (dto.subjectType === 'PASSENGER' && dto.requestId) {
+      const request = await this.prisma.mobilityNegotiationRequest.findUnique({
+        where: { id: dto.requestId },
+        select: { passengerUserId: true },
+      });
+      if (!request || request.passengerUserId !== actorUserId) {
+        throw new NotFoundException('Negociacion no encontrada.');
+      }
+    }
+
     const pref = await this.preference(dto.subjectType, dto.subjectId);
     if (!pref.voiceEnabled) {
       throw new ConflictException(
@@ -463,7 +547,7 @@ export class MobilityPhase7Service {
       const confirm = ['confirmar', 'si confirmo', 'si confirmar'].includes(
         normalizedText,
       );
-      return this.confirm(pending.id, { confirm });
+      return this.confirm(actorUserId, pending.id, { confirm });
     }
     const classified = this.intentOf(dto.text, dto.subjectType);
     const amount = this.extractAmount(dto.text);
@@ -607,11 +691,21 @@ export class MobilityPhase7Service {
     };
   }
 
-  async confirm(id: string, dto: ConfirmVoiceCommandDto) {
+  async confirm(actorUserId: string, id: string, dto: ConfirmVoiceCommandDto) {
     const command = await this.prisma.mobilityVoiceCommand.findUnique({
       where: { id },
     });
-    if (!command) throw new NotFoundException('Comando no encontrado.');
+    if (
+      !command ||
+      !(await this.isSubject(
+        actorUserId,
+        command.subjectType,
+        command.subjectId,
+      ))
+    ) {
+      // Mismo mensaje exista o no: no revelar comandos de otras personas.
+      throw new NotFoundException('Comando no encontrado.');
+    }
     if (command.status === 'EXECUTED')
       return { command, idempotent: true, result: command.result };
     if (command.status !== 'CONFIRMATION_REQUIRED')

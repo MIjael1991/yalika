@@ -1,3 +1,7 @@
+import { cookies } from 'next/headers';
+
+import { requireBusinessSession } from '../../lib/yalika-business-session';
+
 type Incident = {
   id: string;
   title: string;
@@ -16,6 +20,7 @@ async function getIncidents(): Promise<Incident[]> {
   try {
     const response = await fetch(`${apiUrl}/incident`, {
       cache: 'no-store',
+      headers: { cookie: (await cookies()).toString() },
     });
 
     if (!response.ok) {
@@ -69,6 +74,7 @@ function getSeverity(severity: string) {
 }
 
 export default async function IncidentsPage() {
+  await requireBusinessSession();
   const incidents = await getIncidents();
 
   const open = incidents.filter(
@@ -247,4 +253,4 @@ export default async function IncidentsPage() {
       </section>
     </main>
   );
-}
+}

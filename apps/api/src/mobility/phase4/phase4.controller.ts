@@ -9,6 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { PlatformOperatorGuard } from '../../auth/platform-operator.guard';
 import { MobilityPhase4Service } from './phase4.service';
 import {
   CreateDriverDocumentDto,
@@ -48,6 +49,7 @@ export class MobilityPhase4Controller {
     return this.phase4.createSupportCase(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Patch('support/cases/:id/resolve')
   resolveSupport(@Param('id') id: string, @Body() dto: ResolveSupportCaseDto) {
     return this.phase4.resolveSupportCase(id, dto);
@@ -58,6 +60,7 @@ export class MobilityPhase4Controller {
     return this.phase4.createDriverDocument(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Patch('driver-documents/:id/review')
   reviewDocument(
     @Param('id') id: string,
@@ -66,6 +69,7 @@ export class MobilityPhase4Controller {
     return this.phase4.reviewDriverDocument(id, dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Get('driver-documents/expiring')
   expiringDocuments(@Query('days') days = '30') {
     return this.phase4.expiringDocuments(Number(days));
@@ -76,6 +80,7 @@ export class MobilityPhase4Controller {
     return this.phase4.issueReceipt(tripId);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('trips/:tripId/cancellation/settle')
   settleCancellation(
     @Param('tripId') tripId: string,
@@ -84,21 +89,25 @@ export class MobilityPhase4Controller {
     return this.phase4.settleCancellation(tripId, dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('notifications/outbox')
   queueNotification(@Body() dto: QueueNotificationDto) {
     return this.phase4.queueNotification(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Get('notifications/outbox/pending')
   pendingNotifications(@Query('limit') limit = '50') {
     return this.phase4.pendingNotifications(Number(limit));
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Patch('notifications/outbox/:id')
   markNotification(@Param('id') id: string, @Body() dto: MarkNotificationDto) {
     return this.phase4.markNotification(id, dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('safety/incidents/:incidentId/escalations')
   escalateSafety(
     @Param('incidentId') incidentId: string,
@@ -107,21 +116,25 @@ export class MobilityPhase4Controller {
     return this.phase4.escalateSafety(incidentId, dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('privacy/policies')
   createPrivacyPolicy(@Body() dto: CreatePrivacyPolicyDto) {
     return this.phase4.createPrivacyPolicy(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Get('privacy/cleanup/preview')
   cleanupPreview() {
     return this.phase4.privacyCleanupPreview();
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('privacy/cleanup')
   cleanup(@Body() dto: PrivacyCleanupDto) {
     return this.phase4.privacyCleanup(dto);
   }
 
+  @UseGuards(PlatformOperatorGuard)
   @Post('payouts')
   createPayout(@Body() dto: CreatePayoutDto) {
     return this.phase4.createPayout(dto);

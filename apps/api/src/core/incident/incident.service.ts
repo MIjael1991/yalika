@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
@@ -7,8 +11,9 @@ import { CreateIncidentDto } from './dto/create-incident.dto';
 export class IncidentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(companyId: string) {
     return this.prisma.incident.findMany({
+      where: { companyId },
       include: {
         company: true,
         alternatives: true,
@@ -19,7 +24,11 @@ export class IncidentService {
     });
   }
 
-  async create(createIncidentDto: CreateIncidentDto) {
+  async create(createIncidentDto: CreateIncidentDto, companyId: string) {
+    if (createIncidentDto.companyId !== companyId) {
+      throw new ForbiddenException('Esta empresa no corresponde a tu sesión');
+    }
+
     const company = await this.prisma.company.findUnique({
       where: {
         id: createIncidentDto.companyId,
@@ -41,7 +50,10 @@ export class IncidentService {
     });
   }
 
-  async generateAlternativesFromKnowledge(incidentId: string) {
+  async generateAlternativesFromKnowledge(
+    incidentId: string,
+    companyId: string,
+  ) {
     const incident = await this.prisma.incident.findUnique({
       where: {
         id: incidentId,
@@ -51,7 +63,7 @@ export class IncidentService {
       },
     });
 
-    if (!incident) {
+    if (!incident || incident.companyId !== companyId) {
       throw new NotFoundException('El incidente no existe');
     }
 
