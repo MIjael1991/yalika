@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { requireBusinessSession } from '../../../../lib/yalika-business-session';
+import { requireManagerSession } from '../../../../lib/yalika-business-session';
 import { SiteMenuWorkspace, type EditableSection } from './site-menu-workspace';
 
 export const dynamic = 'force-dynamic';
@@ -8,7 +8,7 @@ const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/
 type Site = { id: string; name: string; sections: EditableSection[] };
 
 export default async function SiteMenuPage({ params }: { params: Promise<{ siteId: string }> }) {
-  const user = await requireBusinessSession();
+  const user = await requireManagerSession();
   const { siteId } = await params;
   const cookieHeader = (await cookies()).toString();
   const response = await fetch(`${apiUrl}/site/company/${encodeURIComponent(user.companyId)}/site/${encodeURIComponent(siteId)}`, {

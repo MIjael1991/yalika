@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { requireBusinessSession } from '../../lib/yalika-business-session';
+import { requireManagerSession } from '../../lib/yalika-business-session';
 import { SiteListWorkspace, type SiteSummary } from './site-list-workspace';
 
 export const dynamic = 'force-dynamic';
@@ -20,7 +20,7 @@ async function loadSites(companyId: string, cookieHeader: string) {
 }
 
 export default async function SitesPage() {
-  const user = await requireBusinessSession();
+  const user = await requireManagerSession();
   const cookieHeader = (await cookies()).toString();
   const sites = await loadSites(user.companyId, cookieHeader);
   return <SiteListWorkspace initialSites={sites} />;

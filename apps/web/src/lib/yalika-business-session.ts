@@ -5,7 +5,22 @@ type BusinessUser = {
   id: string;
   companyId: string;
   modules: string[];
+  /** El cajero vende y cobra; no administra el negocio. */
+  isCashier: boolean;
 };
+
+function isCashierRole(value: unknown) {
+  if (!value || typeof value !== 'object' || !('name' in value)) return false;
+  const name = value.name;
+  return (
+    typeof name === 'string' &&
+    name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toLowerCase() === 'cajero'
+  );
+}
 
 export async function requireBusinessSession(): Promise<BusinessUser> {
   const apiUrl = (
@@ -61,5 +76,17 @@ export async function requireBusinessSession(): Promise<BusinessUser> {
     id: user.id,
     companyId: user.companyId,
     modules: user.modules,
+    isCashier: 'role' in user && isCashierRole(user.role),
   };
+}
+
+/** Pantallas de administración: el cajero vuelve a la caja. */
+export async function requireManagerSession(): Promise<BusinessUser> {
+  const user = await requireBusinessSession();
+
+  if (user.isCashier) {
+    redirect('/pos');
+  }
+
+  return user;
 }

@@ -1,4 +1,5 @@
-export type ModuleLink = { name: string; href: string };
+/** adminOnly: el cajero no ve ni entra a esta pantalla. */
+export type ModuleLink = { name: string; href: string; adminOnly?: boolean };
 export const moduleNavigation = [
   {
     id: "pos",
@@ -6,12 +7,13 @@ export const moduleNavigation = [
     root: "/pos",
     items: [
       { name: "Caja", href: "/pos" },
-      { name: "Productos", href: "/pos/productos" },
-      { name: "Inventario", href: "/pos/inventario" },
+      { name: "Productos", href: "/pos/productos", adminOnly: true },
+      { name: "Inventario", href: "/pos/inventario", adminOnly: true },
       { name: "Apartados", href: "/pos/apartados" },
       { name: "Ventas", href: "/pos/ventas" },
       { name: "Pendientes", href: "/pos/cuentas" },
-      { name: "Devoluciones", href: "/pos/devoluciones" },
+      { name: "Devoluciones", href: "/pos/devoluciones", adminOnly: true },
+      { name: "Equipo", href: "/pos/equipo", adminOnly: true },
     ],
   },
   {

@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { requireBusinessSession } from '../../lib/yalika-business-session';
+import { requireManagerSession } from '../../lib/yalika-business-session';
 type HealthResponse = {
   name: string;
   status: string;
@@ -86,7 +86,7 @@ function getIncidentStatus(status: string) {
 }
 
 export default async function Home() {
-  await requireBusinessSession();
+  await requireManagerSession();
   const [health, incidents, operations] =
     await Promise.all([
       getApi<HealthResponse>('/health'),

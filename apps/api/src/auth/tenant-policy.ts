@@ -31,3 +31,20 @@ export function assertOwnCompany(auth: AuthContext, companyId: string): void {
     throw new NotFoundException('La empresa o el recurso no existe');
   }
 }
+
+export const cashierRoleName = 'cajero';
+
+/** El cajero vende y cobra; no administra el negocio. */
+export function isCashier(auth: AuthContext): boolean {
+  return normalizedRole(auth.user.role?.name) === cashierRoleName;
+}
+
+/** Operaciones de gestión: cualquier cuenta comercial salvo el cajero. */
+export function requireNotCashier(auth: AuthContext): void {
+  requireCommercialAccount(auth);
+  if (isCashier(auth)) {
+    throw new ForbiddenException(
+      'Esta operación es solo para el administrador',
+    );
+  }
+}

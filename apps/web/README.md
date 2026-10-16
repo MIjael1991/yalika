@@ -26,13 +26,11 @@ Copy `.env.example` to `.env.local` and configure:
 
 ```bash
 YALIKA_API_URL=http://localhost:3000
-YALIKA_COMPANY_ID=your-company-uuid
-YALIKA_AUTHORIZED_USER_ID=your-active-user-uuid
 ```
 
-The company identifies the catalog and the active user records who authorized
-each discount. These two identifiers are still used by the POS pilot; Yalika
-Life now obtains its identity from an authenticated session.
+The company and the person who authorizes each sale or discount always come
+from the authenticated session (the administrator and each cashier sign in with
+their own account), never from environment variables.
 
 Yalika Life is available at `/life`. Its first pilot adds personal, family,
 business and school spaces on top of the shared core task engine. Tasks can be

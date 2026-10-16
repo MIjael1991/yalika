@@ -1,8 +1,10 @@
+import { cookies } from 'next/headers';
+import { requireBusinessSession } from '../../../lib/yalika-business-session';
 import { PendingAccountsWorkspace, type PendingOrder } from './pending-accounts-workspace';
 
 export const dynamic = 'force-dynamic';
 
-async function getPendingOrders(companyId: string) {
+async function getPendingOrders(companyId: string, cookieHeader: string) {
   if (!companyId) {
     return {
       orders: [] as PendingOrder[],
@@ -17,7 +19,7 @@ async function getPendingOrders(companyId: string) {
   try {
     const response = await fetch(
       `${apiUrl}/order/company/${encodeURIComponent(companyId)}`,
-      { cache: 'no-store' },
+      { headers: { cookie: cookieHeader }, cache: 'no-store' },
     );
 
     if (!response.ok) {
@@ -40,8 +42,9 @@ async function getPendingOrders(companyId: string) {
 }
 
 export default async function PendingAccountsPage() {
-  const companyId = process.env.YALIKA_COMPANY_ID ?? '';
-  const data = await getPendingOrders(companyId);
+  const user = await requireBusinessSession();
+  const companyId = user.companyId;
+  const data = await getPendingOrders(companyId, (await cookies()).toString());
 
   return (
     <PendingAccountsWorkspace

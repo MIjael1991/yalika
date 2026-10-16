@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { requireBusinessSession } from '../../../../lib/yalika-business-session';
+import { requireManagerSession } from '../../../../lib/yalika-business-session';
 import {
   SiteBuilderWorkspace,
   type CatalogProduct,
@@ -27,7 +27,7 @@ async function getApi<T>(path: string, cookieHeader: string) {
 }
 
 export default async function SiteEditorPage({ params }: { params: Promise<{ siteId: string }> }) {
-  const user = await requireBusinessSession();
+  const user = await requireManagerSession();
   const { siteId } = await params;
   const companyId = user.companyId;
   const cookieHeader = (await cookies()).toString();

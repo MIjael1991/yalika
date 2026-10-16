@@ -26,6 +26,14 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 - Movilidad fase 7 (preferencias, viaje rápido, voz): cada persona solo toca lo suyo.
 - Acciones de dinero y administración de Movilidad (fases 2 a 6): solo el "operador de plataforma", definido en la variable `YALIKA_OPERATOR_USER_IDS` (IDs de usuario separados por coma). Sin la variable, nadie las puede usar.
 
+## Administrador y cajeros (hecho el 16-oct)
+
+- La empresa y la persona que autoriza cada venta salen siempre de la sesión. Ya no existen las variables `YALIKA_COMPANY_ID` ni `YALIKA_AUTHORIZED_USER_ID`; se pueden borrar de `.env` y de Railway.
+- Rol **Cajero**: vende, cobra, cancela ventas, atiende mesas, da de alta clientes y canjea premios. No puede cambiar productos, inventario, promociones, sitios, programas de lealtad, devoluciones, descuentos manuales ni ver reportes. La lista permitida está en `apps/api/src/core/commerce-security/cashier-policy.ts` (todo lo que no aparece ahí es solo del administrador).
+- Cualquier otro rol (Administrador y cuentas anteriores) conserva todo el acceso.
+- El administrador crea, desactiva y cambia la contraseña de sus cajeros en la pantalla Punto de venta → Equipo (`/pos/equipo`). Al desactivar o cambiar la contraseña se cierran las sesiones abiertas del cajero.
+- Límite conocido: un descuento aplicado dentro del carrito al crear la venta todavía lo puede mandar un cajero; hoy solo se bloquea el endpoint de descuentos posteriores. Cerrarlo requiere validar en el servicio de ventas.
+
 ## Pendiente, en este orden
 
 1. Poner `YALIKA_OPERATOR_USER_IDS` en el `.env` local y en Railway.

@@ -1,12 +1,12 @@
 import { cookies } from 'next/headers';
-import { requireBusinessSession } from '../../../../lib/yalika-business-session';
+import { requireManagerSession } from '../../../../lib/yalika-business-session';
 import { SiteTeamWorkspace } from './site-team-workspace';
 
 export const dynamic = 'force-dynamic';
 const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
 
 export default async function SiteTeamPage({ params }: { params: Promise<{ siteId: string }> }) {
-  await requireBusinessSession();
+  await requireManagerSession();
   const { siteId } = await params;
   const cookieHeader = (await cookies()).toString();
   const response = await fetch(`${apiUrl}/site-team/site/${encodeURIComponent(siteId)}`, {

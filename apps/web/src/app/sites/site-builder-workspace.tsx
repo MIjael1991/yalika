@@ -2663,7 +2663,7 @@ export function SiteBuilderWorkspace({
 
     if (!initialAuthorizedUserId) {
       setRedeemError(
-        'Falta configurar YALIKA_AUTHORIZED_USER_ID para registrar quién entrega el premio.',
+        'Tu sesión no tiene usuario activo para registrar quién entrega el premio. Vuelve a iniciar sesión.',
       );
       return;
     }

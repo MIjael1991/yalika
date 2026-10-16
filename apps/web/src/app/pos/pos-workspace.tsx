@@ -616,15 +616,9 @@ export function PosWorkspace({
   initialPromotions: ActivePromotion[];
   initialCatalogError: string;
 }) {
-  const [companyId, setCompanyId] = useState(initialCompanyId);
-  const [authorizedUserId, setAuthorizedUserId] = useState(
-    initialAuthorizedUserId,
-  );
-  const [companyDraft, setCompanyDraft] = useState(initialCompanyId);
-  const [userDraft, setUserDraft] = useState(initialAuthorizedUserId);
-  const [showSettings, setShowSettings] = useState(
-    !initialCompanyId || !initialAuthorizedUserId,
-  );
+  // La empresa y la persona que autoriza salen de la sesión, no se capturan.
+  const companyId = initialCompanyId;
+  const authorizedUserId = initialAuthorizedUserId;
   const [products, setProducts] = useState<Product[]>(
     initialProducts.filter((product) => product.status === 'active'),
   );
@@ -1509,8 +1503,7 @@ export function PosWorkspace({
 
   async function checkout() {
     if (!companyId || !authorizedUserId) {
-      setCheckoutError('Configura la empresa y el usuario autorizador');
-      setShowSettings(true);
+      setCheckoutError('Tu sesión no tiene empresa activa. Vuelve a iniciar sesión.');
       return;
     }
     if (cart.length === 0) {
@@ -1749,7 +1742,7 @@ export function PosWorkspace({
     if (!companyId || !authorizedUserId) {
       setSplitEditor({
         ...splitEditor,
-        error: 'Configura la empresa y el usuario autorizador',
+        error: 'Tu sesión no tiene empresa activa. Vuelve a iniciar sesión.',
       });
       return;
     }
@@ -2089,27 +2082,12 @@ export function PosWorkspace({
     }
   }
 
-  function saveSettings(event: FormEvent) {
-    event.preventDefault();
-
-    if (!companyDraft.trim() || !userDraft.trim()) {
-      return;
-    }
-
-    const nextCompanyId = companyDraft.trim();
-
-    setCompanyId(nextCompanyId);
-    setAuthorizedUserId(userDraft.trim());
-    setShowSettings(false);
-    void loadProducts(nextCompanyId);
-  }
-
   async function redeemReward(event: FormEvent) {
     event.preventDefault();
 
     if (!companyId || !authorizedUserId) {
       setRewardRedeemError(
-        'Primero conecta esta terminal en Configuración.',
+        'Tu sesión no tiene empresa activa. Vuelve a iniciar sesión.',
       );
       return;
     }
@@ -2269,13 +2247,6 @@ export function PosWorkspace({
               className="rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-2.5 text-sm font-medium text-amber-200 transition hover:bg-amber-300/20"
             >
               Premios
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowSettings(true)}
-              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-slate-600 hover:bg-slate-800"
-            >
-              Configuración
             </button>
           </div>
         </div>
@@ -3267,65 +3238,6 @@ export function PosWorkspace({
               {redeemingReward
                 ? 'Validando…'
                 : 'Validar y marcar entregado'}
-            </button>
-          </form>
-        </div>
-      ) : null}
-
-      {showSettings ? (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <form
-            onSubmit={saveSettings}
-            className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-400">
-                  Configuración de caja
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold">Conectar esta terminal</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-400">
-                  Estos datos identifican la empresa y a la persona que autoriza descuentos.
-                </p>
-              </div>
-              {companyId && authorizedUserId ? (
-                <button
-                  type="button"
-                  onClick={() => setShowSettings(false)}
-                  className="text-2xl text-slate-500 hover:text-white"
-                >
-                  ×
-                </button>
-              ) : null}
-            </div>
-
-            <label className="mt-6 block text-sm font-medium text-slate-300" htmlFor="companyId">
-              Identificador de empresa
-            </label>
-            <input
-              id="companyId"
-              required
-              value={companyDraft}
-              onChange={(event) => setCompanyDraft(event.target.value)}
-              className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-sm outline-none focus:border-cyan-400"
-            />
-
-            <label className="mt-4 block text-sm font-medium text-slate-300" htmlFor="authorizedUserId">
-              Usuario autorizador
-            </label>
-            <input
-              id="authorizedUserId"
-              required
-              value={userDraft}
-              onChange={(event) => setUserDraft(event.target.value)}
-              className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-sm outline-none focus:border-cyan-400"
-            />
-
-            <button
-              type="submit"
-              className="mt-6 h-12 w-full rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
-            >
-              Guardar y abrir caja
             </button>
           </form>
         </div>

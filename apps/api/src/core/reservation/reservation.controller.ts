@@ -14,6 +14,7 @@ import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import {
   assertOwnCompany,
   requireCommercialAccount,
+  requireNotCashier,
 } from '../../auth/tenant-policy';
 import { ConfirmReservationDepositDto } from './dto/confirm-reservation-deposit.dto';
 import { ExtendReservationDto } from './dto/extend-reservation.dto';
@@ -24,9 +25,7 @@ import { ReservationService } from './reservation.service';
 @Controller('reservation')
 @UseGuards(SessionAuthGuard)
 export class ReservationController {
-  constructor(
-    private readonly reservationService: ReservationService,
-  ) {}
+  constructor(private readonly reservationService: ReservationService) {}
 
   @Get('company/:companyId')
   list(
@@ -54,7 +53,7 @@ export class ReservationController {
     @Body() dto: UpdateReservationPolicyDto,
     @CurrentAuth() auth: AuthContext,
   ) {
-    requireCommercialAccount(auth);
+    requireNotCashier(auth);
     assertOwnCompany(auth, companyId);
     return this.reservationService.updatePolicy(companyId, dto);
   }
@@ -115,10 +114,7 @@ export class ReservationController {
   }
 
   @Post(':id/complete')
-  complete(
-    @Param('id') id: string,
-    @CurrentAuth() auth: AuthContext,
-  ) {
+  complete(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
     requireCommercialAccount(auth);
     return this.reservationService.complete(
       auth.user.companyId,

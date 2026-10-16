@@ -148,6 +148,7 @@ const menu = [
 export function YalikaSidebar() {
   const pathname = usePathname();
   const [modules, setModules] = useState<string[] | null>(null);
+  const [isCashier, setIsCashier] = useState(false);
   const [visibleModules, setVisibleModules] = useState<string[] | null>(null);
   const mobileItems = [
     { name: "Inicio", href: "/inicio", icon: "home" as const },
@@ -170,6 +171,7 @@ export function YalikaSidebar() {
             : href === "/pos" || href.startsWith("/pos/")
               ? "pos"
               : null;
+    if (isCashier && moduleId === "sites") return false;
     if (moduleId === null) return true;
     if (visibleModules === null) return false;
     return visibleModules.includes(moduleId);
@@ -199,7 +201,12 @@ export function YalikaSidebar() {
             label: "Tu espacio",
             items: [{ name: "← Volver a Inicio", href: "/inicio" }],
           },
-          { label: currentModule.name, items: currentModule.items },
+          {
+            label: currentModule.name,
+            items: currentModule.items.filter(
+              (item) => !(isCashier && "adminOnly" in item && item.adminOnly),
+            ),
+          },
           {
             label: "Yalika",
             items: [{ name: "Cambiar de servicio", href: "/servicios" }],
@@ -221,10 +228,17 @@ export function YalikaSidebar() {
     fetch("/api/yalika/auth/me", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) return null;
-        return response.json() as Promise<{ user?: { modules?: string[] } }>;
+        return response.json() as Promise<{
+          user?: { modules?: string[]; role?: { name?: string } | null };
+        }>;
       })
       .then((payload) => {
-        if (active) setModules(payload?.user?.modules ?? []);
+        if (active) {
+          setModules(payload?.user?.modules ?? []);
+          setIsCashier(
+            (payload?.user?.role?.name ?? "").trim().toLowerCase() === "cajero",
+          );
+        }
       })
       .catch(() => {
         if (active) setModules([]);

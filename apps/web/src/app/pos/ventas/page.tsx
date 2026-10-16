@@ -1,3 +1,5 @@
+import { cookies } from 'next/headers';
+import { requireBusinessSession } from '../../../lib/yalika-business-session';
 import {
   SalesHistoryWorkspace,
   type OrderSummary,
@@ -6,7 +8,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-async function getOrders(companyId: string) {
+async function getOrders(companyId: string, cookieHeader: string) {
   if (!companyId) {
     return {
       orders: [] as OrderSummary[],
@@ -22,9 +24,11 @@ async function getOrders(companyId: string) {
   try {
     const [ordersResponse, returnsResponse] = await Promise.all([
       fetch(`${apiUrl}/order/company/${encodeURIComponent(companyId)}`, {
+        headers: { cookie: cookieHeader },
         cache: 'no-store',
       }),
       fetch(`${apiUrl}/return/company/${encodeURIComponent(companyId)}`, {
+        headers: { cookie: cookieHeader },
         cache: 'no-store',
       }),
     ]);
@@ -52,8 +56,8 @@ async function getOrders(companyId: string) {
 }
 
 export default async function SalesHistoryPage() {
-  const companyId = process.env.YALIKA_COMPANY_ID ?? '';
-  const data = await getOrders(companyId);
+  const user = await requireBusinessSession();
+  const data = await getOrders(user.companyId, (await cookies()).toString());
 
   return (
     <SalesHistoryWorkspace

@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 import { cookies, headers } from 'next/headers';
-import { requireBusinessSession } from '../../../../lib/yalika-business-session';
+import { requireManagerSession } from '../../../../lib/yalika-business-session';
 import { QrActions } from './qr-actions';
 
 export const dynamic = 'force-dynamic';
@@ -9,7 +9,7 @@ const apiUrl = (process.env.YALIKA_API_URL ?? 'http://localhost:3000').replace(/
 type Site = { id: string; name: string; slug: string; status: string };
 
 export default async function SiteQrPage({ params }: { params: Promise<{ siteId: string }> }) {
-  const user = await requireBusinessSession();
+  const user = await requireManagerSession();
   const { siteId } = await params;
   const cookieHeader = (await cookies()).toString();
   const response = await fetch(`${apiUrl}/site/company/${encodeURIComponent(user.companyId)}/site/${encodeURIComponent(siteId)}`, {

@@ -1,8 +1,10 @@
+import { cookies } from 'next/headers';
+import { requireManagerSession } from '../../../lib/yalika-business-session';
 import { ReturnsWorkspace, type Order, type ReturnRecord } from './returns-workspace';
 
 export const dynamic = 'force-dynamic';
 
-async function getInitialData(companyId: string) {
+async function getInitialData(companyId: string, cookieHeader: string) {
   if (!companyId) {
     return {
       orders: [] as Order[],
@@ -18,9 +20,11 @@ async function getInitialData(companyId: string) {
   try {
     const [ordersResponse, returnsResponse] = await Promise.all([
       fetch(`${apiUrl}/order/company/${encodeURIComponent(companyId)}`, {
+        headers: { cookie: cookieHeader },
         cache: 'no-store',
       }),
       fetch(`${apiUrl}/return/company/${encodeURIComponent(companyId)}`, {
+        headers: { cookie: cookieHeader },
         cache: 'no-store',
       }),
     ]);
@@ -48,13 +52,14 @@ async function getInitialData(companyId: string) {
 }
 
 export default async function ReturnsPage() {
-  const companyId = process.env.YALIKA_COMPANY_ID ?? '';
-  const data = await getInitialData(companyId);
+  const user = await requireManagerSession();
+  const companyId = user.companyId;
+  const data = await getInitialData(companyId, (await cookies()).toString());
 
   return (
     <ReturnsWorkspace
       companyId={companyId}
-      authorizedUserId={process.env.YALIKA_AUTHORIZED_USER_ID ?? ''}
+      authorizedUserId={user.id}
       initialOrders={data.orders}
       initialReturns={data.returns}
       initialError={data.error}

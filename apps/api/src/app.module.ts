@@ -17,6 +17,7 @@ import { HealthModule } from './health/health.module';
 import { ClinicalModule } from './clinical/clinical.module';
 import { CompanyModule } from './identity/company/company.module';
 import { RoleModule } from './identity/role/role.module';
+import { TeamModule } from './identity/team/team.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { WorkflowModule } from './core/workflow/workflow.module';
 import { VisitModule } from './core/visit/visit.module';
@@ -58,6 +59,7 @@ import { ReservationModule } from './core/reservation/reservation.module';
     ClinicalModule,
     CompanyModule,
     RoleModule,
+    TeamModule,
 
     SpaceModule,
     TaskModule,

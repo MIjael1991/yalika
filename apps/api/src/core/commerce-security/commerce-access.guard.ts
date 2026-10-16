@@ -8,7 +8,9 @@ import {
 } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../../auth/auth.types';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { isCashier } from '../../auth/tenant-policy';
 import { PrismaService } from '../../prisma/prisma.service';
+import { cashierMayCall } from './cashier-policy';
 
 /** R6: controles en backend, independientes de botones o IDs enviados por el cliente. */
 export const commercePrivateRoots = new Set([
@@ -158,6 +160,13 @@ export class CommerceAccessGuard implements CanActivate {
     const companyId = req.auth.user.companyId;
     if (!companyId)
       throw new ForbiddenException('La cuenta no tiene empresa activa');
+
+    // El cajero solo vende y cobra; lo demás es del administrador.
+    if (isCashier(req.auth) && !cashierMayCall(req.method, parts)) {
+      throw new ForbiddenException(
+        'Esta operación es solo para el administrador',
+      );
+    }
 
     // Listados de clientes y operaciones se filtran en sus controladores y servicios.
 
