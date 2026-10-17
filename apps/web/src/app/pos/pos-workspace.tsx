@@ -5,6 +5,16 @@ import { BarcodeScanner } from './barcode-scanner';
 import { parseMoneyInput } from '../../lib/yalika-money-input';
 import { createScanBuffer } from '../../lib/yalika-scan-buffer';
 import {
+  addHeld,
+  linesFromCart,
+  removeHeld,
+  restoreLines,
+  sanitizeHeld,
+  sanitizeLines,
+  type HeldLine,
+  type HeldSale,
+} from '../../lib/yalika-sale-hold';
+import {
   bumpFrequency,
   parseQuickEntry,
   sanitizeFrequency,
@@ -713,6 +723,32 @@ export function PosWorkspace({
   const searchRef = useRef<HTMLInputElement>(null);
   // "3x" + Enter deja armado el multiplicador para el siguiente producto.
   const [pendingQty, setPendingQty] = useState(1);
+  // Ventas en espera, última venta y consulta de precio: viven en este navegador, por caja.
+  const [heldSales, setHeldSales] = useState<HeldSale[]>([]);
+  const [lastSaleLines, setLastSaleLines] = useState<HeldLine[]>([]);
+  const [holdNotice, setHoldNotice] = useState('');
+  const [priceCheck, setPriceCheck] = useState(false);
+  const [priceInfo, setPriceInfo] = useState<SaleOption>();
+  useEffect(() => {
+    if (!companyId) return;
+    try {
+      const held = window.localStorage.getItem(`yalika-pos-espera:${companyId}`);
+      setHeldSales(held ? sanitizeHeld(JSON.parse(held), Date.now()) : []);
+      const last = window.localStorage.getItem(`yalika-pos-ultima:${companyId}`);
+      setLastSaleLines(last ? sanitizeLines(JSON.parse(last)) : []);
+    } catch {
+      setHeldSales([]);
+      setLastSaleLines([]);
+    }
+  }, [companyId]);
+  useEffect(() => {
+    if (!receipt || receipt.order.paymentStatus !== 'paid') return;
+    const lines = linesFromCart(receipt.items);
+    if (lines.length === 0) return;
+    setLastSaleLines(lines);
+    saveLocal('yalika-pos-ultima', lines);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receipt]);
   // Los productos que más se venden en esta caja quedan a un toque (frutas, pan suelto...).
   const [frequent, setFrequent] = useState<Frequency>({});
   useEffect(() => {
@@ -1108,7 +1144,79 @@ export function PosWorkspace({
     setCheckoutError('');
   }
 
+  function saveLocal(prefix: string, value: unknown) {
+    if (!companyId) return;
+    try {
+      window.localStorage.setItem(`${prefix}:${companyId}`, JSON.stringify(value));
+    } catch {
+      // Sin almacenamiento del navegador solo se pierde la comodidad, no la venta.
+    }
+  }
+
+  function restoreSale(lines: HeldLine[]): boolean {
+    const { items, missing, soldOut, reduced } = restoreLines(lines, saleOptions);
+    if (items.length === 0) {
+      setHoldNotice('Ya no hay productos disponibles de esa venta en esta caja.');
+      return false;
+    }
+    removeAppliedPromotion();
+    setCart(items.map(({ option, quantity }) => ({ ...option, quantity })));
+    const notes = [
+      missing > 0 ? `${missing} producto(s) ya no existen` : '',
+      soldOut.length > 0 ? `agotado: ${soldOut.join(', ')}` : '',
+      reduced.length > 0 ? `cantidad ajustada a la existencia: ${reduced.join(', ')}` : '',
+    ].filter(Boolean);
+    setHoldNotice(notes.length > 0 ? `Venta recuperada con precios de hoy. Ojo: ${notes.join('; ')}.` : 'Venta recuperada con los precios de hoy.');
+    setCheckoutError('');
+    searchRef.current?.focus();
+    return true;
+  }
+
+  function holdCurrentSale() {
+    if (cartLocked || cart.length === 0) return;
+    const lines = linesFromCart(cart);
+    if (lines.length === 0) return;
+    const sale: HeldSale = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, savedAt: Date.now(), lines };
+    const next = addHeld(heldSales, sale);
+    setHeldSales(next);
+    saveLocal('yalika-pos-espera', next);
+    removeAppliedPromotion();
+    setCart([]);
+    setOrderDiscount(undefined);
+    setReceivedAmount('');
+    setHoldNotice('Venta en espera. Atiende al siguiente cliente; los descuentos manuales no se guardan.');
+    searchRef.current?.focus();
+  }
+
+  function recallHeld(id: string) {
+    if (cart.length > 0 || cartLocked) return;
+    const sale = heldSales.find((item) => item.id === id);
+    if (!sale || !restoreSale(sale.lines)) return;
+    const next = removeHeld(heldSales, id);
+    setHeldSales(next);
+    saveLocal('yalika-pos-espera', next);
+  }
+
+  function discardHeld(id: string) {
+    const next = removeHeld(heldSales, id);
+    setHeldSales(next);
+    saveLocal('yalika-pos-espera', next);
+  }
+
+  function repeatLastSale() {
+    if (cart.length > 0 || cartLocked) return;
+    restoreSale(lastSaleLines);
+  }
+
   function addOption(option: SaleOption, units = 1, multiplier?: number): boolean {
+    if (priceCheck) {
+      setPriceInfo(option);
+      setSearch('');
+      setSearchError('');
+      searchRef.current?.focus();
+      return true;
+    }
+
     if (cartLocked || (option.trackInventory && option.stock <= 0)) {
       return false;
     }
@@ -1190,7 +1298,8 @@ export function PosWorkspace({
 
   async function resolveBarcode(code: string, multiplier?: number): Promise<boolean> {
     const normalized = code.trim();
-    if (!companyId || !normalized || cartLocked || showConfirmCheckout) return false;
+    if (!companyId || !normalized) return false;
+    if (!priceCheck && (cartLocked || showConfirmCheckout)) return false;
     setSearchError('');
     try {
       const resolved = await apiRequest<BarcodeResolution>(
@@ -1206,7 +1315,7 @@ export function PosWorkspace({
         setSearchError('El código existe, pero el producto no está disponible para venta en esta caja.');
         return false;
       }
-      if (option.trackInventory && option.stock <= 0) {
+      if (!priceCheck && option.trackInventory && option.stock <= 0) {
         setSearchError(`${option.productName} no tiene existencia.`);
         return false;
       }
@@ -1265,7 +1374,7 @@ export function PosWorkspace({
     }
 
     // Como en caja: con el buscador vacío, Enter pasa directo a cobrar lo que ya se escaneó.
-    if (!normalized && cart.length > 0 && !cartLocked && !checkingOut && !splitCheckout && !checkoutSession) {
+    if (!priceCheck && !normalized && cart.length > 0 && !cartLocked && !checkingOut && !splitCheckout && !checkoutSession) {
       setShowConfirmCheckout(true);
       return;
     }
@@ -2511,7 +2620,38 @@ export function PosWorkspace({
           <div className="mt-3">
             <BarcodeScanner onCode={resolveBarcode} disabled={cartLocked} />
             <p className="mt-1 text-xs text-slate-500">Lector USB/Bluetooth: escanea sin tocar nada. Cuando termines, Enter con el buscador vacío abre el cobro.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setPriceCheck((current) => !current);
+                setPriceInfo(undefined);
+                setSearch('');
+                setSearchError('');
+              }}
+              className={`mt-2 rounded-xl border px-4 py-2 text-sm font-semibold ${
+                priceCheck
+                  ? 'border-violet-300 bg-violet-400/20 text-violet-100'
+                  : 'border-slate-700 bg-slate-900 text-slate-300 hover:border-violet-400'
+              }`}
+            >
+              {priceCheck ? 'Salir de consulta de precio' : '🔎 Consultar precio'}
+            </button>
           </div>
+
+          {priceCheck ? (
+            <div className="mt-3 rounded-xl border border-violet-400/30 bg-violet-400/10 px-4 py-3 text-sm text-violet-100">
+              <p className="font-semibold">Consulta de precio: lo que escanees o elijas solo se muestra, no se agrega a la venta.</p>
+              {priceInfo ? (
+                <p className="mt-2 text-lg font-bold">
+                  {priceInfo.productName}
+                  {priceInfo.variantName ? ` · ${priceInfo.variantName}` : ''} · {money.format(priceInfo.price)}
+                  <span className="ml-2 text-sm font-normal text-violet-200">
+                    {priceInfo.trackInventory ? `${priceInfo.stock} en existencia` : 'sin control de existencia'}
+                  </span>
+                </p>
+              ) : null}
+            </div>
+          ) : null}
 
           {searchError ? (
             <div className="mt-3 flex flex-col gap-3 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200 sm:flex-row sm:items-center sm:justify-between">
@@ -2910,6 +3050,57 @@ export function PosWorkspace({
               {cart.reduce((total, item) => total + item.quantity, 0)} artículos
             </span>
           </div>
+
+          {!checkoutSession && !cartLocked && (cart.length > 0 || lastSaleLines.length > 0 || heldSales.length > 0 || holdNotice) ? (
+            <div className="space-y-2 border-b border-slate-800 px-5 py-3">
+              <div className="flex flex-wrap gap-2">
+                {cart.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={holdCurrentSale}
+                    className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-cyan-400"
+                  >
+                    Poner en espera
+                  </button>
+                ) : null}
+                {cart.length === 0 && lastSaleLines.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={repeatLastSale}
+                    className="rounded-lg border border-slate-700 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-cyan-400"
+                  >
+                    Repetir última venta
+                  </button>
+                ) : null}
+              </div>
+              {holdNotice ? <p className="text-xs text-cyan-200">{holdNotice}</p> : null}
+              {heldSales.length > 0 ? (
+                <ul className="space-y-1">
+                  {heldSales.map((sale) => (
+                    <li key={sale.id} className="flex items-center justify-between gap-2 rounded-lg bg-slate-800/60 px-3 py-2 text-xs">
+                      <span className="text-slate-300">
+                        En espera · {sale.lines.reduce((total, line) => total + line.quantity, 0)} artículos · {new Date(sale.savedAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="flex shrink-0 gap-2">
+                        <button
+                          type="button"
+                          disabled={cart.length > 0}
+                          title={cart.length > 0 ? 'Termina o pon en espera la venta actual' : undefined}
+                          onClick={() => recallHeld(sale.id)}
+                          className="font-semibold text-cyan-300 hover:text-white disabled:opacity-40"
+                        >
+                          Retomar
+                        </button>
+                        <button type="button" onClick={() => discardHeld(sale.id)} className="text-slate-400 hover:text-white">
+                          Descartar
+                        </button>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
 
           {customerReceipts.length > 0 ? (
             <div className="border-b border-emerald-500/20 bg-emerald-500/5 px-5 py-4">
