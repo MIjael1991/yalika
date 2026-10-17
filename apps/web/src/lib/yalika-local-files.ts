@@ -1,6 +1,8 @@
 // Device-only repository. No upload, shared public URL or implicit cloud sync.
 export type FileScope = { userId: string; companyId: string };
-export type LocalFile = { id: string; name: string; type: string; size: number; createdAt: string; blob: Blob };
+export type LocalFile = { id: string; name: string; type: string; size: number; createdAt: string; expiresAt?: string; blob: Blob };
+// Los resultados de Estudio (PDF, ZIP, Word) se conservan este tiempo; lo que la persona agrega a mano no vence.
+export const KEEP_DAYS = 30;
 const MAX_SIZE = 20 * 1024 * 1024;
 export function scopeKey(scope: FileScope) {
   if (!scope.userId.trim() || !scope.companyId.trim()) throw new Error('Sesión incompleta');
@@ -20,15 +22,18 @@ function openStore(scope: FileScope): Promise<IDBDatabase> {
 }
 export async function listLocalFiles(scope: FileScope): Promise<LocalFile[]> {
   const db = await openStore(scope);
+  const now = new Date().toISOString();
   return new Promise((resolve, reject) => {
-    const tx = db.transaction('files', 'readonly');
-    const req = tx.objectStore('files').getAll();
-    tx.oncomplete = () => { db.close(); resolve((req.result as LocalFile[]).sort((a,b) => b.createdAt.localeCompare(a.createdAt))); };
+    const tx = db.transaction('files', 'readwrite');
+    const store = tx.objectStore('files');
+    const req = store.getAll();
+    req.onsuccess = () => { for (const f of req.result as LocalFile[]) if (f.expiresAt && f.expiresAt <= now) store.delete(f.id); };
+    tx.oncomplete = () => { db.close(); resolve((req.result as LocalFile[]).filter(f => !f.expiresAt || f.expiresAt > now).sort((a,b) => b.createdAt.localeCompare(a.createdAt))); };
     tx.onabort = () => { db.close(); reject(new Error('No se pudieron leer los archivos.')); };
   });
 }
 // A caller keeps operationId across retries. Same ID + different content is a conflict.
-export async function saveLocalFile(scope: FileScope, blob: Blob, name: string, operationId: string): Promise<void> {
+export async function saveLocalFile(scope: FileScope, blob: Blob, name: string, operationId: string, keepDays?: number): Promise<void> {
   checkFile(blob, name);
   if (!operationId.trim()) throw new Error('Falta el identificador de operación');
   const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', await blob.arrayBuffer()))).map(v => v.toString(16).padStart(2,'0')).join('');
@@ -42,7 +47,7 @@ export async function saveLocalFile(scope: FileScope, blob: Blob, name: string, 
       if (req.result) {
         if (req.result.digest !== digest || req.result.name !== name || req.result.type !== blob.type) { conflict = true; tx.abort(); }
       } else {
-        store.add({ id: operationId, name, type: blob.type, size: blob.size, blob, digest, createdAt: new Date().toISOString() });
+        store.add({ id: operationId, name, type: blob.type, size: blob.size, blob, digest, createdAt: new Date().toISOString(), ...(keepDays ? { expiresAt: new Date(Date.now() + keepDays * 86400000).toISOString() } : {}) });
       }
     };
     tx.oncomplete = () => { db.close(); resolve(); };

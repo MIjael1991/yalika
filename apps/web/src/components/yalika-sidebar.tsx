@@ -331,6 +331,8 @@ export function YalikaSidebar() {
 
   const logout = async () => {
     await fetch("/api/yalika/auth/logout", { method: "POST" }).catch(() => null);
+    // Estudio guarda su pantalla para usarse sin internet; al salir se borra de este dispositivo.
+    await Promise.all(["estudio-static-v1", "estudio-pages-v1", "estudio-ocr-v1"].map((n) => caches.delete(n))).catch(() => null);
     window.location.assign("/login");
   };
 
