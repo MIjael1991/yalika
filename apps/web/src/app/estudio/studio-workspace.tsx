@@ -20,7 +20,7 @@ import {
   type Paragraph,
   type YalikaDocument,
 } from "../../lib/yalika-document";
-import { decode, toBytes } from "../../lib/yalika-image-io";
+import { fitPicture, pictureFit } from "../../lib/yalika-image-io";
 import { importDocument } from "../../lib/yalika-import";
 import { PictureBlock, TableBlock } from "./doc-blocks";
 import { TemplatePicker } from "./template-picker";
@@ -148,18 +148,9 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
   }
   // La foto se reduce hasta que quepa en el documento: se prueba con calidades y tamaños cada vez menores.
   async function addImage(file: File) {
-    for (const [side, quality] of [[1200, 0.8], [1000, 0.7], [800, 0.6], [640, 0.55]] as const) {
-      const px = await decode(file, side),
-        bytes = await toBytes(px, "image/jpeg", quality);
-      let bin = "";
-      for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
-      const data = btoa(bin);
-      if (data.length <= MAX_IMAGE_B64) {
-        insertBlock({ ...paragraph(), align: "center", image: { data, w: px.width, h: px.height, size: "m" } });
-        return;
-      }
-    }
-    throw Error("La imagen es demasiado pesada para el documento. Prueba con una más pequeña.");
+    const pic = await fitPicture(file, MAX_IMAGE_B64);
+    if (!pic) throw Error("La imagen es demasiado pesada para el documento. Prueba con una más pequeña.");
+    insertBlock({ ...paragraph(), align: "center", image: { ...pic, size: "m" } });
   }
   function toggleList(kind: "bullet" | "number") {
     change({
@@ -239,7 +230,7 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
     setProposal("");
   }
   async function open(file: File) {
-    const { doc: next, warning } = await importDocument(file);
+    const { doc: next, warning } = await importDocument(file, undefined, pictureFit(MAX_IMAGE_B64));
     replace(next);
     if (warning) setNotice(warning);
   }

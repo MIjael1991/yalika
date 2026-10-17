@@ -41,3 +41,17 @@ export async function toBytes(p: Pixels, type: "image/jpeg" | "image/png", quali
   if (!blob) throw Error("No se pudo crear la imagen.");
   return new Uint8Array(await blob.arrayBuffer());
 }
+// Reduce una imagen a JPEG en base64 hasta que quepa en el límite; null si no se puede leer o sigue siendo muy pesada.
+export async function fitPicture(file: File, maxBase64: number): Promise<{ data: string; w: number; h: number } | null> {
+  for (const [side, quality] of [[1200, 0.8], [1000, 0.7], [800, 0.6], [640, 0.55]] as const) {
+    const px = await decode(file, side),
+      bytes = await toBytes(px, "image/jpeg", quality);
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 8192) bin += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    const data = btoa(bin);
+    if (data.length <= maxBase64) return { data, w: px.width, h: px.height };
+  }
+  return null;
+}
+export const pictureFit = (maxBase64: number) => (bytes: Uint8Array, name: string) =>
+  fitPicture(new File([bytes as BlobPart], name), maxBase64);

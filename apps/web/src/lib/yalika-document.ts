@@ -28,7 +28,7 @@ export const MAX_TABLE_COLS = 8;
 export const MAX_TABLE_CELL = 500;
 export const MAX_IMAGES = 8;
 export const MAX_IMAGE_B64 = 450000;
-const MAX_IMAGES_TOTAL = 1500000;
+export const MAX_IMAGES_TOTAL = 1500000;
 export const PICTURE_SIZES = { s: 0.33, m: 0.6, l: 1 } as const;
 // Tamaño de una imagen en una hoja de `maxWidth` unidades: nunca más grande que su tamaño real.
 export function pictureBox(img: Picture, maxWidth: number) {

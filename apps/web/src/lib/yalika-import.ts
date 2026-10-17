@@ -2,6 +2,8 @@
 import { unzipSync } from "fflate";
 import {
   MAX_CHARS,
+  MAX_IMAGES,
+  MAX_IMAGES_TOTAL,
   MAX_TABLES,
   MAX_TABLE_CELL,
   MAX_TABLE_COLS,
@@ -60,7 +62,7 @@ export function importText(name: string, text: string): ImportResult {
     lines.map((l) => paragraph(l.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, ""))),
   );
 }
-const MAX_NOTE = "Las imágenes y formatos avanzados de Word no se conservan.";
+const IMAGES_NOTE = "Las imágenes y formatos avanzados de Word no se conservan.";
 const wText = (xml: string) =>
   [...xml.matchAll(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:tab\s*\/>|<w:br\s*\/>/g)]
     .map((m) => (m[0].startsWith("<w:t>") || m[0].startsWith("<w:t ") ? entities(m[1]) : " "))
@@ -78,13 +80,16 @@ function listKinds(numbering: string) {
   return (numId: string, ilvl: string): "bullet" | "number" =>
     levels.get((abstracts.get(numId) ?? "") + ":" + ilvl) === "bullet" ? "bullet" : "number";
 }
-export function importDocx(name: string, bytes: Uint8Array): ImportResult {
+function readDocx(bytes: Uint8Array, media: boolean) {
   if (bytes.length > MAX_IMPORT_BYTES) throw Error("El archivo pesa más de 20 MB.");
   let files: Record<string, Uint8Array>;
   try {
     files = unzipSync(bytes, {
       filter: (f) =>
-        (f.name === "word/document.xml" || f.name === "word/numbering.xml") && f.originalSize <= MAX_IMPORT_BYTES,
+        (f.name === "word/document.xml" ||
+          f.name === "word/numbering.xml" ||
+          (media && (f.name === "word/_rels/document.xml.rels" || /^word\/media\/[^/]+$/.test(f.name)))) &&
+        f.originalSize <= MAX_IMPORT_BYTES,
     });
   } catch {
     throw Error("El archivo no es un documento de Word (.docx) válido.");
@@ -93,7 +98,8 @@ export function importDocx(name: string, bytes: Uint8Array): ImportResult {
   if (!raw) throw Error("El archivo no es un documento de Word (.docx) válido.");
   const xml = new TextDecoder("utf-8").decode(raw),
     kind = listKinds(files["word/numbering.xml"] ? new TextDecoder("utf-8").decode(files["word/numbering.xml"]) : ""),
-    out: Paragraph[] = [];
+    out: Paragraph[] = [],
+    refs: { at: number; rid: string }[] = [];
   let tables = 0,
     trimmed = false;
   const paragraphOf = (body: string) => {
@@ -142,6 +148,8 @@ export function importDocx(name: string, bytes: Uint8Array): ImportResult {
   for (const [block] of xml.matchAll(/<w:tbl(?=[ >])[\s\S]*?<\/w:tbl>|<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g)) {
     if (!block.startsWith("<w:tbl")) {
       out.push(paragraphOf(block.replace(/^<w:p(?:\s[^>]*)?>/, "").replace(/<\/w:p>$/, "")));
+      for (const m of block.matchAll(/<a:blip\s[^>]*r:embed="([^"]+)"|<v:imagedata\s[^>]*r:id="([^"]+)"/g))
+        refs.push({ at: out.length - 1, rid: m[1] ?? m[2] });
       continue;
     }
     const rows = [...block.matchAll(/<w:tr(?=[ >])[\s\S]*?<\/w:tr>/g)].map((r) =>
@@ -165,13 +173,55 @@ export function importDocx(name: string, bytes: Uint8Array): ImportResult {
     out.push(t);
   }
   while (out.length && !out[out.length - 1].table && !out[out.length - 1].text.trim()) out.pop();
-  const images = /<w:drawing[ >]/.test(xml) || /<w:pict[ >]/.test(xml);
+  return {
+    out,
+    refs,
+    trimmed,
+    shapes: /<w:drawing[ >]|<w:pict[ >]/.test(xml),
+    total: [...xml.matchAll(/<a:blip\s[^>]*r:embed="|<v:imagedata\s[^>]*r:id="/g)].length,
+    rels: files["word/_rels/document.xml.rels"] ? new TextDecoder("utf-8").decode(files["word/_rels/document.xml.rels"]) : "",
+    files,
+  };
+}
+const trimNote = (trimmed: boolean) => (trimmed ? "Algunas tablas eran muy grandes y se recortaron." : "");
+export function importDocx(name: string, bytes: Uint8Array): ImportResult {
+  const d = readDocx(bytes, false);
+  return build(name, d.out, [trimNote(d.trimmed), d.total || d.shapes ? IMAGES_NOTE : ""].filter(Boolean).join(" "));
+}
+// Ajusta una imagen del Word al tamaño que admite el documento; devuelve null si no se puede usar.
+export type PictureFit = (bytes: Uint8Array, name: string) => Promise<{ data: string; w: number; h: number } | null>;
+const IMAGE_TYPE = /\.(?:png|jpe?g|gif|webp|bmp)$/i;
+// Igual que importDocx, pero conserva las imágenes (hasta MAX_IMAGES) usando la función de ajuste del navegador.
+export async function importDocxWithImages(name: string, bytes: Uint8Array, fit: PictureFit): Promise<ImportResult> {
+  const d = readDocx(bytes, true),
+    targets = new Map<string, string>();
+  for (const [, tag] of d.rels.matchAll(/<Relationship\s([^>]*)\/?>/g)) {
+    const id = /\bId="([^"]+)"/.exec(tag)?.[1],
+      to = /\bTarget="([^"]+)"/.exec(tag)?.[1];
+    if (id && to) targets.set(id, to.replace(/^\/?(?:word\/)?/, "word/"));
+  }
+  const found: { at: number; image: Paragraph["image"] }[] = [];
+  let total = 0;
+  for (const ref of d.refs) {
+    if (found.length >= MAX_IMAGES) break;
+    const path = targets.get(ref.rid),
+      raw = path ? d.files[path] : undefined;
+    if (!path || !raw || !IMAGE_TYPE.test(path)) continue;
+    const pic = await fit(raw, path.split("/").pop() ?? "imagen").catch(() => null);
+    if (!pic || total + pic.data.length > MAX_IMAGES_TOTAL) continue;
+    total += pic.data.length;
+    found.push({ at: ref.at, image: { ...pic, size: "m" } });
+  }
+  for (const f of found.reverse()) d.out.splice(f.at + 1, 0, { ...paragraph(), align: "center", image: f.image });
+  const skipped = d.total - found.length;
   return build(
     name,
-    out,
+    d.out,
     [
-      trimmed ? "Algunas tablas eran muy grandes y se recortaron." : "",
-      images ? MAX_NOTE : "",
+      trimNote(d.trimmed),
+      skipped > 0
+        ? "Se conservaron " + found.length + " de " + d.total + " imágenes; las demás no son compatibles, están dentro de tablas o superan el límite de " + MAX_IMAGES + "."
+        : "",
     ]
       .filter(Boolean)
       .join(" "),
@@ -317,6 +367,7 @@ async function defaultLoader(data: Uint8Array): Promise<PdfText> {
 export async function importDocument(
   file: { name: string; size: number; arrayBuffer(): Promise<ArrayBuffer>; text(): Promise<string> },
   load: PdfLoader = defaultLoader,
+  fit?: PictureFit,
 ): Promise<ImportResult> {
   const ext = /\.([^.]+)$/.exec(file.name)?.[1]?.toLowerCase() ?? "";
   if (ext === "json") {
@@ -328,7 +379,10 @@ export async function importDocument(
     return importText(file.name, await file.text());
   }
   if (file.size > MAX_IMPORT_BYTES) throw Error("El archivo pesa más de 20 MB.");
-  if (ext === "docx") return importDocx(file.name, new Uint8Array(await file.arrayBuffer()));
+  if (ext === "docx") {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    return fit ? importDocxWithImages(file.name, bytes, fit) : importDocx(file.name, bytes);
+  }
   if (ext === "pdf") return importPdf(file.name, new Uint8Array(await file.arrayBuffer()), load);
   throw Error("Formato no compatible. Usa .docx, .pdf, .txt o un editable de Yalika (.json).");
 }

@@ -84,6 +84,32 @@ const loader = async (data) => {
   const wb = imp.importDocx("w.docx", wide);
   assert.deepEqual(wb.doc.paragraphs.map((p) => p.table ?? p.text), ["Arriba", [["Título", ""], ["A B", "C & D"]], "Abajo"]);
   assert.match(wb.warning, /imágenes/);
+  // Imágenes de un Word: se colocan después de su párrafo, en orden, y lo no compatible se avisa
+  const pics = zipSync({
+    "word/document.xml": new TextEncoder().encode(
+      '<w:document><w:body><w:p><w:r><w:t>Foto 1</w:t></w:r><w:r><w:drawing><a:blip r:embed="rId5"/></w:drawing></w:r></w:p><w:p><w:r><w:t>Sin foto</w:t></w:r></w:p><w:p><w:r><w:drawing><a:blip r:embed="rId6"/></w:drawing></w:r></w:p><w:p><w:r><w:drawing><a:blip r:embed="rId7"/></w:drawing></w:r></w:p></w:body></w:document>',
+    ),
+    "word/_rels/document.xml.rels": new TextEncoder().encode(
+      '<Relationships><Relationship Id="rId5" Type="x/image" Target="media/a.png"/><Relationship Id="rId6" Type="x/image" Target="/word/media/b.jpg"/><Relationship Id="rId7" Type="x/image" Target="media/c.emf"/></Relationships>',
+    ),
+    "word/media/a.png": new Uint8Array([1]),
+    "word/media/b.jpg": new Uint8Array([2]),
+    "word/media/c.emf": new Uint8Array([3]),
+  });
+  const seen = [];
+  const withPics = await imp.importDocxWithImages("p.docx", pics, async (bytes, name) => {
+    seen.push(name);
+    return bytes[0] === 2 ? null : { data: "QUJD", w: 10, h: 20 };
+  });
+  assert.deepEqual(seen, ["a.png", "b.jpg"]);
+  assert.deepEqual(
+    withPics.doc.paragraphs.map((p) => (p.image ? "[imagen " + p.image.size + "]" : p.text)),
+    ["Foto 1", "[imagen m]", "Sin foto"],
+  );
+  assert.match(withPics.warning, /Se conservaron 1 de 3 imágenes/);
+  const viaFile = await imp.importDocument({ name: "p.docx", size: pics.length, arrayBuffer: async () => pics.buffer.slice(pics.byteOffset, pics.byteOffset + pics.byteLength), text: async () => "" }, undefined, async () => ({ data: "QUJD", w: 1, h: 1 }));
+  assert.equal(viaFile.doc.paragraphs.filter((p) => p.image).length, 2);
+  assert.equal(viaFile.warning, "Se conservaron 2 de 3 imágenes; las demás no son compatibles, están dentro de tablas o superan el límite de 8.");
 
   // PDF con texto
   const pdfBytes = new Uint8Array(

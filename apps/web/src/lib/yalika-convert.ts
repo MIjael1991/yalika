@@ -1,6 +1,6 @@
 // Convertidor único: de casi cualquier archivo a casi cualquier formato, todo en el dispositivo.
 // Aquí vive el mapa «de qué a qué» y la conversión; la pantalla solo elige archivo y destino.
-import { documentName, exportPdf, exportWord, type YalikaDocument } from "./yalika-document";
+import { MAX_IMAGE_B64, documentName, exportPdf, exportWord, type YalikaDocument } from "./yalika-document";
 import {
   MAX_IMPORT_BYTES,
   importDocument,
@@ -81,7 +81,8 @@ export function classify(f: { name: string; type: string }): { kind: Kind | null
 const baseName = (name: string) => documentName(name.replace(/\.[^.]+$/, ""));
 const safe = (s: string) => s.replace(/[\u0000-\u001f\\/:*?"<>|]/g, "-").trim().slice(0, 60) || "hoja";
 const plural = (n: number, one: string, many: string) => n + " " + (n === 1 ? one : many);
-const text = (doc: YalikaDocument) => "﻿" + doc.paragraphs.map((p) => p.text).join("\n\n");
+const text = (doc: YalikaDocument) =>
+  "﻿" + doc.paragraphs.map((p) => (p.table ? p.table.map((r) => r.join("\t")).join("\n") : p.text)).join("\n\n");
 async function fromDocument(r: ImportResult, target: TargetId, base: string): Promise<Output> {
   const detail = plural(r.doc.paragraphs.length, "párrafo", "párrafos");
   if (target === "word") return { blob: await exportWord(r.doc), name: base + ".docx", detail, warning: r.warning };
@@ -199,7 +200,10 @@ export async function convert(
   if (kind === "imagen") return fromImages(files as File[], target, o, base, say);
   if (kind === "pdf") return fromPdf(file, target, o, base, say);
   if (kind === "powerpoint") return fromDocument(importPptx(file.name, new Uint8Array(await file.arrayBuffer())), target, base);
-  if (kind === "word" || kind === "texto") return fromDocument(await importDocument(file), target, base);
+  if (kind === "word" || kind === "texto") {
+    const { pictureFit } = await import("./yalika-image-io");
+    return fromDocument(await importDocument(file, undefined, pictureFit(MAX_IMAGE_B64)), target, base);
+  }
   const r = kind === "excel" ? importXlsx(new Uint8Array(await file.arrayBuffer())) : importCsv(file.name, await file.text());
   if (target === "pdf") {
     const pdf = await sheetPdf(r.sheets, base);
