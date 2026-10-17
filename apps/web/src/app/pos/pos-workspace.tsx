@@ -235,6 +235,14 @@ type QuickProductEditor = {
   error: string;
 };
 
+type BarcodeLinker = {
+  code: string;
+  query: string;
+  units: string;
+  error: string;
+  saving: boolean;
+};
+
 export type ActivePromotion = {
   id: string;
   title: string;
@@ -682,6 +690,7 @@ export function PosWorkspace({
   const [quickProductEditor, setQuickProductEditor] =
     useState<QuickProductEditor>();
   const [savingQuickProduct, setSavingQuickProduct] = useState(false);
+  const [barcodeLinker, setBarcodeLinker] = useState<BarcodeLinker>();
   const [showRewardRedeem, setShowRewardRedeem] =
     useState(false);
   const [rewardCode, setRewardCode] = useState('');
@@ -877,6 +886,19 @@ export function PosWorkspace({
       return matchesCategory && searchable.includes(normalizedSearch);
     });
   }, [categoryId, saleOptions, search]);
+  const barcodeLinkOptions = useMemo(() => {
+    const query = barcodeLinker?.query.trim().toLocaleLowerCase('es-MX') ?? '';
+    if (!query) return [];
+    return saleOptions
+      .filter((option) =>
+        [option.productName, option.variantName, option.sku]
+          .filter(Boolean)
+          .join(' ')
+          .toLocaleLowerCase('es-MX')
+          .includes(query),
+      )
+      .slice(0, 8);
+  }, [barcodeLinker?.query, saleOptions]);
   const productGroups = useMemo(
     () => groupByCatalog(filteredOptions, commerceCatalogs),
     [filteredOptions, commerceCatalogs],
@@ -1168,6 +1190,47 @@ export function PosWorkspace({
           ? 'Encontramos varios productos. Selecciona el correcto de la lista.'
           : 'Producto no registrado. Verifica el código o solicita su alta a un usuario autorizado.',
     );
+  }
+
+  function openBarcodeLinker() {
+    setBarcodeLinker({ code: search.trim(), query: '', units: '1', error: '', saving: false });
+  }
+
+  async function linkBarcodeToOption(option: SaleOption) {
+    if (!barcodeLinker || barcodeLinker.saving || !companyId) return;
+    const units = Number(barcodeLinker.units);
+    if (!Number.isInteger(units) || units < 1 || units > 10000) {
+      setBarcodeLinker({ ...barcodeLinker, error: 'Las unidades por escaneo deben ser un número entero de 1 a 10,000.' });
+      return;
+    }
+    setBarcodeLinker({ ...barcodeLinker, saving: true, error: '' });
+    try {
+      await apiRequest(`catalog/product/${encodeURIComponent(option.productId)}/barcodes`, {
+        method: 'POST',
+        body: JSON.stringify({
+          value: barcodeLinker.code,
+          format: 'OTHER',
+          kind: units > 1 ? 'pack' : 'unit',
+          unitsPerScan: units,
+          ...(option.variantId ? { variantId: option.variantId } : {}),
+        }),
+      });
+      setBarcodeLinker(undefined);
+      addOption(option, units);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      setBarcodeLinker((current) =>
+        current
+          ? {
+              ...current,
+              saving: false,
+              error: /forbidden|permiso|autoriz|403/i.test(message)
+                ? 'Tu usuario no puede vincular códigos. Pide a un administrador que lo haga una sola vez.'
+                : message || 'No se pudo guardar el código. Intenta de nuevo.',
+            }
+          : current,
+      );
+    }
   }
 
   function openQuickProductEditor() {
@@ -2336,6 +2399,81 @@ export function PosWorkspace({
                   Registrar producto
                 </button>
               ) : null}
+              {search.trim() &&
+              filteredOptions.length === 0 &&
+              companyId &&
+              authorizedUserId &&
+              !cartLocked &&
+              !barcodeLinker ? (
+                <button
+                  type="button"
+                  onClick={openBarcodeLinker}
+                  className="shrink-0 rounded-lg border border-amber-300 px-4 py-2 font-bold text-amber-200 transition hover:bg-amber-300/10"
+                >
+                  Es un producto que ya tengo
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+
+          {barcodeLinker ? (
+            <div className="mt-3 rounded-xl border border-cyan-400/30 bg-cyan-400/5 p-4 text-sm text-slate-200">
+              <div className="flex items-start justify-between gap-3">
+                <p>
+                  ¿A qué producto pertenece el código{' '}
+                  <span className="font-mono font-bold text-white">{barcodeLinker.code}</span>? Se guarda una vez y
+                  Yalika lo reconocerá siempre.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setBarcodeLinker(undefined)}
+                  className="shrink-0 rounded-lg px-2 py-1 text-slate-400 hover:text-white"
+                >
+                  Cancelar
+                </button>
+              </div>
+              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                <input
+                  value={barcodeLinker.query}
+                  onChange={(event) => setBarcodeLinker({ ...barcodeLinker, query: event.target.value, error: '' })}
+                  placeholder="Busca el producto por nombre…"
+                  autoFocus
+                  className="h-11 flex-1 rounded-xl border border-slate-700 bg-slate-900 px-3 text-white outline-none focus:border-cyan-400"
+                />
+                <label className="flex items-center gap-2 text-xs text-slate-400">
+                  Unidades por escaneo
+                  <input
+                    type="number"
+                    min={1}
+                    max={10000}
+                    value={barcodeLinker.units}
+                    onChange={(event) => setBarcodeLinker({ ...barcodeLinker, units: event.target.value, error: '' })}
+                    className="h-11 w-20 rounded-xl border border-slate-700 bg-slate-900 px-3 text-white outline-none focus:border-cyan-400"
+                  />
+                </label>
+              </div>
+              {barcodeLinker.error ? <p className="mt-2 text-amber-200">{barcodeLinker.error}</p> : null}
+              <ul className="mt-3 grid gap-2">
+                {barcodeLinkOptions.map((option) => (
+                  <li key={option.key}>
+                    <button
+                      type="button"
+                      disabled={barcodeLinker.saving || (option.trackInventory && option.stock <= 0)}
+                      onClick={() => void linkBarcodeToOption(option)}
+                      className="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-left transition hover:border-cyan-400 disabled:opacity-50"
+                    >
+                      <span>
+                        {option.productName}
+                        {option.variantName ? ` · ${option.variantName}` : ''}
+                      </span>
+                      <span className="text-xs text-slate-400">{money.format(option.price)}</span>
+                    </button>
+                  </li>
+                ))}
+                {barcodeLinker.query.trim() && barcodeLinkOptions.length === 0 ? (
+                  <li className="text-slate-400">No encontramos ese producto. Si es nuevo, usa “Registrar producto”.</li>
+                ) : null}
+              </ul>
             </div>
           ) : null}
 
