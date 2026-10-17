@@ -24,7 +24,7 @@ export type YalikaDocument = {
   pageNumbers?: boolean;
 };
 export const MAX_TABLES = 20;
-export const MAX_TABLE_ROWS = 30;
+export const MAX_TABLE_ROWS = 300;
 export const MAX_TABLE_COLS = 8;
 export const MAX_TABLE_CELL = 500;
 export const MAX_IMAGES = 8;

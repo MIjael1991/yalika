@@ -4,7 +4,7 @@ const STATIC = "estudio-static-v1";
 const PAGES = "estudio-pages-v1";
 const OCR = "estudio-ocr-v1";
 const OCR_HOSTS = ["cdn.jsdelivr.net", "tessdata.projectnaptha.com"];
-const TABS = ["", "hoja", "imagen", "convertir", "unir", "expedientes", "archivos"];
+const TABS = ["", "hoja", "nombres", "imagen", "convertir", "unir", "expedientes", "archivos"];
 const ASSET = /\/_next\/static\/[A-Za-z0-9_\-./~%+@]+\.(?:js|mjs|css|wasm)/g;
 
 self.addEventListener("install", () => self.skipWaiting());

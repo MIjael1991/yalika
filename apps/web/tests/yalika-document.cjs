@@ -106,7 +106,7 @@ const {
   bad([T([["a", "b"], ["c"]])], /tabla/);
   bad([T([])], /tabla/);
   bad([T([[]])], /tabla/);
-  bad([T(Array.from({ length: 31 }, () => ["x"]))], /tabla/);
+  bad([T(Array.from({ length: 301 }, () => ["x"]))], /tabla/);
   bad([T([Array(9).fill("x")])], /tabla/);
   bad([T([["x".repeat(501)]])], /tabla/);
   bad([{ ...T([["a"]]), text: "no" }], /tabla/);

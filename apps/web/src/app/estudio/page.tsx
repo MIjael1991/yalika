@@ -5,6 +5,7 @@ import { ConvertHub } from "./convert-hub";
 import { ImageWorkspace } from "./image-workspace";
 import { OfflineSwitch } from "./offline-switch";
 import { MergeWorkspace } from "./merge-workspace";
+import { NamesWorkspace } from "./names-workspace";
 import { RecordsWorkspace } from "./records-workspace";
 import { SheetWorkspace } from "./sheet-workspace";
 import { StudioWorkspace } from "./studio-workspace";
@@ -16,6 +17,7 @@ const MENU = [
     [
       ["", "Documento"],
       ["hoja", "Hoja de cálculo"],
+      ["nombres", "Lista de nombres"],
     ],
   ],
   ["Fotos", [["imagen", "Escanear y mejorar"]]],
@@ -76,6 +78,8 @@ export default async function StudioPage({
         <ConvertHub key={key} scope={scope} />
       ) : tab === "unir" ? (
         <MergeWorkspace key={key} scope={scope} />
+      ) : tab === "nombres" ? (
+        <NamesWorkspace key={key} scope={scope} />
       ) : tab === "hoja" ? (
         <SheetWorkspace key={key} scope={scope} />
       ) : tab === "imagen" ? (

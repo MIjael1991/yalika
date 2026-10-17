@@ -1093,3 +1093,48 @@
   background: var(--yk-field);
   color: var(--yk-text);
 }
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.namesTable {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+.namesTable th {
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 600;
+  background: var(--yk-panel);
+  border-bottom: 1px solid var(--yk-border);
+  white-space: nowrap;
+}
+.namesTable td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--yk-border);
+}
+.namesTable td:first-child {
+  padding-inline: 10px;
+  min-width: 180px;
+  font-weight: 600;
+}
+.namesTable input {
+  width: 100%;
+  min-width: 120px;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 1px solid var(--yk-border);
+  border-radius: 6px;
+  background: var(--yk-field);
+  color: var(--yk-text);
+  font: inherit;
+}
+.namesTable button {
+  min-width: 40px;
+  min-height: 40px;
+}
