@@ -3,6 +3,14 @@ const assert = require("node:assert/strict"),
   path = require("node:path"),
   ts = require("typescript"),
   Module = require("node:module");
+// Los módulos .ts que importa el documento (por ejemplo el estilo de las tablas) también se compilan al vuelo.
+require.extensions[".ts"] = (mod, file) =>
+  mod._compile(
+    ts.transpileModule(fs.readFileSync(file, "utf8"), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    }).outputText,
+    file,
+  );
 const filename = path.resolve(__dirname, "../src/lib/yalika-document.ts");
 const m = new Module(filename, module);
 m.filename = filename;

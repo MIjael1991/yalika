@@ -1,8 +1,10 @@
 // Hojas de cálculo: lee Excel (.xlsx) y CSV en el navegador y las pasa a PDF o CSV.
 // Solo se leen los valores que Excel dejó guardados; no se recalculan fórmulas ni se copia el formato.
 import { unzipSync } from "fflate";
+import { look, theme, type FmtGrid, type ThemeId } from "./yalika-book";
+import { parseNumber } from "./yalika-calc";
 import { csvCell } from "./yalika-records";
-export type Sheet = { name: string; rows: string[][] };
+export type Sheet = { name: string; rows: string[][]; fmt?: FmtGrid };
 export type SheetResult = { sheets: Sheet[]; warning: string };
 export const MAX_SHEET_BYTES = 20 * 1024 * 1024;
 export const MAX_ROWS = 5000;
@@ -176,22 +178,36 @@ export function sheetCsv(s: Sheet) {
   const width = Math.max(0, ...s.rows.map((r) => r.length));
   return "﻿" + s.rows.map((r) => Array.from({ length: width }, (_, i) => csvCell(r[i] ?? "")).join(",")).join("\r\n");
 }
-// PDF básico: solo caracteres latinos (lo demás sale como «?»). Las columnas que no caben van en páginas siguientes.
-export async function sheetPdf(sheets: Sheet[], title: string) {
-  const { jsPDF } = await import("jspdf");
+// PDF con el estilo de Yalika: título de hoja, encabezado que se repite, filas alternadas, totales resaltados y pie con página.
+// Solo caracteres latinos (lo demás sale como «?»). Las columnas que no caben van en páginas siguientes.
+export async function sheetPdf(sheets: Sheet[], title: string, opts: { theme?: ThemeId; header?: boolean } = {}) {
+  const { jsPDF } = await import("jspdf"),
+    themeId = opts.theme ?? "yalika",
+    header = opts.header ?? true,
+    t = theme(themeId),
+    styled = themeId !== "plano";
   const pdf = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
   pdf.setProperties({ title });
   const W = pdf.internal.pageSize.getWidth(),
     H = pdf.internal.pageSize.getHeight(),
     M = 36,
-    line = 14,
-    latin = (s: string) => s.replace(/[^\u0009\u000a\u000d -~ -ÿ]/gu, "?").replace(/\s+/g, " ");
-  pdf.setFontSize(8);
+    line = 17,
+    latin = (s: string) => s.replace(/[^\u0009\u000a\u000d -~ -ÿ]/gu, "?").replace(/\s+/g, " "),
+    rgb = (h: string) => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)] as const,
+    fill = (h: string) => pdf.setFillColor(...rgb(h)),
+    ink = (h: string) => pdf.setTextColor(...rgb(h)),
+    stroke = (h: string) => pdf.setDrawColor(...rgb(h)),
+    tag: string[] = [];
+  pdf.setFontSize(9);
   for (const s of sheets) {
     const width = Math.max(1, ...s.rows.map((r) => r.length)),
       widths = Array.from({ length: width }, (_, c) => {
         const longest = Math.max(3, ...s.rows.slice(0, 300).map((r) => latin(r[c] ?? "").length));
-        return Math.min(150, longest * 4.4 + 8);
+        return Math.min(160, longest * 5 + 14);
+      }),
+      numeric = Array.from({ length: width }, (_, c) => {
+        const body = s.rows.slice(header ? 1 : 0).map((r) => r[c] ?? "").filter(Boolean);
+        return body.length > 0 && body.filter((x) => parseNumber(x) !== null || /^-?[\d,.]+%$/.test(x)).length * 2 >= body.length;
       }),
       groups: number[][] = [];
     let cur: number[] = [],
@@ -206,32 +222,85 @@ export async function sheetPdf(sheets: Sheet[], title: string) {
       used += w;
     });
     groups.push(cur);
+    if (groups.length === 1) {
+      const k = Math.min(1.8, (W - 2 * M) / used);
+      widths.forEach((w, c) => (widths[c] = w * k));
+    }
     groups.forEach((cols) => {
+      const tableW = cols.reduce((n, c) => n + widths[c], 0);
       let y = H;
-      s.rows.forEach((r, ri) => {
-        if (ri === 0 || y + line > H - M) {
-          pdf.addPage();
-          y = M;
-          pdf.setFont("helvetica", "bold");
-          pdf.text(latin(s.name) + (groups.length > 1 ? " (columnas " + (cols[0] + 1) + "-" + (cols[cols.length - 1] + 1) + ")" : ""), M, y);
-          y += line * 1.5;
-        }
-        pdf.setFont("helvetica", ri === 0 ? "bold" : "normal");
+      const draw = (r: string[], ri: number) => {
         let x = M;
+        const first = look(themeId, header, ri, r, null);
+        if (styled && first.total) {
+          stroke(t.accent);
+          pdf.setLineWidth(1.2);
+          pdf.line(M, y - 12, M + tableW, y - 12);
+        }
         for (const c of cols) {
-          let t = latin(r[c] ?? "");
-          while (t !== "..." && t.length > 3 && pdf.getTextWidth(t) > widths[c] - 6) t = t.slice(0, -4) + "...";
-          pdf.text(t, x, y);
+          const f = s.fmt?.[ri]?.[c] ?? null,
+            k = look(themeId, header, ri, r, f);
+          if (k.fill && (styled || f?.f !== undefined)) {
+            fill(k.fill);
+            pdf.rect(x, y - 12, widths[c], line, "F");
+          }
+          let text = latin(r[c] ?? "");
+          pdf.setFont("helvetica", k.bold ? "bold" : "normal");
+          ink(k.color ?? "1F2933");
+          while (text !== "..." && text.length > 3 && pdf.getTextWidth(text) > widths[c] - 12) text = text.slice(0, -4) + "...";
+          const right = k.align ? k.align === "r" : numeric[c] && (k.head || k.n !== undefined || parseNumber(text) !== null || /^-?[\d,.]+%$/.test(text)),
+            center = k.align === "c";
+          if (text) pdf.text(text, right ? x + widths[c] - 6 : center ? x + widths[c] / 2 : x + 6, y, { align: right ? "right" : center ? "center" : "left" });
           x += widths[c];
         }
+        if (styled && !first.head) {
+          stroke(t.line);
+          pdf.setLineWidth(0.5);
+          pdf.line(M, y - 12 + line, M + tableW, y - 12 + line);
+        }
+      };
+      s.rows.forEach((r, ri) => {
+        if (ri === 0 || y + line > H - M - 14) {
+          pdf.addPage();
+          tag.push(s.name);
+          y = M;
+          pdf.setFont("helvetica", "bold");
+          pdf.setFontSize(14);
+          ink(t.accent);
+          pdf.text(latin(s.name) + (groups.length > 1 ? "  (columnas " + (cols[0] + 1) + "-" + (cols[cols.length - 1] + 1) + ")" : ""), M, y);
+          pdf.setFontSize(9);
+          stroke(t.accent);
+          pdf.setLineWidth(1.5);
+          pdf.line(M, y + 7, M + Math.min(60, tableW), y + 7);
+          y += 34;
+          if (ri > 0 && header && s.rows[0]) {
+            draw(s.rows[0], 0);
+            y += line;
+          }
+        }
+        draw(r, ri);
         y += line;
       });
       if (!s.rows.length) {
         pdf.addPage();
+        tag.push(s.name);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(14);
+        ink(t.accent);
         pdf.text(latin(s.name) + " (sin datos)", M, M);
+        pdf.setFontSize(9);
       }
     });
   }
   pdf.deletePage(1);
+  const total = pdf.getNumberOfPages();
+  for (let p = 1; p <= total; p++) {
+    pdf.setPage(p);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+    ink("7B8794");
+    pdf.text(latin(title) + "  ·  " + latin(tag[p - 1] ?? ""), M, H - 20);
+    pdf.text("Página " + p + " de " + total, W - M, H - 20, { align: "right" });
+  }
   return new Uint8Array(pdf.output("arraybuffer"));
 }

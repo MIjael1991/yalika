@@ -1054,3 +1054,42 @@
 .offlineBar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:8px 12px;margin:10px 0 0;border:1px solid var(--yk-border);border-radius:10px;font-size:.88rem}
 .offlineButton{padding:6px 12px;border-radius:8px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;cursor:pointer}
 .offlineButton:disabled{opacity:.5;cursor:default}
+
+.sheetTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 10px 0 8px;
+  border-bottom: 2px solid var(--yk-border);
+}
+.sheetTabs button {
+  border-radius: 8px 8px 0 0;
+  border-bottom: 0;
+  margin-bottom: -2px;
+}
+.sheetTabs button[data-on] {
+  background: var(--yk-link);
+  color: var(--yk-bg, #fff);
+  border-color: var(--yk-link);
+  font-weight: 700;
+}
+.fmtBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 10px;
+}
+.fmtBar button[aria-pressed="true"] {
+  background: var(--yk-link);
+  color: var(--yk-bg, #fff);
+  border-color: var(--yk-link);
+}
+.fmtBar select {
+  min-height: 44px;
+  padding: 0 8px;
+  border: 1px solid var(--yk-border);
+  border-radius: 8px;
+  background: var(--yk-field);
+  color: var(--yk-text);
+}

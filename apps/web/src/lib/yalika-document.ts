@@ -1,4 +1,5 @@
 // Structured text only: imported files never inject HTML into the editor.
+import { isTotalRow, theme } from "./yalika-book";
 export const MAX_CHARS = 300000;
 export const DOCUMENT_TYPE = "application/vnd.yalika.document+json";
 export type Paragraph = {
@@ -160,6 +161,7 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
   const d = parseDocument(value);
   const {
     AlignmentType,
+    BorderStyle,
     Document,
     Footer,
     ImageRun,
@@ -167,13 +169,17 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
     Packer,
     PageNumber,
     Paragraph: P,
+    ShadingType,
     Table,
     TableCell,
     TableRow,
     TextRun,
+    VerticalAlign,
     WidthType,
   } = await import("docx");
-  const runs = (text: string, p: Paragraph, bold = p.bold) =>
+  const t = theme("yalika"),
+    edge = { style: BorderStyle.SINGLE, size: 4, color: t.line };
+  const runs = (text: string, p: Paragraph, bold = p.bold, color?: string) =>
     text.split("\n").map(
       (line, i) =>
         new TextRun({
@@ -182,6 +188,7 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
           font: p.font,
           size: p.size * 2,
           bold,
+          color,
           italics: p.italic,
           underline: p.underline ? {} : undefined,
         }),
@@ -198,18 +205,26 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
     if (p.table) {
       return new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: p.table.map(
-          (row, r) =>
-            new TableRow({
-              tableHeader: r === 0,
-              children: row.map(
-                (cell) =>
-                  new TableCell({
-                    children: [new P({ children: runs(cell, p, r === 0 || p.bold), spacing: { after: 40 } })],
-                  }),
-              ),
-            }),
-        ),
+        borders: { top: edge, bottom: edge, left: edge, right: edge, insideHorizontal: edge, insideVertical: edge },
+        rows: p.table.map((row, r) => {
+          const total = r > 0 && isTotalRow(row),
+            fill = r === 0 ? t.head : total ? t.total : r % 2 === 0 ? t.zebra : undefined;
+          return new TableRow({
+            tableHeader: r === 0,
+            cantSplit: true,
+            children: row.map(
+              (cell) =>
+                new TableCell({
+                  verticalAlign: VerticalAlign.CENTER,
+                  margins: { top: 70, bottom: 70, left: 110, right: 110 },
+                  ...(fill ? { shading: { type: ShadingType.CLEAR, fill, color: "auto" } } : {}),
+                  children: [
+                    new P({ children: runs(cell, p, r === 0 || total || p.bold, r === 0 ? t.headText : undefined), spacing: { after: 0 } }),
+                  ],
+                }),
+            ),
+          });
+        }),
       });
     }
     if (p.image) {
@@ -341,21 +356,31 @@ export async function exportPdf(value: YalikaDocument): Promise<Blob> {
         pad = 4,
         lh = p.size * 1.3;
       pdf.setFontSize(p.size);
+      const rgb = (h: string) => [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)] as const,
+        th = theme("yalika");
+      pdf.setLineWidth(0.5);
+      pdf.setDrawColor(...rgb(th.line));
       rows.forEach((row, r) => {
-        style(r === 0 || p.bold);
-        const cells: string[][] = row.map((c) => pdf.splitTextToSize(c || " ", colW - 2 * pad)),
-          h = Math.max(...cells.map((c) => c.length)) * lh + 2 * pad;
+        const total = r > 0 && isTotalRow(row);
+        style(r === 0 || total || p.bold);
+        const cells: string[][] = row.map((c) => pdf.splitTextToSize(c || " ", colW - 2 * pad - 4)),
+          h = Math.max(...cells.map((c) => c.length)) * lh + 2 * pad + 4;
         if (y + h > bottom) {
           pdf.addPage();
           y = 56;
         }
+        const fill = r === 0 ? th.head : total ? th.total : r % 2 === 0 ? th.zebra : undefined;
         cells.forEach((lines, c) => {
-          pdf.rect(56 + c * colW, y, colW, h);
-          lines.forEach((line, li) => pdf.text(line, 56 + c * colW + pad, y + pad + p.size + li * lh));
+          if (fill) pdf.setFillColor(...rgb(fill));
+          pdf.rect(56 + c * colW, y, colW, h, fill ? "FD" : "S");
+          pdf.setTextColor(...(r === 0 ? rgb(th.headText) : ([0, 0, 0] as const)));
+          lines.forEach((line, li) => pdf.text(line, 56 + c * colW + pad + 2, y + pad + 2 + p.size + li * lh));
         });
+        pdf.setTextColor(0, 0, 0);
         y += h;
       });
-      y += 8;
+      pdf.setDrawColor(0, 0, 0);
+      y += 8 + p.size * 1.4;
       continue;
     }
     style(p.bold);
