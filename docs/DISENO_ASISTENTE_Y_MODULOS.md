@@ -38,6 +38,46 @@ Ejemplos de lo que debe poder contestar:
 5. **El asistente aprende de la persona.**
    Con permiso: horarios, recordatorios que usa, módulos que usa más. Se puede ver y borrar.
 
+## Una cuenta, varios negocios (invitación por correo)
+
+Idea del usuario: todas las personas descargan la misma app Yalika. Un administrador da permisos de su boutique o tienda a otra persona usando su correo, y esa persona ya puede ser cajero. Así todo queda conectado en un solo servicio.
+
+**Cómo está hoy**
+- Cada cuenta pertenece a **una sola empresa** y tiene **un solo rol** (`User.companyId`, `User.roleId`).
+- Los cajeros de hoy son cuentas que el administrador crea con contraseña dentro de su empresa (`/team`). Funciona, pero esa persona no puede usar la misma cuenta para sus cosas personales.
+- Invitar por correo (`SiteMember`) solo funciona con cuentas de la **misma** empresa.
+
+**Cómo debería ser**
+1. **Cuenta personal única.** Cada persona tiene su cuenta Yalika, con sus módulos personales (Mi día, Salud, Estudio…).
+2. **Membresías.** Una persona puede pertenecer a varios negocios con un rol distinto en cada uno (administrador de su tienda, cajero en la boutique de otra persona).
+3. **Invitación por correo.** El administrador escribe el correo y elige el rol (cajero) y a qué boutique o tienda tiene acceso.
+   - Si la persona ya tiene cuenta, ve la invitación al entrar y la **acepta**. Nunca se une sola.
+   - Si no tiene cuenta, el correo la lleva a crearla y luego acepta.
+   - La invitación caduca. El administrador puede cancelarla o retirar el acceso. La persona puede salirse.
+4. **Negocio activo.** La sesión trabaja con un solo negocio a la vez. Al entrar o cambiar de negocio, el menú, los permisos y el API usan el rol de ese negocio (el cajero sigue limitado por `cashier-policy.ts`).
+5. **Privacidad.** El administrador de un negocio nunca ve los módulos personales de la persona invitada (Salud, Mi día, memoria del asistente). Solo ve lo que ella hace en su negocio (ventas, cobros).
+6. **Boutique o tienda concreta.** El permiso puede limitarse a un sitio o tienda de la empresa, no solo a toda la empresa. Por revisar: que las ventas y los reportes se puedan filtrar por tienda.
+7. **Lo que hoy funciona se conserva.** Los cajeros creados con contraseña siguen valiendo, para quien no tenga correo o cuenta propia. Los datos actuales se convierten en la primera membresía de cada persona, sin perder nada.
+
+**Lo que hay que tocar (chat de verificación, porque es identidad y sesión)**
+- Tabla de membresías e invitaciones; la sesión guarda el negocio activo.
+- `AuthContext`: de dónde sale `companyId` y el rol (hoy de la cuenta; mañana de la membresía activa).
+- Pantalla para invitar, aceptar y cambiar de negocio.
+- Pruebas: una persona no puede entrar a un negocio sin aceptar; un cajero no ve datos de otro negocio ni los personales del administrador.
+
+**Orden sugerido:** primero el registro de módulos activos, después las membresías y las invitaciones.
+
+## Memoria propia del asistente
+
+1. Una memoria **por persona**, no por módulo.
+2. Dos tipos de datos: lo que la persona **confirma** (se guarda directo) y lo que el asistente **deduce** (queda como sugerencia hasta que la persona la acepte).
+3. Siempre visible, editable y borrable: pantalla "Lo que sé de ti".
+4. Con permiso por módulo; Salud aparte, con permiso expreso y registro de uso.
+5. Nunca guarda sin que se pida: datos de pago, contraseñas ni detalles de salud no autorizados.
+6. Se usa para sugerir y para no preguntar lo mismo dos veces.
+7. Ya existe una base: `BusinessAssistantMemory` (clave y valor por persona y empresa, con origen y estado) y `AssistantPreference`. Falta lo que se aprende del uso.
+8. Por decidir: cada persona solo ve la suya y el administrador no ve la de sus cajeros (propuesta); cuánto tiempo se guarda lo deducido.
+
 ## Quién hace qué
 
 - **Chat de Cerebro/Asistente:** el asistente, los recordatorios, las alarmas, los calendarios y el aprendizaje.
