@@ -38,7 +38,7 @@ describe('Equipo: el administrador da de alta a sus cajeros', () => {
     tx.role.create.mockResolvedValue({ id: 'r-cajero' });
     tx.user.create.mockImplementation(({ data }) => Promise.resolve(data));
 
-    const created = (await service.createCashier('c1', 'admin1', validDto)) as {
+    const created = (await service.createCashier('c1', 'admin1', validDto)) as unknown as {
       email: string;
       name: string;
       companyId: string;

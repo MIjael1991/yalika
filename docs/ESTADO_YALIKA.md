@@ -51,7 +51,7 @@ Los nombres internos de la base local (`orion`, usuario `orion_user`, contenedor
 
 ## Variables de entorno (nombres actuales)
 
-`YALIKA_API_URL` (web); `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`, `YALIKA_BOOTSTRAP_EMAIL`, `YALIKA_BOOTSTRAP_PASSWORD`, `YALIKA_SESSION_HOURS`, `YALIKA_TICKET_SECRET`, `YALIKA_PIN_SECRET`, `YALIKA_PUBLIC_URL`, `YALIKA_EMAIL_FROM`, `YALIKA_PUBLIC_REGISTRATION`, `YALIKA_CLINICAL_PILOT_PRICE`, `YALIKA_OPERATOR_USER_IDS` (servidor). Antes empezaban con `ORION_` o `YALEKA_`: al desplegar en Railway hay que renombrarlas allá primero.
+`YALIKA_API_URL` (web); `YALIKA_BOOTSTRAP_ORGANIZATION`, `YALIKA_BOOTSTRAP_NAME`, `YALIKA_BOOTSTRAP_EMAIL`, `YALIKA_BOOTSTRAP_PASSWORD`, `YALIKA_SESSION_HOURS`, `YALIKA_TICKET_SECRET`, `YALIKA_PIN_SECRET`, `YALIKA_PUBLIC_URL`, `YALIKA_EMAIL_FROM`, `YALIKA_PUBLIC_REGISTRATION`, `YALIKA_CLINICAL_PILOT_PRICE`, `YALIKA_OPERATOR_USER_IDS` (servidor). Antes empezaban con `ORION_` o `YALEKA_`: al desplegar en Railway hay que renombrarlas allá primero. Veterinaria (en construcción): `YALIKA_VETERINARIA_ENABLED=true` la enciende en producción; sin ella el módulo responde "no habilitado". Al subir, las migraciones nuevas (Veterinaria y R11B-3A del comercio) hay que aplicarlas con `npx prisma migrate deploy`: el arranque de Railway no lo hace solo.
 
 Identificadores que se guardan en datos y por eso conservan el nombre viejo: plantillas de página `yaleka_*`, modo `yaleka_cloud` de encuestas, prefijo `YALEKA-` de las claves de recuperación, columna `yalekaFare`, insignias `*_VERIFICADO_YALEKA`. Los enlaces `/api/orion/...` se redirigen a `/api/yalika/...`.
 
