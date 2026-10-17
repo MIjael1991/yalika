@@ -200,12 +200,8 @@ export class PromotionService {
       include: {
         products: {
           include: {
-            product: {
-              include: {
-                images: true,
-                variants: true,
-              },
-            },
+            // Vista pública: nunca exponer costo, SKU ni otros datos internos del producto.
+            product: { select: { id: true, name: true } },
           },
         },
       },

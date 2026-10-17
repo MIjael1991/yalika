@@ -25,7 +25,7 @@ export class CreatePaymentDto {
    * { method: "card", amount: 300 }
    */
   @IsOptional()
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
   amount?: number;
 
@@ -43,7 +43,7 @@ export class CreatePaymentDto {
    * y calcular el cambio.
    */
   @IsOptional()
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   receivedAmount?: number;
 

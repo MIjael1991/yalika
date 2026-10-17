@@ -122,3 +122,17 @@ describe('Cajero: solo vende y cobra', () => {
     }
   });
 });
+
+describe('Cajero: lo de administración queda cerrado', () => {
+  it('no ve el reporte de ventas ni las alertas de inventario', () => {
+    expect(call('GET', 'order/company/c1/report')).toBe(false);
+    expect(call('GET', 'catalog/product/company/c1/stock-alerts')).toBe(false);
+  });
+
+  it('sigue consultando el catálogo y las ventas para atender', () => {
+    expect(call('GET', 'catalog/product/company/c1')).toBe(true);
+    expect(call('GET', 'catalog/product/company/c1/stock-alerts-x')).toBe(true);
+    expect(call('GET', 'order/company/c1')).toBe(true);
+    expect(call('GET', 'order/company/c1/reports')).toBe(true);
+  });
+});

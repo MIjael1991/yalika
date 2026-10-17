@@ -15,6 +15,11 @@ import { UpdateStockDto } from './dto/update-stock.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductBarcodeDto } from './dto/barcode.dto';
+import {
+  buildStockAlerts,
+  DEFAULT_ALERT_TIME_ZONE,
+  isValidTimeZone,
+} from './stock-alerts';
 
 @Injectable()
 export class CatalogService {
@@ -284,6 +289,92 @@ export class CatalogService {
     });
   }
 
+  /**
+   * Alertas de inventario: agotado, poco, resagado, nuevo vs viejo y fecha límite.
+   * Solo lectura; el cálculo vive en stock-alerts.ts para que el asistente lo reutilice.
+   */
+  async stockAlerts(companyId: string, query: Record<string, unknown> = {}) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: { id: true },
+    });
+
+    if (!company) {
+      throw new NotFoundException('La empresa no existe');
+    }
+
+    const now = new Date();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const since90 = new Date(now.getTime() - 90 * dayMs);
+    const since365 = new Date(now.getTime() - 365 * dayMs);
+    const paidSale = { companyId, status: 'confirmed', paymentStatus: 'paid' };
+
+    const [products, entries, lastSales, recentSales] = await Promise.all([
+      this.prisma.product.findMany({
+        where: { companyId, status: 'active', trackInventory: true },
+        select: {
+          id: true,
+          name: true,
+          sku: true,
+          catalogId: true,
+          trackInventory: true,
+          stock: true,
+          lowStockAt: true,
+          createdAt: true,
+          seasonal: true,
+          seasonEndsAt: true,
+          category: { select: { name: true } },
+          variants: { where: { status: 'active' }, select: { stock: true } },
+        },
+      }),
+      this.prisma.posStockMovement.groupBy({
+        by: ['productId'],
+        where: { companyId, direction: 'in' },
+        _max: { createdAt: true },
+      }),
+      this.prisma.orderItem.groupBy({
+        by: ['productId'],
+        where: { order: { ...paidSale, confirmedAt: { gte: since365 } } },
+        _max: { createdAt: true },
+      }),
+      this.prisma.orderItem.groupBy({
+        by: ['productId'],
+        where: { order: { ...paidSale, confirmedAt: { gte: since90 } } },
+        _sum: { quantity: true },
+      }),
+    ]);
+
+    const lastEntry = new Map(entries.map((row) => [row.productId, row._max.createdAt]));
+    const lastSale = new Map(lastSales.map((row) => [row.productId, row._max.createdAt]));
+    const sold90 = new Map(recentSales.map((row) => [row.productId, row._sum.quantity ?? 0]));
+
+    return buildStockAlerts(
+      products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        sku: product.sku,
+        catalogId: product.catalogId,
+        categoryName: product.category?.name ?? null,
+        trackInventory: product.trackInventory,
+        stock:
+          product.variants.length > 0
+            ? product.variants.reduce((total, variant) => total + variant.stock, 0)
+            : product.stock,
+        lowStockAt: product.lowStockAt,
+        createdAt: product.createdAt,
+        deadlineAt: product.seasonal ? product.seasonEndsAt : null,
+        lastEntryAt: lastEntry.get(product.id) ?? null,
+        lastSaleAt: lastSale.get(product.id) ?? null,
+        sold90: sold90.get(product.id) ?? 0,
+      })),
+      query,
+      now,
+      typeof query.tz === 'string' && isValidTimeZone(query.tz)
+        ? query.tz
+        : DEFAULT_ALERT_TIME_ZONE,
+    );
+  }
+
   async findProductsByCompany(companyId: string) {
     const company = await this.prisma.company.findUnique({
       where: {
@@ -341,6 +432,7 @@ export class CatalogService {
           select: { id: true, url: true, isPrimary: true, sortOrder: true },
         },
         variants: {
+          where: { status: 'active' },
           select: {
             id: true,
             name: true,
@@ -401,6 +493,32 @@ export class CatalogService {
       }
     }
 
+    // Fecha límite opcional para vender o retirar: usa los campos de temporada.
+    let seasonal: boolean | undefined;
+    let seasonEndsAt: Date | null | undefined;
+
+    if (dto.seasonEndsAt !== undefined) {
+      if (dto.seasonEndsAt === null) {
+        seasonal = false;
+        seasonEndsAt = null;
+      } else {
+        const deadline = new Date(dto.seasonEndsAt);
+
+        if (Number.isNaN(deadline.getTime())) {
+          throw new BadRequestException('La fecha límite no es válida');
+        }
+
+        if (product.seasonStartsAt && deadline <= product.seasonStartsAt) {
+          throw new BadRequestException(
+            'La fecha límite debe ser posterior al inicio de la temporada',
+          );
+        }
+
+        seasonal = true;
+        seasonEndsAt = deadline;
+      }
+    }
+
     return this.prisma.product.update({
       where: { id: productId },
       data: {
@@ -416,6 +534,9 @@ export class CatalogService {
         packSalePrice: dto.packSalePrice,
         webVisible: dto.webVisible,
         stock: dto.stock === undefined ? undefined : dto.stock,
+        lowStockAt: dto.lowStockAt,
+        seasonal,
+        seasonEndsAt,
       },
       include: {
         category: true,

@@ -2,10 +2,13 @@
 'use client';
 
 import Link from 'next/link';
+import { groupByCatalog } from '../../../lib/yalika-pos-groups';
+import { StockAlertsPanel } from './stock-alerts-panel';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 type Variant = { id: string; name: string; stock: number; status: string };
 type Product = {
+  catalogId?: string | null; category?: { id: string; name: string } | null;
   id: string; name: string; sku: string | null; stock: number; status: string; trackInventory: boolean;
   unitsPerPack: number; unitCost: number | null; variants: Variant[];
 };
@@ -37,6 +40,7 @@ function line(productId = ''): ReceiptLine { return { productId, variantId: '', 
 export function InventoryWorkspace({ companyId }: { companyId: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
+  const [catalogs, setCatalogs] = useState<Array<{ id: string; name: string }>>([]);
   const [lines, setLines] = useState<ReceiptLine[]>([line()]);
   const [sourceName, setSourceName] = useState('');
   const [reference, setReference] = useState('');
@@ -45,6 +49,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [alertsKey, setAlertsKey] = useState(0);
 
   const reload = useCallback(async () => {
     const [catalog, history] = await Promise.all([
@@ -52,6 +57,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
       api<Receipt[]>(`catalog/receipt/company/${encodeURIComponent(companyId)}`),
     ]);
     setProducts(catalog); setReceipts(history);
+    try { setCatalogs(await api<Array<{ id: string; name: string }>>(`catalog/commerce/company/${encodeURIComponent(companyId)}`)); } catch { setCatalogs([]); }
   }, [companyId]);
 
   useEffect(() => {
@@ -62,6 +68,14 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
   }, [reload]);
 
   const activeProducts = useMemo(() => products.filter(p => p.status === 'active' && p.trackInventory), [products]);
+  const productGroups = useMemo(() => groupByCatalog(activeProducts.map((p) => ({
+    key: p.id, catalogId: p.catalogId, categoryId: p.category?.id, categoryName: p.category?.name ?? 'Sin categoría',
+    trackInventory: p.trackInventory, stock: p.variants.length ? p.variants.reduce((s, v) => s + v.stock, 0) : p.stock, product: p,
+  })), catalogs), [activeProducts, catalogs]);
+  const catalogLabel = useMemo(() => {
+    const names = new Map(catalogs.map((c) => [c.id, c.name]));
+    return (id?: string | null) => (id ? names.get(id) : undefined);
+  }, [catalogs]);
   const lowStock = useMemo(() => activeProducts.map((p) => ({
     ...p, totalStock: p.variants.length ? p.variants.reduce((sum, v) => sum + v.stock, 0) : p.stock,
   })).filter(p => p.totalStock <= 3).sort((a,b) => a.totalStock - b.totalStock), [activeProducts]);
@@ -103,6 +117,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
       setMessage(result.repeated ? `La recepción ya existía. No se duplicó inventario (${units} unidades).` : `Entrada registrada: ${units} unidades.`);
       if (!result.repeated) { setSourceName(''); setReference(''); setLines([line()]); setOperationId(''); }
       await reload();
+      setAlertsKey((value) => value + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se registró la recepción');
     } finally { setBusy(false); }
@@ -129,6 +144,8 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
           <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4"><p className="text-xs uppercase text-amber-300">Existencia baja ≤ 3</p><p className="mt-2 text-3xl font-bold text-amber-200">{lowStock.length}</p></div>
         </section>
 
+        <StockAlertsPanel companyId={companyId} catalogs={catalogs} reloadKey={alertsKey} />
+
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <form onSubmit={receive} className="space-y-4 rounded-2xl border border-emerald-700/50 bg-slate-950 p-4 md:p-5">
             <div><h2 className="text-xl font-semibold">Entrada de mercancía</h2><p className="text-sm text-slate-400">Costo vacío significa desconocido; Yalika no lo convierte en cero.</p></div>
@@ -142,7 +159,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
               const quantity = Number(item.packs) * unitsPerPack;
               return (
                 <div key={index} className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3 md:grid-cols-5">
-                  <label className="text-sm md:col-span-2">Producto<select className={field} value={item.productId} onChange={e=>changeLine(index,{productId:e.target.value})}><option value="">Selecciona</option>{activeProducts.map(p=><option key={p.id} value={p.id}>{p.name}{p.sku ? ` · ${p.sku}` : ''}</option>)}</select></label>
+                  <label className="text-sm md:col-span-2">Producto<select className={field} value={item.productId} onChange={e=>changeLine(index,{productId:e.target.value})}><option value="">Selecciona</option>{productGroups.map(g=><optgroup key={g.id} label={g.name}>{g.categories.flatMap(c=>c.items).map(({product:p})=><option key={p.id} value={p.id}>{p.name}{p.sku ? ` · ${p.sku}` : ''}</option>)}</optgroup>)}</select></label>
                   {product?.variants.length ? <label className="text-sm">Variante<select className={field} value={item.variantId} onChange={e=>changeLine(index,{variantId:e.target.value})}><option value="">Selecciona</option>{product.variants.filter(v=>v.status==='active').map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></label> : <div />}
                   <label className="text-sm">{item.variantId ? 'Piezas' : 'Cajas / paquetes'}<input className={field} type="number" min="1" max="10000" step="1" value={item.packs} onChange={e=>changeLine(index,{packs:e.target.value})} /></label>
                   <label className="text-sm">Costo por {item.variantId ? 'pieza' : 'caja'}<input className={field} type="number" min="0" step="0.01" value={item.costPerPack} onChange={e=>changeLine(index,{costPerPack:e.target.value})} placeholder="Opcional" /></label>
@@ -162,7 +179,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
             {lowStock.length === 0 ? <p className="text-sm text-emerald-300">Sin productos en nivel bajo.</p> : lowStock.slice(0,20).map(p => (
               <div key={p.id} className="rounded-xl border border-slate-800 bg-slate-900/40 p-3">
                 <div className="flex justify-between gap-3"><strong>{p.name}</strong><span className="text-amber-200">{p.totalStock}</span></div>
-                <p className="text-xs text-slate-500">{p.sku || 'Sin SKU'} · {p.unitsPerPack} por caja</p>
+                <p className="text-xs text-slate-500">{catalogLabel(p.catalogId) ? `${catalogLabel(p.catalogId)} · ` : ''}{p.sku || 'Sin SKU'} · {p.unitsPerPack} por caja</p>
               </div>
             ))}
           </section>

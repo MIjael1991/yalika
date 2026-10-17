@@ -48,6 +48,7 @@ export default async function ReservationsPage() {
   return (
     <ReservationWorkspace
       companyId={companyId}
+      isCashier={user.isCashier}
       initialReservations={reservations ?? []}
       initialPolicy={
         policy ?? {

@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { createTicketClaimToken } from '../engagement/ticket-claim';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { buildSalesReport, parseReportRange } from './sales-report';
 
 type LoyaltyResult = {
   confirmedVisits: number;
@@ -59,6 +60,121 @@ export class OrderService {
         createdAt: 'desc',
       },
     });
+  }
+
+  /*
+   * =====================================================
+   * REPORTE DE VENTAS POR FECHAS (solo administración)
+   * =====================================================
+   *
+   * `from` inclusivo y `to` exclusivo. Las reglas de conteo están en
+   * sales-report.ts.
+   */
+  async salesReport(
+    companyId: string,
+    fromRaw?: string,
+    toRaw?: string,
+    timeZoneRaw?: string,
+  ) {
+    const { from, to, timeZone } = parseReportRange(
+      fromRaw,
+      toRaw,
+      timeZoneRaw,
+    );
+    const range = { gte: from, lt: to };
+
+    const [orders, payments, refunds, returns, pendingOrders] =
+      await Promise.all([
+        this.prisma.order.findMany({
+          where: {
+            companyId,
+            status: 'confirmed',
+            paymentStatus: 'paid',
+            OR: [
+              { confirmedAt: range },
+              { confirmedAt: null, createdAt: range },
+            ],
+          },
+          select: {
+            orderNumber: true,
+            total: true,
+            discount: true,
+            confirmedAt: true,
+            createdAt: true,
+            customer: { select: { name: true } },
+            payments: {
+              where: { status: 'completed' },
+              select: { method: true, amount: true, status: true },
+            },
+            items: {
+              select: {
+                productName: true,
+                sku: true,
+                quantity: true,
+                total: true,
+              },
+            },
+          },
+        }),
+        this.prisma.payment.findMany({
+          where: { companyId, status: 'completed', paidAt: range },
+          select: { method: true, amount: true, paidAt: true },
+        }),
+        this.prisma.refund.findMany({
+          where: { companyId, status: 'completed', refundedAt: range },
+          select: { method: true, amount: true, refundedAt: true },
+        }),
+        this.prisma.return.findMany({
+          where: { companyId, status: 'completed', completedAt: range },
+          select: {
+            returnNumber: true,
+            type: true,
+            reason: true,
+            totalAmount: true,
+            completedAt: true,
+            order: { select: { orderNumber: true } },
+            refunds: {
+              where: { status: 'completed' },
+              select: { amount: true },
+            },
+          },
+        }),
+        this.prisma.order.findMany({
+          where: {
+            companyId,
+            status: 'confirmed',
+            paymentStatus: { not: 'paid' },
+            createdAt: range,
+          },
+          select: { total: true },
+        }),
+      ]);
+
+    return {
+      range: { from: from.toISOString(), to: to.toISOString() },
+      ...buildSalesReport({
+        orders: orders.map((order) => ({
+          ...order,
+          customerName: order.customer?.name ?? null,
+        })),
+        payments,
+        refunds,
+        returns: returns.map((record) => ({
+          returnNumber: record.returnNumber,
+          type: record.type,
+          reason: record.reason,
+          totalAmount: record.totalAmount,
+          completedAt: record.completedAt,
+          orderNumber: record.order.orderNumber,
+          refunded: record.refunds.reduce(
+            (total, refund) => total + refund.amount,
+            0,
+          ),
+        })),
+        pendingOrders,
+        timeZone,
+      }),
+    };
   }
 
   /*

@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { Code39Label } from '../barcode-label';
+import { groupByCatalog } from '../../../lib/yalika-pos-groups';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
 type Variant = { id: string; name: string; sku: string | null; stock: number; price: number | null; unitCost: number | null; status: string };
 type Product = { id: string; name: string; sku: string | null; type: string; price: number; stock: number;
   trackInventory: boolean; status: string; unitCost: number | null; unitsPerPack: number; packSalePrice: number | null;
-  webVisible: boolean; variants: Variant[]; images: Array<{ id: string; url: string; isPrimary: boolean }> };
+  webVisible: boolean; lowStockAt?: number; seasonal?: boolean; seasonEndsAt?: string | null; catalogId?: string | null; category: { id: string; name: string } | null; variants: Variant[]; images: Array<{ id: string; url: string; isPrimary: boolean }> };
 type ProductBarcode = { id: string; value: string; format: string; kind: string; unitsPerScan: number; generated: boolean; active: boolean };
 const money = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
 const sizeLabels = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -39,6 +40,7 @@ function validMoney(value: string, required = true) {
 
 export function ProductManager({ companyId }: { companyId: string }) {
   const [products, setProducts] = useState<Product[]>([]);
+  const [catalogs, setCatalogs] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -60,6 +62,8 @@ export function ProductManager({ companyId }: { companyId: string }) {
   const [editCost, setEditCost] = useState('');
   const [editBoxPrice, setEditBoxPrice] = useState('');
   const [editVisible, setEditVisible] = useState(false);
+  const [editLowAt, setEditLowAt] = useState('5');
+  const [editDeadline, setEditDeadline] = useState('');
   const [editPhoto, setEditPhoto] = useState<File | null>(null);
   const [barcodes, setBarcodes] = useState<ProductBarcode[]>([]);
   const [barcodeValue, setBarcodeValue] = useState('');
@@ -69,6 +73,11 @@ export function ProductManager({ companyId }: { companyId: string }) {
   const reload = useCallback(async () => {
     const catalog = await api<Product[]>(`catalog/product/company/${encodeURIComponent(companyId)}`);
     setProducts(catalog);
+    try {
+      setCatalogs(await api<Array<{ id: string; name: string }>>(`catalog/commerce/company/${encodeURIComponent(companyId)}`));
+    } catch {
+      setCatalogs([]);
+    }
     return catalog;
   }, [companyId]);
 
@@ -85,6 +94,12 @@ export function ProductManager({ companyId }: { companyId: string }) {
   const filtered = useMemo(() => products.filter((product) =>
     [product.name, product.sku ?? '', ...product.variants.map(v => v.name)].join(' ').toLocaleLowerCase('es-MX')
       .includes(query.toLocaleLowerCase('es-MX'))), [products, query]);
+  const grouped = useMemo(() => groupByCatalog(filtered.map((product) => ({
+    key: product.id, catalogId: product.catalogId, categoryId: product.category?.id,
+    categoryName: product.category?.name ?? 'Sin categoría', trackInventory: product.trackInventory,
+    stock: product.variants.length ? product.variants.reduce((a, v) => a + v.stock, 0) : product.stock, product,
+  })), catalogs), [filtered, catalogs]);
+  const searching = query.trim() !== '';
   const currentMargin = current?.unitCost == null ? null : current.price - current.unitCost;
   const createCost = validMoney(unitCostBox, false) && unitCostBox.trim() !== '' && Number.isInteger(Number(packs)) && Number(packs) > 0
     ? Number(unitCostBox) / Number(packs) : null;
@@ -104,6 +119,8 @@ export function ProductManager({ companyId }: { companyId: string }) {
     setEditCost(product.unitCost == null ? '' : String(product.unitCost * product.unitsPerPack));
     setEditBoxPrice(product.packSalePrice == null ? '' : String(product.packSalePrice));
     setEditVisible(product.webVisible);
+    setEditLowAt(String(product.lowStockAt ?? 5));
+    setEditDeadline(product.seasonal && product.seasonEndsAt ? product.seasonEndsAt.slice(0, 10) : '');
     setEditPhoto(null);
     setError(''); setMessage('');
     setBarcodeValue(''); setBarcodeUnits('1'); setBarcodeKind('unit');
@@ -160,6 +177,12 @@ export function ProductManager({ companyId }: { companyId: string }) {
       !Number.isInteger(Number(editPack)) || Number(editPack) < 1 || Number(editPack) > 100000) {
       setError('Precio, costo, unidades por caja o precio por caja inválidos'); return;
     }
+    if (!/^\d{1,6}$/.test(editLowAt.trim()) || Number(editLowAt) > 100000) {
+      setError('El aviso de poca existencia debe ser un número entero de 0 en adelante'); return;
+    }
+    if (editDeadline && !/^\d{4}-\d{2}-\d{2}$/.test(editDeadline)) {
+      setError('La fecha límite no es válida'); return;
+    }
     if (current.variants.length > 0 && Number(editPack) !== 1) {
       setError('Los productos por talla se reciben por pieza; la presentación debe ser de 1 unidad.'); return;
     }
@@ -170,6 +193,11 @@ export function ProductManager({ companyId }: { companyId: string }) {
         unitCost: editCost.trim() ? Number(editCost) / Number(editPack) : null,
         packSalePrice: editBoxPrice.trim() ? Number(editBoxPrice) : null,
         webVisible: editVisible,
+        lowStockAt: Number(editLowAt),
+        // Sólo se envía si cambió, para no pisar una temporada definida por otra vía.
+        // Mediodía UTC para que el día no se corra por la zona horaria; null la quita.
+        ...(editDeadline !== (current.seasonal && current.seasonEndsAt ? current.seasonEndsAt.slice(0, 10) : '')
+          ? { seasonEndsAt: editDeadline ? `${editDeadline}T12:00:00.000Z` : null } : {}),
       }) });
       if (editPhoto) await uploadPhoto(current.id, editPhoto, current.images.length === 0);
       const fresh = await reload();
@@ -244,12 +272,22 @@ export function ProductManager({ companyId }: { companyId: string }) {
             <button className="rounded-lg border border-slate-500 px-4 py-2 disabled:opacity-40" disabled={!selected.length || busy} onClick={() => void bulkVisibility(false)}>Ocultar en web</button></div>
           <p className="text-xs text-slate-400">La selección masiva sólo cambia visibilidad web; no altera precio, compras ni existencias.</p>
           <div className="max-h-[580px] space-y-2 overflow-auto">
-            {filtered.map(product => <div key={product.id} className={`flex items-center gap-3 rounded-xl border p-3 ${active === product.id ? 'border-emerald-500' : 'border-slate-700'}`}>
+            {grouped.map(group => <details key={group.id} open={searching || grouped.length === 1 ? true : undefined} className="rounded-2xl border border-slate-700 bg-slate-900/60">
+              <summary className="flex cursor-pointer items-center justify-between gap-3 px-4 min-h-12 py-3 font-bold text-white"><span>{group.name}</span><span className="text-xs font-normal text-slate-400">{group.count} productos{group.soldOut ? <span className="ml-2 text-red-400">· {group.soldOut} agotados</span> : null}</span></summary>
+              <div className="space-y-2 border-t border-slate-800 p-3">
+                {group.categories.map(category => <details key={category.id} open={searching || group.categories.length === 1 ? true : undefined} className="rounded-xl border border-slate-800 bg-slate-950/40">
+                  <summary className="flex cursor-pointer items-center justify-between gap-3 min-h-11 px-3 py-2 text-sm font-semibold text-slate-200"><span>{category.name}</span><span className="text-xs font-normal text-slate-500">{category.items.length}</span></summary>
+                  <div className="space-y-2 p-3">
+                    {category.items.map(({ product }) => <div key={product.id} className={`flex items-center gap-3 rounded-xl border p-3 ${active === product.id ? 'border-emerald-500' : 'border-slate-700'}`}>
               <input type="checkbox" aria-label={`Seleccionar ${product.name}`} checked={selected.includes(product.id)} onChange={event => setSelected(prev => event.target.checked ? [...prev, product.id] : prev.filter(id => id !== product.id))} />
               {product.images[0] && <img src={product.images.find(image => image.isPrimary)?.url ?? product.images[0].url} alt="" className="h-12 w-12 rounded object-contain" />}
               <button className="min-w-0 flex-1 text-left" onClick={() => chooseProduct(product)}><strong className="block truncate">{product.name}</strong><span className="text-xs text-slate-400">{product.sku || 'Sin SKU'} · {money.format(product.price)} · Existencia: {product.variants.length ? product.variants.reduce((a,v)=>a+v.stock,0) : product.stock}</span>
                 <span className="block text-xs text-cyan-300">{product.webVisible ? 'Marcado para web' : 'Sólo POS'}{product.variants.length ? ` · ${product.variants.length} variantes` : ''}</span></button>
             </div>)}
+                  </div>
+                </details>)}
+              </div>
+            </details>)}
           </div>
         </section>
         <div className="space-y-5">
@@ -275,6 +313,9 @@ export function ProductManager({ companyId }: { companyId: string }) {
             <label className="block text-sm">Unidades por caja<input className={field} type="number" min="1" step="1" value={editPack} onChange={e=>setEditPack(e.target.value)} /></label>
             <label className="block text-sm">Costo por caja (opcional)<input className={field} type="number" min="0" step="0.01" value={editCost} onChange={e=>setEditCost(e.target.value)} /></label>
             <label className="block text-sm">Precio de venta por caja (opcional; pendiente en caja)<input className={field} type="number" min="0" step="0.01" value={editBoxPrice} onChange={e=>setEditBoxPrice(e.target.value)} /></label>
+            <label className="block text-sm">Avisarme cuando queden (piezas)<input className={field} type="number" inputMode="numeric" min="0" max="100000" step="1" value={editLowAt} onChange={e=>setEditLowAt(e.target.value)} /></label>
+            <label className="block text-sm">Fecha límite para vender o retirar (opcional)<input className={field} type="date" value={editDeadline} onChange={e=>setEditDeadline(e.target.value)} /></label>
+            <p className="-mt-2 text-xs text-slate-500">Si la pones, Yalika avisa unos días antes en Inventario → Alertas. No oculta ni bloquea el producto. Déjala vacía si no aplica.</p>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={editVisible} onChange={e=>setEditVisible(e.target.checked)} /> Mostrar producto en página web cuando esté publicada</label>
             <label className="block text-sm">Agregar fotografía<input className={field} type="file" accept="image/jpeg,image/png,image/webp,image/gif" capture="environment" onChange={e=>setEditPhoto(e.target.files?.[0] ?? null)} /></label>
             {currentMargin === null ? <p className="text-sm text-amber-300">Costo desconocido: no es posible calcular ganancia.</p> : <p className="text-sm text-emerald-300">Ganancia bruta por pieza: {money.format(currentMargin)} (antes de gastos, impuestos y descuentos).</p>}

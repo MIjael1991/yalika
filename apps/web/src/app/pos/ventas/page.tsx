@@ -61,6 +61,8 @@ export default async function SalesHistoryPage() {
 
   return (
     <SalesHistoryWorkspace
+      companyId={user.companyId}
+      isCashier={user.isCashier}
       initialOrders={data.orders}
       initialReturns={data.returns}
       initialError={data.error}

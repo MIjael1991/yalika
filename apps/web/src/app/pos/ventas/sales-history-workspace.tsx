@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import QRCode from 'qrcode';
 import { useEffect, useMemo, useState } from 'react';
+import { SalesReportPanel } from './sales-report-panel';
 
 type OrderItemSummary = {
   id: string;
@@ -124,10 +125,14 @@ async function apiRequest<T>(path: string) {
 }
 
 export function SalesHistoryWorkspace({
+  companyId,
+  isCashier,
   initialOrders,
   initialReturns,
   initialError,
 }: {
+  companyId: string;
+  isCashier: boolean;
   initialOrders: OrderSummary[];
   initialReturns: ReturnSummary[];
   initialError: string;
@@ -322,6 +327,8 @@ export function SalesHistoryWorkspace({
             </p>
           </div>
         </div>
+
+        {!isCashier && companyId ? <SalesReportPanel companyId={companyId} /> : null}
 
         <div className="grid gap-5 xl:grid-cols-[minmax(360px,0.8fr)_minmax(0,1.2fr)]">
           <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">

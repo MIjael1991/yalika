@@ -39,6 +39,11 @@ export function BarcodeScanner({
       setError('Este navegador no tiene lector de cámara compatible. Usa lector USB/Bluetooth o escribe el código.');
       return;
     }
+    // Sin conexión segura (https) el navegador no ofrece la cámara; pasa al abrir Yalika por una dirección http del celular.
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('La cámara solo funciona en una conexión segura (https). Abre Yalika con su dirección segura, o escribe el código.');
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: 'environment' } },
@@ -58,9 +63,15 @@ export function BarcodeScanner({
           const value = results.find((item) => item.rawValue?.trim())?.rawValue?.trim();
           if (value && !busyRef.current) {
             busyRef.current = true;
-            await onCode(value);
+            try {
+              await onCode(value);
+            } catch (err) {
+              // Si procesar el código falla, se cierra la cámara y se avisa: no se queda abierta sin leer.
+              setError(err instanceof Error ? err.message : 'No se pudo procesar el código');
+            } finally {
+              busyRef.current = false;
+            }
             stop();
-            busyRef.current = false;
             return;
           }
         } catch {
@@ -71,7 +82,14 @@ export function BarcodeScanner({
       frameRef.current = requestAnimationFrame(tick);
     } catch (err) {
       stop();
-      setError(err instanceof Error ? err.message : 'No fue posible usar la cámara');
+      const denied = err instanceof Error && /NotAllowed|Permission/i.test(`${err.name} ${err.message}`);
+      setError(
+        denied
+          ? 'No diste permiso a la cámara. Actívalo en el navegador y vuelve a intentar.'
+          : err instanceof Error
+            ? err.message
+            : 'No fue posible usar la cámara',
+      );
     }
   }
 

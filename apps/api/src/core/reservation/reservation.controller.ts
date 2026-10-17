@@ -22,6 +22,12 @@ import { ReleaseReservationDto } from './dto/release-reservation.dto';
 import { UpdateReservationPolicyDto } from './dto/update-reservation-policy.dto';
 import { ReservationService } from './reservation.service';
 
+/**
+ * Permisos del cajero en Apartados: puede consultar, confirmar el anticipo,
+ * convertir en venta, cobrar el saldo y completar (todo es cobrar). Extender el
+ * plazo, liberar mercancía y cambiar la política son del administrador.
+ * Esta raíz no pasa por commerce-access.guard, por eso se decide aquí.
+ */
 @Controller('reservation')
 @UseGuards(SessionAuthGuard)
 export class ReservationController {
@@ -89,7 +95,7 @@ export class ReservationController {
     @Body() dto: ExtendReservationDto,
     @CurrentAuth() auth: AuthContext,
   ) {
-    requireCommercialAccount(auth);
+    requireNotCashier(auth);
     return this.reservationService.extend(
       auth.user.companyId,
       id,
@@ -104,7 +110,7 @@ export class ReservationController {
     @Body() dto: ReleaseReservationDto,
     @CurrentAuth() auth: AuthContext,
   ) {
-    requireCommercialAccount(auth);
+    requireNotCashier(auth);
     return this.reservationService.release(
       auth.user.companyId,
       id,

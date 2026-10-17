@@ -7,6 +7,9 @@
  * reportes y asistente). Del descuento solo puede aplicar una promoción
  * vigente de la empresa: el servidor toma de ella el tipo y el valor, el
  * cajero no puede escribirlos. El resto de roles no pasa por esta lista.
+ *
+ * Ojo: Apartados (`reservation`) no pasa por commerce-access.guard; sus permisos
+ * por rol se deciden en reservation.controller.ts.
  */
 type Body = Record<string, unknown> | undefined;
 type Rule = {
@@ -36,7 +39,17 @@ const readableRoots = [
 ];
 
 const rules: Rule[] = [
-  ...readableRoots.map((root) => ({ method: 'GET', root, path: /^.*$/ })),
+  // El reporte de ventas por fechas y las alertas de inventario son solo de administración.
+  ...readableRoots.map((root) => ({
+    method: 'GET',
+    root,
+    path:
+      root === 'order'
+        ? new RegExp(`^(?!company/${any}/report$).*$`)
+        : root === 'catalog'
+          ? new RegExp(`^(?!product/company/${any}/stock-alerts$).*$`)
+          : /^.*$/,
+  })),
 
   // Vender: crear la cuenta, confirmarla, cancelarla y cobrar.
   { method: 'POST', root: 'order', path: /^$/ },

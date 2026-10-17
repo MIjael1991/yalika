@@ -44,6 +44,23 @@ export class ReservationService {
     };
   }
 
+  /**
+   * Los cambios de estado solo aplican si el apartado sigue como se leyó. Si otra
+   * persona (o el vencimiento automático) lo cambió antes, no se pisa su trabajo.
+   */
+  private async guarded<T>(operation: () => Promise<T>): Promise<T> {
+    try {
+      return await operation();
+    } catch (error: unknown) {
+      if ((error as { code?: string })?.code === 'P2025') {
+        throw new ConflictException(
+          'El apartado cambió mientras lo atendías. Actualiza la lista e intenta de nuevo.',
+        );
+      }
+      throw error;
+    }
+  }
+
   private nextReservationNumber() {
     const today = new Date();
     const date = [
@@ -627,19 +644,26 @@ export class ReservationService {
       );
     }
 
-    const reviewUntil = new Date(Date.now() + 60 * 60 * 1000);
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id: current.id },
-      data: {
-        status: 'deposit_reported',
-        depositAmount: dto.amount,
-        depositStatus: 'reported',
-        depositMethod: dto.method,
-        depositReference: dto.reference?.trim(),
-        holdExpiresAt: reviewUntil,
-      },
-      include: this.reservationInclude(),
-    });
+    // El plazo de revisión se fija solo con el primer reporte: volver a reportar
+    // no puede extenderlo, o el cliente mantendría la mercancía bloqueada.
+    const reviewUntil =
+      current.status === 'deposit_reported' && current.holdExpiresAt
+        ? current.holdExpiresAt
+        : new Date(Date.now() + 60 * 60 * 1000);
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id: current.id, status: current.status },
+        data: {
+          status: 'deposit_reported',
+          depositAmount: dto.amount,
+          depositStatus: 'reported',
+          depositMethod: dto.method,
+          depositReference: dto.reference?.trim(),
+          holdExpiresAt: reviewUntil,
+        },
+        include: this.reservationInclude(),
+      }),
+    );
 
     await this.prisma.commerceReservationEvent.create({
       data: {
@@ -667,14 +691,16 @@ export class ReservationService {
       );
     }
 
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id: reservation.id },
-      data: {
-        status: 'cancelled',
-        cancelledAt: new Date(),
-        releasedAt: new Date(),
-      },
-    });
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id: reservation.id, status: reservation.status },
+        data: {
+          status: 'cancelled',
+          cancelledAt: new Date(),
+          releasedAt: new Date(),
+        },
+      }),
+    );
     await this.prisma.commerceReservationEvent.create({
       data: {
         reservationId: reservation.id,
@@ -737,20 +763,22 @@ export class ReservationService {
       now.getTime() + policy.activeDays * 86400000,
     );
 
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id },
-      data: {
-        status: 'active',
-        depositAmount: dto.amount,
-        depositStatus: 'confirmed',
-        depositMethod: dto.method,
-        depositReference: dto.reference?.trim(),
-        confirmedAt: now,
-        pickupDeadline,
-        holdExpiresAt: null,
-      },
-      include: this.reservationInclude(),
-    });
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id, status: reservation.status },
+        data: {
+          status: 'active',
+          depositAmount: dto.amount,
+          depositStatus: 'confirmed',
+          depositMethod: dto.method,
+          depositReference: dto.reference?.trim(),
+          confirmedAt: now,
+          pickupDeadline,
+          holdExpiresAt: null,
+        },
+        include: this.reservationInclude(),
+      }),
+    );
 
     await this.prisma.commerceReservationEvent.create({
       data: {
@@ -784,14 +812,16 @@ export class ReservationService {
       base.getTime() + dto.days * 86400000,
     );
 
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id },
-      data: {
-        status: 'active',
-        pickupDeadline,
-      },
-      include: this.reservationInclude(),
-    });
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id, status: reservation.status },
+        data: {
+          status: 'active',
+          pickupDeadline,
+        },
+        include: this.reservationInclude(),
+      }),
+    );
 
     await this.prisma.commerceReservationEvent.create({
       data: {
@@ -818,19 +848,21 @@ export class ReservationService {
       throw new BadRequestException('Este apartado ya no bloquea mercancía');
     }
 
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id },
-      data: {
-        status: 'released',
-        releasedAt: new Date(),
-        notes: dto.reason?.trim()
-          ? [reservation.notes, `Liberación: ${dto.reason.trim()}`]
-              .filter(Boolean)
-              .join('\n')
-          : reservation.notes,
-      },
-      include: this.reservationInclude(),
-    });
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id, status: reservation.status },
+        data: {
+          status: 'released',
+          releasedAt: new Date(),
+          notes: dto.reason?.trim()
+            ? [reservation.notes, `Liberación: ${dto.reason.trim()}`]
+                .filter(Boolean)
+                .join('\n')
+            : reservation.notes,
+        },
+        include: this.reservationInclude(),
+      }),
+    );
 
     await this.prisma.commerceReservationEvent.create({
       data: {
@@ -869,14 +901,16 @@ export class ReservationService {
       throw new BadRequestException('La venta vinculada todavía tiene saldo pendiente');
     }
 
-    const updated = await this.prisma.commerceReservation.update({
-      where: { id },
-      data: {
-        status: 'completed',
-        completedAt: new Date(),
-      },
-      include: this.reservationInclude(),
-    });
+    const updated = await this.guarded(() =>
+      this.prisma.commerceReservation.update({
+        where: { id, status: reservation.status },
+        data: {
+          status: 'completed',
+          completedAt: new Date(),
+        },
+        include: this.reservationInclude(),
+      }),
+    );
 
     await this.prisma.commerceReservationEvent.create({
       data: {

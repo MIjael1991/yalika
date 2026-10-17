@@ -2,6 +2,13 @@
 
 import Link from 'next/link';
 import { BarcodeScanner } from './barcode-scanner';
+import { parseMoneyInput } from '../../lib/yalika-money-input';
+import {
+  catalogNameOf,
+  groupByCatalog,
+  isSoldOut,
+  NO_CATALOG_ID,
+} from '../../lib/yalika-pos-groups';
 import QRCode from 'qrcode';
 
 import {
@@ -631,6 +638,7 @@ export function PosWorkspace({
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('all');
   const [catalogId, setCatalogId] = useState('all');
+  const [openGroups, setOpenGroups] = useState<string[]>([]);
   const [commerceCatalogs, setCommerceCatalogs] = useState<Array<{ id: string; name: string }>>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderDiscount, setOrderDiscount] = useState<CartDiscount>();
@@ -869,6 +877,37 @@ export function PosWorkspace({
       return matchesCategory && searchable.includes(normalizedSearch);
     });
   }, [categoryId, saleOptions, search]);
+  const productGroups = useMemo(
+    () => groupByCatalog(filteredOptions, commerceCatalogs),
+    [filteredOptions, commerceCatalogs],
+  );
+  // Al buscar, filtrar por categoría o ver un solo negocio, se abre lo que coincide.
+  const forceOpen = search.trim() !== '' || categoryId !== 'all';
+  const isGroupOpen = (key: string, single = false) =>
+    forceOpen || single || openGroups.includes(key);
+  function toggleGroup(key: string) {
+    setOpenGroups((current) => {
+      const next = current.includes(key)
+        ? current.filter((value) => value !== key)
+        : [...current, key];
+      try {
+        window.localStorage.setItem('yalika.pos.grupos', JSON.stringify(next));
+      } catch {
+        /* sin almacenamiento: solo se pierde la memoria de lo abierto */
+      }
+      return next;
+    });
+  }
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem('yalika.pos.grupos') ?? '[]');
+      if (Array.isArray(saved)) {
+        setOpenGroups(saved.filter((value): value is string => typeof value === 'string'));
+      }
+    } catch {
+      /* ignorar */
+    }
+  }, []);
   const totals = useMemo(
     () => getCartTotals(cart, orderDiscount),
     [cart, orderDiscount],
@@ -1511,7 +1550,7 @@ export function PosWorkspace({
       return;
     }
 
-    const received = receivedAmount ? Number(receivedAmount) : undefined;
+    const received = receivedAmount.trim() ? parseMoneyInput(receivedAmount) : undefined;
 
     if (paymentMethod === 'cash' && received === undefined) {
       setCheckoutError(
@@ -1986,7 +2025,7 @@ export function PosWorkspace({
     }
 
     const received = splitReceivedAmount
-      ? Number(splitReceivedAmount)
+      ? parseMoneyInput(splitReceivedAmount)
       : undefined;
 
     if (
@@ -2301,7 +2340,7 @@ export function PosWorkspace({
           ) : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-3">
-            <label htmlFor="pos-catalogo-activo" className="shrink-0 text-sm font-medium text-slate-200">
+            <label htmlFor="pos-catalogo-activo" className="hidden shrink-0 text-sm font-medium text-slate-200 md:block">
               Catálogo
             </label>
             <select
@@ -2315,13 +2354,44 @@ export function PosWorkspace({
                 setCatalogId(event.target.value);
                 setCategoryId('all');
               }}
-              className="min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white"
+              className="hidden min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white md:block"
             >
               <option value="all">Todos los catálogos</option>
               {commerceCatalogs.map((catalog) => (
                 <option key={catalog.id} value={catalog.id}>{catalog.name}</option>
               ))}
             </select>
+            {commerceCatalogs.length > 0 ? (
+              <div
+                role="tablist"
+                aria-label="Negocio"
+                className="-mx-1 flex w-full gap-2 overflow-x-auto px-1 pb-1 md:hidden"
+              >
+                {[{ id: 'all', name: 'Todo' }, ...commerceCatalogs].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={catalogId === tab.id}
+                    onClick={() => {
+                      if (cart.length > 0) {
+                        setCheckoutError('Termina o vacía la venta antes de cambiar de catálogo');
+                        return;
+                      }
+                      setCatalogId(tab.id);
+                      setCategoryId('all');
+                    }}
+                    className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-semibold ${
+                      catalogId === tab.id
+                        ? 'border-cyan-400 bg-cyan-400/15 text-cyan-200'
+                        : 'border-slate-600 text-slate-300'
+                    }`}
+                  >
+                    {tab.name}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <label htmlFor="pos-categoria-activa" className="shrink-0 text-sm font-medium text-slate-200">
               Categoría
             </label>
@@ -2380,58 +2450,135 @@ export function PosWorkspace({
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
-            {filteredOptions.map((option) => {
-              const unavailable = option.trackInventory && option.stock <= 0;
+          <div className="mt-5 space-y-3">
+            {productGroups.map((group) => {
+              const catalogKey = `c:${group.id}`;
+              const catalogOpen = isGroupOpen(catalogKey, productGroups.length === 1);
 
               return (
-                <button
-                  key={option.key}
-                  type="button"
-                  disabled={unavailable || cartLocked}
-                  onClick={() => addOption(option)}
-                  className="group min-h-44 rounded-2xl border border-slate-800 bg-slate-900 p-5 text-left transition hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-800/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                <div
+                  key={group.id}
+                  className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/60"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/10 text-sm font-bold text-cyan-300 ring-1 ring-cyan-400/20">
-                      {option.productName.slice(0, 2).toUpperCase()}
-                    </div>
-                    {option.featured ? (
-                      <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-300">
-                        Destacado
+                  <button
+                    type="button"
+                    aria-expanded={catalogOpen}
+                    onClick={() => toggleGroup(catalogKey)}
+                    className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-800/60"
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="text-cyan-300">{catalogOpen ? '▾' : '▸'}</span>
+                      <span className="truncate text-base font-bold text-white">
+                        {group.name}
                       </span>
-                    ) : null}
-                  </div>
-
-                  <p className="mt-4 font-semibold text-white">
-                    {option.productName}
-                  </p>
-                  <p className="mt-1 min-h-5 text-sm text-slate-400">
-                    {option.variantName ?? option.categoryName}
-                  </p>
-
-                  <div className="mt-4 flex items-end justify-between gap-3">
-                    <div>
-                      <p className="text-xl font-bold text-cyan-300">
-                        {money.format(option.price)}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {option.sku ?? 'Sin SKU'}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-xs font-medium ${
-                        unavailable ? 'text-red-400' : 'text-slate-400'
-                      }`}
-                    >
-                      {option.trackInventory
-                        ? unavailable
-                          ? 'Agotado'
-                          : `${option.stock} disponibles`
-                        : 'Disponible'}
+                      {group.id === NO_CATALOG_ID ? (
+                        <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300">
+                          Pídele al dueño que lo asigne
+                        </span>
+                      ) : null}
                     </span>
-                  </div>
-                </button>
+                    <span className="shrink-0 text-xs text-slate-400">
+                      {group.count} {group.count === 1 ? 'producto' : 'productos'}
+                      {group.soldOut > 0 ? (
+                        <span className="ml-2 text-red-400">· {group.soldOut} agotados</span>
+                      ) : null}
+                    </span>
+                  </button>
+
+                  {catalogOpen ? (
+                    <div className="space-y-2 border-t border-slate-800 p-3">
+                      {group.categories.map((category) => {
+                        const categoryKey = `k:${group.id}:${category.id}`;
+                        const categoryOpen = isGroupOpen(
+                          categoryKey,
+                          group.categories.length === 1,
+                        );
+
+                        return (
+                          <div
+                            key={category.id}
+                            className="rounded-xl border border-slate-800 bg-slate-950/40"
+                          >
+                            <button
+                              type="button"
+                              aria-expanded={categoryOpen}
+                              onClick={() => toggleGroup(categoryKey)}
+                              className="flex min-h-11 w-full items-center justify-between gap-3 px-3 py-2.5 text-left hover:bg-slate-800/50"
+                            >
+                              <span className="flex min-w-0 items-center gap-2">
+                                <span className="text-slate-400">{categoryOpen ? '▾' : '▸'}</span>
+                                <span className="truncate text-sm font-semibold text-slate-200">
+                                  {category.name}
+                                </span>
+                              </span>
+                              <span className="shrink-0 text-xs text-slate-500">
+                                {category.items.length}
+                              </span>
+                            </button>
+
+                            {categoryOpen ? (
+                              <div className="grid gap-3 p-3 sm:grid-cols-2 2xl:grid-cols-3">
+                                {category.items.map((option) => {
+                                  const unavailable = isSoldOut(option);
+
+                                  return (
+                                  <button
+                                    key={option.key}
+                                    type="button"
+                                    disabled={unavailable || cartLocked}
+                                    onClick={() => addOption(option)}
+                                    className="group min-h-44 rounded-2xl border border-slate-800 bg-slate-900 p-5 text-left transition hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-800/90 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400/20 to-blue-500/10 text-sm font-bold text-cyan-300 ring-1 ring-cyan-400/20">
+                                        {option.productName.slice(0, 2).toUpperCase()}
+                                      </div>
+                                      {option.featured ? (
+                                        <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-300">
+                                          Destacado
+                                        </span>
+                                      ) : null}
+                                    </div>
+
+                                    <p className="mt-4 font-semibold text-white">
+                                      {option.productName}
+                                    </p>
+                                    <p className="mt-1 min-h-5 text-sm text-slate-400">
+                                      {option.variantName ?? option.categoryName}
+                                    </p>
+
+                                    <div className="mt-4 flex items-end justify-between gap-3">
+                                      <div>
+                                        <p className="text-xl font-bold text-cyan-300">
+                                          {money.format(option.price)}
+                                        </p>
+                                        <p className="mt-1 text-xs text-slate-500">
+                                          {option.sku ?? 'Sin SKU'}
+                                        </p>
+                                      </div>
+                                      <span
+                                        className={`text-xs font-medium ${
+                                          unavailable ? 'text-red-400' : 'text-slate-400'
+                                        }`}
+                                      >
+                                        {option.trackInventory
+                                          ? unavailable
+                                            ? 'Agotado'
+                                            : `${option.stock} disponibles`
+                                          : 'Disponible'}
+                                      </span>
+                                    </div>
+                                  </button>
+                                  );
+                                })}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
               );
             })}
           </div>
@@ -2518,6 +2665,11 @@ export function PosWorkspace({
                         <p className="mt-0.5 truncate text-xs text-slate-500">
                           {item.variantName ?? item.sku ?? item.categoryName}
                         </p>
+                        {commerceCatalogs.length > 1 ? (
+                          <p className="mt-0.5 truncate text-[11px] font-semibold text-cyan-400/80">
+                            {catalogNameOf(item.catalogId, commerceCatalogs)}
+                          </p>
+                        ) : null}
                       </div>
                       <p className="whitespace-nowrap font-semibold text-slate-100">
                         {money.format(fromCents(lineCents - discountCents))}
@@ -2758,9 +2910,9 @@ export function PosWorkspace({
                   placeholder={money.format(totals.total)}
                   className="mt-1.5 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-cyan-400 disabled:opacity-50"
                 />
-                {receivedAmount && Number(receivedAmount) >= totals.total ? (
+                {receivedAmount && parseMoneyInput(receivedAmount) >= totals.total ? (
                   <p className="mt-2 text-xs font-medium text-emerald-300">
-                    Cambio estimado: {money.format(Number(receivedAmount) - totals.total)}
+                    Cambio estimado: {money.format(parseMoneyInput(receivedAmount) - totals.total)}
                   </p>
                 ) : null}
               </div>
@@ -3099,9 +3251,9 @@ export function PosWorkspace({
                   className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-cyan-400"
                 />
                 {splitReceivedAmount &&
-                Number(splitReceivedAmount) >= activeSplit.total ? (
+                parseMoneyInput(splitReceivedAmount) >= activeSplit.total ? (
                   <p className="mt-2 text-sm font-medium text-emerald-300">
-                    Cambio: {money.format(Number(splitReceivedAmount) - activeSplit.total)}
+                    Cambio: {money.format(parseMoneyInput(splitReceivedAmount) - activeSplit.total)}
                   </p>
                 ) : null}
               </div>

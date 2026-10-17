@@ -129,11 +129,14 @@ function sumReservation(record: ReservationRecord) {
 
 export function ReservationWorkspace({
   companyId,
+  isCashier = false,
   initialReservations,
   initialPolicy,
   initialError,
 }: {
   companyId: string;
+  /** El cajero cobra y atiende; extender, liberar y cambiar reglas es del administrador. */
+  isCashier?: boolean;
   initialReservations: ReservationRecord[];
   initialPolicy: ReservationPolicy;
   initialError: string;
@@ -425,6 +428,7 @@ export function ReservationWorkspace({
             onSubmit={savePolicy}
             className="h-fit rounded-3xl border border-white/10 bg-slate-900/70 p-5"
           >
+            <fieldset disabled={isCashier} className="m-0 min-w-0 border-0 p-0">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="font-bold">Reglas de apartados</h2>
@@ -544,6 +548,12 @@ export function ReservationWorkspace({
               Yalika lo manda a revisión; no libera ni confisca dinero
               automáticamente.
             </p>
+            </fieldset>
+            {isCashier ? (
+              <p className="mt-3 text-xs text-amber-200">
+                Solo el administrador cambia estas reglas.
+              </p>
+            ) : null}
           </form>
 
           <section>
@@ -692,13 +702,15 @@ export function ReservationWorkspace({
                             >
                               Convertir a venta
                             </button>
-                            <button
-                              disabled={busyId === item.id}
-                              onClick={() => void act(item, 'extend')}
-                              className="rounded-xl border border-violet-300/30 bg-violet-300/10 px-4 py-2 text-sm font-bold text-violet-100"
-                            >
-                              +1 día
-                            </button>
+                            {isCashier ? null : (
+                              <button
+                                disabled={busyId === item.id}
+                                onClick={() => void act(item, 'extend')}
+                                className="rounded-xl border border-violet-300/30 bg-violet-300/10 px-4 py-2 text-sm font-bold text-violet-100"
+                              >
+                                +1 día
+                              </button>
+                            )}
                           </>
                         ) : null}
 
@@ -712,7 +724,8 @@ export function ReservationWorkspace({
                           </button>
                         ) : null}
 
-                        {['hold', 'deposit_reported', 'active', 'review_expired'].includes(
+                        {!isCashier &&
+                        ['hold', 'deposit_reported', 'active', 'review_expired'].includes(
                           item.status,
                         ) ? (
                           <button

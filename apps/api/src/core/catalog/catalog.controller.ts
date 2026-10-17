@@ -6,11 +6,14 @@ import { ForbiddenException,
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import { CatalogService } from './catalog.service';
 import { CurrentAuth } from '../../auth/current-auth.decorator';
 import type { AuthContext } from '../../auth/auth.types';
+import { isCashier } from '../../auth/tenant-policy';
+import { forRole } from './strip-costs';
 import { PosInventoryService } from './pos-inventory.service';
 import { ReceiveProductsDto, SetVisibilityDto } from './dto/pos-inventory.dto';
 
@@ -90,17 +93,36 @@ export class CatalogController {
     return this.catalogService.findPublicProductsByCompany(companyId);
   }
 
+  @Get('product/company/:companyId/stock-alerts')
+  stockAlerts(
+    @Param('companyId') companyId: string,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.catalogService.stockAlerts(companyId, query);
+  }
+
   @Get('product/company/:companyId')
-  findProductsByCompany(@Param('companyId') companyId: string) {
-    return this.catalogService.findProductsByCompany(companyId);
+  async findProductsByCompany(
+    @Param('companyId') companyId: string,
+    @CurrentAuth() auth: AuthContext,
+  ) {
+    // El cajero ve precios y existencias, no cuánto cuesta la mercancía.
+    return forRole(
+      await this.catalogService.findProductsByCompany(companyId),
+      isCashier(auth),
+    );
   }
 
   @Get('barcode/company/:companyId/:value')
-  resolveBarcode(
+  async resolveBarcode(
     @Param('companyId') companyId: string,
     @Param('value') value: string,
+    @CurrentAuth() auth: AuthContext,
   ) {
-    return this.catalogService.resolveBarcode(companyId, value);
+    return forRole(
+      await this.catalogService.resolveBarcode(companyId, value),
+      isCashier(auth),
+    );
   }
 
   @Get('product/:id/barcodes')
@@ -123,8 +145,8 @@ export class CatalogController {
   }
 
   @Get('product/:id')
-  findProduct(@Param('id') id: string) {
-    return this.catalogService.findProduct(id);
+  async findProduct(@Param('id') id: string, @CurrentAuth() auth: AuthContext) {
+    return forRole(await this.catalogService.findProduct(id), isCashier(auth));
   }
 
   @Patch('product/:id')

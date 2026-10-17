@@ -1,11 +1,13 @@
 import {
   IsBoolean,
+  IsDateString,
   IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   MaxLength,
+  Max,
   Min,
 } from 'class-validator';
 
@@ -54,4 +56,16 @@ export class UpdateProductDto {
   @IsInt()
   @Min(0)
   stock?: number;
+
+  /** Avisar cuando queden estas piezas o menos. */
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100000)
+  lowStockAt?: number;
+
+  /** Fecha límite opcional para vender o retirar el producto; null la quita. */
+  @IsOptional()
+  @IsDateString()
+  seasonEndsAt?: string | null;
 }

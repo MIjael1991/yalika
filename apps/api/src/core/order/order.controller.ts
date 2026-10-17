@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderService } from './order.service';
@@ -15,6 +15,16 @@ export class OrderController {
   @Get('company/:companyId')
   findByCompany(@Param('companyId') companyId: string) {
     return this.orderService.findByCompany(companyId);
+  }
+
+  @Get('company/:companyId/report')
+  salesReport(
+    @Param('companyId') companyId: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+    @Query('tz') tz?: string,
+  ) {
+    return this.orderService.salesReport(companyId, from, to, tz);
   }
 
   @Get(':id/ticket')
