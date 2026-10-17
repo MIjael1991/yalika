@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Controller,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -12,22 +13,17 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { randomUUID } from 'node:crypto';
-import { existsSync, mkdirSync, readFileSync, unlinkSync } from 'node:fs';
-import { basename, join } from 'node:path';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 
-const imageDirectory = join(process.cwd(), 'uploads', 'images');
-
-function ensureImageDirectory() {
-  mkdirSync(imageDirectory, {
-    recursive: true,
-  });
-}
+import {
+  IMAGE_EXTENSIONS,
+  IMAGE_FILE_NAME,
+  MediaStorageService,
+} from './media-storage.service';
 
 // R11B-1: comprueba que la firma del archivo corresponde al MIME indicado.
 // No sustituye decodificacion, saneamiento EXIF ni limites de pixeles.
-function matchesImageSignature(path: string, mime: string): boolean {
-  const bytes = readFileSync(path);
+export function matchesImageSignature(bytes: Buffer, mime: string): boolean {
   if (mime === 'image/jpeg') {
     return bytes.length >= 4 && bytes[0] === 0xff && bytes[1] === 0xd8 &&
       bytes[bytes.length - 2] === 0xff && bytes[bytes.length - 1] === 0xd9;
@@ -46,28 +42,16 @@ function matchesImageSignature(path: string, mime: string): boolean {
   }
   return false;
 }
+
 @Controller('media')
 export class MediaController {
+  constructor(private readonly storage: MediaStorageService) {}
+
   @Post('image')
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: (_request, _file, callback) => {
-          ensureImageDirectory();
-          callback(null, imageDirectory);
-        },
-        filename: (_request, file, callback) => {
-          const extensions: Record<string, string> = {
-            'image/jpeg': '.jpg',
-            'image/png': '.png',
-            'image/webp': '.webp',
-            'image/gif': '.gif',
-          };
-          const extension = extensions[file.mimetype] ?? '.jpg';
-
-          callback(null, `${randomUUID()}${extension}`);
-        },
-      }),
+      // En memoria: se revisa el contenido antes de guardar nada, y se guarda en R2 sin tocar el disco.
+      storage: memoryStorage(),
       limits: {
         fileSize: 6 * 1024 * 1024,
       },
@@ -93,10 +77,10 @@ export class MediaController {
       },
     }),
   )
-  uploadImage(
+  async uploadImage(
     @UploadedFile()
     file?: {
-      filename: string;
+      buffer: Buffer;
       originalname: string;
       mimetype: string;
       size: number;
@@ -106,18 +90,23 @@ export class MediaController {
       throw new BadRequestException('Selecciona una imagen');
     }
 
-    const storedPath = join(imageDirectory, file.filename);
-    let verified = false;
-    try {
-      verified = matchesImageSignature(storedPath, file.mimetype);
-    } finally {
-      if (!verified && existsSync(storedPath)) unlinkSync(storedPath);
+    if (!matchesImageSignature(file.buffer, file.mimetype)) {
+      throw new BadRequestException('El contenido no corresponde a una imagen valida');
     }
-    if (!verified) throw new BadRequestException('El contenido no corresponde a una imagen valida');
+
+    const filename = `${randomUUID()}${IMAGE_EXTENSIONS[file.mimetype] ?? '.jpg'}`;
+
+    try {
+      await this.storage.save(filename, file.buffer, file.mimetype);
+    } catch {
+      throw new InternalServerErrorException(
+        'No fue posible guardar la imagen. Intenta de nuevo',
+      );
+    }
 
     return {
-      url: `/api/yalika/media/image/${file.filename}`,
-      filename: file.filename,
+      url: `/api/yalika/media/image/${filename}`,
+      filename,
       originalName: file.originalname,
       mimeType: file.mimetype,
       size: file.size,
@@ -126,20 +115,24 @@ export class MediaController {
 
   @Get('image/:filename')
   findImage(@Param('filename') filename: string, @Res() response: Response) {
-    const safeFilename = basename(filename);
-
-    if (safeFilename !== filename) {
+    if (!IMAGE_FILE_NAME.test(filename)) {
       throw new BadRequestException('Nombre de imagen inválido');
     }
 
-    const filePath = join(imageDirectory, safeFilename);
+    const location = this.storage.locate(filename);
 
-    if (!existsSync(filePath)) {
+    if (!location) {
       throw new NotFoundException('La imagen no existe');
+    }
+
+    if (location.kind === 'redirect') {
+      // El navegador lee la foto directo de R2; la API no transmite los bytes.
+      response.setHeader('Cache-Control', location.cacheControl);
+      return response.redirect(302, location.url);
     }
 
     response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 
-    return response.sendFile(filePath);
+    return response.sendFile(location.path);
   }
 }

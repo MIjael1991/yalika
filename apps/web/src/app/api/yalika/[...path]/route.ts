@@ -95,7 +95,17 @@ async function forward(request: NextRequest, context: RouteParameters) {
       headers,
       body: hasBody ? await request.arrayBuffer() : undefined,
       cache: 'no-store',
+      // Las fotos se leen directo de R2: la redirección se pasa al navegador, no se sigue aquí.
+      redirect: 'manual',
     });
+    if (apiResponse.status >= 300 && apiResponse.status < 400) {
+      const location = apiResponse.headers.get('location');
+      const redirectHeaders = new Headers();
+      const cacheControl = apiResponse.headers.get('cache-control');
+      if (location) redirectHeaders.set('location', location);
+      if (cacheControl) redirectHeaders.set('cache-control', cacheControl);
+      return new Response(null, { status: apiResponse.status, headers: redirectHeaders });
+    }
     const responseHeaders = new Headers();
     const apiContentType = apiResponse.headers.get('content-type');
 
