@@ -105,6 +105,45 @@ const one = (f, extra = []) => show([[...extra], [f]])[1][0];
   assert.equal(X.sheetName("  [x]  "), "x");
   assert.equal(X.sheetName("'''"), "Hoja");
   assert.equal(X.sheetName("A".repeat(50)).length, 31);
+  // SI, comparaciones y textos entre comillas
+  assert.equal(one('=SI(1<2;"sí";"no")'), "sí");
+  assert.equal(one('=SI(2<=1;"sí";"no")'), "no");
+  assert.equal(one("=SI(3<>3;1;2)"), "2");
+  assert.equal(one("=SI(A1=5;10;20)", ["5"]), "10");
+  assert.equal(one('=SI(A1="";"vacío";A1*2)', [""]), "vacío");
+  assert.equal(one('=SI(A1="";"vacío";A1*2)', ["4"]), "8");
+  assert.equal(one('=SI("Ana"="ANA";1;0)'), "1", "texto sin distinguir mayúsculas");
+  assert.equal(one('=SI(1>0;"a;b";"c")'), "a;b", "el ; dentro de comillas es texto");
+  assert.equal(one('=SI("x"+1>0;1;2)').startsWith("#"), true);
+  assert.equal(one("=IF(1=1;7;8)"), "7");
+  assert.equal(one("=SI(1>0;5)"), "5");
+  assert.equal(one("=SI(1/0>0;1;2)").startsWith("#"), true);
+  assert.equal(C.toEnglishFormula('=SI(a1="";"x;y";SUMA(b1:b3))'), 'IF(A1="","x;y",SUM(B1:B3))');
+  // Plantillas: las filas vacías quedan en blanco y las llenas se calculan
+  {
+    const inv = C.templateRows("inventario");
+    assert.equal(show(inv)[1][3], "", "inventario vacío no muestra 0");
+    inv[1][1] = "3"; inv[1][2] = "10";
+    assert.equal(show(inv)[1][3], "30");
+    assert.equal(show(inv)[inv.length - 1][3], "30", "el total suma lo que hay");
+    const emptyTotal = show(C.templateRows("inventario")).at(-1)[3];
+    assert.equal(emptyTotal, "0", "el total sí vale 0 sin datos");
+    const asi = C.templateRows("asistencia");
+    assert.deepEqual(show(asi)[1].slice(7), ["", ""]);
+    asi[1][1] = "Ana"; asi[1][2] = "1"; asi[1][3] = "1"; asi[1][4] = "1"; asi[1][5] = "1";
+    assert.deepEqual(show(asi)[1].slice(7), ["4", "80"]);
+    const cal = C.templateRows("calificaciones");
+    assert.equal(show(cal)[1][4], "");
+    cal[1][1] = "8"; cal[1][2] = "10";
+    assert.equal(show(cal)[1][4], "9");
+    const pre = show(C.templateRows("presupuesto"));
+    assert.equal(pre[1][3], "");
+    for (const t of C.SHEET_TEMPLATES) {
+      const z = unzipSync(X.buildXlsx([{ name: "p", rows: C.templateRows(t.id) }]));
+      const xml = strFromU8(z["xl/worksheets/sheet1.xml"]);
+      if (C.templateRows(t.id).some((r) => r.some((c) => c.startsWith("=SI(")))) assert.ok(xml.includes("<f>IF("), "el archivo Excel conserva SI como IF: " + t.id);
+    }
+  }
   console.log("CALCULO_OK: fórmulas, errores, ciclos, plantillas y archivo Excel.");
 })().catch((e) => {
   console.error(e);

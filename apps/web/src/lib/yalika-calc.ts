@@ -41,9 +41,9 @@ export const showValue = (v: CellValue) => (isErr(v) ? v.error : typeof v === "n
 const FUNCS: Record<string, string> = {
   SUMA: "SUM", SUM: "SUM", PROMEDIO: "AVERAGE", AVERAGE: "AVERAGE", MIN: "MIN", MAX: "MAX",
   CONTAR: "COUNT", COUNT: "COUNT", REDONDEAR: "ROUND", ROUND: "ROUND", ABS: "ABS",
-  "SI.ERROR": "IFERROR", IFERROR: "IFERROR",
+  "SI.ERROR": "IFERROR", IFERROR: "IFERROR", SI: "IF", IF: "IF",
 };
-type Tok = { t: "num" | "ref" | "fn" | "op"; v: string };
+type Tok = { t: "num" | "ref" | "fn" | "op" | "str"; v: string };
 function tokenize(src: string): Tok[] | null {
   const out: Tok[] = [];
   let i = 0;
@@ -55,6 +55,8 @@ function tokenize(src: string): Tok[] | null {
     if ((m = /^\d+(\.\d+)?/.exec(rest))) { out.push({ t: "num", v: m[0] }); i += m[0].length; }
     else if ((m = /^[A-Za-z][A-Za-z0-9.]*(?=\()/.exec(rest))) { out.push({ t: "fn", v: m[0].toUpperCase() }); i += m[0].length; }
     else if ((m = /^[A-Za-z]+\d*/.exec(rest))) { out.push({ t: "ref", v: m[0] }); i += m[0].length; }
+    else if ((m = /^"((?:[^"]|"")*)"/.exec(rest))) { out.push({ t: "str", v: m[1].replace(/""/g, '"') }); i += m[0].length; }
+    else if ((m = /^(<>|<=|>=|=|<|>)/.exec(rest))) { out.push({ t: "op", v: m[0] }); i += m[0].length; }
     else if ("+-*/^(),;:".includes(ch)) { out.push({ t: "op", v: ch === ";" ? "," : ch }); i++; }
     else return null;
   }
@@ -62,11 +64,19 @@ function tokenize(src: string): Tok[] | null {
 }
 // Fórmula en inglés para guardar en .xlsx (Excel las guarda siempre en inglés).
 export function toEnglishFormula(raw: string) {
+  // Los textos entre comillas se dejan tal cual; solo se traduce lo que está fuera de ellos.
   return raw
     .slice(1)
-    .replace(/;/g, ",")
-    .replace(/[A-Za-z][A-Za-z0-9.]*(?=\s*\()/g, (f) => FUNCS[f.toUpperCase()] ?? f.toUpperCase())
-    .replace(/\b([A-Za-z]{1,2})(\d{1,4})\b/g, (_, c: string, n: string) => c.toUpperCase() + n);
+    .split(/("(?:[^"]|"")*")/)
+    .map((part, i) =>
+      i % 2
+        ? part
+        : part
+            .replace(/;/g, ",")
+            .replace(/[A-Za-z][A-Za-z0-9.]*(?=\s*\()/g, (f) => FUNCS[f.toUpperCase()] ?? f.toUpperCase())
+            .replace(/\b([A-Za-z]{1,2})(\d{1,4})\b/g, (_, c: string, n: string) => c.toUpperCase() + n),
+    )
+    .join("");
 }
 type Arg = number | { error: string } | Arg[];
 export function calc(rows: string[][]): CellValue[][] {
@@ -128,6 +138,17 @@ export function calc(rows: string[][]): CellValue[][] {
       return out;
     }
     function call(name: string): CellValue {
+      if (FUNCS[name] === "IF") {
+        const test = expr();
+        if (!eat(",")) return err("#ERROR");
+        const yes = expr();
+        let no: CellValue = 0;
+        if (eat(",")) no = expr();
+        if (!eat(")")) return err("#ERROR");
+        if (isErr(test)) return test;
+        const n = num(test);
+        return isErr(n) ? n : n !== 0 ? yes : no;
+      }
       if (FUNCS[name] === "IFERROR") {
         const a = expr();
         if (!eat(",")) return err("#ERROR");
@@ -176,6 +197,7 @@ export function calc(rows: string[][]): CellValue[][] {
       const t = toks[p++];
       if (!t) return err("#ERROR");
       if (t.t === "num") return Number(t.v);
+      if (t.t === "str") return t.v;
       if (t.t === "fn") return eat("(") ? call(t.v) : err("#ERROR");
       if (t.t === "ref") {
         const r = parseRef(t.v);
@@ -216,7 +238,30 @@ export function calc(rows: string[][]): CellValue[][] {
         else a = x * y;
       }
     }
+    // Comparaciones (=, <>, <, >, <=, >=): dan 1 si se cumplen y 0 si no; sirven sobre todo dentro de SI().
     function expr(): CellValue {
+      const a = sum(),
+        op = peek()?.t === "op" && ["=", "<>", "<", ">", "<=", ">="].includes(peek().v) ? toks[p++].v : "";
+      if (!op) return a;
+      const b = sum();
+      if (isErr(a)) return a;
+      if (isErr(b)) return b;
+      const text = typeof a === "string" && typeof b === "string";
+      let x: number | string = a,
+        y: number | string = b;
+      if (text) {
+        x = a.toLowerCase();
+        y = b.toLowerCase();
+      } else {
+        // Una celda vacía vale 0 frente a un número; un texto no se puede comparar con un número.
+        if (x === "") x = 0;
+        if (y === "") y = 0;
+        if (typeof x === "string" || typeof y === "string") return op === "<>" ? 1 : op === "=" ? 0 : err("#VALOR!");
+      }
+      const r = op === "=" ? x === y : op === "<>" ? x !== y : op === "<" ? x < y : op === ">" ? x > y : op === "<=" ? x <= y : x >= y;
+      return r ? 1 : 0;
+    }
+    function sum(): CellValue {
       let a = term();
       for (;;) {
         const op = peek()?.t === "op" && (peek().v === "+" || peek().v === "-") ? toks[p++].v : "";
@@ -245,7 +290,7 @@ export const SHEET_TEMPLATES: SheetTemplate[] = [
     header: true,
     rows: [
       ["No.", "Nombre", "Lun", "Mar", "Mié", "Jue", "Vie", "Asistencias", "Porcentaje"],
-      ...fill(20, (r) => [String(r - 1), "", "", "", "", "", "", `=SUMA(C${r}:G${r})`, `=H${r}/5*100`]),
+      ...fill(20, (r) => [String(r - 1), "", "", "", "", "", "", `=SI(B${r}="";"";SUMA(C${r}:G${r}))`, `=SI(B${r}="";"";H${r}/5*100)`]),
     ],
   },
   {
@@ -262,7 +307,7 @@ export const SHEET_TEMPLATES: SheetTemplate[] = [
     header: true,
     rows: [
       ["Producto", "Cantidad", "Costo unitario", "Valor"],
-      ...fill(25, (r) => ["", "", "", `=B${r}*C${r}`]),
+      ...fill(25, (r) => ["", "", "", `=SI(B${r}="";"";B${r}*C${r})`]),
       ["", "", "Total", "=SUMA(D2:D26)"],
     ],
   },
@@ -273,7 +318,7 @@ export const SHEET_TEMPLATES: SheetTemplate[] = [
     header: true,
     rows: [
       ["Concepto", "Cantidad", "Precio", "Importe"],
-      ...fill(15, (r) => ["", "", "", `=B${r}*C${r}`]),
+      ...fill(15, (r) => ["", "", "", `=SI(B${r}="";"";B${r}*C${r})`]),
       ["", "", "Subtotal", "=SUMA(D2:D16)"],
       ["", "", "IVA 16%", "=D17*0.16"],
       ["", "", "Total", "=D17+D18"],
@@ -286,7 +331,7 @@ export const SHEET_TEMPLATES: SheetTemplate[] = [
     header: true,
     rows: [
       ["Alumno", "Examen 1", "Examen 2", "Tarea", "Promedio"],
-      ...fill(30, (r) => ["", "", "", "", `=SI.ERROR(PROMEDIO(B${r}:D${r});0)`]),
+      ...fill(30, (r) => ["", "", "", "", `=SI(CONTAR(B${r}:D${r})=0;"";PROMEDIO(B${r}:D${r}))`]),
     ],
   },
 ];
