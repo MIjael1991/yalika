@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { BarcodeScanner } from './barcode-scanner';
 import { parseMoneyInput } from '../../lib/yalika-money-input';
+import { createScanBuffer } from '../../lib/yalika-scan-buffer';
 import {
   catalogNameOf,
   groupByCatalog,
@@ -1136,9 +1137,9 @@ export function PosWorkspace({
     );
   }
 
-  async function resolveBarcode(code: string) {
+  async function resolveBarcode(code: string): Promise<boolean> {
     const normalized = code.trim();
-    if (!companyId || !normalized) return;
+    if (!companyId || !normalized || cartLocked || showConfirmCheckout) return false;
     setSearchError('');
     try {
       const resolved = await apiRequest<BarcodeResolution>(
@@ -1152,18 +1153,53 @@ export function PosWorkspace({
       if (!option) {
         setSearch(normalized);
         setSearchError('El código existe, pero el producto no está disponible para venta en esta caja.');
-        return;
+        return false;
+      }
+      if (option.trackInventory && option.stock <= 0) {
+        setSearchError(`${option.productName} no tiene existencia.`);
+        return false;
       }
       addOption(option, resolved.unitsPerScan ?? 1);
+      return true;
     } catch (error) {
       setSearch(normalized);
       setSearchError(error instanceof Error ? error.message : 'Código no registrado');
+      return false;
     }
   }
+
+  // Lector USB/Bluetooth: escribe el código como teclado muy rápido y termina con Enter.
+  // Se reconoce aunque el cursor no esté en el buscador (no interfiere cuando se escribe en un campo).
+  const resolveBarcodeRef = useRef(resolveBarcode);
+  useEffect(() => {
+    resolveBarcodeRef.current = resolveBarcode;
+  });
+  useEffect(() => {
+    const scan = createScanBuffer();
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const code = scan.push(event.key, performance.now());
+      if (code) {
+        event.preventDefault();
+        void resolveBarcodeRef.current(code);
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   function handleSearchSubmit(event: FormEvent) {
     event.preventDefault();
     const normalized = search.trim().toLocaleLowerCase('es-MX');
+
+    // Como en caja: con el buscador vacío, Enter pasa directo a cobrar lo que ya se escaneó.
+    if (!normalized && cart.length > 0 && !cartLocked && !checkingOut && !splitCheckout && !checkoutSession) {
+      setShowConfirmCheckout(true);
+      return;
+    }
     const exactSku = saleOptions.find(
       (option) => option.sku?.toLocaleLowerCase('es-MX') === normalized,
     );
@@ -2380,7 +2416,7 @@ export function PosWorkspace({
           </form>
           <div className="mt-3">
             <BarcodeScanner onCode={resolveBarcode} disabled={cartLocked} />
-            <p className="mt-1 text-xs text-slate-500">Un lector USB/Bluetooth también funciona escribiendo el código en el campo de búsqueda y enviando Enter.</p>
+            <p className="mt-1 text-xs text-slate-500">Lector USB/Bluetooth: escanea sin tocar nada. Cuando termines, Enter con el buscador vacío abre el cobro.</p>
           </div>
 
           {searchError ? (
@@ -3186,6 +3222,7 @@ export function PosWorkspace({
                   setShowConfirmCheckout(false);
                   void checkout();
                 }}
+                autoFocus
                 className="h-12 rounded-xl bg-cyan-400 font-bold text-slate-950 hover:bg-cyan-300"
               >
                 Sí, iniciar cobro

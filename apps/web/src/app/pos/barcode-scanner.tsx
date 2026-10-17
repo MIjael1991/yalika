@@ -8,17 +8,50 @@ type BarcodeDetectorLike = {
 
 type BarcodeDetectorCtor = new (options?: { formats?: string[] }) => BarcodeDetectorLike;
 
+let audioContext: AudioContext | undefined;
+
+/** Pitido corto al leer: agudo si el producto se agregó, grave si no se reconoció. */
+function beep(ok: boolean) {
+  try {
+    const Ctx =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    audioContext ??= new Ctx();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.frequency.value = ok ? 1200 : 300;
+    gain.gain.value = 0.08;
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + (ok ? 0.08 : 0.22));
+  } catch {
+    // Sin sonido no pasa nada: el carrito ya muestra el resultado.
+  }
+}
+
+/**
+ * Lector con la cámara del teléfono. Por omisión queda abierto y sigue leyendo
+ * producto tras producto (como una caja de tienda); `onCode` devuelve `false`
+ * cuando el código no se pudo agregar, para avisarlo con otro sonido.
+ */
 export function BarcodeScanner({
   onCode,
   disabled = false,
+  continuous = true,
 }: {
-  onCode: (code: string) => void | Promise<void>;
+  onCode: (code: string) => boolean | void | Promise<boolean | void>;
   disabled?: boolean;
+  continuous?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const frameRef = useRef<number | null>(null);
   const busyRef = useRef(false);
+  const lastDetectRef = useRef(0);
+  const lastCodeRef = useRef<{ value: string; seen: number }>({ value: '', seen: 0 });
+  const [last, setLast] = useState('');
   const [open, setOpen] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,6 +61,8 @@ export function BarcodeScanner({
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setOpen(false);
+    setLast('');
+    lastCodeRef.current = { value: '', seen: 0 };
   }
 
   useEffect(() => () => stop(), []);
@@ -58,26 +93,39 @@ export function BarcodeScanner({
       const detector = new Detector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] });
       const tick = async () => {
         if (!streamRef.current || !videoRef.current) return;
-        try {
-          const results = await detector.detect(videoRef.current);
-          const value = results.find((item) => item.rawValue?.trim())?.rawValue?.trim();
-          if (value && !busyRef.current) {
-            busyRef.current = true;
-            try {
-              await onCode(value);
-            } catch (err) {
-              // Si procesar el código falla, se cierra la cámara y se avisa: no se queda abierta sin leer.
-              setError(err instanceof Error ? err.message : 'No se pudo procesar el código');
-            } finally {
-              busyRef.current = false;
+        const now = Date.now();
+        if (now - lastDetectRef.current >= 120) {
+          lastDetectRef.current = now;
+          try {
+            const results = await detector.detect(videoRef.current);
+            const value = results.find((item) => item.rawValue?.trim())?.rawValue?.trim();
+            if (value) {
+              // Mientras el mismo código siga a la vista no se vuelve a contar: hay que alejarlo un momento.
+              const repeated = lastCodeRef.current.value === value && now - lastCodeRef.current.seen < 1500;
+              lastCodeRef.current = { value, seen: now };
+              if (!repeated && !busyRef.current) {
+                busyRef.current = true;
+                try {
+                  const accepted = await onCode(value);
+                  beep(accepted !== false);
+                  setLast(value);
+                } catch (err) {
+                  beep(false);
+                  setError(err instanceof Error ? err.message : 'No se pudo procesar el código');
+                } finally {
+                  busyRef.current = false;
+                }
+                if (!continuous) {
+                  stop();
+                  return;
+                }
+              }
             }
-            stop();
-            return;
+          } catch {
+            // A frame can fail while the camera focuses; keep trying.
           }
-        } catch {
-          // A frame can fail while the camera focuses; keep trying.
         }
-        frameRef.current = requestAnimationFrame(tick);
+        if (streamRef.current) frameRef.current = requestAnimationFrame(tick);
       };
       frameRef.current = requestAnimationFrame(tick);
     } catch (err) {
@@ -109,6 +157,11 @@ export function BarcodeScanner({
         playsInline
         className={open ? 'max-h-72 w-full rounded-2xl border border-slate-700 bg-black object-cover' : 'hidden'}
       />
+      {open ? (
+        <p className="text-xs text-slate-400">
+          Cámara activa: acerca cada producto y sigue con el siguiente. {last ? `Último: ${last}. ` : ''}Ciérrala al terminar.
+        </p>
+      ) : null}
       {error ? <p className="text-xs text-amber-300">{error}</p> : null}
     </div>
   );
