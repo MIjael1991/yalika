@@ -129,6 +129,12 @@ describe('Cajero: lo de administración queda cerrado', () => {
     expect(call('GET', 'catalog/product/company/c1/stock-alerts')).toBe(false);
   });
 
+  it('no vincula códigos de barras a productos (eso es del administrador)', () => {
+    expect(call('POST', 'catalog/product/p1/barcodes')).toBe(false);
+    expect(call('POST', 'catalog/product/p1/barcodes/generate')).toBe(false);
+    expect(call('GET', 'catalog/barcode/company/c1/123')).toBe(true);
+  });
+
   it('sigue consultando el catálogo y las ventas para atender', () => {
     expect(call('GET', 'catalog/product/company/c1')).toBe(true);
     expect(call('GET', 'catalog/product/company/c1/stock-alerts-x')).toBe(true);
