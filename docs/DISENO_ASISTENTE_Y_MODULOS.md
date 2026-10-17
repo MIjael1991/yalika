@@ -92,3 +92,18 @@ Idea del usuario: todas las personas descargan la misma app Yalika. Un administr
 3. Resto de puertas: Salud (con permiso), Veterinaria, Movilidad.
 4. Alarmas y vínculo con calendarios.
 5. Aprendizaje de gustos.
+
+
+## Permisos finos por persona (devoluciones, cambios y reembolsos)
+
+Hoy los permisos son por nombre de rol: el cajero vende y cobra; devoluciones, cambios y reembolsos son solo del administrador y no se pueden dar a un cajero en particular.
+
+Propuesta:
+1. El administrador activa, **por persona y por tienda**, permisos sueltos: vender y cobrar, aplicar promociones, descuentos manuales, devoluciones, cambios, reembolsos, ver reportes, productos e inventario.
+2. Reembolsos con **monto máximo** por persona; por encima de ese monto necesita aprobación del administrador.
+3. "Cajero" y "Administrador" quedan como plantillas de estos permisos (el cajero actual conserva exactamente lo que tiene hoy).
+4. **Bitácora**: cada devolución, cambio, reembolso o cambio de permisos queda con quién, cuándo y por qué.
+5. El servidor valida contra el negocio activo y la membresía, nunca contra lo que mande la pantalla.
+6. El POS adapta sus pantallas en su chat; el chat de verificación pone la base (membresías, negocio activo, permisos).
+
+Riesgo a vigilar: casi todo el código de comercio usa hoy el `companyId` único de la sesión; el cambio debe mantenerlo como "negocio activo" para no abrir fugas entre negocios.
