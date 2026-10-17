@@ -1,11 +1,12 @@
 // Hojas de cálculo: lee Excel (.xlsx) y CSV en el navegador y las pasa a PDF o CSV.
-// Solo se leen los valores que Excel dejó guardados; no se recalculan fórmulas ni se copia el formato.
+// Por omisión solo se leen los valores que Excel dejó guardados. Con { rich: true } (pantalla Hoja de cálculo) también se
+// conservan el formato básico y las fórmulas que Yalika sabe calcular con el mismo resultado que dejó Excel.
 import { unzipSync } from "fflate";
-import { look, theme, type FmtGrid, type ThemeId } from "./yalika-book";
-import { parseNumber } from "./yalika-calc";
+import { look, theme, type Align, type CellFmt, type FmtGrid, type NumFmt, type ThemeId } from "./yalika-book";
+import { MAX_GRID_COLS, MAX_GRID_ROWS, calc, parseNumber, showValue } from "./yalika-calc";
 import { csvCell } from "./yalika-records";
 export type Sheet = { name: string; rows: string[][]; fmt?: FmtGrid };
-export type SheetResult = { sheets: Sheet[]; warning: string };
+export type SheetResult = { sheets: Sheet[]; warning: string; formulas?: number };
 export const MAX_SHEET_BYTES = 20 * 1024 * 1024;
 export const MAX_ROWS = 5000;
 export const MAX_COLS = 100;
@@ -49,7 +50,76 @@ function dateStyles(styles: string) {
   const block = /<cellXfs[^>]*>([\s\S]*?)<\/cellXfs>/.exec(styles)?.[1] ?? "";
   return [...block.matchAll(/<xf\s[^>]*?numFmtId="(\d+)"/g)].map((m) => isDate(Number(m[1])));
 }
-export function importXlsx(bytes: Uint8Array): SheetResult {
+// Estilos de Excel que Yalika entiende: negrita, alineación, formato de número y un relleno parecido.
+const BUILTIN_NUM: Record<number, string> = { 1: "0", 2: "0.00", 3: "#,##0", 4: "#,##0.00", 5: "$#,##0", 6: "$#,##0", 7: "$#,##0.00", 8: "$#,##0.00", 37: "#,##0", 38: "#,##0", 39: "#,##0.00", 40: "#,##0.00", 41: "#,##0", 42: "$#,##0", 43: "#,##0.00", 44: "$#,##0.00" };
+function numKind(id: number, custom: Map<number, string>): NumFmt | undefined {
+  const code = custom.get(id) ?? BUILTIN_NUM[id];
+  if (!code) return undefined;
+  if (/"%"/.test(code)) return "pct"; // el que escribe Yalika (el valor ya viene en porcentaje)
+  if (/%/.test(code.replace(/"[^"]*"/g, ""))) return undefined; // porcentaje real de Excel: se deja el número tal cual
+  if (/[$€£¥]/.test(code)) return "money";
+  if (/0\.0+/.test(code)) return "dec";
+  if (/#,##0|^0$/.test(code)) return "int";
+  return undefined;
+}
+function fillIndex(rgb: string): number | undefined {
+  const n = parseInt(rgb.slice(-6), 16);
+  if (!Number.isFinite(n)) return undefined;
+  const r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255,
+    max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+  if (l > 0.97 || l < 0.2) return undefined;
+  if (d < 0.1) return 5;
+  let h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h = (h * 60 + 360) % 360;
+  return h < 20 || h >= 340 ? 3 : h < 70 ? 0 : h < 170 ? 1 : h < 260 ? 2 : 4;
+}
+function cellFormats(styles: string): (CellFmt | null)[] {
+  const custom = new Map<number, string>();
+  for (const m of styles.matchAll(/<numFmt\s[^>]*?numFmtId="(\d+)"[^>]*?formatCode="([^"]*)"/g)) custom.set(Number(m[1]), entities(m[2]));
+  const block = (tag: string) => new RegExp("<" + tag + "(?:\\s[^>]*)?>([\\s\\S]*?)</" + tag + ">").exec(styles)?.[1] ?? "",
+    bold = [...block("fonts").matchAll(/<font(?:\s[^>]*)?>([\s\S]*?)<\/font>/g)].map((m) => /<b(?:\s+val="(?:1|true)")?\s*\/?>/.test(m[1])),
+    fills = [...block("fills").matchAll(/<fill>([\s\S]*?)<\/fill>/g)].map((m) => {
+      if (!/patternType="solid"/.test(m[1])) return undefined;
+      const rgb = /<fgColor\s[^>]*?rgb="([0-9A-Fa-f]{6,8})"/.exec(m[1])?.[1];
+      return rgb ? fillIndex(rgb) : undefined;
+    });
+  return [...block("cellXfs").matchAll(/<xf\s([^>]*?)(?:\/>|>([\s\S]*?)<\/xf>)/g)].map((m) => {
+    const num = (k: string) => Number(new RegExp("\\b" + k + '="(\\d+)"').exec(m[1])?.[1] ?? 0),
+      h = /<alignment\s[^>]*?horizontal="(\w+)"/.exec(m[2] ?? "")?.[1],
+      f: CellFmt = {},
+      n = numKind(num("numFmtId"), custom),
+      fill = fills[num("fillId")],
+      a: Align | undefined = h === "center" ? "c" : h === "right" ? "r" : h === "left" ? "l" : undefined;
+    if (bold[num("fontId")]) f.b = true;
+    if (a) f.a = a;
+    if (n) f.n = n;
+    if (fill !== undefined) f.f = fill;
+    return Object.keys(f).length ? f : null;
+  });
+}
+const sameValue = (a: string, b: string) => {
+  const x = parseNumber(a), y = parseNumber(b);
+  return x !== null && y !== null ? Math.abs(x - y) <= 1e-9 * Math.max(1, Math.abs(x)) : a === b;
+};
+// Deja como fórmula solo lo que Yalika calcula igual que Excel; el resto queda con el valor que Excel guardó.
+function keepFormulas(rows: string[][], found: { r: number; c: number; f: string; v: string | null }[]) {
+  if (!found.length || rows.length > MAX_GRID_ROWS || rows.some((x) => x.length > MAX_GRID_COLS)) return 0;
+  let live = found.slice();
+  for (let pass = 0; pass < 6 && live.length; pass++) {
+    const test = rows.map((x) => x.slice());
+    for (const k of live) test[k.r][k.c] = k.f;
+    const done = calc(test),
+      bad = live.filter((k) => {
+        const v = done[k.r]?.[k.c];
+        return v === undefined || typeof v === "object" || (k.v !== null && !sameValue(showValue(v), k.v));
+      });
+    if (!bad.length) break;
+    live = live.filter((k) => !bad.includes(k));
+  }
+  for (const k of live) rows[k.r][k.c] = k.f;
+  return live.length;
+}
+export function importXlsx(bytes: Uint8Array, opts: { rich?: boolean } = {}): SheetResult {
   if (bytes.length > MAX_SHEET_BYTES) throw Error("El archivo pesa más de 20 MB.");
   const bad = "El archivo no es un Excel (.xlsx) válido.";
   let files: Record<string, Uint8Array>;
@@ -77,14 +147,18 @@ export function importXlsx(bytes: Uint8Array): SheetResult {
   }
   const shared = [...dec("xl/sharedStrings.xml").matchAll(/<si(?:\s[^>]*)?>([\s\S]*?)<\/si>/g)].map((m) => clean(text(m[1]))),
     dates = dateStyles(dec("xl/styles.xml")),
+    formats = opts.rich ? cellFormats(dec("xl/styles.xml")) : [],
     sheets: Sheet[] = [];
-  let cut = false;
+  let cut = false,
+    kept = 0;
   for (const m of book.matchAll(/<sheet\s[^>]*>/g)) {
     const name = entities(/\bname="([^"]*)"/.exec(m[0])?.[1] ?? "Hoja"),
       rid = /\br:id="([^"]*)"/.exec(m[0])?.[1],
       xml = rid && targets.get(rid) ? dec(targets.get(rid)!) : "";
     if (!xml) continue;
-    const rows: string[][] = [];
+    const rows: string[][] = [],
+      found: { r: number; c: number; f: string; v: string | null }[] = [],
+      marks: { r: number; c: number; f: CellFmt }[] = [];
     for (const rm of xml.matchAll(/<row\s([^>]*?)(?:\/>|>([\s\S]*?)<\/row>)/g)) {
       const at = Number(/\br="(\d+)"/.exec(rm[1])?.[1] ?? rows.length + 1) - 1;
       if (at >= MAX_ROWS) {
@@ -115,12 +189,30 @@ export function importXlsx(bytes: Uint8Array): SheetResult {
         }
         while (row.length < col) row.push("");
         row[col] = val;
+        if (opts.rich) {
+          const style = formats[Number(/\bs="(\d+)"/.exec(attrs)?.[1] ?? -1)];
+          if (style) {
+            const f = { ...style };
+            if (at === 0) delete f.f; // el encabezado conserva el estilo de Yalika
+            if (Object.keys(f).length) marks.push({ r: at, c: col, f });
+          }
+          const ft = /<f(?:\s[^>]*)?>([^<]+)<\/f>/.exec(body)?.[1];
+          if (ft && t !== "e" && val.length < 900) found.push({ r: at, c: col, f: "=" + entities(ft).replace(/\$/g, ""), v: val === "" ? null : val }); // sin resultado guardado (otros programas): basta con que Yalika la calcule
+        }
       }
       while (rows.length < at) rows.push([]);
       rows[at] = row;
     }
-    while (rows.length && !rows[rows.length - 1].some(Boolean)) rows.pop();
-    sheets.push({ name: clean(name).slice(0, 60) || "Hoja", rows });
+    const lastFormula = Math.max(-1, ...found.map((k) => k.r));
+    while (rows.length > lastFormula + 1 && !rows[rows.length - 1].some(Boolean)) rows.pop();
+    const sheet: Sheet = { name: clean(name).slice(0, 60) || "Hoja", rows };
+    if (opts.rich) {
+      kept += keepFormulas(rows, found.filter((k) => k.r < rows.length));
+      const fmt: FmtGrid = rows.map((x) => x.map(() => null));
+      for (const k of marks) if (fmt[k.r] && k.c < fmt[k.r].length) fmt[k.r][k.c] = k.f;
+      if (marks.length) sheet.fmt = fmt;
+    }
+    sheets.push(sheet);
   }
   if (!sheets.length) throw Error(bad);
   const empty = sheets.every((s) => !s.rows.length);
@@ -129,7 +221,12 @@ export function importXlsx(bytes: Uint8Array): SheetResult {
     warning:
       (empty ? "La hoja no tiene datos. " : "") +
       (cut ? "Se tomaron las primeras " + MAX_ROWS + " filas y " + MAX_COLS + " columnas. " : "") +
-      "Solo se copian los valores; el formato y las fórmulas no se conservan.",
+      (opts.rich
+        ? kept
+          ? "Se conservaron " + kept + " fórmulas; las que Yalika no calcula igual quedaron con su resultado."
+          : "Las fórmulas del archivo quedaron como resultado."
+        : "Solo se copian los valores; el formato y las fórmulas no se conservan."),
+    formulas: kept,
   };
 }
 export function parseCsv(input: string): string[][] {

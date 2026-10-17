@@ -17,6 +17,7 @@ import {
   THEMES,
   emptyFmt,
   look,
+  fitFmt,
   setFmt,
   shownText,
   theme as themeOf,
@@ -148,7 +149,7 @@ export function SheetWorkspace({ scope }: { scope: FileScope }) {
     const ext = /\.([^.]+)$/.exec(file.name)?.[1]?.toLowerCase();
     const r =
       ext === "xlsx"
-        ? importXlsx(new Uint8Array(await file.arrayBuffer()))
+        ? importXlsx(new Uint8Array(await file.arrayBuffer()), { rich: true })
         : ext === "csv"
           ? importCsv(file.name, await file.text())
           : null;
@@ -156,7 +157,12 @@ export function SheetWorkspace({ scope }: { scope: FileScope }) {
     if (!r.sheets.length) throw Error("El archivo no tiene datos.");
     const used = r.sheets.slice(0, MAX_TABS),
       cut = used.some((x) => x.rows.length > MAX_GRID_ROWS || x.rows.some((y) => y.length > MAX_GRID_COLS));
-    setBook(used.map((x, i) => freshTab(x.name || "Hoja " + (i + 1), normalize(x.rows, 20, 8))));
+    setBook(
+      used.map((x, i) => {
+        const rows = normalize(x.rows, 20, 8);
+        return { name: x.name || "Hoja " + (i + 1), rows, fmt: fitFmt(x.fmt, rows) };
+      }),
+    );
     setAt(0);
     setTitle(baseName(file.name.replace(/\.[^.]+$/, "")));
     setHeader(true);
@@ -166,7 +172,7 @@ export function SheetWorkspace({ scope }: { scope: FileScope }) {
     setNotice(
       [
         r.sheets.length > MAX_TABS ? "Solo se abrieron las primeras " + MAX_TABS + " hojas." : "",
-        "Se abrieron los valores; las fórmulas y el formato del archivo no se conservan, pero el estilo de Yalika se aplica al descargar.",
+        "Se abrió con negritas, alineación y formato de número; el estilo de Yalika se aplica al descargar.",
         cut ? "Se tomaron hasta " + MAX_GRID_ROWS + " filas y " + MAX_GRID_COLS + " columnas por hoja." : "",
         r.warning,
       ]
