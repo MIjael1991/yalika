@@ -107,3 +107,36 @@ Propuesta:
 6. El POS adapta sus pantallas en su chat; el chat de verificación pone la base (membresías, negocio activo, permisos).
 
 Riesgo a vigilar: casi todo el código de comercio usa hoy el `companyId` único de la sesión; el cambio debe mantenerlo como "negocio activo" para no abrir fugas entre negocios.
+
+## Memoria propia del asistente (acordado 2026-10-17)
+
+Ya existe una base: `BusinessAssistantMemory` (clave y valor por persona y empresa, con origen y estado) y `AssistantPreference` (nombre, voz, módulos visibles). Falta que aprenda de lo que la persona hace.
+
+1. Una memoria por persona, no por módulo: lo que hace seguido y lo que prefiere.
+2. Dos tipos de datos: los que la persona confirma se guardan directo; los que el asistente deduce se guardan como sugerencia y la persona los acepta o descarta.
+3. Siempre visible, editable y borrable: pantalla "Lo que sé de ti".
+4. Permiso por módulo: solo aprende de módulos activados y permitidos. Salud va aparte, con permiso expreso y registro de cuándo se usó.
+5. Nunca guarda sin que se pida: datos de pago, contraseñas ni detalles de salud no autorizados.
+6. Se usa para sugerir y para no preguntar dos veces lo mismo.
+7. Pendientes: cada persona ve solo su memoria (el administrador no ve la de sus cajeros) y cuánto tiempo se guarda lo que el asistente deduce.
+
+## Negocios, equipos y aprobaciones (propuesta 2026-10-17)
+
+Idea del dueño: todas las personas descargan Yalika. El administrador da permisos de su boutique o tienda a otras personas, usando su correo. Quien recibe el permiso puede ser cajero con los permisos que el administrador le dé: ventas, devoluciones, cambios, reembolsos. Un reembolso llega como aviso al administrador, que lo aprueba. Si un cajero sin permiso tiene un imprevisto, puede pedir la aprobación en el momento.
+
+Cómo está hoy (verificado):
+- Una persona pertenece a **un solo negocio** (`User.companyId`).
+- El administrador **crea** la cuenta del cajero con una contraseña; no hay invitación por correo a alguien que ya tiene Yalika.
+- Hay **un solo rol Cajero** para todo el negocio. Devoluciones, cambios y reembolsos son solo del administrador.
+- Existe `SiteMember` (acceso por sitio: boutique o tienda, con rol y estado) y hay un patrón de invitaciones en Salud (`ClinicalProfessionalInvitation`) que se puede reutilizar.
+- **No hay** flujo de aprobación ni avisos dentro del comercio. Sí hay envío de correo (Resend) y una bandeja de avisos en Movilidad que sirve de modelo.
+
+Diseño propuesto:
+1. **Invitación por correo.** El administrador escribe el correo; la persona acepta desde su Yalika y queda como miembro del negocio y de las boutiques o tiendas que el administrador elija. Si no tiene cuenta, se invita a crearla.
+2. **Una persona, varios negocios.** Tabla de membresías (persona, negocio, sitios, permisos, estado) y selector de negocio al entrar. Es un cambio de base de datos y de sesión: lo hace el chat de verificación.
+3. **Permisos sueltos, con plantillas.** En lugar de un rol fijo: vender, aplicar promociones, devoluciones, cambios, reembolsos, ver reportes. "Cajero" es una plantilla y el administrador activa o quita permisos por persona y por sitio.
+4. **Solicitud de aprobación.** Sin permiso, el cajero pulsa "Pedir aprobación" (venta, motivo, monto). Queda pendiente, el administrador recibe el aviso y aprueba o rechaza. Al aprobar, se ejecuta o se autoriza una sola vez, con vencimiento corto. Todo queda en bitácora (quién pidió, quién aprobó, cuándo, monto).
+5. **Avisos.** Primero dentro de la app y por correo; avisos al teléfono cuando exista la versión de tienda. El administrador puede definir un monto bajo el cual no necesita aprobar.
+6. **Dinero:** el reembolso real (devolver dinero) solo se ejecuta tras la aprobación o con permiso explícito; nunca por el cajero sin ninguna de las dos.
+
+Orden sugerido: (a) membresías y permisos sueltos, (b) invitación por correo, (c) solicitud de aprobación y bitácora, (d) avisos. Se hace en el chat de verificación para la sesión y los permisos, y en el chat de POS para las pantallas de caja.
