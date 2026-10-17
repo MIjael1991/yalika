@@ -24,6 +24,7 @@ import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
+import { lookupOpenFoodFacts } from './barcode-lookup';
 import { CreateProductBarcodeDto } from './dto/barcode.dto';
 
 @Controller('catalog')
@@ -123,6 +124,12 @@ export class CatalogController {
       await this.catalogService.resolveBarcode(companyId, value),
       isCashier(auth),
     );
+  }
+
+  // Ayuda para dar de alta: sugiere el nombre de un código comercial desconocido (Open Food Facts).
+  @Get('barcode/lookup/:code')
+  lookupPublicBarcode(@Param('code') code: string) {
+    return lookupOpenFoodFacts(code);
   }
 
   @Get('product/:id/barcodes')

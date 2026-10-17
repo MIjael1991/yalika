@@ -47,7 +47,7 @@ const rules: Rule[] = [
       root === 'order'
         ? new RegExp(`^(?!company/${any}/report$).*$`)
         : root === 'catalog'
-          ? new RegExp(`^(?!product/company/${any}/stock-alerts$).*$`)
+          ? new RegExp(`^(?!product/company/${any}/stock-alerts$|barcode/lookup/).*$`)
           : /^.*$/,
   })),
 

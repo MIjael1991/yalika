@@ -5,6 +5,13 @@ import { BarcodeScanner } from './barcode-scanner';
 import { parseMoneyInput } from '../../lib/yalika-money-input';
 import { createScanBuffer } from '../../lib/yalika-scan-buffer';
 import {
+  bumpFrequency,
+  parseQuickEntry,
+  sanitizeFrequency,
+  topFrequent,
+  type Frequency,
+} from '../../lib/yalika-quick-entry';
+import {
   catalogNameOf,
   groupByCatalog,
   isSoldOut,
@@ -234,6 +241,8 @@ type QuickProductEditor = {
   stock: string;
   categoryId: string;
   error: string;
+  /** Aviso bajo el nombre (por ejemplo, que fue sugerido). */
+  hint?: string;
 };
 
 type BarcodeLinker = {
@@ -702,6 +711,19 @@ export function PosWorkspace({
   const [rewardRedeemMessage, setRewardRedeemMessage] =
     useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+  // "3x" + Enter deja armado el multiplicador para el siguiente producto.
+  const [pendingQty, setPendingQty] = useState(1);
+  // Los productos que más se venden en esta caja quedan a un toque (frutas, pan suelto...).
+  const [frequent, setFrequent] = useState<Frequency>({});
+  useEffect(() => {
+    if (!companyId) return;
+    try {
+      const raw = window.localStorage.getItem(`yalika-pos-frecuentes:${companyId}`);
+      setFrequent(raw ? sanitizeFrequency(JSON.parse(raw)) : {});
+    } catch {
+      setFrequent({});
+    }
+  }, [companyId]);
 
   useEffect(() => {
     if (!companyId) {
@@ -869,8 +891,10 @@ export function PosWorkspace({
       a.name.localeCompare(b.name, 'es'),
     );
   }, [saleOptions]);
+  const quickEntry = useMemo(() => parseQuickEntry(search), [search]);
+  const searchTerm = quickEntry ? quickEntry.term : search;
   const filteredOptions = useMemo(() => {
-    const normalizedSearch = search.trim().toLocaleLowerCase('es-MX');
+    const normalizedSearch = searchTerm.trim().toLocaleLowerCase('es-MX');
 
     return saleOptions.filter((option) => {
       const matchesCategory =
@@ -886,7 +910,7 @@ export function PosWorkspace({
 
       return matchesCategory && searchable.includes(normalizedSearch);
     });
-  }, [categoryId, saleOptions, search]);
+  }, [categoryId, saleOptions, searchTerm]);
   const barcodeLinkOptions = useMemo(() => {
     const query = barcodeLinker?.query.trim().toLocaleLowerCase('es-MX') ?? '';
     if (!query) return [];
@@ -900,6 +924,13 @@ export function PosWorkspace({
       )
       .slice(0, 8);
   }, [barcodeLinker?.query, saleOptions]);
+  const frequentOptions = useMemo(() => {
+    const byKey = new Map(saleOptions.map((option) => [option.key, option]));
+    return topFrequent(frequent, new Set(byKey.keys()), 8).flatMap((key) => {
+      const option = byKey.get(key);
+      return option && !isSoldOut(option) ? [option] : [];
+    });
+  }, [frequent, saleOptions]);
   const productGroups = useMemo(
     () => groupByCatalog(filteredOptions, commerceCatalogs),
     [filteredOptions, commerceCatalogs],
@@ -1077,15 +1108,25 @@ export function PosWorkspace({
     setCheckoutError('');
   }
 
-  function addOption(option: SaleOption, units = 1) {
+  function addOption(option: SaleOption, units = 1, multiplier?: number): boolean {
     if (cartLocked || (option.trackInventory && option.stock <= 0)) {
-      return;
+      return false;
+    }
+
+    const safeUnits =
+      (Number.isInteger(units) && units > 0 ? units : 1) * (multiplier ?? pendingQty);
+    const inCart = cart.find((item) => item.key === option.key)?.quantity ?? 0;
+
+    if (option.trackInventory && inCart + safeUnits > option.stock) {
+      setSearchError(
+        `Solo hay ${option.stock} de ${option.productName}${inCart ? ` (ya llevas ${inCart})` : ''}.`,
+      );
+      return false;
     }
 
     removeAppliedPromotion();
 
     setCart((current) => {
-      const safeUnits = Number.isInteger(units) && units > 0 ? units : 1;
       const existing = current.find((item) => item.key === option.key);
 
       if (existing) {
@@ -1102,12 +1143,22 @@ export function PosWorkspace({
         );
       }
 
-      if (option.trackInventory && safeUnits > option.stock) return current;
       return [...current, { ...option, quantity: safeUnits }];
     });
+    setPendingQty(1);
+    const nextFrequent = bumpFrequency(frequent, option.key);
+    setFrequent(nextFrequent);
+    if (companyId) {
+      try {
+        window.localStorage.setItem(`yalika-pos-frecuentes:${companyId}`, JSON.stringify(nextFrequent));
+      } catch {
+        // Sin almacenamiento del navegador solo se pierde la lista de más vendidos.
+      }
+    }
     setSearch('');
     setSearchError('');
     searchRef.current?.focus();
+    return true;
   }
 
   function changeQuantity(key: string, delta: number) {
@@ -1137,7 +1188,7 @@ export function PosWorkspace({
     );
   }
 
-  async function resolveBarcode(code: string): Promise<boolean> {
+  async function resolveBarcode(code: string, multiplier?: number): Promise<boolean> {
     const normalized = code.trim();
     if (!companyId || !normalized || cartLocked || showConfirmCheckout) return false;
     setSearchError('');
@@ -1159,8 +1210,7 @@ export function PosWorkspace({
         setSearchError(`${option.productName} no tiene existencia.`);
         return false;
       }
-      addOption(option, resolved.unitsPerScan ?? 1);
-      return true;
+      return addOption(option, resolved.unitsPerScan ?? 1, multiplier);
     } catch (error) {
       setSearch(normalized);
       setSearchError(error instanceof Error ? error.message : 'Código no registrado');
@@ -1193,29 +1243,49 @@ export function PosWorkspace({
 
   function handleSearchSubmit(event: FormEvent) {
     event.preventDefault();
-    const normalized = search.trim().toLocaleLowerCase('es-MX');
+    const fullText = search.trim().toLocaleLowerCase('es-MX');
+    const exactFull = fullText
+      ? saleOptions.find((option) => option.sku?.toLocaleLowerCase('es-MX') === fullText)
+      : undefined;
+
+    if (exactFull) {
+      addOption(exactFull);
+      return;
+    }
+
+    // "3x manzana" lleva 3; "3x" solo deja armado el multiplicador para el siguiente producto.
+    const multiplier = quickEntry?.quantity;
+    const normalized = searchTerm.trim().toLocaleLowerCase('es-MX');
+
+    if (quickEntry && !normalized) {
+      setPendingQty(quickEntry.quantity);
+      setSearch('');
+      setSearchError('');
+      return;
+    }
 
     // Como en caja: con el buscador vacío, Enter pasa directo a cobrar lo que ya se escaneó.
     if (!normalized && cart.length > 0 && !cartLocked && !checkingOut && !splitCheckout && !checkoutSession) {
       setShowConfirmCheckout(true);
       return;
     }
+
     const exactSku = saleOptions.find(
       (option) => option.sku?.toLocaleLowerCase('es-MX') === normalized,
     );
 
     if (exactSku) {
-      addOption(exactSku);
+      addOption(exactSku, 1, multiplier);
       return;
     }
 
     if (filteredOptions.length === 1) {
-      addOption(filteredOptions[0]);
+      addOption(filteredOptions[0], 1, multiplier);
       return;
     }
 
     if (normalized && filteredOptions.length === 0) {
-      void resolveBarcode(search);
+      void resolveBarcode(searchTerm, multiplier);
       return;
     }
 
@@ -1229,7 +1299,7 @@ export function PosWorkspace({
   }
 
   function openBarcodeLinker() {
-    setBarcodeLinker({ code: search.trim(), query: '', units: '1', error: '', saving: false });
+    setBarcodeLinker({ code: searchTerm.trim(), query: '', units: '1', error: '', saving: false });
   }
 
   async function linkBarcodeToOption(option: SaleOption) {
@@ -1270,9 +1340,10 @@ export function PosWorkspace({
   }
 
   function openQuickProductEditor() {
+    const code = searchTerm.trim();
     setQuickProductEditor({
       name: '',
-      sku: search.trim(),
+      sku: code,
       type: 'product',
       price: '',
       trackInventory: true,
@@ -1280,6 +1351,29 @@ export function PosWorkspace({
       categoryId: categoryId === 'all' ? '' : categoryId,
       error: '',
     });
+    // Código comercial (Sabritas, Bimbo...): se intenta sugerir el nombre; la persona lo revisa.
+    if (/^\d{8,14}$/.test(code)) void suggestProductName(code);
+  }
+
+  async function suggestProductName(code: string) {
+    try {
+      const suggestion = await apiRequest<{ found: boolean; name?: string }>(
+        `catalog/barcode/lookup/${encodeURIComponent(code)}`,
+      );
+      const name = suggestion.found ? suggestion.name : undefined;
+      if (!name) return;
+      setQuickProductEditor((current) =>
+        current && current.sku === code && !current.name.trim()
+          ? {
+              ...current,
+              name,
+              hint: 'Nombre sugerido por Open Food Facts (base pública). Revísalo y pon tu precio.',
+            }
+          : current,
+      );
+    } catch {
+      // Sin internet o sin permiso: simplemente no hay sugerencia.
+    }
   }
 
   async function saveQuickProduct(event: FormEvent) {
@@ -2513,6 +2607,52 @@ export function PosWorkspace({
             </div>
           ) : null}
 
+          {pendingQty > 1 ? (
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
+              <span>
+                El siguiente producto se agrega <strong>×{pendingQty}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setPendingQty(1)}
+                className="text-xs font-semibold text-cyan-300 hover:text-white"
+              >
+                Quitar
+              </button>
+            </div>
+          ) : null}
+          {quickEntry ? (
+            <p className="mt-2 text-xs text-cyan-300">
+              ×{quickEntry.quantity}
+              {quickEntry.term ? ` de “${quickEntry.term}”` : ' para el siguiente producto'} · Enter para confirmar
+            </p>
+          ) : null}
+
+          {frequentOptions.length > 0 && !search.trim() ? (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Más vendidos en esta caja
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {frequentOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    disabled={cartLocked}
+                    onClick={() => addOption(option)}
+                    className="min-h-11 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-left text-sm transition hover:border-cyan-400 disabled:opacity-50"
+                  >
+                    <span className="font-semibold text-white">
+                      {option.productName}
+                      {option.variantName ? ` · ${option.variantName}` : ''}
+                    </span>{' '}
+                    <span className="text-cyan-300">{money.format(option.price)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-3">
             <label htmlFor="pos-catalogo-activo" className="hidden shrink-0 text-sm font-medium text-slate-200 md:block">
               Catálogo
@@ -3084,6 +3224,27 @@ export function PosWorkspace({
                   placeholder={money.format(totals.total)}
                   className="mt-1.5 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-cyan-400 disabled:opacity-50"
                 />
+                {cart.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {[50, 100, 200, 500, 1000]
+                      .filter((amount) => amount >= totals.total)
+                      .slice(0, 4)
+                      .map((amount) => (
+                        <button
+                          key={amount}
+                          type="button"
+                          disabled={cartLocked}
+                          onClick={() => {
+                            setReceivedAmount(String(amount));
+                            setCheckoutError('');
+                          }}
+                          className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-200 hover:border-cyan-400 disabled:opacity-40"
+                        >
+                          {money.format(amount)}
+                        </button>
+                      ))}
+                  </div>
+                ) : null}
                 {receivedAmount && parseMoneyInput(receivedAmount) >= totals.total ? (
                   <p className="mt-2 text-xs font-medium text-emerald-300">
                     Cambio estimado: {money.format(parseMoneyInput(receivedAmount) - totals.total)}
@@ -3616,13 +3777,16 @@ export function PosWorkspace({
                   onChange={(event) =>
                     setQuickProductEditor((current) =>
                       current
-                        ? { ...current, name: event.target.value, error: '' }
+                        ? { ...current, name: event.target.value, error: '', hint: undefined }
                         : current,
                     )
                   }
                   placeholder="Ej. Refresco de cola 600 ml"
                   className="mt-2 h-12 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 outline-none focus:border-amber-300"
                 />
+                {quickProductEditor.hint ? (
+                  <p className="mt-1.5 text-xs text-cyan-300">{quickProductEditor.hint}</p>
+                ) : null}
               </div>
 
               <div>

@@ -20,10 +20,10 @@ function makePrisma() {
     product: { findMany: jest.fn().mockResolvedValue([]) },
     site: { findFirst: jest.fn() },
     promotion: {
-      create: jest.fn((args: { data: unknown }) => Promise.resolve({ id: 'promo-1', ...(args.data as object) })),
+      create: jest.fn((args: { data: Record<string, unknown> }) => Promise.resolve({ id: 'promo-1', ...args.data })),
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn(),
-      update: jest.fn((args: { where: { id: string }; data: object }) => Promise.resolve({ id: args.where.id, ...args.data })),
+      update: jest.fn((args: { where: { id: string }; data: Record<string, unknown> }) => Promise.resolve({ id: args.where.id, ...args.data })),
       delete: jest.fn().mockResolvedValue({}),
     },
   };

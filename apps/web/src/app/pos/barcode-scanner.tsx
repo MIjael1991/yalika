@@ -49,6 +49,11 @@ export function BarcodeScanner({
   const streamRef = useRef<MediaStream | null>(null);
   const frameRef = useRef<number | null>(null);
   const busyRef = useRef(false);
+  // La cámara queda abierta varios productos: siempre debe usar la versión más reciente de onCode.
+  const onCodeRef = useRef(onCode);
+  useEffect(() => {
+    onCodeRef.current = onCode;
+  });
   const lastDetectRef = useRef(0);
   const lastCodeRef = useRef<{ value: string; seen: number }>({ value: '', seen: 0 });
   const [last, setLast] = useState('');
@@ -106,7 +111,7 @@ export function BarcodeScanner({
               if (!repeated && !busyRef.current) {
                 busyRef.current = true;
                 try {
-                  const accepted = await onCode(value);
+                  const accepted = await onCodeRef.current(value);
                   beep(accepted !== false);
                   setLast(value);
                 } catch (err) {

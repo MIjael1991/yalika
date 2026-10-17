@@ -21,8 +21,8 @@ function build() {
     loyaltyProgram: {
       findMany: jest.fn().mockResolvedValue([]),
       findUnique: jest.fn(),
-      create: jest.fn((args: { data: object }) => Promise.resolve({ id: 'lp-1', ...args.data })),
-      update: jest.fn((args: { where: { id: string }; data: object }) => Promise.resolve({ id: args.where.id, ...args.data })),
+      create: jest.fn((args: { data: Record<string, unknown> }) => Promise.resolve({ id: 'lp-1', ...args.data })),
+      update: jest.fn((args: { where: { id: string }; data: Record<string, unknown> }) => Promise.resolve({ id: args.where.id, ...args.data })),
     },
   };
   return { prisma, service: new LoyaltyService(prisma as never) };
