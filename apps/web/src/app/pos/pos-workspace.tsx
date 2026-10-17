@@ -1264,7 +1264,8 @@ export function PosWorkspace({
       }
     }
     setSearch('');
-    setSearchError('');
+    // Un precio en cero casi siempre es un descuido de alta: se avisa, pero la venta no se bloquea.
+    setSearchError(option.price <= 0 ? `Ojo: ${option.productName} está en $0.00. Revisa su precio antes de cobrar.` : '');
     searchRef.current?.focus();
     return true;
   }
