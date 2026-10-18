@@ -34,11 +34,16 @@ function tidyCase(text: string) {
     .map((w, i) => (i > 0 && isParticle(w) ? w : w.split("-").map(upper).join("-")))
     .join(" ");
 }
+// Nombres dobles muy comunes («María Guadalupe», «José Luis»): con tres palabras, las dos primeras son el nombre y solo la última es apellido.
+const FIRST = new Set(["maría", "maria", "josé", "jose", "juan", "luis", "ana", "carlos", "miguel", "jesús", "jesus", "francisco", "rosa", "luz", "jorge", "pedro", "marco", "ma."]);
+const SECOND = new Set(["guadalupe", "carmen", "josé", "jose", "luis", "carlos", "antonio", "manuel", "miguel", "ángel", "angel", "fernanda", "fernando", "isabel", "elena", "eugenia", "teresa", "luisa", "alejandra", "cristina", "guillermo", "alberto", "eduardo", "francisco", "javier", "jesús", "jesus", "ramón", "ramon", "rafael", "pablo", "andrés", "andres", "ignacio", "ricardo", "roberto", "alfonso", "arturo", "daniel", "david", "esther", "concepción", "concepcion", "dolores", "victoria", "paola", "patricia", "del", "de"]);
+const doubleGiven = (u: string[]) => u.length === 3 && FIRST.has(u[0].toLowerCase()) && SECOND.has(u[1].toLowerCase()) && !isParticle(u[1]);
 // Regla: las dos últimas palabras son los apellidos; lo anterior es el nombre (o los nombres).
 export function splitName(text: string): Pick<NameRow, "nombres" | "paterno" | "materno"> {
   const u = units(tidyCase(text).split(/\s+/).filter(Boolean));
   if (u.length <= 1) return { nombres: u[0] ?? "", paterno: "", materno: "" };
   if (u.length === 2) return { nombres: u[0], paterno: u[1], materno: "" };
+  if (doubleGiven(u)) return { nombres: u[0] + " " + u[1], paterno: u[2], materno: "" };
   return { nombres: u.slice(0, -2).join(" "), paterno: u[u.length - 2], materno: u[u.length - 1] };
 }
 // «Pérez López, Juan Carlos»: los apellidos vienen primero.

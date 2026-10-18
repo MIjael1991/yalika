@@ -21,6 +21,12 @@ const sp = (t) => N.splitName(t);
   assert.deepEqual(sp("Ana López"), { nombres: "Ana", paterno: "López", materno: "" });
   assert.deepEqual(sp("Madonna"), { nombres: "Madonna", paterno: "", materno: "" });
   assert.deepEqual(sp(""), { nombres: "", paterno: "", materno: "" });
+  // Nombres dobles comunes con un solo apellido
+  assert.deepEqual(sp("María Guadalupe López"), { nombres: "María Guadalupe", paterno: "López", materno: "" });
+  assert.deepEqual(sp("JOSÉ LUIS PÉREZ"), { nombres: "José Luis", paterno: "Pérez", materno: "" });
+  assert.deepEqual(sp("Juan Carlos Pérez López"), { nombres: "Juan Carlos", paterno: "Pérez", materno: "López" }, "con cuatro palabras no cambia");
+  assert.deepEqual(sp("Luis Carlos de la Cruz"), { nombres: "Luis Carlos", paterno: "de la Cruz", materno: "" }, "apellido compuesto cuenta como uno");
+  assert.deepEqual(sp("Ana Pérez López"), { nombres: "Ana", paterno: "Pérez", materno: "López" });
   // Apellidos compuestos con partículas
   assert.deepEqual(sp("Juan Carlos de la Cruz Pérez"), { nombres: "Juan Carlos", paterno: "de la Cruz", materno: "Pérez" });
   assert.deepEqual(sp("Luis Pérez del Valle"), { nombres: "Luis", paterno: "Pérez", materno: "del Valle" });
