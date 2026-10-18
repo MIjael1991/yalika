@@ -16,6 +16,7 @@ import { requireNotCashier } from '../../auth/tenant-policy';
 import {
   CreateCashierDto,
   ResetCashierPasswordDto,
+  SetCashierPermissionsDto,
   SetCashierStatusDto,
 } from './team.dto';
 import { TeamService } from './team.service';
@@ -46,6 +47,21 @@ export class TeamController {
   ) {
     requireNotCashier(auth);
     return this.team.setStatus(auth.user.companyId, auth.user.id, userId, dto);
+  }
+
+  @Patch('cashiers/:userId/permissions')
+  setPermissions(
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @Body() dto: SetCashierPermissionsDto,
+    @CurrentAuth() auth: AuthContext,
+  ) {
+    requireNotCashier(auth);
+    return this.team.setPermissions(
+      auth.user.companyId,
+      auth.user.id,
+      userId,
+      dto,
+    );
   }
 
   @Post('cashiers/:userId/password')

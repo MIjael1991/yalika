@@ -13,6 +13,8 @@ export type AuthenticatedUser = {
   } | null;
   modules: string[];
   homePath: string;
+  /** Permisos extra que el administrador dio a este cajero. */
+  permissions?: string[];
 };
 
 export type AuthContext = {

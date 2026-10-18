@@ -145,10 +145,22 @@ const menu = [
   },
 ];
 
+/** Pantallas de administración que un cajero ve si el administrador le dio el permiso. */
+const grantedBy: Record<string, string[]> = {
+  "/pos/devoluciones": ["returns", "refunds"],
+};
+
+function grantedLink(href: string, permissions: string[]) {
+  return (grantedBy[href] ?? []).some((permission) =>
+    permissions.includes(permission),
+  );
+}
+
 export function YalikaSidebar() {
   const pathname = usePathname();
   const [modules, setModules] = useState<string[] | null>(null);
   const [isCashier, setIsCashier] = useState(false);
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [visibleModules, setVisibleModules] = useState<string[] | null>(null);
   const mobileItems = [
     { name: "Inicio", href: "/inicio", icon: "home" as const },
@@ -204,7 +216,9 @@ export function YalikaSidebar() {
           {
             label: currentModule.name,
             items: currentModule.items.filter(
-              (item) => !(isCashier && "adminOnly" in item && item.adminOnly),
+              (item) =>
+                !(isCashier && "adminOnly" in item && item.adminOnly) ||
+                grantedLink(item.href, permissions),
             ),
           },
           {
@@ -229,7 +243,11 @@ export function YalikaSidebar() {
       .then(async (response) => {
         if (!response.ok) return null;
         return response.json() as Promise<{
-          user?: { modules?: string[]; role?: { name?: string } | null };
+          user?: {
+            modules?: string[];
+            role?: { name?: string } | null;
+            permissions?: string[];
+          };
         }>;
       })
       .then((payload) => {
@@ -237,6 +255,11 @@ export function YalikaSidebar() {
           setModules(payload?.user?.modules ?? []);
           setIsCashier(
             (payload?.user?.role?.name ?? "").trim().toLowerCase() === "cajero",
+          );
+          setPermissions(
+            Array.isArray(payload?.user?.permissions)
+              ? payload.user.permissions
+              : [],
           );
         }
       })

@@ -198,3 +198,86 @@ it('PRUEBA bloquea comercio a cuentas solo de encuestas', async () => {
   );
   expect(h.prisma.product.findUnique).not.toHaveBeenCalled();
 });
+
+describe('CommerceAccessGuard: permisos extra del cajero', () => {
+  function asCashier(
+    path: string,
+    permissions: string[],
+    params: Record<string, string> = {},
+    body: object = {},
+  ) {
+    const h = makeHarness(path, params, body, 'POST');
+    Object.assign(h.request.auth.user, {
+      role: { id: 'r', name: 'Cajero' },
+      permissions,
+    });
+    Object.assign(h.prisma, {
+      order: {
+        findUnique: jest.fn().mockResolvedValue({ companyId: 'company-a' }),
+      },
+      return: {
+        findUnique: jest.fn().mockResolvedValue({ companyId: 'company-a' }),
+      },
+    });
+    return h;
+  }
+  const returnBody = {
+    companyId: 'company-a',
+    orderId: 'order-1',
+    authorizedById: 'actor-a',
+  };
+
+  it('sin permisos extra, el cajero no puede hacer devoluciones', async () => {
+    const h = asCashier('/return', [], {}, returnBody);
+    await expect(h.guard.canActivate(h.context)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('con el permiso de devoluciones sí, pero sigue sin poder reembolsar', async () => {
+    const create = asCashier('/return', ['returns'], {}, returnBody);
+    expect(await create.guard.canActivate(create.context)).toBe(true);
+
+    const refund = asCashier(
+      '/return/ret-1/refund',
+      ['returns'],
+      { id: 'ret-1' },
+      { processedById: 'actor-a' },
+    );
+    await expect(refund.guard.canActivate(refund.context)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('con el permiso de reembolsos puede devolver dinero, y solo sobre su empresa', async () => {
+    const own = asCashier(
+      '/return/ret-1/refund',
+      ['refunds'],
+      { id: 'ret-1' },
+      { processedById: 'actor-a' },
+    );
+    expect(await own.guard.canActivate(own.context)).toBe(true);
+
+    const other = asCashier(
+      '/return/ret-1/refund',
+      ['refunds'],
+      { id: 'ret-1' },
+      { processedById: 'actor-a' },
+    );
+    Object.assign(other.prisma, {
+      return: {
+        findUnique: jest.fn().mockResolvedValue({ companyId: 'company-b' }),
+      },
+    });
+    await expect(other.guard.canActivate(other.context)).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('un permiso inventado en la sesión no abre nada', async () => {
+    const h = asCashier('/return', ['administrador'], {}, returnBody);
+    await expect(h.guard.canActivate(h.context)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+});

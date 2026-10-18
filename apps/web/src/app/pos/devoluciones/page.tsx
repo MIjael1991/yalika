@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { requireManagerSession } from '../../../lib/yalika-business-session';
+import { requireManagerOrPermission } from '../../../lib/yalika-business-session';
 import { ReturnsWorkspace, type Order, type ReturnRecord } from './returns-workspace';
 
 export const dynamic = 'force-dynamic';
@@ -52,7 +52,7 @@ async function getInitialData(companyId: string, cookieHeader: string) {
 }
 
 export default async function ReturnsPage() {
-  const user = await requireManagerSession();
+  const user = await requireManagerOrPermission('returns', 'refunds');
   const companyId = user.companyId;
   const data = await getInitialData(companyId, (await cookies()).toString());
 
@@ -60,6 +60,7 @@ export default async function ReturnsPage() {
     <ReturnsWorkspace
       companyId={companyId}
       authorizedUserId={user.id}
+      canRefund={!user.isCashier || user.permissions.includes('refunds')}
       initialOrders={data.orders}
       initialReturns={data.returns}
       initialError={data.error}

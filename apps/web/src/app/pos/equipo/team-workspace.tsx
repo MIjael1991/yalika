@@ -11,7 +11,17 @@ export type TeamMember = {
   lastLoginAt: string | null;
   createdAt: string;
   role: { name: string } | null;
+  /** Permisos extra que le dio el administrador. */
+  permissions?: string[];
 };
+
+/** Lo que el administrador puede activar a cada cajero, además de vender y cobrar. */
+const EXTRA_PERMISSIONS = [
+  { id: 'returns', label: 'Devoluciones y cambios' },
+  { id: 'refunds', label: 'Reembolsos (devolver dinero)' },
+  { id: 'discounts', label: 'Descuentos escritos a mano' },
+  { id: 'reports', label: 'Reportes de ventas e inventario' },
+] as const;
 
 function messageOf(payload: unknown) {
   if (payload && typeof payload === 'object' && 'message' in payload) {
@@ -125,6 +135,22 @@ export function TeamWorkspace({
     );
   }
 
+  async function togglePermission(member: TeamMember, permission: string) {
+    const current = member.permissions ?? [];
+    const next = current.includes(permission)
+      ? current.filter((item) => item !== permission)
+      : [...current, permission];
+
+    await run(
+      () =>
+        apiRequest(`team/cashiers/${member.id}/permissions`, {
+          method: 'PATCH',
+          body: JSON.stringify({ permissions: next }),
+        }).then(() => undefined),
+      `Permisos de ${member.name} actualizados.`,
+    );
+  }
+
   async function resetPassword(event: FormEvent) {
     event.preventDefault();
     if (!passwordFor) return;
@@ -172,8 +198,9 @@ export function TeamWorkspace({
             Nuevo cajero
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            El cajero vende y cobra. No puede cambiar productos, inventario,
-            promociones, devoluciones ni ver reportes.
+            El cajero vende y cobra. No puede cambiar productos, inventario ni
+            promociones. Después de crearlo puedes darle permisos extra, uno por
+            uno: devoluciones, reembolsos, descuentos o reportes.
           </p>
 
           <label className="mt-4 block text-sm font-medium text-slate-300" htmlFor="cashierName">
@@ -265,7 +292,8 @@ export function TeamWorkspace({
               const active = member.status === 'active';
 
               return (
-                <li key={member.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <li key={member.id} className="flex flex-col gap-3 py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <p className="truncate font-medium">
                       {member.name}
@@ -306,6 +334,38 @@ export function TeamWorkspace({
                         {active ? 'Desactivar' : 'Reactivar'}
                       </button>
                     </div>
+                  ) : null}
+                  </div>
+
+                  {cashier ? (
+                    <fieldset
+                      className="rounded-2xl border border-slate-800 bg-slate-950/50 p-3"
+                      disabled={saving}
+                    >
+                      <legend className="px-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                        Permisos extra de {member.name}
+                      </legend>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {EXTRA_PERMISSIONS.map((permission) => (
+                          <label
+                            key={permission.id}
+                            className="flex min-h-11 items-center gap-3 rounded-xl px-2 text-sm text-slate-200"
+                          >
+                            <input
+                              type="checkbox"
+                              className="h-5 w-5 accent-cyan-400"
+                              checked={(member.permissions ?? []).includes(
+                                permission.id,
+                              )}
+                              onChange={() =>
+                                void togglePermission(member, permission.id)
+                              }
+                            />
+                            {permission.label}
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
                   ) : null}
                 </li>
               );

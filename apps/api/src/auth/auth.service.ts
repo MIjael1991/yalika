@@ -9,6 +9,7 @@ import {
   verifyPassword,
 } from './password';
 import { homePathForRole, modulesForRole } from './module-access';
+import { cleanPermissions } from './permissions';
 
 const sessionUserSelect = {
   id: true,
@@ -22,7 +23,22 @@ const sessionUserSelect = {
       name: true,
     },
   },
+  memberships: {
+    where: { status: 'active' },
+    select: { companyId: true, permissions: true },
+  },
 } as const;
+
+/** Permisos extra de la membresía de la empresa con la que trabaja la cuenta. */
+function permissionsOf(user: {
+  companyId: string;
+  memberships?: { companyId: string; permissions: string[] }[];
+}) {
+  const membership = user.memberships?.find(
+    (item) => item.companyId === user.companyId,
+  );
+  return cleanPermissions(membership?.permissions);
+}
 
 function getSessionDurationMs() {
   const configuredHours = Number(process.env.YALIKA_SESSION_HOURS ?? 12);
@@ -58,6 +74,10 @@ export class AuthService {
             id: true,
             name: true,
           },
+        },
+        memberships: {
+          where: { status: 'active' },
+          select: { companyId: true, permissions: true },
         },
       },
     });
@@ -153,6 +173,7 @@ export class AuthService {
         role: user.role,
         modules,
         homePath,
+        permissions: permissionsOf(user),
       },
     };
   }
@@ -193,14 +214,18 @@ export class AuthService {
     const modules = modulesForRole(session.user.role?.name);
     const homePath = homePathForRole(session.user.role?.name);
 
+    const { memberships: _memberships, ...sessionUser } = session.user;
+    void _memberships;
+
     return {
       sessionId: session.id,
       sessionToken: token,
       expiresAt: session.expiresAt,
       user: {
-        ...session.user,
+        ...sessionUser,
         modules,
         homePath,
+        permissions: permissionsOf(session.user),
       },
     };
   }

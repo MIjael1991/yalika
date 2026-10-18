@@ -9,6 +9,7 @@ model Company {
   sites     Site[]
 
   users             User[]
+  memberships       Membership[]
   roles             Role[]
   tasks             Task[]
   incidents         Incident[]
@@ -81,6 +82,8 @@ model User {
   assignedTaskRecurrences TaskRecurrence[]     @relation("TaskRecurrenceAssignee")
   taskReminders           TaskReminder[]
   authSessions            AuthSession[]
+  memberships             Membership[]        @relation("MembershipUser")
+  invitedMemberships      Membership[]        @relation("MembershipInvitedBy")
   authorizedReturns       Return[]             @relation("ReturnAuthorizedBy")
   processedRefunds        Refund[]             @relation("RefundProcessedBy")
   authorizedDiscounts     OrderDiscount[]      @relation("DiscountAuthorizedBy")
@@ -178,3 +181,27 @@ model AuthRecoveryKey {
 
   @@map("auth_recovery_keys")
 }
+
+/// Pertenencia de una persona a un negocio. Hoy cada cuenta tiene una sola
+/// (la de su empresa); mañana podrá tener varias. `permissions` son permisos
+/// extra que el administrador da a un cajero (devoluciones, reembolsos...).
+model Membership {
+  id          String   @id @default(uuid())
+  status      String   @default("active")
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation("MembershipUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  invitedByUserId String?
+  invitedBy       User?   @relation("MembershipInvitedBy", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, companyId])
+  @@index([companyId, status])
+  @@map("memberships")
+}

@@ -1,4 +1,14 @@
-import { IsEmail, IsIn, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsEmail,
+  IsIn,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+
+import { cashierGrantablePermissions } from '../../auth/permissions';
 
 export class CreateCashierDto {
   @IsString()
@@ -40,4 +50,14 @@ export class SetCashierStatusDto {
     message: 'El estado debe ser active o inactive',
   })
   status: 'active' | 'inactive';
+}
+
+export class SetCashierPermissionsDto {
+  @IsArray()
+  @ArrayMaxSize(cashierGrantablePermissions.length)
+  @IsIn(cashierGrantablePermissions, {
+    each: true,
+    message: 'Alguno de los permisos no existe',
+  })
+  permissions: string[];
 }

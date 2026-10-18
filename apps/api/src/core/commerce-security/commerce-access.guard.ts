@@ -10,6 +10,7 @@ import type { AuthenticatedRequest } from '../../auth/auth.types';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
 import { isCashier } from '../../auth/tenant-policy';
 import { PrismaService } from '../../prisma/prisma.service';
+import { grantedMayCall } from './cashier-grants';
 import { cashierMayCall } from './cashier-policy';
 
 /** R6: controles en backend, independientes de botones o IDs enviados por el cliente. */
@@ -164,7 +165,8 @@ export class CommerceAccessGuard implements CanActivate {
     // El cajero solo vende y cobra; lo demás es del administrador.
     if (
       isCashier(req.auth) &&
-      !cashierMayCall(req.method, parts, req.body as Record<string, unknown>)
+      !cashierMayCall(req.method, parts, req.body as Record<string, unknown>) &&
+      !grantedMayCall(req.auth.user.permissions, req.method, parts)
     ) {
       throw new ForbiddenException(
         'Esta operación es solo para el administrador',

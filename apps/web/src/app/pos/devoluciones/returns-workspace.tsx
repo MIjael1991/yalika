@@ -191,9 +191,12 @@ export function ReturnsWorkspace({
   initialOrders,
   initialReturns,
   initialError,
+  canRefund = true,
 }: {
   companyId: string;
   authorizedUserId: string;
+  /** Un cajero sin el permiso de reembolsos puede ver, pero no devolver dinero. */
+  canRefund?: boolean;
   initialOrders: Order[];
   initialReturns: ReturnRecord[];
   initialError: string;
@@ -405,6 +408,11 @@ export function ReturnsWorkspace({
 
     if (!selectedOrder || !companyId || !authorizedUserId) {
       setError('Configura la caja y selecciona una venta');
+      return;
+    }
+
+    if (!canRefund) {
+      setError('Tu cuenta no tiene el permiso de reembolsos. Pídeselo al administrador.');
       return;
     }
 
@@ -869,9 +877,14 @@ export function ReturnsWorkspace({
                     {money.format(estimatedRefund)}
                   </p>
                 </div>
+                {!canRefund ? (
+                  <p className="text-sm text-amber-200">
+                    Tu cuenta no puede devolver dinero. Pide al administrador el permiso de reembolsos.
+                  </p>
+                ) : null}
                 <button
                   type="submit"
-                  disabled={processing || loadingPayments || selectedItems.length === 0}
+                  disabled={!canRefund || processing || loadingPayments || selectedItems.length === 0}
                   className="h-12 rounded-xl bg-cyan-400 px-6 font-bold text-slate-950 hover:bg-cyan-300 disabled:bg-slate-700 disabled:text-slate-500"
                 >
                   {processing ? 'Procesando…' : 'Confirmar y reembolsar'}

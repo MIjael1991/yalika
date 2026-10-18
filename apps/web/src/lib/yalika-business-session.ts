@@ -7,6 +7,8 @@ type BusinessUser = {
   modules: string[];
   /** El cajero vende y cobra; no administra el negocio. */
   isCashier: boolean;
+  /** Permisos extra que el administrador dio a este cajero. */
+  permissions: string[];
 };
 
 function isCashierRole(value: unknown) {
@@ -77,6 +79,12 @@ export async function requireBusinessSession(): Promise<BusinessUser> {
     companyId: user.companyId,
     modules: user.modules,
     isCashier: 'role' in user && isCashierRole(user.role),
+    permissions:
+      'permissions' in user && Array.isArray(user.permissions)
+        ? user.permissions.filter(
+            (item): item is string => typeof item === 'string',
+          )
+        : [],
   };
 }
 
@@ -85,6 +93,25 @@ export async function requireManagerSession(): Promise<BusinessUser> {
   const user = await requireBusinessSession();
 
   if (user.isCashier) {
+    redirect('/pos');
+  }
+
+  return user;
+}
+
+/**
+ * Pantalla que el administrador siempre ve y el cajero solo si el
+ * administrador le dio alguno de estos permisos.
+ */
+export async function requireManagerOrPermission(
+  ...permissions: string[]
+): Promise<BusinessUser> {
+  const user = await requireBusinessSession();
+
+  if (
+    user.isCashier &&
+    !permissions.some((permission) => user.permissions.includes(permission))
+  ) {
     redirect('/pos');
   }
 

@@ -6,12 +6,14 @@ import {
 } from '@nestjs/common';
 
 import { validateNewPasswordPair } from '../../auth/account-security.helpers';
+import { cleanPermissions } from '../../auth/permissions';
 import { cashierRoleName } from '../../auth/tenant-policy';
 import { hashPassword } from '../../auth/password';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   CreateCashierDto,
   ResetCashierPasswordDto,
+  SetCashierPermissionsDto,
   SetCashierStatusDto,
 } from './team.dto';
 
@@ -25,7 +27,19 @@ const memberSelect = {
   lastLoginAt: true,
   createdAt: true,
   role: { select: { name: true } },
+  memberships: { select: { companyId: true, permissions: true } },
 } as const;
+
+/** La pantalla recibe los permisos extra de la empresa, no la lista cruda. */
+function withPermissions<
+  T extends { memberships?: { companyId: string; permissions: string[] }[] },
+>(user: T, companyId: string) {
+  const { memberships, ...rest } = user;
+  const membership = (memberships ?? []).find(
+    (item) => item.companyId === companyId,
+  );
+  return { ...rest, permissions: cleanPermissions(membership?.permissions) };
+}
 
 /**
  * Equipo de una empresa: el administrador da de alta a sus cajeros y los
@@ -35,12 +49,13 @@ const memberSelect = {
 export class TeamService {
   constructor(private readonly prisma: PrismaService) {}
 
-  list(companyId: string) {
-    return this.prisma.user.findMany({
+  async list(companyId: string) {
+    const users = await this.prisma.user.findMany({
       where: { companyId },
       select: memberSelect,
       orderBy: { createdAt: 'asc' },
     });
+    return users.map((user) => withPermissions(user, companyId));
   }
 
   async createCashier(
@@ -95,6 +110,16 @@ export class TeamService {
         select: memberSelect,
       });
 
+      await tx.membership.create({
+        data: {
+          userId: user.id,
+          companyId,
+          status: 'active',
+          permissions: [],
+          invitedByUserId: actorId,
+        },
+      });
+
       await tx.event.create({
         data: {
           type: 'team.cashier_created',
@@ -106,7 +131,10 @@ export class TeamService {
         },
       });
 
-      return user;
+      return withPermissions(
+        { ...user, memberships: [{ companyId, permissions: [] }] },
+        companyId,
+      );
     });
   }
 
@@ -157,7 +185,49 @@ export class TeamService {
         },
       });
 
-      return user;
+      return withPermissions(user, companyId);
+    });
+  }
+
+  /** El administrador activa o quita permisos extra de un cajero. */
+  async setPermissions(
+    companyId: string,
+    actorId: string,
+    userId: string,
+    dto: SetCashierPermissionsDto,
+  ) {
+    await this.cashierOf(companyId, userId);
+    const permissions = cleanPermissions(dto.permissions);
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.membership.upsert({
+        where: { userId_companyId: { userId, companyId } },
+        create: {
+          userId,
+          companyId,
+          status: 'active',
+          permissions,
+          invitedByUserId: actorId,
+        },
+        update: { permissions },
+      });
+
+      await tx.event.create({
+        data: {
+          type: 'team.cashier_permissions_changed',
+          source: 'yalika.team',
+          entityType: 'user',
+          entityId: userId,
+          data: { module: 'yalika', changedBy: actorId, permissions },
+          companyId,
+        },
+      });
+
+      const user = await tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: memberSelect,
+      });
+      return withPermissions(user, companyId);
     });
   }
 

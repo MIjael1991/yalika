@@ -12,7 +12,12 @@ import { TeamService } from './team.service';
 function build() {
   const tx = {
     role: { findFirst: jest.fn(), create: jest.fn() },
-    user: { create: jest.fn(), update: jest.fn() },
+    user: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findUniqueOrThrow: jest.fn(),
+    },
+    membership: { create: jest.fn(), upsert: jest.fn() },
     authSession: { updateMany: jest.fn() },
     event: { create: jest.fn() },
   };
@@ -57,6 +62,84 @@ describe('Equipo: el administrador da de alta a sus cajeros', () => {
     expect(created.passwordHash).toMatch(/^scrypt\$/);
     expect(created.passwordHash).not.toContain('clave-segura-1');
     expect(tx.event.create).toHaveBeenCalled();
+  });
+
+  it('al crear al cajero le abre su membresía en esa empresa, sin permisos extra', async () => {
+    const { service, prisma, tx } = build();
+    prisma.user.findFirst.mockResolvedValue(null);
+    tx.role.findFirst.mockResolvedValue({ id: 'r-cajero' });
+    tx.user.create.mockResolvedValue({ id: 'u-nuevo', name: 'Ana' });
+
+    const created = await service.createCashier('c1', 'admin1', validDto);
+
+    expect(tx.membership.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'u-nuevo',
+        companyId: 'c1',
+        status: 'active',
+        permissions: [],
+        invitedByUserId: 'admin1',
+      },
+    });
+    expect(created.permissions).toEqual([]);
+  });
+
+  it('la lista muestra los permisos extra de esta empresa y no otros', async () => {
+    const { service, prisma } = build();
+    prisma.user.findMany.mockResolvedValue([
+      {
+        id: 'u1',
+        name: 'Ana',
+        memberships: [
+          { companyId: 'otra', permissions: ['refunds'] },
+          { companyId: 'c1', permissions: ['reports', 'inventado', 'returns'] },
+        ],
+      },
+    ]);
+
+    const list = await service.list('c1');
+
+    expect(list[0].permissions).toEqual(['returns', 'reports']);
+    expect(list[0]).not.toHaveProperty('memberships');
+  });
+
+  it('el administrador da permisos extra: se guardan solo los válidos y queda registro', async () => {
+    const { service, prisma, tx } = build();
+    prisma.user.findFirst.mockResolvedValue({ id: 'u1' });
+    tx.user.findUniqueOrThrow.mockResolvedValue({
+      id: 'u1',
+      memberships: [{ companyId: 'c1', permissions: ['returns', 'refunds'] }],
+    });
+
+    const result = await service.setPermissions('c1', 'admin1', 'u1', {
+      permissions: ['refunds', 'returns', 'refunds', 'borrar-todo'],
+    });
+
+    const call = tx.membership.upsert.mock.calls[0] as [
+      {
+        where: { userId_companyId: { userId: string; companyId: string } };
+        update: { permissions: string[] };
+      },
+    ];
+    expect(call[0].where.userId_companyId).toEqual({
+      userId: 'u1',
+      companyId: 'c1',
+    });
+    expect(call[0].update.permissions).toEqual(['returns', 'refunds']);
+    expect(tx.event.create).toHaveBeenCalled();
+    expect(result.permissions).toEqual(['returns', 'refunds']);
+  });
+
+  it('no da permisos a quien no es cajero de su empresa', async () => {
+    const { service, prisma, tx } = build();
+    prisma.user.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.setPermissions('c1', 'admin1', 'u-ajeno', {
+        permissions: ['refunds'],
+      }),
+    ).rejects.toThrow(NotFoundException);
+    expect(tx.membership.upsert).not.toHaveBeenCalled();
   });
 
   it('reutiliza el rol Cajero si la empresa ya lo tiene', async () => {
@@ -179,6 +262,7 @@ describe('Equipo: un cajero no puede administrar cuentas', () => {
       list: jest.fn(),
       createCashier: jest.fn(),
       setStatus: jest.fn(),
+      setPermissions: jest.fn(),
       resetPassword: jest.fn(),
     };
     const controller = new TeamController(service as never);
@@ -194,7 +278,11 @@ describe('Equipo: un cajero no puede administrar cuentas', () => {
     expect(() => controller.resetPassword(uuid, validDto, asCashier)).toThrow(
       ForbiddenException,
     );
+    expect(() =>
+      controller.setPermissions(uuid, { permissions: ['refunds'] }, asCashier),
+    ).toThrow(ForbiddenException);
     expect(service.createCashier).not.toHaveBeenCalled();
+    expect(service.setPermissions).not.toHaveBeenCalled();
   });
 
   it('el administrador usa la empresa de su sesión, no una enviada por el cliente', () => {
