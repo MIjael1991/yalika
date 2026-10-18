@@ -33,6 +33,7 @@ Reemplaza a `ESTADO_YALIKA_20260910.md`. Es el documento de arranque: léelo pri
 - Cualquier otro rol (Administrador y cuentas anteriores) conserva todo el acceso.
 - El administrador crea, desactiva y cambia la contraseña de sus cajeros en la pantalla Punto de venta → Equipo (`/pos/equipo`). Al desactivar o cambiar la contraseña se cierran las sesiones abiertas del cajero.
 - Descuentos: el cajero solo puede aplicar una promoción vigente de su empresa (el servidor toma de ella el tipo y el valor). Los descuentos manuales, VIP y anulaciones son del administrador.
+- Permisos extra por cajero (17-oct): el administrador puede activar a cada cajero devoluciones, reembolsos, descuentos o reportes en `/pos/equipo`. Se guardan en la tabla `Membership` (persona + empresa) y se leen en cada petición, así que el cambio aplica de inmediato. API: `PATCH /team/cashiers/:userId/permissions`. Migración `20261017150000_membership_permissions` (crea la tabla y da su primera membresía a cada cuenta actual): hay que aplicarla con `npx prisma migrate deploy`. Falta: flujo de Devoluciones para un cajero que solo tenga `returns`, pantalla de cambios y panel de reportes.
 
 ## Pendiente, en este orden
 
