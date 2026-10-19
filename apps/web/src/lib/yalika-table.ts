@@ -10,10 +10,51 @@ const median = (a: number[]) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 export const MAX_TABLE_COLUMNS = 26;
+// Foto torcida: busca el giro (hasta ±15°) con el que las palabras quedan mejor alineadas en renglones y las endereza.
+function straighten(words: OcrWord[]): OcrWord[] {
+  if (words.length < 6) return words;
+  const heights = words.map((w) => w.y1 - w.y0),
+    bin = Math.max(2, median(heights) / 2),
+    cx = words.map((w) => (w.x0 + w.x1) / 2),
+    cy = words.map((w) => (w.y0 + w.y1) / 2),
+    score = (deg: number) => {
+      const t = (deg * Math.PI) / 180,
+        counts = new Map<number, number>();
+      for (let i = 0; i < words.length; i++) {
+        const k = Math.round((cy[i] * Math.cos(t) - cx[i] * Math.sin(t)) / bin);
+        counts.set(k, (counts.get(k) ?? 0) + 1);
+      }
+      let sum = 0;
+      for (const c of counts.values()) sum += c * c;
+      return sum;
+    };
+  let best = 0,
+    top = score(0);
+  const flat = top;
+  for (let d = -15; d <= 15; d += 0.5) {
+    const v = score(d);
+    if (v > top) {
+      top = v;
+      best = d;
+    }
+  }
+  // Solo si el giro mejora claramente el alineado (si no, es una foto derecha).
+  if (!best || top < flat * 1.15) return words;
+  const t = (best * Math.PI) / 180,
+    cos = Math.cos(t),
+    sin = Math.sin(t);
+  return words.map((w, i) => {
+    const x = cx[i] * cos + cy[i] * sin,
+      y = cy[i] * cos - cx[i] * sin,
+      hw = (w.x1 - w.x0) / 2,
+      hh = (w.y1 - w.y0) / 2;
+    return { text: w.text, x0: x - hw, x1: x + hw, y0: y - hh, y1: y + hh };
+  });
+}
 export function wordsToRows(input: OcrWord[]): string[][] {
-  const words = input
+  const words = straighten(input
     .map((w) => ({ ...w, text: w.text.replace(/[\u0000-\u001f]/g, "").trim() }))
-    .filter((w) => w.text && [w.x0, w.y0, w.x1, w.y1].every(Number.isFinite) && w.x1 > w.x0 && w.y1 > w.y0);
+    .filter((w) => w.text && [w.x0, w.y0, w.x1, w.y1].every(Number.isFinite) && w.x1 > w.x0 && w.y1 > w.y0));
   if (!words.length) return [];
   const medH = median(words.map((w) => w.y1 - w.y0)),
     cw = median(words.filter((w) => w.text.length >= 2).map((w) => (w.x1 - w.x0) / w.text.length)) || medH * 0.55,

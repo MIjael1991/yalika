@@ -122,6 +122,7 @@ function otsu(hist: Uint32Array, total: number) {
   return threshold;
 }
 
+const PAPER_WHITE = 250;
 // Quita sombras dividiendo entre el brillo local, luego aplica el modo elegido.
 export function enhance(p: Pixels, mode: ScanMode): Pixels {
   assertPixels(p);
@@ -142,18 +143,38 @@ export function enhance(p: Pixels, mode: ScanMode): Pixels {
   }
   const r = Math.max(8, Math.round(Math.max(w, h) / 16)),
     out = new Uint8ClampedArray(n * 4),
-    hist = new Uint32Array(256);
+    hist = new Uint32Array(256),
+    mean1 = new Float32Array(n),
+    box = (ix: Float64Array, x: number, y: number) => {
+      const y0 = Math.max(0, y - r),
+        y1 = Math.min(h, y + r + 1),
+        x0 = Math.max(0, x - r),
+        x1 = Math.min(w, x + r + 1);
+      return (ix[y1 * W + x1] - ix[y0 * W + x1] - ix[y1 * W + x0] + ix[y0 * W + x0]) / ((x1 - x0) * (y1 - y0));
+    };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) mean1[y * w + x] = box(ii, x, y);
+  // Segunda pasada: el fondo es el promedio solo de lo claro (sin la tinta). Así el papel queda parejo y no hay halos junto al texto.
+  const paper = new Float64Array(W * (h + 1)),
+    count = new Float64Array(W * (h + 1));
   for (let y = 0; y < h; y++) {
-    const y0 = Math.max(0, y - r),
-      y1 = Math.min(h, y + r + 1);
+    let a = 0,
+      c = 0;
     for (let x = 0; x < w; x++) {
-      const x0 = Math.max(0, x - r),
-        x1 = Math.min(w, x + r + 1),
-        mean =
-          (ii[y1 * W + x1] - ii[y0 * W + x1] - ii[y1 * W + x0] + ii[y0 * W + x0]) /
-          ((x1 - x0) * (y1 - y0)),
-        gain = Math.min(4, 234 / Math.max(mean, 1)),
-        i = y * w + x;
+      const i = y * w + x;
+      if (lum[i] >= mean1[i] * 0.92) {
+        a += lum[i];
+        c++;
+      }
+      paper[(y + 1) * W + x + 1] = paper[y * W + x + 1] + a;
+      count[(y + 1) * W + x + 1] = count[y * W + x + 1] + c;
+    }
+  }
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x,
+        c = box(count, x, y),
+        bg = c > 0.02 ? box(paper, x, y) / c : mean1[i],
+        gain = Math.min(4, 248 / Math.max(bg, 1));
       if (mode === "color") {
         out[i * 4] = data[i * 4] * gain;
         out[i * 4 + 1] = data[i * 4 + 1] * gain;
@@ -177,10 +198,10 @@ export function enhance(p: Pixels, mode: ScanMode): Pixels {
     let acc = 0,
       low = 0;
     for (; low < 100 && acc + hist[low] < n * 0.005; low++) acc += hist[low];
-    if (low > 0)
-      for (let i = 0; i < n; i++)
-        for (let c = 0; c < 3; c++)
-          out[i * 4 + c] = ((out[i * 4 + c] - low) * 255) / (255 - low);
+    // Negro en el 0.5 % más oscuro y blanco puro desde 250: el papel queda blanco y parejo (sin grano ni tonos grises).
+    for (let i = 0; i < n; i++)
+      for (let c = 0; c < 3; c++)
+        out[i * 4 + c] = ((out[i * 4 + c] - low) * 255) / (PAPER_WHITE - low);
   }
   return { data: out, width: w, height: h };
 }
@@ -201,9 +222,126 @@ export function adjust(p: Pixels, brightness = 0, contrast = 0): Pixels {
   return { data: out, width: p.width, height: p.height };
 }
 
+// ---- Foto borrosa o con ruido: se mide y, solo si hace falta, se limpia y se aclara antes de mejorar ----
+function luminance(p: Pixels) {
+  const n = p.width * p.height,
+    lum = new Float32Array(n);
+  for (let i = 0; i < n; i++) lum[i] = 0.299 * p.data[i * 4] + 0.587 * p.data[i * 4 + 1] + 0.114 * p.data[i * 4 + 2];
+  return lum;
+}
+// Desenfoque rápido: tres pasadas de promedio (se parece a una campana gaussiana).
+function boxBlur(src: Float32Array, w: number, h: number, radius: number) {
+  const r = Math.max(1, Math.round(radius)),
+    a = Float32Array.from(src),
+    b = new Float32Array(src.length);
+  for (let pass = 0; pass < 3; pass++) {
+    for (let y = 0; y < h; y++) {
+      let sum = 0;
+      const row = y * w;
+      for (let x = -r; x <= r; x++) sum += a[row + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x++) {
+        b[row + x] = sum / (2 * r + 1);
+        sum += a[row + Math.min(w - 1, x + r + 1)] - a[row + Math.max(0, x - r)];
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let sum = 0;
+      for (let y = -r; y <= r; y++) sum += b[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y++) {
+        a[y * w + x] = sum / (2 * r + 1);
+        sum += b[Math.min(h - 1, y + r + 1) * w + x] - b[Math.max(0, y - r) * w + x];
+      }
+    }
+  }
+  return a;
+}
+// Ruido (desviación estimada, en niveles de gris) y desenfoque (tamaño estimado del borroso, en píxeles).
+export function imageQuality(p: Pixels): { noise: number; blur: number } {
+  assertPixels(p);
+  const { width: w, height: h } = p,
+    lum = luminance(p),
+    lap: number[] = [],
+    tiles: number[][] = Array.from({ length: 64 }, () => []),
+    grad: number[] = [],
+    step = Math.max(1, Math.floor(Math.sqrt((w * h) / 120000)));
+  for (let y = 1; y < h - 1; y += step)
+    for (let x = 1; x < w - 1; x += step) {
+      const i = y * w + x,
+        c = lum[i];
+      const l = Math.abs(4 * c - lum[i - 1] - lum[i + 1] - lum[i - w] - lum[i + w]);
+      lap.push(l);
+      tiles[Math.min(7, Math.floor((y * 8) / h)) * 8 + Math.min(7, Math.floor((x * 8) / w))].push(l);
+      grad.push(Math.hypot(lum[i + 1] - lum[i - 1], lum[i + w] - lum[i - w]) / 2);
+    }
+  const sorted = (a: number[]) => a.slice().sort((m, n) => m - n),
+    q = (a: number[], f: number) => a[Math.min(a.length - 1, Math.floor(a.length * f))],
+    L = sorted(lap),
+    G = sorted(grad),
+    lo = sorted(Array.from(lum.filter((_, i) => i % (step * step + 1) === 0))),
+    contrast = Math.max(1, q(lo, 0.97) - q(lo, 0.02));
+  // En las zonas lisas la «laplaciana» solo es ruido: su mediana ≈ 0.6745 · σ · √20 (4 vecinos y el centro).
+  // Se mide por zonas y se toma la más ruidosa de las 6 peores (una esquina oscura puede tener mucho grano y el resto no).
+  const perTile = tiles
+      .filter((t) => t.length >= 30)
+      .map((t) => q(sorted(t), 0.5) / (0.6745 * Math.sqrt(20)))
+      .sort((m, n) => n - m),
+    noise = Math.max(q(L, 0.5) / (0.6745 * Math.sqrt(20)), perTile[Math.min(perTile.length - 1, 5)] ?? 0),
+    slope = q(G, 0.995) / contrast;
+  return { noise, blur: slope > 0 ? Math.min(20, 0.4 / slope) : 20 };
+}
+const NOISY = 20;
+const BLURRY = 2;
+// Quita ruido fuerte y devuelve nitidez a un texto borroso. Si la foto está bien, la deja igual.
+export function clarify(p: Pixels, tune: { amount?: number; reach?: number } = {}): Pixels {
+  const q = imageQuality(p);
+  if (q.noise < NOISY && q.blur < BLURRY) return p;
+  const { width: w, height: h } = p,
+    chans = [0, 1, 2].map((c) => {
+      const ch = new Float32Array(w * h);
+      for (let i = 0; i < w * h; i++) ch[i] = p.data[i * 4 + c];
+      return ch;
+    });
+  let work = chans;
+  let blur = q.blur;
+  // Hasta tres pasadas de limpieza, mientras todavía se vea grano.
+  for (let pass = 0, noise = q.noise; pass < 3 && noise >= NOISY; pass++) {
+    work = work.map((c) => boxBlur(c, w, h, 1));
+    const after = imageQuality({ data: pack(work, w, h), width: w, height: h });
+    noise = after.noise;
+    blur = after.blur;
+  }
+  if (blur >= BLURRY) {
+    const radius = Math.max(2, Math.min(10, blur * (tune.reach ?? 1.25))), amount = tune.amount ?? 3;
+    work = work.map((c) => {
+      const soft = boxBlur(c, w, h, radius),
+        out = new Float32Array(c.length);
+      for (let i = 0; i < c.length; i++) out[i] = c[i] + amount * (c[i] - soft[i]);
+      return out;
+    });
+  }
+  return { data: pack(work, w, h), width: w, height: h };
+}
+function pack(chans: Float32Array[], w: number, h: number) {
+  const out = new Uint8ClampedArray(w * h * 4);
+  for (let i = 0; i < w * h; i++) {
+    out[i * 4] = chans[0][i];
+    out[i * 4 + 1] = chans[1][i];
+    out[i * 4 + 2] = chans[2][i];
+    out[i * 4 + 3] = 255;
+  }
+  return out;
+}
+
 export function processPixels(base: Pixels, o: ScanOptions): Pixels {
   const flat = o.quad ? warp(base, o.quad) : base,
-    done = enhance(crop(rotate(flat, o.turns), o.margins), o.mode);
+    framed = crop(rotate(flat, o.turns), o.margins),
+    // Primero se quita la sombra (si no, se amplificaría el ruido de la parte oscura) y después se limpia y se aclara.
+    done =
+      o.mode === "original"
+        ? framed
+        : o.mode === "bw"
+          ? enhance(clarify(enhance(framed, "gray")), "bw")
+          : clarify(enhance(framed, o.mode));
   return o.mode === "bw" ? done : adjust(done, o.brightness, o.contrast);
 }
 
@@ -267,6 +405,54 @@ export function detectDocument(p: Pixels): Quad | null {
   }
   const share = best / (w * h);
   if (share < 0.15 || share > 0.97) return null;
+  // Una hoja de verdad termina en un borde marcado. Si la «región clara» solo es el lado mejor iluminado de una
+  // foto (una sombra que va de oscuro a claro), el cambio es suave: no se recorta, para no perder la parte en sombra.
+  // «Fuera» = lo que toca el borde de la foto sin ser hoja (los huecos del texto dentro de la hoja no cuentan).
+  const outside = new Uint8Array(w * h),
+    queue: number[] = [];
+  const mark = (i: number) => {
+    if (!outside[i] && label[i] !== bestId) {
+      outside[i] = 1;
+      queue.push(i);
+    }
+  };
+  for (let x = 0; x < w; x++) {
+    mark(x);
+    mark((h - 1) * w + x);
+  }
+  for (let y = 0; y < h; y++) {
+    mark(y * w);
+    mark(y * w + w - 1);
+  }
+  while (queue.length) {
+    const c = queue.pop()!,
+      cx = c % w;
+    if (cx > 0) mark(c - 1);
+    if (cx < w - 1) mark(c + 1);
+    if (c >= w) mark(c - w);
+    if (c < w * (h - 1)) mark(c + w);
+  }
+  const steps: number[] = [],
+    D = 4;
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      if (label[y * w + x] !== bestId) continue;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx,
+          ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h || !outside[ny * w + nx]) continue;
+        const ix = x - dx * D,
+          iy = y - dy * D,
+          ox = x + dx * (D + 1),
+          oy = y + dy * (D + 1);
+        if (ix < 0 || iy < 0 || ix >= w || iy >= h || ox < 0 || oy < 0 || ox >= w || oy >= h) continue;
+        steps.push(gray[iy * w + ix] - gray[oy * w + ox]);
+      }
+    }
+  if (steps.length) {
+    steps.sort((m, n) => m - n);
+    if (steps[steps.length >> 1] < 20) return null;
+  }
   let tl = Infinity, br = -Infinity, tr = -Infinity, bl = Infinity;
   let pTL = { x: 0, y: 0 }, pBR = { x: 0, y: 0 }, pTR = { x: 0, y: 0 }, pBL = { x: 0, y: 0 };
   for (let y = 0; y < h; y++)
@@ -290,7 +476,8 @@ export function detectDocument(p: Pixels): Quad | null {
         (q[2].x * q[3].y - q[3].x * q[2].y) +
         (q[3].x * q[0].y - q[0].x * q[3].y),
     ) / 2;
-  return area < 0.12 ? null : q;
+  // Casi toda la foto ya es la hoja: no hay nada que recortar (y se evita comerse unos píxeles del borde).
+  return area < 0.12 || area > 0.985 ? null : q;
 }
 
 // Esquinas puestas a mano: dentro de la imagen, sin cruzarse (convexo) y con área razonable.

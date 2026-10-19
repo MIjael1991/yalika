@@ -58,6 +58,23 @@ const line = (y, parts, jitter = 0) =>
   assert.deepEqual(out[1], ["Pan", "20"]);
   // Dos filas solo no bastan para decidir que es tabla con huecos raros; una lista de dos columnas sí
   assert.deepEqual(T.wordsToRows([...line(0, [[0, "a"], [200, "b"]]), ...line(30, [[0, "c"], [200, "d"]])]), [["a", "b"], ["c", "d"]]);
+  // Foto torcida (6°): las filas siguen saliendo en su lugar
+  {
+    const tilt = (rows, deg) => {
+      const t = (deg * Math.PI) / 180, out = [];
+      rows.forEach((r, i) => r.forEach(([x, text]) => {
+        const y = 40 + i * 50, w = text.length * 14, cx = x + w / 2, cy = y + 10;
+        const rx = cx * Math.cos(t) - cy * Math.sin(t), ry = cx * Math.sin(t) + cy * Math.cos(t);
+        out.push({ text, x0: rx - w / 2, x1: rx + w / 2, y0: ry - 10, y1: ry + 10 });
+      }));
+      return out;
+    };
+    const grid = [[[0, "Producto"], [300, "Cantidad"], [600, "Precio"]], [[0, "Lápiz"], [300, "10"], [600, "5.50"]], [[0, "Cuaderno"], [300, "3"], [600, "42.00"]], [[0, "Regla"], [300, "7"], [600, "12.00"]]];
+    const want = [["Producto", "Cantidad", "Precio"], ["Lápiz", "10", "5.50"], ["Cuaderno", "3", "42.00"], ["Regla", "7", "12.00"]];
+    assert.deepEqual(T.wordsToRows(tilt(grid, 6)), want);
+    assert.deepEqual(T.wordsToRows(tilt(grid, -9)), want);
+    assert.deepEqual(T.wordsToRows(tilt(grid, 0)), want);
+  }
   // Vacío y ruido
   assert.deepEqual(T.wordsToRows([]), []);
   assert.deepEqual(T.wordsToRows([{ text: " ", x0: 0, x1: 10, y0: 0, y1: 10 }, { text: "x", x0: NaN, x1: 10, y0: 0, y1: 10 }]), []);

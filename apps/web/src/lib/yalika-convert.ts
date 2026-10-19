@@ -178,12 +178,14 @@ async function ocrSheets(
   if (!grids.some((g) => g.rows.length)) throw Error("No se reconoció texto en la imagen. Prueba con una foto más nítida y derecha.");
   return sheetsOutput(grids, target, base, OCR_NOTE(r.confidence));
 }
-async function prepared(file: File, o: ConvertOptions) {
+const SHRUNK = "Con mejora la imagen se reduce a 2000 píxeles de lado. Elige «Sin mejora» para conservar su tamaño.";
+// Para leer texto (OCR) el color no ayuda y el ruido de color confunde: se lee en gris aunque la mejora elegida sea «color».
+async function prepared(file: File, o: ConvertOptions, forText = false) {
   const { decode } = await import("./yalika-image-io"),
     { MAX_SIDE, PREVIEW_SIDE, NO_MARGINS, detectDocument, processPixels } = await import("./yalika-scan");
   const px = await decode(file, MAX_SIDE),
     quad = o.style === "original" ? null : detectDocument(await decode(file, PREVIEW_SIDE));
-  return processPixels(px, { mode: o.style, turns: 0, margins: NO_MARGINS, quad });
+  return processPixels(px, { mode: forText && o.style === "color" ? "gray" : o.style, turns: 0, margins: NO_MARGINS, quad });
 }
 async function fromImages(files: File[], target: TargetId, o: ConvertOptions, base: string, say: (m: string) => void): Promise<Output> {
   const io = await import("./yalika-image-io");
@@ -206,27 +208,33 @@ async function fromImages(files: File[], target: TargetId, o: ConvertOptions, ba
     const type = { jpg: "image/jpeg", png: "image/png", webp: "image/webp", bmp: "image/bmp", tiff: "image/tiff" }[target],
       ext = target === "tiff" ? "tif" : target,
       out: PageImage[] = [];
+    let shrunk = false;
     for (const [i, f] of files.entries()) {
       say("Convirtiendo imagen " + (i + 1) + " de " + files.length + "…");
       let bytes: Uint8Array;
-      if (target === "bmp" || target === "tiff") {
+      // Con mejora (enderezar, quitar sombras, aclarar) la imagen se procesa a 2000 píxeles de lado; sin mejora se respeta el tamaño.
+      const improve = o.style !== "original",
+        flat = target === "bmp" || target === "tiff",
+        px = improve ? await prepared(f, o) : await io.decode(f, flat ? 4096 : 6000);
+      if (improve && Math.max(px.width, px.height) >= 2000) shrunk = true;
+      if (flat) {
         // Estos dos no se comprimen: se limitan a 4096 píxeles de lado para que no ocupen cientos de MB.
         const { bmpFile, tiffFile } = await import("./yalika-imgfmt");
-        bytes = (target === "bmp" ? bmpFile : tiffFile)(await io.decode(f, 4096));
-      } else bytes = await io.toBytes(await io.decode(f, 6000), type as "image/jpeg" | "image/png" | "image/webp", 0.92);
+        bytes = (target === "bmp" ? bmpFile : tiffFile)(px);
+      } else bytes = await io.toBytes(px, type as "image/jpeg" | "image/png" | "image/webp", 0.92);
       out.push({ name: baseName(f.name) + "." + ext, bytes });
     }
-    if (out.length === 1) return { blob: new Blob([out[0].bytes as BlobPart], { type }), name: out[0].name, detail: "1 imagen", warning: target === "bmp" || target === "tiff" ? "Este formato no se comprime: el archivo pesa mucho más que un JPG." : "" };
+    if (out.length === 1) return { blob: new Blob([out[0].bytes as BlobPart], { type }), name: out[0].name, detail: "1 imagen", warning: [target === "bmp" || target === "tiff" ? "Este formato no se comprime: el archivo pesa mucho más que un JPG." : "", shrunk ? SHRUNK : ""].filter(Boolean).join(" ") };
     const names = new Set<string>();
     const unique = out.map((x, i) => ({ ...x, name: names.has(x.name) ? String(i + 1) + "-" + x.name : (names.add(x.name), x.name) }));
-    return { blob: new Blob([zipImages(unique) as BlobPart], { type: "application/zip" }), name: base + "-imagenes.zip", detail: plural(out.length, "imagen", "imágenes"), warning: "" };
+    return { blob: new Blob([zipImages(unique) as BlobPart], { type: "application/zip" }), name: base + "-imagenes.zip", detail: plural(out.length, "imagen", "imágenes"), warning: shrunk ? SHRUNK : "" };
   }
   const { MAX_OCR_PAGES } = await import("./yalika-ocr");
   if (files.length > MAX_OCR_PAGES) throw Error("Para reconocer texto usa " + MAX_OCR_PAGES + " fotos o menos.");
   const run = async (each: (c: HTMLCanvasElement) => Promise<void>) => {
     for (const f of files) {
       const c = document.createElement("canvas");
-      io.toCanvas(await prepared(f, o), c);
+      io.toCanvas(await prepared(f, o, true), c);
       await each(c);
     }
   };

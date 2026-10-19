@@ -26,6 +26,7 @@ const STYLES: [ScanMode, string][] = [
   ["original", "Sin mejora"],
 ];
 const OCR_TARGETS: TargetId[] = ["pdf", "word", "texto", "xlsx", "csv"];
+const IMAGE_TARGETS: TargetId[] = ["jpg", "png", "webp", "bmp", "tiff"];
 const ICON_TARGETS: TargetId[] = ["ico", "icns", "iconos"];
 // Atajos por sistema: el formato que cada uno usa para iconos.
 const SYSTEMS: [string, TargetId, string][] = [
@@ -91,6 +92,14 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
       setBusy(false);
     }
   }
+  // Al pasar a una foto normal (JPG, PNG…) no se «mejora» sola: podría recortar o aclarar de más. Para documentos sí.
+  function choose(next: TargetId) {
+    const toImage = IMAGE_TARGETS.includes(next),
+      fromImage = IMAGE_TARGETS.includes(target);
+    if (toImage !== fromImage && kind === "imagen") setOptions({ ...options, style: toImage ? "original" : DEFAULT_OPTIONS.style });
+    setTarget(next);
+    setOut(null);
+  }
   const dim = useDimensions(kind === "imagen" ? files[0] : undefined),
     hints = kind === "imagen" && files[0] ? imageHints({ name: files[0].name, type: files[0].type, size: files[0].size, width: dim?.width, height: dim?.height }) : [],
     choices = kind ? targetsFor(kind) : [],
@@ -135,10 +144,7 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                 className={styles.bigSelect}
                 value={target}
                 disabled={busy}
-                onChange={(e) => {
-                  setTarget(e.target.value as TargetId);
-                  setOut(null);
-                }}
+                onChange={(e) => choose(e.target.value as TargetId)}
               >
                 {groups.map((g) => {
                   const list = choices.filter((t) => (t.group ?? "") === g),
@@ -169,10 +175,7 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                       className={styles.import}
                       aria-pressed={target === id}
                       disabled={busy}
-                      onClick={() => {
-                        setTarget(id);
-                        setOut(null);
-                      }}
+                      onClick={() => choose(id)}
                     >
                       {name}
                       <small> · {what}</small>
@@ -197,7 +200,7 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                 </select>
               </label>
             )}
-            {kind === "imagen" && OCR_TARGETS.includes(target) && (
+            {kind === "imagen" && (OCR_TARGETS.includes(target) || IMAGE_TARGETS.includes(target)) && (
               <label className={styles.bigField}>
                 Mejora de la imagen
                 <select value={options.style} disabled={busy} onChange={(e) => set({ style: e.target.value as ScanMode })}>
