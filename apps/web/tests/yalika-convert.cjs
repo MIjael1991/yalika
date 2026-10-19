@@ -25,7 +25,9 @@ const txt = async (blob) => Buffer.from(await blob.arrayBuffer()).toString("utf8
   assert.match(C.classify({ name: "viejo.doc", type: "" }).problem, /Word \(\.docx\)/);
   assert.match(C.classify({ name: "viejo.xls", type: "" }).problem, /\.xlsx/);
   assert.match(C.classify({ name: "x.zip", type: "" }).problem, /todavía no/);
-  assert.deepEqual(C.targetsFor("pdf").map((t) => t.id), ["word", "texto", "jpg", "png"]);
+  assert.deepEqual(C.targetsFor("pdf").map((t) => t.id), ["word", "texto", "jpg", "png", "xlsx", "csv"]);
+  assert.deepEqual(C.targetsFor("imagen").map((t) => t.id), ["pdf", "word", "texto", "xlsx", "csv", "jpg", "png", "webp", "bmp", "tiff", "ico", "icns", "iconos"]);
+  assert.deepEqual([...new Set(C.targetsFor("imagen").map((t) => t.group))], ["Documento y texto", "Imagen", "Iconos por sistema"]);
   assert.ok(C.targetsFor("imagen").some((t) => t.id === "word") && C.targetsFor("word").every((t) => t.id !== "word"));
   for (const kind of Object.keys(C.KIND_LABEL)) assert.ok(C.targetsFor(kind).length > 0, kind);
 
@@ -72,6 +74,54 @@ const txt = async (blob) => Buffer.from(await blob.arrayBuffer()).toString("utf8
   const cp = await C.convert([src("lista.csv", "nombre;edad\nAna;30")], "pdf");
   assert.equal(cp.name, "lista.pdf");
   assert.match(cp.detail, /1 hoja/);
+
+  // Word → Excel: cada tabla en su hoja; sin tablas, un párrafo por fila
+  {
+    const mk = (paragraphs) => Buffer.from(new Uint8Array(0));
+    const P = (text, extra = {}) => ({ text, font: "Arial", size: 12, bold: false, italic: false, underline: false, align: "left", ...extra });
+    const withTables = doc.parseDocument({ version: 1, title: "T", paragraphs: [P("Informe"), P("", { table: [["Nombre", "Monto"], ["Ana", "1,250.50"]] }), P("", { table: [["Mes"], ["Octubre"]] })] });
+    const x = await C.convert([src("Cuentas.docx", Buffer.from(await bytes(await doc.exportWord(withTables))))], "xlsx");
+    assert.equal(x.name, "Cuentas.xlsx");
+    assert.match(x.detail, /2 hojas/);
+    const sheets = require("../src/lib/yalika-sheet.ts").importXlsx(await bytes(x.blob)).sheets;
+    assert.deepEqual(sheets.map((s) => s.name), ["Tabla 1", "Tabla 2"]);
+    assert.deepEqual(sheets[0].rows, [["Nombre", "Monto"], ["Ana", "1250.5"]]);
+    const plain = doc.parseDocument({ version: 1, title: "T", paragraphs: [P("Uno"), P(""), P("Dos")] });
+    const y = await C.convert([src("Notas.docx", Buffer.from(await bytes(await doc.exportWord(plain))))], "xlsx");
+    assert.deepEqual(require("../src/lib/yalika-sheet.ts").importXlsx(await bytes(y.blob)).sheets[0].rows, [["Uno"], ["Dos"]]);
+    void mk;
+  }
+  // Salida a Excel / CSV desde filas ya armadas (así sale el OCR de fotos y PDF)
+  {
+    const grids = [{ name: "Foto 1", rows: [["Producto", "Precio"], ["Lápiz", "5.50"]] }, { name: "Foto 2", rows: [["Solo una columna"]] }];
+    const xo = C.sheetsOutput(grids, "xlsx", "Lista", "Aviso");
+    assert.equal(xo.name, "Lista.xlsx");
+    assert.equal(xo.warning, "Aviso");
+    assert.match(xo.detail, /2 hojas/);
+    const back = require("../src/lib/yalika-sheet.ts").importXlsx(await bytes(xo.blob)).sheets;
+    assert.deepEqual(back.map((s) => s.name), ["Foto 1", "Foto 2"]);
+    assert.deepEqual(back[0].rows, [["Producto", "Precio"], ["Lápiz", "5.5"]]);
+    const co = C.sheetsOutput(grids.slice(0, 1), "csv", "Lista");
+    assert.equal(co.name, "Lista.csv");
+    assert.equal((await txt(co.blob)).replace(/^﻿/, ""), "Producto,Precio\r\nLápiz,5.50");
+    assert.equal(C.sheetsOutput(grids, "csv", "Lista").name, "Lista-hojas.zip");
+    const big = C.sheetsOutput([{ name: "g", rows: Array.from({ length: 300 }, (_, i) => ["fila " + i]) }], "xlsx", "Grande");
+    assert.match(big.warning, /hasta 20 hojas, 200 filas/);
+    assert.throws(() => C.sheetsOutput([{ name: "v", rows: [[""]] }], "xlsx", "Vacío"), /nada que poner/);
+  }
+  // Un PDF con texto → filas y columnas por la posición del texto
+  {
+    const items = [];
+    const put = (y, parts) => parts.forEach(([x, str]) => items.push({ str, transform: [12, 0, 0, 12, x, 700 - y], width: str.length * 6, height: 12 }));
+    put(0, [[50, "Producto"], [250, "Cantidad"], [400, "Precio"]]);
+    put(20, [[50, "Lápiz"], [250, "10"], [400, "5.50"]]);
+    put(40, [[50, "Cuaderno"], [250, "3"], [400, "42.00"]]);
+    const loader = async () => ({ numPages: 1, getPage: async () => ({ getTextContent: async () => ({ items }) }) });
+    const r = await imp.importPdfTables(new Uint8Array(4), loader);
+    assert.deepEqual(r.pages[0], [["Producto", "Cantidad", "Precio"], ["Lápiz", "10", "5.50"], ["Cuaderno", "3", "42.00"]]);
+    const empty = async () => ({ numPages: 1, getPage: async () => ({ getTextContent: async () => ({ items: [] }) }) });
+    await assert.rejects(() => imp.importPdfTables(new Uint8Array(4), empty), (e) => imp.isScannedPdf(e));
+  }
 
   // Errores claros
   await assert.rejects(() => C.convert([], "pdf"), /Elige un archivo/);

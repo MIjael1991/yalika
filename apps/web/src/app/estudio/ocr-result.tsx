@@ -12,10 +12,13 @@ import styles from "./studio.module.css";
 export function OcrResult({
   doc,
   warning,
+  tables = [],
   scope,
 }: {
   doc: YalikaDocument;
   warning: string;
+  // Filas y columnas de cada página (de la posición del texto en la foto), para pasarlas a Excel.
+  tables?: string[][][];
   scope: FileScope;
 }) {
   const [notice, setNotice] = useState(""),
@@ -53,6 +56,22 @@ export function OcrResult({
         >
           Descargar Word
         </button>
+        {tables.some((t) => t.length) && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              void run(async () => {
+                const { sheetsOutput } = await import("../../lib/yalika-convert"),
+                  out = sheetsOutput(tables.map((rows, i) => ({ name: "Página " + (i + 1), rows })), "xlsx", base);
+                downloadBlob(out.blob, out.name);
+                return "Excel descargado: " + out.name + ". Revisa números y columnas: el reconocimiento puede equivocarse.";
+              })
+            }
+          >
+            Descargar Excel
+          </button>
+        )}
         <button
           type="button"
           disabled={busy}

@@ -26,6 +26,7 @@ import { CornerEditor, DEFAULT_QUAD } from "./corner-editor";
 import { LayoutFields, frameStyle, previewStyle } from "./layout-fields";
 import { Delivery } from "./delivery";
 import { OcrResult } from "./ocr-result";
+import { wordsToRows } from "../../lib/yalika-table";
 import styles from "./studio.module.css";
 type Page = {
   id: string;
@@ -64,6 +65,7 @@ export function ImageWorkspace({ scope }: { scope: FileScope }) {
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [ocr, setOcr] = useState<ImportResult | null>(null),
+    [ocrTables, setOcrTables] = useState<string[][][]>([]),
     [result, setResult] = useState<{ blob: Blob; name: string; detail: string } | null>(null);
   const canvas = useRef<HTMLCanvasElement>(null),
     cache = useRef<{ id: string; base: Pixels } | null>(null),
@@ -216,10 +218,12 @@ export function ImageWorkspace({ scope }: { scope: FileScope }) {
       return setNotice("Para reconocer texto usa " + MAX_OCR_PAGES + " páginas o menos.");
     setBusy(true);
     setOcr(null);
+    setOcrTables([]);
     try {
       setNotice("Preparando el reconocimiento de texto…");
       const engine = await openOcr(),
-        texts: string[] = [];
+        texts: string[] = [],
+        tables: string[][][] = [];
       let sum = 0;
       try {
         for (const [i, p] of pages.entries()) {
@@ -228,12 +232,14 @@ export function ImageWorkspace({ scope }: { scope: FileScope }) {
           toCanvas(processPixels(await decode(p.file, MAX_SIDE), p), scratch);
           const r = await engine.recognize(scratch);
           texts.push(r.text);
+          tables.push(wordsToRows(r.words));
           sum += r.confidence;
         }
       } finally {
         await engine.close();
       }
       setOcr(importOcr(documentName(name), texts, sum / pages.length));
+      setOcrTables(tables);
       setNotice("Texto reconocido. Revísalo abajo.");
     } catch (e) {
       setNotice(message(e));
@@ -510,7 +516,7 @@ export function ImageWorkspace({ scope }: { scope: FileScope }) {
             </button>
           </div>
           {result && <Delivery blob={result.blob} name={result.name} detail={result.detail} merge scope={scope} />}
-          {ocr && <OcrResult doc={ocr.doc} warning={ocr.warning} scope={scope} />}
+          {ocr && <OcrResult doc={ocr.doc} warning={ocr.warning} tables={ocrTables} scope={scope} />}
         </>
       )}
     </main>

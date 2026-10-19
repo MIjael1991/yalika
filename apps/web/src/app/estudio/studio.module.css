@@ -1138,3 +1138,30 @@
   min-width: 40px;
   min-height: 40px;
 }
+
+.systems {
+  display: grid;
+  gap: 6px;
+}
+.systemRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.systemRow button[aria-pressed="true"] {
+  border-color: var(--yk-link);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--yk-link) 30%, transparent);
+}
+.systemRow small {
+  font-weight: 400;
+  opacity: 0.75;
+}
+.hints {
+  margin: 0;
+  padding: 10px 12px 10px 28px;
+  border-radius: 8px;
+  background: var(--yk-panel);
+  font-size: 0.9rem;
+  display: grid;
+  gap: 4px;
+}

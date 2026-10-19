@@ -13,6 +13,7 @@ import {
   type Paragraph,
   type YalikaDocument,
 } from "./yalika-document";
+import { wordsToRows, type OcrWord } from "./yalika-table";
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
 const MAX_TEXT_BYTES = 2 * 1024 * 1024;
 const MAX_PDF_PAGES = 100;
@@ -344,6 +345,37 @@ export async function importPdf(
         SCANNED_PDF + " Pásalo a Word desde «Convertir»: ahí se reconoce el texto de las imágenes.",
       );
     throw e;
+  } finally {
+    await pdf.destroy?.();
+  }
+}
+// PDF con texto a filas y columnas: usa la posición de cada pedazo de texto en la página.
+export async function importPdfTables(bytes: Uint8Array, load: PdfLoader = defaultLoader): Promise<{ pages: string[][][]; warning: string }> {
+  if (bytes.length > MAX_IMPORT_BYTES) throw Error("El archivo pesa más de 20 MB.");
+  const pdf = await load(bytes),
+    pages: string[][][] = [];
+  try {
+    const last = Math.min(pdf.numPages, MAX_PDF_PAGES);
+    for (let n = 1; n <= last; n++) {
+      const content = await (await pdf.getPage(n)).getTextContent(),
+        words: OcrWord[] = [];
+      for (const item of content.items as { str?: string; transform?: number[]; width?: number; height?: number }[]) {
+        const t = item.transform;
+        if (typeof item.str !== "string" || !item.str.trim() || !t || t.length < 6) continue;
+        const h = Math.abs(item.height || t[3] || 10),
+          x0 = t[4],
+          y1 = -t[5];
+        words.push({ text: item.str, x0, x1: x0 + Math.max(1, item.width ?? item.str.length * h * 0.5), y0: y1 - h, y1 });
+      }
+      pages.push(wordsToRows(words));
+    }
+    if (!pages.some((p) => p.length)) throw Error(SCANNED_PDF + " Se reconocerá el texto de las imágenes.");
+    return {
+      pages,
+      warning:
+        (pdf.numPages > MAX_PDF_PAGES ? "Solo se tomaron las primeras " + MAX_PDF_PAGES + " páginas. " : "") +
+        "Las columnas se deducen de la posición del texto; revisa que cada dato quedó en su celda.",
+    };
   } finally {
     await pdf.destroy?.();
   }

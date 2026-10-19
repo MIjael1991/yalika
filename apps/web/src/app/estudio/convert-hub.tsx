@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FileScope } from "../../lib/yalika-local-files";
 import {
   DEFAULT_OPTIONS,
@@ -13,6 +13,7 @@ import {
   type TargetId,
 } from "../../lib/yalika-convert";
 import type { PageSize, ScanMode } from "../../lib/yalika-scan";
+import { imageHints } from "../../lib/yalika-suggest";
 import { Delivery } from "./delivery";
 import { LayoutFields } from "./layout-fields";
 import styles from "./studio.module.css";
@@ -24,6 +25,35 @@ const STYLES: [ScanMode, string][] = [
   ["bw", "Blanco y negro (documentos)"],
   ["original", "Sin mejora"],
 ];
+const OCR_TARGETS: TargetId[] = ["pdf", "word", "texto", "xlsx", "csv"];
+const ICON_TARGETS: TargetId[] = ["ico", "icns", "iconos"];
+// Atajos por sistema: el formato que cada uno usa para iconos.
+const SYSTEMS: [string, TargetId, string][] = [
+  ["Windows", "ico", "icono .ico"],
+  ["Mac", "icns", "icono .icns"],
+  ["Linux y todos", "iconos", "ZIP ordenado por sistema"],
+];
+// Mide la primera imagen para poder dar sugerencias (tamaño y forma); si no se puede abrir, se sugiere sin medidas.
+function useDimensions(file: File | undefined) {
+  const [dim, setDim] = useState<{ file: File; width: number; height: number } | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (!file) return;
+    (async () => {
+      try {
+        const bmp = await createImageBitmap(file);
+        if (live) setDim({ file, width: bmp.width, height: bmp.height });
+        bmp.close();
+      } catch {
+        /* sin medidas */
+      }
+    })();
+    return () => {
+      live = false;
+    };
+  }, [file]);
+  return dim && dim.file === file ? dim : null;
+}
 // Un solo lugar para convertir: eliges el archivo y a qué formato; solo aparece lo que sí se puede.
 export function ConvertHub({ scope }: { scope: FileScope }) {
   const [files, setFiles] = useState<File[]>([]),
@@ -61,7 +91,10 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
       setBusy(false);
     }
   }
-  const choices = kind ? targetsFor(kind) : [],
+  const dim = useDimensions(kind === "imagen" ? files[0] : undefined),
+    hints = kind === "imagen" && files[0] ? imageHints({ name: files[0].name, type: files[0].type, size: files[0].size, width: dim?.width, height: dim?.height }) : [],
+    choices = kind ? targetsFor(kind) : [],
+    groups = [...new Set(choices.map((t) => t.group ?? ""))],
     chosen = choices.find((t) => t.id === target),
     set = (change: Partial<ConvertOptions>) => {
       setOptions({ ...options, ...change });
@@ -107,14 +140,54 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                   setOut(null);
                 }}
               >
-                {choices.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
+                {groups.map((g) => {
+                  const list = choices.filter((t) => (t.group ?? "") === g),
+                    items = list.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.label}
+                      </option>
+                    ));
+                  return g ? (
+                    <optgroup key={g} label={g}>
+                      {items}
+                    </optgroup>
+                  ) : (
+                    items
+                  );
+                })}
               </select>
             </label>
             {chosen && <p className={styles.help}>{chosen.hint}</p>}
+            {kind === "imagen" && (
+              <div className={styles.systems} role="group" aria-label="Formato según el sistema">
+                <strong>¿Para qué sistema?</strong>
+                <div className={styles.systemRow}>
+                  {SYSTEMS.map(([name, id, what]) => (
+                    <button
+                      key={name}
+                      type="button"
+                      className={styles.import}
+                      aria-pressed={target === id}
+                      disabled={busy}
+                      onClick={() => {
+                        setTarget(id);
+                        setOut(null);
+                      }}
+                    >
+                      {name}
+                      <small> · {what}</small>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {hints.length > 0 && (
+              <ul className={styles.hints} aria-label="Sugerencias">
+                {hints.map((h) => (
+                  <li key={h}>{h}</li>
+                ))}
+              </ul>
+            )}
             {kind === "pdf" && (target === "jpg" || target === "png") && (
               <label className={styles.bigField}>
                 Calidad
@@ -124,7 +197,7 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                 </select>
               </label>
             )}
-            {kind === "imagen" && (target === "pdf" || target === "word" || target === "texto") && (
+            {kind === "imagen" && OCR_TARGETS.includes(target) && (
               <label className={styles.bigField}>
                 Mejora de la imagen
                 <select value={options.style} disabled={busy} onChange={(e) => set({ style: e.target.value as ScanMode })}>
@@ -152,6 +225,12 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                 </details>
                 <p className={styles.help}>Para enderezar, recortar o ajustar contraste a mano, usa «Escanear y mejorar».</p>
               </>
+            )}
+            {kind === "imagen" && ICON_TARGETS.includes(target) && (
+              <label className={styles.check}>
+                <input type="checkbox" checked={options.cover} disabled={busy} onChange={(e) => set({ cover: e.target.checked })} />
+                Llenar el cuadrado (recorta lo que sobre)
+              </label>
             )}
             <button type="button" className={styles.primary} disabled={busy} onClick={() => void run()}>
               {busy ? "Convirtiendo…" : "Convertir"}
