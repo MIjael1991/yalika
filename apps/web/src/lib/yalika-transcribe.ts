@@ -59,7 +59,7 @@ export async function transcribe(file: File, deps: Deps, opt: Options): Promise<
     for (let i = 0; i < chunks.length; i++) {
       if (signal?.aborted) throw cancelled();
       const c = chunks[i],
-        done = await listen(engine, media, c, gain, opt.language);
+        done = await listen(engine, media, c, gain, opt.language, signal);
       if (!done) {
         missing++;
         results.push({ chunk: c, pieces: [{ start: 0, end: c.end - c.start, text: "[…]" }], confidence: 0 });
@@ -78,8 +78,28 @@ export async function transcribe(file: File, deps: Deps, opt: Options): Promise<
   return { segments, seconds: media.seconds, spoken, levels: lv, notes: audioNotes(lv, spoken, media.seconds), device: engine.device, engineNote: engine.note, missing };
 }
 
+// Si el modelo no estuvo seguro de un bloque (casi siempre por ruido), se vuelve a escuchar con el volumen más bajo y con un
+// margen de silencio, y se queda con la versión de la que el modelo estuvo más seguro. Con audio claro nunca se activa.
+export const RETRY_BELOW = 0.9;
+const RETRY_GAIN = 0.03;
+const PAD = 0.25;
+const variants: { shift: number; make(a: Float32Array): Float32Array }[] = [
+  { shift: 0, make: (a) => a.map((v) => Math.max(-1, Math.min(1, v * 0.6))) },
+  {
+    shift: PAD,
+    make: (a) => {
+      const out = new Float32Array(a.length + 2 * Math.round(PAD * RATE));
+      out.set(a, Math.round(PAD * RATE));
+      return out;
+    },
+  },
+];
+
+type Heard = { pieces: { start: number; end: number | null; text: string }[]; confidence?: number; words?: number[] };
+const textOf = (h: Heard) => h.pieces.map((p) => p.text).join("").trim();
+
 // Escucha un bloque; si sale vacío o falla con una voz clara, lo intenta de nuevo con otro margen antes de rendirse.
-async function listen(engine: Engine, media: Decoded, c: Chunk, gain: number, language: string | null) {
+async function listen(engine: Engine, media: Decoded, c: Chunk, gain: number, language: string | null, signal?: AbortSignal) {
   const attempts: [number, number][] = [
     [0, 0],
     [-0.4, 0.4],
@@ -88,15 +108,29 @@ async function listen(engine: Engine, media: Decoded, c: Chunk, gain: number, la
     const [a, b] = attempts[k],
       from = Math.max(0, Math.round((c.start + a) * RATE)),
       to = Math.min(Math.round(media.seconds * RATE), Math.round((c.end + b) * RATE)),
-      shift = c.start - from / RATE;
+      shift = c.start - from / RATE,
+      back = (h: Heard, extra = 0): Heard => ({ ...h, pieces: h.pieces.map((p) => ({ ...p, start: p.start - shift - extra, end: p.end === null ? null : p.end - shift - extra })) });
     try {
-      const out = await engine.run(media.pcm.slice(from, to, gain), language);
-      const text = out.pieces.map((p) => p.text).join("").trim();
-      if (text || c.snr < 6 || c.end - c.start < 1.5) {
+      const audio = media.pcm.slice(from, to, gain),
+        out = await engine.run(audio, language);
+      if (textOf(out) || c.snr < 6 || c.end - c.start < 1.5) {
         // Los tiempos se devuelven respecto al inicio original del bloque.
-        return { pieces: out.pieces.map((p) => ({ ...p, start: p.start - shift, end: p.end === null ? null : p.end - shift })), confidence: out.confidence, words: out.words };
+        let best = back(out);
+        if (textOf(out) && out.confidence !== undefined && out.confidence < RETRY_BELOW) {
+          for (const v of variants) {
+            if (signal?.aborted) throw cancelled();
+            try {
+              const alt = await engine.run(v.make(audio), language);
+              if (textOf(alt) && alt.confidence !== undefined && alt.confidence > (best.confidence ?? 0) + RETRY_GAIN) best = back(alt, v.shift);
+            } catch (e) {
+              if (e instanceof Error && /Cancelado|memoria|memory/i.test(e.message)) throw e;
+            }
+          }
+        }
+        return best;
       }
     } catch (e) {
+      if (e instanceof Error && /Cancelado/.test(e.message)) throw e;
       if (k === attempts.length - 1) {
         if (e instanceof Error && /memoria|memory/i.test(e.message)) throw e;
         return null;

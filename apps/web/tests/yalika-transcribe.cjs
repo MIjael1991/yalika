@@ -201,6 +201,24 @@ const SPEECH = 0.1, QUIET = 0.0005;
   await assert.rejects(R.transcribe({ name: "a" }, { ...mk(async () => ({ pieces: [] })), open: async () => { throw Error("sin red"); } }, { language: null }), /sin red/);
   const ctl = new AbortController();
   await assert.rejects(R.transcribe({ name: "a" }, mk(async () => { ctl.abort(); return { pieces: [{ start: 0, end: 1, text: "x" }] }; }), { language: null, signal: ctl.signal }), /Cancelado/);
+  // Segunda pasada: solo cuando el modelo duda; se queda con la versión más segura
+  const seen = [];
+  const lowRun = async (audio) => {
+    seen.push(audio.length);
+    const k = seen.length; // 1: original del bloque 1, 2: más bajo, 3: con margen, 4.. bloque 2
+    return { pieces: [{ start: 0.5, end: 3, text: "Versión " + k }], confidence: k === 1 ? 0.5 : k === 2 ? 0.52 : k === 3 ? 0.8 : 0.95 };
+  };
+  const retried = await R.transcribe({ name: "a" }, mk(lowRun), { language: "spanish" });
+  assert.equal(seen.length, 4, "bloque 1: 3 pasadas; bloque 2 (seguro): 1");
+  assert.ok(seen[2] > seen[0] && seen[2] - seen[0] === 2 * Math.round(0.25 * 16000), "la tercera lleva margen de silencio");
+  assert.match(retried.segments[0].text, /Versión 3/, "elige la más segura (+0.03 como mínimo)");
+  const s0 = (await R.transcribe({ name: "a" }, mk(async () => ({ pieces: [{ start: 0.5, end: 3, text: "Hola" }], confidence: 0.9 })), { language: "spanish" })).segments[0].start;
+  let firstLen = 0;
+  const t0 = (await R.transcribe({ name: "a" }, mk(async (audio) => { firstLen ||= audio.length; return { pieces: [{ start: 0.5, end: 3, text: "Hola" }], confidence: audio.length > firstLen ? 0.8 : 0.6 }; }), { language: "spanish" })).segments[0].start;
+  assert.ok(Math.abs(t0 - (s0 - 0.25)) < 0.02, "los tiempos de la versión con margen se corrigen: " + t0 + " vs " + s0);
+  const seen2 = []; await R.transcribe({ name: "a" }, mk(async (a) => { seen2.push(1); return { pieces: [{ start: 0, end: 2, text: "Voz clara" }], confidence: 0.9 }; }), { language: "spanish" });
+  assert.equal(seen2.length, 2, "con confianza alta no hay segunda pasada");
+
   // El volumen bajo pero claro no se marca como problema
   const quietMedia = { ...media, frames: frames([[1, 0.00002], [8, 0.0015], [1, 0.00002]]) };
   const quiet = await R.transcribe({ name: "q" }, { decode: async () => quietMedia, open: async () => ({ device: "wasm", close() {}, run: async () => ({ pieces: [{ start: 0, end: 5, text: "Hablo bajito pero claro." }], confidence: 0.95 }) }) }, { language: "spanish" });
