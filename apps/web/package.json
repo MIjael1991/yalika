@@ -10,9 +10,11 @@
     "test": "node --test \"tests/*.cjs\""
   },
   "dependencies": {
+    "@huggingface/transformers": "4.3.1",
     "docx": "9.11.0",
     "fflate": "0.8.3",
     "jspdf": "4.2.1",
+    "mediabunny": "1.61.6",
     "next": "16.4.2",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "6.3.289",

@@ -9,6 +9,7 @@ import { NamesWorkspace } from "./names-workspace";
 import { RecordsWorkspace } from "./records-workspace";
 import { SheetWorkspace } from "./sheet-workspace";
 import { StudioWorkspace } from "./studio-workspace";
+import { TranscribeWorkspace } from "./transcribe-workspace";
 import styles from "./studio.module.css";
 export const dynamic = "force-dynamic";
 const MENU = [
@@ -26,6 +27,7 @@ const MENU = [
     [
       ["convertir", "Convertir archivos"],
       ["unir", "Unir PDF"],
+      ["voz", "Audio y video a texto"],
     ],
   ],
   [
@@ -76,6 +78,8 @@ export default async function StudioPage({
         <RecordsWorkspace key={key} scope={scope} />
       ) : tab === "convertir" ? (
         <ConvertHub key={key} scope={scope} />
+      ) : tab === "voz" ? (
+        <TranscribeWorkspace key={key} scope={scope} />
       ) : tab === "unir" ? (
         <MergeWorkspace key={key} scope={scope} />
       ) : tab === "nombres" ? (

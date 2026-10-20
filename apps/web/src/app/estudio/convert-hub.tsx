@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { FileScope } from "../../lib/yalika-local-files";
 import {
@@ -13,6 +14,7 @@ import {
   type TargetId,
 } from "../../lib/yalika-convert";
 import type { PageSize, ScanMode } from "../../lib/yalika-scan";
+import { isMedia } from "../../lib/yalika-media";
 import { imageHints } from "../../lib/yalika-suggest";
 import { Delivery } from "./delivery";
 import { LayoutFields } from "./layout-fields";
@@ -63,10 +65,16 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
     [options, setOptions] = useState<ConvertOptions>(DEFAULT_OPTIONS),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
-    [out, setOut] = useState<Output | null>(null);
+    [out, setOut] = useState<Output | null>(null),
+    [toVoice, setToVoice] = useState(false);
   function pick(list: FileList | null) {
     const arr = Array.from(list ?? []);
     if (!arr.length) return;
+    setToVoice(false);
+    if (arr.some(isMedia)) {
+      setToVoice(true);
+      return setNotice("Eso es una grabación o un video. Para pasarlo a texto o a Word usa «Audio y video a texto».");
+    }
     const kinds = arr.map(classify),
       bad = kinds.find((k) => !k.kind);
     if (bad) return setNotice(bad.problem);
@@ -126,7 +134,7 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
       {!kind ? (
         <div className={styles.drop}>
           <strong>Elige el archivo que quieres convertir</strong>
-          <p>PDF, Word, Excel, PowerPoint, CSV, texto o fotos. Hasta 20 MB. Con fotos puedes elegir varias a la vez.</p>
+          <p>PDF, Word, Excel, PowerPoint, CSV, texto o fotos. Hasta 20 MB. Con fotos puedes elegir varias a la vez. Para audio y video usa «Audio y video a texto».</p>
           {picker("Elegir archivo", styles.bigButton)}
         </div>
       ) : (
@@ -243,7 +251,12 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
       )}
       {notice && (
         <p role="status" className={styles.help}>
-          {notice}
+          {notice}{" "}
+          {toVoice && (
+            <Link className={styles.menuLink} href="/estudio?tab=voz">
+              Ir a Audio y video a texto
+            </Link>
+          )}
         </p>
       )}
       {out && (
