@@ -35,6 +35,10 @@
 }
 .workspace button,
 .import {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   border: 1px solid var(--yk-border);
   border-radius: 8px;
   padding: 10px 14px;
@@ -52,6 +56,7 @@
 }
 .workspace select,
 .title input {
+  box-sizing: border-box;
   padding: 8px;
   border: 1px solid var(--yk-border);
   border-radius: 6px;
@@ -69,6 +74,12 @@
   flex-direction: column;
   font-size: 12px;
   gap: 4px;
+}
+.toolbar label.import {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
 }
 .title {
   display: block;
@@ -215,43 +226,63 @@
 .menu {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px 32px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--yk-border);
+  gap: 8px 18px;
+  padding: 8px 10px 10px;
+  border: 1px solid var(--yk-border);
+  border-radius: 16px;
+  background: var(--yk-panel);
 }
 .menuGroup {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .menuLabel {
+  padding-left: 8px;
   font-size: 11px;
-  letter-spacing: 0.06em;
+  font-weight: 650;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--yk-muted);
 }
 .menuItems {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 2px;
 }
 .menuLink {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
-  padding: 6px 14px;
-  border: 1px solid var(--yk-border);
-  border-radius: 999px;
-  background: var(--yk-panel);
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
   color: var(--yk-text);
   font-size: 14px;
   text-decoration: none;
+  white-space: nowrap;
+}
+.menuLink:hover {
+  background: var(--yk-soft);
+}
+.menuLink:focus-visible {
+  outline: 3px solid var(--yk-link);
+  outline-offset: 2px;
 }
 .menuLink[aria-current="page"] {
   background: var(--yk-link);
-  border-color: var(--yk-link);
-  color: var(--yk-bg, #fff);
-  font-weight: 600;
+  color: var(--yk-panel);
+  font-weight: 650;
+}
+@media (max-width: 760px) {
+  .menu {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 92%, transparent);
+    mask-image: linear-gradient(to right, #000 92%, transparent);
+  }
+  .menuGroup {
+    flex: none;
+  }
 }
 .drop {
   display: flex;
@@ -261,12 +292,12 @@
   margin: 16px 0;
   padding: 44px 20px;
   border: 2px dashed var(--yk-border);
-  border-radius: 16px;
+  border-radius: 18px;
   background: var(--yk-panel);
   text-align: center;
 }
 .drop strong {
-  font-size: 18px;
+  font-size: 20px;
 }
 .drop p {
   margin: 0;
@@ -279,13 +310,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 10px 22px;
+  min-height: 48px;
+  padding: 10px 24px;
   border: 1px solid var(--yk-link);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--yk-link);
-  color: var(--yk-bg, #fff);
-  font-weight: 600;
+  color: var(--yk-panel);
+  font-weight: 650;
   cursor: pointer;
 }
 .bigButton[aria-disabled="true"] {
@@ -1775,4 +1806,66 @@
   .txHead h1 {
     font-size: 24px;
   }
+}
+
+/* Mis archivos */
+.fileList {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border: 1px solid var(--yk-border);
+  border-radius: 14px;
+  background: var(--yk-panel);
+}
+.fileItem > div {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.fileItem strong {
+  overflow-wrap: anywhere;
+}
+.fileItem small {
+  color: var(--yk-muted);
+  font-size: 13px;
+}
+.fileKind {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--yk-soft);
+  color: var(--yk-link);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.fileUpload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border: 2px dashed var(--yk-border);
+  border-radius: 16px;
+  background: var(--yk-panel);
+}
+.fileUpload span {
+  display: grid;
+  gap: 2px;
+}
+.fileUpload small {
+  color: var(--yk-muted);
+  font-size: 13px;
 }

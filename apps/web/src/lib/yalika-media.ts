@@ -5,11 +5,22 @@ import { EnergyMeter, HighPass, MAX_HOURS, PcmStore, RATE, Resampler, mixToMono 
 export type Decoded = { pcm: PcmStore; frames: Float32Array; seconds: number };
 export type DecodeProgress = (fraction: number) => void;
 
-export const MEDIA_EXTENSIONS = /\.(mp3|m4a|aac|wav|wave|ogg|oga|opus|flac|weba|webm|mp4|m4v|mov|mkv|3gp|amr|aif|aiff|wma|avi)$/i;
+export const MEDIA_EXTENSIONS = /\.(mp3|mp2|m4a|m4b|m4r|aac|wav|wave|ogg|oga|ogv|opus|flac|weba|webm|mka|mp4|m4v|mov|mkv|3gp|3g2|amr|awb|aif|aiff|caf|ac3|wma|wmv|asf|avi|flv|mpg|mpeg|mts|m2ts)$/i;
 export const isMedia = (f: { name: string; type: string }) => /^(audio|video)\//.test(f.type) || MEDIA_EXTENSIONS.test(f.name);
 
 const LIMIT = RATE * 3600 * MAX_HOURS;
 export const tooLong = () => Error(`La grabación dura más de ${MAX_HOURS} horas. Divídela en partes y transcribe cada una.`);
+
+// Formatos que ningún navegador abre de forma directa: se intentan, pero si fallan se explica qué hacer.
+const CONVERT_FIRST = /\.(wma|wmv|asf|avi|flv|ac3|amr|awb|aif|aiff|caf|mpg|mpeg|rm)$/i;
+const unreadable = (name: string, aac: boolean) =>
+  Error(
+    aac
+      ? "Este navegador no puede abrir audio AAC (el de los M4A y de casi todos los videos de celular). Abre Yalika en Chrome, Edge o Safari actualizados, o convierte el archivo a MP3 o WAV."
+      : CONVERT_FIRST.test(name)
+        ? `Los archivos «.${name.split(".").pop()?.toLowerCase()}» no se pueden abrir directamente en el navegador. Conviértelos a MP3 o WAV (por ejemplo con VLC) y vuelve a intentar.`
+        : "No se pudo leer el sonido de este archivo en tu navegador. Si es un video, prueba con Chrome o Edge; también puedes convertirlo a MP3 o WAV.",
+  );
 
 class Pipe {
   readonly pcm = new PcmStore();
@@ -37,13 +48,18 @@ class Pipe {
   }
 }
 
-async function withMediabunny(file: File, onProgress: DecodeProgress, signal?: AbortSignal): Promise<Decoded | null> {
+type Fast = { decoded: Decoded | null; aac: boolean };
+async function withMediabunny(file: File, onProgress: DecodeProgress, signal?: AbortSignal): Promise<Fast> {
   const mb = await import("mediabunny");
   const input = new mb.Input({ source: new mb.BlobSource(file), formats: mb.ALL_FORMATS });
   try {
     const track = await input.getPrimaryAudioTrack();
-    if (!track) throw Error("Este archivo no tiene sonido. Si es un video, revisa que se haya grabado con audio.");
-    if (!(await track.canDecode())) return null;
+    if (!track) {
+      // Con imagen y sin pista de audio: de verdad no tiene sonido. Sin ninguna pista: el formato no se reconoce.
+      if ((await input.getTracks()).length) throw Error("Este archivo no tiene sonido. Si es un video, revisa que se haya grabado con audio.");
+      return { decoded: null, aac: false };
+    }
+    if (!(await track.canDecode())) return { decoded: null, aac: (await track.getCodec()) === "aac" };
     const duration = await track.computeDuration();
     if (duration > MAX_HOURS * 3600) throw tooLong();
     const pipe = new Pipe(),
@@ -63,7 +79,7 @@ async function withMediabunny(file: File, onProgress: DecodeProgress, signal?: A
       }
       if (duration > 0) onProgress(Math.min(1, sample.timestamp / duration));
     }
-    return pipe.finish();
+    return { decoded: pipe.finish(), aac: false };
   } finally {
     input.dispose();
   }
@@ -97,19 +113,20 @@ async function withWebAudio(file: File, onProgress: DecodeProgress): Promise<Dec
 }
 
 export async function decodeMedia(file: File, onProgress: DecodeProgress, signal?: AbortSignal): Promise<Decoded> {
-  let failed: unknown = null;
+  if (file.size === 0) throw Error("Este archivo está vacío. Revisa que se haya guardado completo.");
+  let aac = false;
   try {
     const fast = await withMediabunny(file, onProgress, signal);
-    if (fast) return fast;
+    if (fast.decoded) return fast.decoded;
+    aac = fast.aac;
   } catch (e) {
     // Los errores que explican algo a la persona se muestran tal cual; los técnicos pasan al plan B.
     if (e instanceof Error && /sonido|horas|Cancelado/.test(e.message)) throw e;
-    failed = e;
   }
   try {
     return await withWebAudio(file, onProgress);
   } catch (e) {
-    if (failed && e instanceof Error && /No se pudo leer/.test(e.message)) throw Error("No se pudo leer el sonido de este archivo en tu navegador. Si es un video, prueba con Chrome o Edge; también puedes convertirlo a MP3 o WAV.");
+    if (e instanceof Error && /No se pudo leer/.test(e.message)) throw unreadable(file.name, aac);
     throw e;
   }
 }

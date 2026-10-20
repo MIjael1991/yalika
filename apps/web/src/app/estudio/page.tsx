@@ -4,6 +4,7 @@ import { FilesWorkspace } from "../archivos/files-workspace";
 import { ConvertHub } from "./convert-hub";
 import { ImageWorkspace } from "./image-workspace";
 import { OfflineSwitch } from "./offline-switch";
+import { MenuScroll } from "./menu-scroll";
 import { MergeWorkspace } from "./merge-workspace";
 import { NamesWorkspace } from "./names-workspace";
 import { RecordsWorkspace } from "./records-workspace";
@@ -71,6 +72,7 @@ export default async function StudioPage({
           </div>
         ))}
       </nav>
+      <MenuScroll />
       <OfflineSwitch />
       {tab === "archivos" ? (
         <FilesWorkspace scope={scope} />

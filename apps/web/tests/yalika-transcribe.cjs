@@ -14,6 +14,7 @@ const T = require("../src/lib/yalika-transcript.ts");
 const R = require("../src/lib/yalika-transcribe.ts");
 const D = require("../src/lib/yalika-document.ts");
 const Dr = require("../src/lib/yalika-transcript-draft.ts");
+const M = require("../src/lib/yalika-media.ts");
 
 const sine = (f, sr, sec, a = 0.5) => Float32Array.from({ length: Math.round(sr * sec) }, (_, i) => a * Math.sin((2 * Math.PI * f * i) / sr));
 const rms = (x, from = 0, to = x.length) => Math.sqrt(x.slice(from, to).reduce((s, v) => s + v * v, 0) / (to - from));
@@ -158,6 +159,12 @@ const SPEECH = 0.1, QUIET = 0.0005;
   assert.equal(Dr.loadDraft(scope), null, "un borrador dañado se ignora");
   Dr.saveDraft(scope, { name: "a.mp3", size: 1, language: "spanish", tier: "preciso", savedAt: "x", seconds: 1, segments: segs }); Dr.clearDraft(scope);
   assert.equal(Dr.loadDraft(scope), null);
+
+  // Qué archivos se aceptan como grabación o video
+  for (const n of ["a.mp3", "NOTA.M4A", "v.mov", "v.MKV", "a.caf", "a.wma", "v.avi", "a.opus", "v.3gp", "v.mts", "a.aiff"]) assert.ok(M.isMedia({ name: n, type: "" }), n);
+  for (const n of ["a.txt", "a.pdf", "a.docx", "a.ts", "foto.jpg", "sin-extension"]) assert.ok(!M.isMedia({ name: n, type: "" }), n);
+  assert.ok(M.isMedia({ name: "raro.xyz", type: "audio/x-algo" }) && M.isMedia({ name: "raro", type: "video/mp2t" }));
+  await assert.rejects(M.decodeMedia({ name: "vacio.wav", size: 0 }, () => {}), /vacío/);
 
   // Duda por palabra
   const wchunk = { start: 10, end: 20, snr: 30, speechDb: -20 };
