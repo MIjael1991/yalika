@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   listLocalFiles,
   saveLocalFile,
@@ -7,8 +7,10 @@ import {
 } from "../../lib/yalika-local-files";
 import {
   DOCUMENT_TYPE,
+  INDENT_CM,
   MAX_CHARS,
   MAX_IMAGE_B64,
+  MAX_INDENT,
   MAX_TABLE_COLS,
   MAX_TABLE_ROWS,
   documentName,
@@ -22,7 +24,7 @@ import {
 } from "../../lib/yalika-document";
 import { fitPicture, pictureFit } from "../../lib/yalika-image-io";
 import { importDocument } from "../../lib/yalika-import";
-import { PictureBlock, TableBlock } from "./doc-blocks";
+import { AutoText, PictureBlock, TableBlock } from "./doc-blocks";
 import { TemplatePicker } from "./template-picker";
 import styles from "./studio.module.css";
 type Recognition = {
@@ -499,8 +501,30 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
             <option value="left">Izquierda</option>
             <option value="center">Centro</option>
             <option value="right">Derecha</option>
+            <option value="justify">Justificado</option>
           </select>
         </label>
+        <button
+          disabled={!!(p.table || p.image) || (p.indent ?? 0) <= 0}
+          onClick={() => patch({ indent: Math.max(0, (p.indent ?? 0) - 1) })}
+          title="Mueve el párrafo medio centímetro a la izquierda"
+        >
+          Sangría −
+        </button>
+        <button
+          disabled={!!(p.table || p.image) || (p.indent ?? 0) >= MAX_INDENT}
+          onClick={() => patch({ indent: Math.min(MAX_INDENT, (p.indent ?? 0) + 1) })}
+          title="Mueve el párrafo medio centímetro a la derecha"
+        >
+          Sangría +
+        </button>
+        <button
+          aria-pressed={!!p.pageBreak}
+          onClick={() => patch({ pageBreak: p.pageBreak ? undefined : true })}
+          title="El párrafo seleccionado empieza en una hoja nueva (en Word y PDF)"
+        >
+          Salto de página
+        </button>
         <button
           aria-pressed={p.list === "bullet"}
           disabled={!!(p.table || p.image)}
@@ -596,10 +620,10 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
       </p>
       <section className={styles.paper} aria-label="Documento editable">
         {doc.paragraphs.map((block, i) => {
+          let item: ReactNode;
           if (block.table)
-            return (
+            item = (
               <TableBlock
-                key={i}
                 block={block}
                 rows={block.table}
                 label={"Tabla " + (i + 1)}
@@ -610,10 +634,9 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
                 }
               />
             );
-          if (block.image)
-            return (
+          else if (block.image)
+            item = (
               <PictureBlock
-                key={i}
                 image={block.image}
                 align={block.align}
                 label={"Imagen " + (i + 1)}
@@ -627,54 +650,58 @@ export function StudioWorkspace({ scope }: { scope: FileScope }) {
                 }
               />
             );
-          let number = 0;
-          if (block.list === "number")
-            for (let k = i; k >= 0 && doc.paragraphs[k].list === "number"; k--) number++;
-          return (
-            <div key={i} className={styles.textBlock}>
-              {block.list && (
-                <span className={styles.marker} aria-hidden="true" style={{ fontFamily: block.font, fontSize: block.size + "pt" }}>
-                  {block.list === "bullet" ? "•" : number + "."}
-                </span>
-              )}
-              <textarea
-                aria-label={"Párrafo " + (i + 1)}
-                data-active={i === active}
-                value={block.text}
-                maxLength={Math.max(
-                  block.text.length,
-                  MAX_CHARS -
-                    doc.paragraphs.reduce((n, x) => n + x.text.length, 0) +
+          else {
+            let number = 0;
+            if (block.list === "number")
+              for (let k = i; k >= 0 && doc.paragraphs[k].list === "number"; k--) number++;
+            item = (
+              <div className={styles.textBlock} style={{ marginLeft: (block.indent ?? 0) * INDENT_CM + "cm" }}>
+                {block.list && (
+                  <span className={styles.marker} aria-hidden="true" style={{ fontFamily: block.font, fontSize: block.size + "pt" }}>
+                    {block.list === "bullet" ? "•" : number + "."}
+                  </span>
+                )}
+                <AutoText
+                  aria-label={"Párrafo " + (i + 1)}
+                  data-active={i === active}
+                  value={block.text}
+                  maxLength={Math.max(
                     block.text.length,
-                )}
-                rows={Math.min(
-                  24,
-                  Math.max(
-                    block.list ? 1 : 2,
-                    block.text.split("\n").length +
-                      Math.ceil(block.text.length / 75),
-                  ),
-                )}
-                onFocus={() => setActive(i)}
-                onChange={(e) =>
-                  change({
-                    ...doc,
-                    paragraphs: doc.paragraphs.map((x, j) =>
-                      i === j ? { ...x, text: e.target.value } : x,
-                    ),
-                  })
-                }
-                style={{
-                  fontFamily: block.font,
-                  fontSize: block.size + "pt",
-                  fontWeight: block.bold ? "bold" : "normal",
-                  fontStyle: block.italic ? "italic" : "normal",
-                  textDecoration: block.underline ? "underline" : "none",
-                  textAlign: block.align,
-                }}
-                placeholder="Escribe o dicta aquí…"
-              />
-            </div>
+                    MAX_CHARS -
+                      doc.paragraphs.reduce((n, x) => n + x.text.length, 0) +
+                      block.text.length,
+                  )}
+                  onFocus={() => setActive(i)}
+                  onChange={(e) =>
+                    change({
+                      ...doc,
+                      paragraphs: doc.paragraphs.map((x, j) =>
+                        i === j ? { ...x, text: e.target.value } : x,
+                      ),
+                    })
+                  }
+                  style={{
+                    fontFamily: block.font,
+                    fontSize: block.size + "pt",
+                    fontWeight: block.bold ? "bold" : "normal",
+                    fontStyle: block.italic ? "italic" : "normal",
+                    textDecoration: block.underline ? "underline" : "none",
+                    textAlign: block.align,
+                  }}
+                  placeholder="Escribe o dicta aquí…"
+                />
+              </div>
+            );
+          }
+          return (
+            <Fragment key={i}>
+              {block.pageBreak && (
+                <div className={styles.pageBreakMark} role="separator" aria-label={"Salto de página antes del párrafo " + (i + 1)}>
+                  <span>Hoja nueva</span>
+                </div>
+              )}
+              {item}
+            </Fragment>
           );
         })}
       </section>

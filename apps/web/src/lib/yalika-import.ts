@@ -1,8 +1,10 @@
 // Convierte archivos externos en un documento editable. Solo texto: nunca se inserta HTML.
 import { unzipSync } from "fflate";
 import {
+  INDENT_CM,
   MAX_CHARS,
   MAX_IMAGES,
+  MAX_INDENT,
   MAX_IMAGES_TOTAL,
   MAX_TABLES,
   MAX_TABLE_CELL,
@@ -13,16 +15,21 @@ import {
   type Paragraph,
   type YalikaDocument,
 } from "./yalika-document";
+import { fontInfo, layoutPages, type FontInfo, type LayoutPage, type RawItem } from "./yalika-pdf-layout";
 import { wordsToRows, type OcrWord } from "./yalika-table";
 export const MAX_IMPORT_BYTES = 20 * 1024 * 1024;
 const MAX_TEXT_BYTES = 2 * 1024 * 1024;
 const MAX_PDF_PAGES = 100;
 export type ImportResult = { doc: YalikaDocument; warning: string };
+export type PdfPage = {
+  getTextContent(): Promise<{ items: unknown[]; styles?: Record<string, { fontFamily?: string }> }>;
+  view?: number[];
+  getOperatorList?(): Promise<{ fnArray: number[] }>;
+  commonObjs?: { get(id: string): { name?: string; bold?: boolean; italic?: boolean } | undefined };
+};
 export type PdfText = {
   numPages: number;
-  getPage(n: number): Promise<{
-    getTextContent(): Promise<{ items: unknown[] }>;
-  }>;
+  getPage(n: number): Promise<PdfPage>;
   destroy?(): Promise<void> | void;
 };
 export type PdfLoader = (data: Uint8Array) => Promise<PdfText>;
@@ -102,11 +109,17 @@ function readDocx(bytes: Uint8Array, media: boolean) {
     out: Paragraph[] = [],
     refs: { at: number; rid: string }[] = [];
   let tables = 0,
-    trimmed = false;
+    trimmed = false,
+    breakNext = false; // salto de página que cae al final de un párrafo: la hoja nueva empieza en el siguiente
   const paragraphOf = (body: string) => {
     const jc = /<w:jc\s+w:val="(\w+)"/.exec(body)?.[1],
       p = paragraph();
-    p.align = jc === "center" ? "center" : jc === "right" || jc === "end" ? "right" : "left";
+    p.align =
+      jc === "center" ? "center" : jc === "right" || jc === "end" ? "right" : jc === "both" || jc === "distribute" ? "justify" : "left";
+    const ind = /<w:ind\s[^>]*w:(?:left|start)="(\d+)"/.exec(body)?.[1],
+      steps = ind ? Math.round(Number(ind) / (INDENT_CM * 567)) : 0;
+    if (steps >= 1) p.indent = Math.min(MAX_INDENT, steps);
+    if (/<w:pageBreakBefore\s*(?:\/>|w:val="(?:1|true|on)")/.test(body)) p.pageBreak = true;
     const num = /<w:numPr>([\s\S]*?)<\/w:numPr>/.exec(body)?.[1],
       numId = num && /<w:numId\s+w:val="(\d+)"/.exec(num)?.[1],
       style = /<w:pStyle\s+w:val="([^"]+)"/.exec(body)?.[1] ?? "";
@@ -119,6 +132,12 @@ function readDocx(bytes: Uint8Array, media: boolean) {
       italic = 0,
       underline = 0;
     for (const [, run] of body.matchAll(/<w:r(?:\s[^>]*)?>([\s\S]*?)<\/w:r>/g)) {
+      if (/<w:br\s+w:type="page"\s*\/>/.test(run)) {
+        const at = run.search(/<w:br\s+w:type="page"/),
+          words = run.search(/<w:t[ >]/);
+        if (!text.trim() && !(words >= 0 && words < at)) p.pageBreak = true;
+        else breakNext = true;
+      }
       let piece = "";
       for (const m of run.matchAll(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>|<w:tab\s*\/>|<w:br\s*\/>/g))
         piece += m[0].startsWith("<w:tab") ? "\t" : m[0].startsWith("<w:br") ? "\n" : entities(m[1]);
@@ -148,7 +167,16 @@ function readDocx(bytes: Uint8Array, media: boolean) {
   // Párrafos y tablas en el orden del documento; el texto de una tabla no se repite como párrafos.
   for (const [block] of xml.matchAll(/<w:tbl(?=[ >])[\s\S]*?<\/w:tbl>|<w:p(?:\s[^>]*)?>[\s\S]*?<\/w:p>/g)) {
     if (!block.startsWith("<w:tbl")) {
-      out.push(paragraphOf(block.replace(/^<w:p(?:\s[^>]*)?>/, "").replace(/<\/w:p>$/, "")));
+      const carry = breakNext;
+      breakNext = false;
+      const para = paragraphOf(block.replace(/^<w:p(?:\s[^>]*)?>/, "").replace(/<\/w:p>$/, ""));
+      if (carry) para.pageBreak = true;
+      // Un párrafo vacío que solo trae el salto de página no se deja: el salto pasa al siguiente.
+      if (!para.text.trim() && para.pageBreak && !/<a:blip|<v:imagedata|<w:drawing/.test(block)) {
+        breakNext = true;
+        continue;
+      }
+      out.push(para);
       for (const m of block.matchAll(/<a:blip\s[^>]*r:embed="([^"]+)"|<v:imagedata\s[^>]*r:id="([^"]+)"/g))
         refs.push({ at: out.length - 1, rid: m[1] ?? m[2] });
       continue;
@@ -167,6 +195,8 @@ function readDocx(bytes: Uint8Array, media: boolean) {
     }
     if (rows.length > MAX_TABLE_ROWS || rows.some((r) => r.length > cols || r.some((c) => c.length > MAX_TABLE_CELL))) trimmed = true;
     const t = paragraph();
+    if (breakNext) t.pageBreak = true;
+    breakNext = false;
     t.table = rows.slice(0, MAX_TABLE_ROWS).map((r) =>
       Array.from({ length: cols }, (_, i) => (r[i] ?? "").slice(0, MAX_TABLE_CELL)),
     );
@@ -286,59 +316,72 @@ export function importOcr(name: string, pages: string[], confidence: number): Im
 // Un PDF hecho solo de imágenes no trae texto que copiar; hay que reconocerlo (OCR).
 const SCANNED_PDF = "Este PDF no tiene texto seleccionable (parece un escaneo).";
 export const isScannedPdf = (e: unknown) => e instanceof Error && e.message.startsWith(SCANNED_PDF);
-type Line = { y: number; text: string };
+// pdf.js: números de las operaciones que dibujan imágenes (logos, firmas, sellos) y que el Word no recibe.
+const IMAGE_OPS = [83, 85, 86];
+async function pageDetails(page: PdfPage, names: string[]) {
+  const fonts: Record<string, FontInfo> = {};
+  let images = 0;
+  try {
+    const ops = await page.getOperatorList?.();
+    images = ops ? ops.fnArray.filter((n) => IMAGE_OPS.includes(n)).length : 0;
+    for (const id of names) {
+      const f = page.commonObjs?.get(id);
+      if (f?.name) fonts[id] = { ...fontInfo(f.name), bold: fontInfo(f.name).bold || !!f.bold, italic: fontInfo(f.name).italic || !!f.italic };
+    }
+  } catch {
+    /* sin datos de la letra: se usa solo el tamaño y la posición */
+  }
+  return { fonts, images };
+}
 export async function importPdf(
   name: string,
   bytes: Uint8Array,
   load: PdfLoader,
 ): Promise<ImportResult> {
   if (bytes.length > MAX_IMPORT_BYTES) throw Error("El archivo pesa más de 20 MB.");
-  const pdf = await load(bytes),
-    out: Paragraph[] = [];
+  const pdf = await load(bytes);
   try {
-    const last = Math.min(pdf.numPages, MAX_PDF_PAGES);
+    const last = Math.min(pdf.numPages, MAX_PDF_PAGES),
+      pages: LayoutPage[] = [];
+    let images = 0;
     for (let n = 1; n <= last; n++) {
-      const content = await (await pdf.getPage(n)).getTextContent(),
-        lines: Line[] = [];
-      let cur: Line | null = null;
-      for (const item of content.items as {
-        str?: string;
-        hasEOL?: boolean;
-        transform?: number[];
-      }[]) {
-        if (typeof item.str !== "string") continue;
-        const y = item.transform?.[5] ?? 0;
-        if (!cur) {
-          cur = { y, text: "" };
-          lines.push(cur);
-        }
-        cur.text += item.str;
-        if (item.hasEOL) cur = null;
+      const page = await pdf.getPage(n),
+        content = await page.getTextContent(),
+        view = page.view ?? [0, 0, 612, 792],
+        used = new Set<string>(),
+        items: RawItem[] = [];
+      for (const it of content.items as { str?: string; width?: number; height?: number; fontName?: string; transform?: number[] }[]) {
+        if (typeof it.str !== "string" || !it.transform) continue;
+        const [a, b, , , e, f] = it.transform;
+        used.add(it.fontName ?? "");
+        items.push({
+          str: it.str,
+          x: e - view[0],
+          y: f - view[1],
+          w: it.width ?? 0,
+          size: Math.hypot(a, b) || it.height || 0,
+          font: it.fontName ?? "",
+          angle: Math.atan2(b, a),
+        });
       }
-      const clean = lines.map((l) => ({ y: l.y, text: l.text.replace(/\s+/g, " ").trim() }));
-      const gaps = clean
-        .slice(1)
-        .map((l, i) => Math.abs(clean[i].y - l.y))
-        .filter((g) => g > 0)
-        .sort((a, b) => a - b);
-      const normal = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;
-      let para = "";
-      clean.forEach((l, i) => {
-        const gap = i ? Math.abs(clean[i - 1].y - l.y) : 0;
-        if (!l.text || (normal && gap > normal * 1.6)) {
-          if (para) out.push(paragraph(para));
-          para = l.text;
-        } else para = para ? para + " " + l.text : l.text;
-      });
-      if (para) out.push(paragraph(para));
+      const info = await pageDetails(page, [...used].filter(Boolean)),
+        styles = content.styles ?? {};
+      for (const id of used)
+        if (id && !info.fonts[id]) info.fonts[id] = fontInfo("", styles[id]?.fontFamily);
+      images += info.images;
+      pages.push({ width: view[2] - view[0], height: view[3] - view[1], items, fonts: info.fonts });
     }
-    return build(
-      name,
-      out,
-      pdf.numPages > MAX_PDF_PAGES
-        ? "Solo se importaron las primeras " + MAX_PDF_PAGES + " páginas. Los saltos de párrafo y el formato son aproximados."
-        : "Los saltos de párrafo y el formato son aproximados; revisa el texto.",
-    );
+    const r = layoutPages(pages);
+    if (!r.paragraphs.length) throw Error("El archivo no tiene texto para importar.");
+    const notes = [
+      "El formato se reconstruyó con la posición del texto (alineación, sangrías, tablas y saltos de página) y es aproximado: revisa el resultado, sobre todo en formularios complicados.",
+      r.tables ? (r.tables === 1 ? "Se detectó 1 tabla." : "Se detectaron " + r.tables + " tablas.") : "",
+      images ? "El PDF tiene imágenes (logos, firmas, sellos) que no pasan al Word." : "",
+      r.skipped ? "Se omitió texto girado o en vertical." : "",
+      pdf.numPages > MAX_PDF_PAGES ? "Solo se importaron las primeras " + MAX_PDF_PAGES + " páginas." : "",
+    ].filter(Boolean);
+    const res = build(name, r.paragraphs, notes.join(" "));
+    return r.pageNumbers ? { ...res, doc: { ...res.doc, pageNumbers: true } } : res;
   } catch (e) {
     if (e instanceof Error && e.message.startsWith("El archivo no tiene texto"))
       throw Error(

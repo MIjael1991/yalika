@@ -14,9 +14,11 @@ import {
   type TargetId,
 } from "../../lib/yalika-convert";
 import type { PageSize, ScanMode } from "../../lib/yalika-scan";
+import { SHORTCUTS } from "../../lib/estudio-tools";
 import { isMedia } from "../../lib/yalika-media";
 import { imageHints } from "../../lib/yalika-suggest";
 import { Delivery } from "./delivery";
+import { EstudioIcon } from "./estudio-icon";
 import { LayoutFields } from "./layout-fields";
 import styles from "./studio.module.css";
 const message = (e: unknown) => (e instanceof Error ? e.message : "Algo salió mal.");
@@ -57,8 +59,20 @@ function useDimensions(file: File | undefined) {
   }, [file]);
   return dim && dim.file === file ? dim : null;
 }
+// Qué tipo de archivo se pide en el selector según lo que el usuario quiere convertir (solo orienta; se puede elegir otro).
+const ACCEPT: Record<Kind, string> = {
+  pdf: ".pdf,application/pdf",
+  word: ".doc,.docx",
+  excel: ".xls,.xlsx",
+  csv: ".csv,text/csv",
+  powerpoint: ".ppt,.pptx",
+  imagen: "image/*",
+  texto: ".txt,text/plain",
+};
+const isKind = (v: string | undefined): v is Kind => !!v && v in KIND_LABEL;
 // Un solo lugar para convertir: eliges el archivo y a qué formato; solo aparece lo que sí se puede.
-export function ConvertHub({ scope }: { scope: FileScope }) {
+// `from` y `to` vienen de los atajos del menú («PDF a Word»): dejan lista la pantalla para ese caso.
+export function ConvertHub({ scope, from, to }: { scope: FileScope; from?: string; to?: string }) {
   const [files, setFiles] = useState<File[]>([]),
     [kind, setKind] = useState<Kind | null>(null),
     [target, setTarget] = useState<TargetId>("pdf"),
@@ -83,7 +97,8 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
     if (arr.length > 1 && first !== "imagen") return setNotice("Aquí se convierte un archivo a la vez. Para juntar varios PDF usa «Unir PDF».");
     setFiles(arr);
     setKind(first);
-    setTarget(targetsFor(first)[0].id);
+    const want = targetsFor(first).find((t) => t.id === to);
+    setTarget((want ?? targetsFor(first)[0]).id);
     setOut(null);
     setNotice("");
   }
@@ -117,61 +132,83 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
       setOptions({ ...options, ...change });
       setOut(null);
     },
+    title =
+      kind && chosen
+        ? "De " + KIND_LABEL[kind] + " a " + chosen.label.replace(/ \(.*$/, "")
+        : isKind(from)
+          ? to && targetsFor(from).some((t) => t.id === to)
+            ? "De " + KIND_LABEL[from] + " a " + targetsFor(from).find((t) => t.id === to)!.label.replace(/ \(.*$/, "")
+            : "Convertir " + KIND_LABEL[from]
+          : "¿Qué quieres convertir?",
     picker = (label: string, className: string) => (
       <label className={className} aria-disabled={busy}>
         {label}
-        <input hidden type="file" multiple disabled={busy} onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
+        <input hidden type="file" multiple accept={isKind(from) ? ACCEPT[from] : undefined} disabled={busy} onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
       </label>
     );
   return (
-    <main className={styles.workspace}>
-      <div className={styles.heading}>
+    <main className={`${styles.workspace} ${styles.tx}`}>
+      <header className={styles.uiHead}>
         <div>
-          <h1>Convertir archivos</h1>
+          <span className={styles.uiEyebrow}>Convertir</span>
+          <h1>{title}</h1>
           <p>Elige el archivo y a qué quieres pasarlo. Todo se hace en este dispositivo: nada se sube a internet.</p>
         </div>
-      </div>
+        <span className={styles.uiPrivacy}>
+          <EstudioIcon name="lock" size={14} /> Nada sale de tu dispositivo
+        </span>
+      </header>
       {!kind ? (
-        <div className={styles.drop}>
-          <strong>Elige el archivo que quieres convertir</strong>
-          <p>PDF, Word, Excel, PowerPoint, CSV, texto o fotos. Hasta 20 MB. Con fotos puedes elegir varias a la vez. Para audio y video usa «Audio y video a texto».</p>
-          {picker("Elegir archivo", styles.bigButton)}
-        </div>
+        <>
+          <div className={styles.uiDrop}>
+            <span className={styles.uiDropIcon}>
+              <EstudioIcon name="convert" size={28} />
+            </span>
+            <strong>{isKind(from) ? "Elige tu archivo " + KIND_LABEL[from] : "Elige el archivo que quieres convertir"}</strong>
+            <p>PDF, Word, Excel, PowerPoint, CSV, texto o fotos. Hasta 20 MB. Con fotos puedes elegir varias a la vez.</p>
+            {picker("Elegir archivo", styles.uiCta)}
+          </div>
+          <div className={styles.cvShortcuts}>
+            <h2>¿Buscas algo en especial?</h2>
+            <div className={styles.chips}>
+              {SHORTCUTS.map((x) => (
+                <Link key={x.href} href={x.href} className={styles.chip}>
+                  {x.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>
       ) : (
         <>
           <div className={styles.fileRow}>
             <span className={styles.fileChip}>
               {files.length > 1 ? files.length + " fotos" : files[0].name} · {KIND_LABEL[kind]} · {size(files.reduce((n, f) => n + f.size, 0))}
             </span>
-            {picker("Cambiar archivo", styles.import)}
+            {picker("Cambiar archivo", styles.uiGhost)}
           </div>
-          <div className={styles.convertCard}>
-            <label className={styles.bigField}>
-              Convertir a
-              <select
-                className={styles.bigSelect}
-                value={target}
-                disabled={busy}
-                onChange={(e) => choose(e.target.value as TargetId)}
-              >
-                {groups.map((g) => {
-                  const list = choices.filter((t) => (t.group ?? "") === g),
-                    items = list.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.label}
-                      </option>
-                    ));
-                  return g ? (
-                    <optgroup key={g} label={g}>
-                      {items}
-                    </optgroup>
-                  ) : (
-                    items
-                  );
-                })}
-              </select>
-            </label>
-            {chosen && <p className={styles.help}>{chosen.hint}</p>}
+          <section className={styles.uiCard} aria-label="Opciones de conversión">
+            <fieldset className={styles.uiTiers}>
+              <legend>¿A qué lo pasamos?</legend>
+              {groups.map((g) => (
+                <div key={g || "todos"} className={styles.cvGroup}>
+                  {g && <h3>{g}</h3>}
+                  <div className={styles.cvChoices}>
+                    {choices
+                      .filter((t) => (t.group ?? "") === g)
+                      .map((t) => (
+                        <label key={t.id} className={styles.uiTier} aria-disabled={busy}>
+                          <input type="radio" name="destino" checked={target === t.id} disabled={busy} onChange={() => choose(t.id)} />
+                          <span>
+                            <span className={styles.uiTierTop}>{t.label}</span>
+                            <span className={styles.uiTierHint}>{t.hint}</span>
+                          </span>
+                        </label>
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </fieldset>
             {kind === "imagen" && (
               <div className={styles.systems} role="group" aria-label="Formato según el sistema">
                 <strong>¿Para qué sistema?</strong>
@@ -243,10 +280,12 @@ export function ConvertHub({ scope }: { scope: FileScope }) {
                 Llenar el cuadrado (recorta lo que sobre)
               </label>
             )}
-            <button type="button" className={styles.primary} disabled={busy} onClick={() => void run()}>
-              {busy ? "Convirtiendo…" : "Convertir"}
-            </button>
-          </div>
+            <div className={styles.cvRun}>
+              <button type="button" className={styles.uiCta} disabled={busy} onClick={() => void run()}>
+                {busy ? "Convirtiendo…" : "Convertir a " + (chosen ? chosen.label.replace(/ \(.*$/, "") : "…")}
+              </button>
+            </div>
+          </section>
         </>
       )}
       {notice && (

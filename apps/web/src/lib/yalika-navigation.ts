@@ -18,10 +18,11 @@ export const destinations = [
   {
     id: "studio",
     name: "Estudio",
-    detail: "Escribe y organiza tus archivos",
+    detail: "Convierte, escanea y escribe documentos",
     href: "/estudio",
     module: "",
-    words: "estudio escribir documento borrador",
+    words:
+      "estudio escribir documento borrador convertir pdf word excel foto escanear imagen ine credencial identificacion copia imprimir audio video texto unir",
   },
   {
     id: "files",

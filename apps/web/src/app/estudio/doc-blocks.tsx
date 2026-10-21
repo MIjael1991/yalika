@@ -1,6 +1,23 @@
 "use client";
+import { useEffect, useLayoutEffect, useRef, type TextareaHTMLAttributes } from "react";
 import { MAX_TABLE_CELL, MAX_TABLE_COLS, MAX_TABLE_ROWS, type Paragraph, type Picture } from "../../lib/yalika-document";
 import styles from "./studio.module.css";
+// Cuadro de texto que crece con lo que se escribe: el documento se ve corrido, como una hoja, sin huecos.
+export function AutoText(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const ref = useRef<HTMLTextAreaElement>(null),
+    fit = () => {
+      const el = ref.current;
+      if (!el) return;
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + 2 + "px";
+    };
+  useLayoutEffect(fit, [props.value, props.style?.fontSize, props.style?.fontFamily, props.style?.fontWeight]);
+  useEffect(() => {
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
+  return <textarea ref={ref} rows={1} {...props} />;
+}
 // Bloques del documento que no son texto: tablas e imágenes.
 export function TableBlock({
   block,

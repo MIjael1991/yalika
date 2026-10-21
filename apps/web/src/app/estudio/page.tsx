@@ -1,10 +1,12 @@
 import { requireBusinessSession } from "../../lib/yalika-business-session";
-import Link from "next/link";
 import { FilesWorkspace } from "../archivos/files-workspace";
+import { TOOLS } from "../../lib/estudio-tools";
 import { ConvertHub } from "./convert-hub";
+import { EstudioHome } from "./estudio-home";
+import { EstudioMenu } from "./estudio-menu";
+import { IdentificationWorkspace } from "./id-workspace";
 import { ImageWorkspace } from "./image-workspace";
 import { OfflineSwitch } from "./offline-switch";
-import { MenuScroll } from "./menu-scroll";
 import { MergeWorkspace } from "./merge-workspace";
 import { NamesWorkspace } from "./names-workspace";
 import { RecordsWorkspace } from "./records-workspace";
@@ -13,86 +15,48 @@ import { StudioWorkspace } from "./studio-workspace";
 import { TranscribeWorkspace } from "./transcribe-workspace";
 import styles from "./studio.module.css";
 export const dynamic = "force-dynamic";
-const MENU = [
-  [
-    "Crear",
-    [
-      ["", "Documento"],
-      ["hoja", "Hoja de cálculo"],
-      ["nombres", "Lista de nombres"],
-    ],
-  ],
-  ["Fotos", [["imagen", "Escanear y mejorar"]]],
-  [
-    "Convertir",
-    [
-      ["convertir", "Convertir archivos"],
-      ["unir", "Unir PDF"],
-      ["voz", "Audio y video a texto"],
-    ],
-  ],
-  [
-    "Trabajo",
-    [
-      ["expedientes", "Expedientes"],
-      ["archivos", "Mis archivos"],
-    ],
-  ],
-] as const;
+const WANTED = ["pdf", "word", "excel", "csv", "powerpoint", "imagen", "texto"];
 export default async function StudioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; de?: string; a?: string }>;
 }) {
-  const asked = (await searchParams).tab,
+  const q = await searchParams,
     // Los enlaces de las pantallas separadas de antes llevan al convertidor único.
-    requested = ["pdf-imagenes", "pdf-texto", "excel"].includes(asked ?? "") ? "convertir" : asked,
-    tab = MENU.some(([, items]) => items.some(([key]) => key && key === requested)) ? requested : "";
+    requested = ["pdf-imagenes", "pdf-texto", "excel"].includes(q.tab ?? "") ? "convertir" : q.tab,
+    tab = TOOLS.some((t) => t.id === requested) ? (requested as string) : "";
   const user = await requireBusinessSession(),
     scope = { userId: user.id, companyId: user.companyId },
     key = `${user.companyId}:${user.id}`;
   return (
     <div className={styles.shell}>
-      <nav aria-label="Estudio" className={styles.menu}>
-        {MENU.map(([group, items]) => (
-          <div key={group} className={styles.menuGroup}>
-            <span className={styles.menuLabel}>{group}</span>
-            <div className={styles.menuItems}>
-              {items.map(([id, label]) => (
-                <Link
-                  key={id}
-                  aria-current={id === tab ? "page" : undefined}
-                  className={styles.menuLink}
-                  href={id ? "/estudio?tab=" + id : "/estudio"}
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-      <MenuScroll />
-      <OfflineSwitch />
-      {tab === "archivos" ? (
-        <FilesWorkspace scope={scope} />
-      ) : tab === "expedientes" ? (
-        <RecordsWorkspace key={key} scope={scope} />
-      ) : tab === "convertir" ? (
-        <ConvertHub key={key} scope={scope} />
-      ) : tab === "voz" ? (
-        <TranscribeWorkspace key={key} scope={scope} />
-      ) : tab === "unir" ? (
-        <MergeWorkspace key={key} scope={scope} />
-      ) : tab === "nombres" ? (
-        <NamesWorkspace key={key} scope={scope} />
-      ) : tab === "hoja" ? (
-        <SheetWorkspace key={key} scope={scope} />
-      ) : tab === "imagen" ? (
-        <ImageWorkspace key={key} scope={scope} />
-      ) : (
-        <StudioWorkspace key={key} scope={scope} />
-      )}
+      <EstudioMenu key={tab} current={tab} />
+      <div className={styles.main}>
+        <OfflineSwitch />
+        {tab === "archivos" ? (
+          <FilesWorkspace scope={scope} />
+        ) : tab === "expedientes" ? (
+          <RecordsWorkspace key={key} scope={scope} />
+        ) : tab === "convertir" ? (
+          <ConvertHub key={key} scope={scope} from={WANTED.includes(q.de ?? "") ? q.de : undefined} to={q.a} />
+        ) : tab === "voz" ? (
+          <TranscribeWorkspace key={key} scope={scope} />
+        ) : tab === "unir" ? (
+          <MergeWorkspace key={key} scope={scope} />
+        ) : tab === "nombres" ? (
+          <NamesWorkspace key={key} scope={scope} />
+        ) : tab === "hoja" ? (
+          <SheetWorkspace key={key} scope={scope} />
+        ) : tab === "imagen" ? (
+          <ImageWorkspace key={key} scope={scope} />
+        ) : tab === "identificacion" ? (
+          <IdentificationWorkspace key={key} scope={scope} />
+        ) : tab === "documento" ? (
+          <StudioWorkspace key={key} scope={scope} />
+        ) : (
+          <EstudioHome />
+        )}
+      </div>
     </div>
   );
 }

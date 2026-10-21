@@ -54,7 +54,9 @@ export const moduleNavigation = [
     name: "Estudio",
     root: "/estudio",
     items: [
-      { name: "Escribir", href: "/estudio" },
+      { name: "¿Qué quieres hacer?", href: "/estudio" },
+      { name: "Escribir un documento", href: "/estudio?tab=documento" },
+      { name: "Convertir archivos", href: "/estudio?tab=convertir" },
       { name: "Mis archivos", href: "/estudio?tab=archivos" },
     ],
   },

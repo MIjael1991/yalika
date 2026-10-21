@@ -9,7 +9,10 @@ export type Paragraph = {
   bold: boolean;
   italic: boolean;
   underline: boolean;
-  align: "left" | "center" | "right";
+  align: "left" | "center" | "right" | "justify";
+  // Sangría a la izquierda en pasos de medio centímetro y salto de página antes del párrafo (opcionales).
+  indent?: number;
+  pageBreak?: boolean;
   // Un párrafo puede ser, además de texto: elemento de lista, tabla o imagen (los campos de abajo son opcionales).
   list?: "bullet" | "number";
   table?: string[][];
@@ -23,6 +26,8 @@ export type YalikaDocument = {
   paragraphs: Paragraph[];
   pageNumbers?: boolean;
 };
+export const MAX_INDENT = 16;
+export const INDENT_CM = 0.5;
 export const MAX_TABLES = 20;
 export const MAX_TABLE_ROWS = 300;
 export const MAX_TABLE_COLS = 8;
@@ -82,7 +87,7 @@ export function parseDocument(value: unknown): YalikaDocument {
       !Number.isInteger(p.size) ||
       p.size < 8 ||
       p.size > 36 ||
-      !["left", "center", "right"].includes(p.align) ||
+      !["left", "center", "right", "justify"].includes(p.align) ||
       [p.bold, p.italic, p.underline].some((x) => typeof x !== "boolean")
     )
       throw Error("Formato de documento no válido.");
@@ -96,6 +101,14 @@ export function parseDocument(value: unknown): YalikaDocument {
       underline: p.underline,
       align: p.align,
     };
+    if (p.indent !== undefined) {
+      if (!Number.isInteger(p.indent) || p.indent < 0 || p.indent > MAX_INDENT) throw Error("Formato de documento no válido.");
+      if (p.indent > 0) out.indent = p.indent;
+    }
+    if (p.pageBreak !== undefined) {
+      if (typeof p.pageBreak !== "boolean") throw Error("Formato de documento no válido.");
+      if (p.pageBreak) out.pageBreak = true;
+    }
     if (p.list !== undefined) {
       if (p.list !== "bullet" && p.list !== "number") throw Error("Formato de documento no válido.");
       out.list = p.list;
@@ -170,6 +183,7 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
     PageNumber,
     Paragraph: P,
     ShadingType,
+    Tab,
     Table,
     TableCell,
     TableRow,
@@ -183,7 +197,7 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
     text.split("\n").map(
       (line, i) =>
         new TextRun({
-          text: line,
+          children: line.split("\t").flatMap((part, k) => (k ? [new Tab(), part] : [part])),
           break: i ? 1 : undefined,
           font: p.font,
           size: p.size * 2,
@@ -196,14 +210,15 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
   let run = -1,
     prevNumber = false,
     afterTable = false; // Word pega lo que sigue a una tabla; se deja un poco de aire
-  const children = d.paragraphs.map((p) => {
+  const align = (p: Paragraph) => (p.align === "justify" ? AlignmentType.JUSTIFIED : p.align);
+  const children = d.paragraphs.flatMap((p) => {
     const isNumber = p.list === "number";
     if (isNumber && !prevNumber) run++;
     prevNumber = isNumber;
     const before = afterTable ? 120 : 0;
     afterTable = !!p.table;
     if (p.table) {
-      return new Table({
+      const table = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         borders: { top: edge, bottom: edge, left: edge, right: edge, insideHorizontal: edge, insideVertical: edge },
         rows: p.table.map((row, r) => {
@@ -226,23 +241,30 @@ export async function exportWord(value: YalikaDocument): Promise<Blob> {
           });
         }),
       });
+      // Una tabla no lleva «salto antes»: se pone en un párrafo vacío que la precede.
+      return p.pageBreak ? [new P({ pageBreakBefore: true, spacing: { after: 0 }, children: [] }), table] : [table];
     }
     if (p.image) {
       const box = pictureBox(p.image, 600);
-      return new P({
-        alignment: p.align,
-        spacing: { before, after: 160 },
-        children: [
-          new ImageRun({
-            type: "jpg",
-            data: fromBase64(p.image.data),
-            transformation: { width: Math.round(box.width), height: Math.round(box.height) },
-          }),
-        ],
-      });
+      return [
+        new P({
+          alignment: align(p),
+          pageBreakBefore: p.pageBreak ? true : undefined,
+          spacing: { before, after: 160 },
+          children: [
+            new ImageRun({
+              type: "jpg",
+              data: fromBase64(p.image.data),
+              transformation: { width: Math.round(box.width), height: Math.round(box.height) },
+            }),
+          ],
+        }),
+      ];
     }
     return new P({
-      alignment: p.align,
+      alignment: align(p),
+      pageBreakBefore: p.pageBreak ? true : undefined,
+      ...(p.indent ? { indent: { left: Math.round(p.indent * INDENT_CM * 567) } } : {}),
       spacing: { before, after: p.list ? 60 : 160 },
       ...(p.list === "bullet" ? { bullet: { level: 0 } } : {}),
       ...(isNumber ? { numbering: { reference: "yalika-num", level: 0, instance: run } } : {}),
@@ -297,6 +319,7 @@ const SIMPLE: [RegExp, string][] = [
   [/[\u2022\u25cf\u25aa\u25e6]/g, "\u00b7"],
   [/[\u200b\u200c\u200d\u2060\ufeff]/g, ""],
   [/[\u2002-\u2009\u202f]/g, " "],
+  [/\t/g, "    "],
 ];
 export const simpleText = (text: string) => SIMPLE.reduce((t, [re, to]) => t.replace(re, to), text);
 export async function exportPdf(value: YalikaDocument): Promise<Blob> {
@@ -325,6 +348,10 @@ export async function exportPdf(value: YalikaDocument): Promise<Blob> {
     contentWidth = width - 112;
   let counter = 0;
   for (const p of d.paragraphs) {
+    if (p.pageBreak && y > 56) {
+      pdf.addPage();
+      y = 56;
+    }
     const font =
       p.font === "Arial"
         ? "helvetica"
@@ -386,7 +413,7 @@ export async function exportPdf(value: YalikaDocument): Promise<Blob> {
     style(p.bold);
     pdf.setFontSize(p.size);
     counter = p.list === "number" ? counter + 1 : 0;
-    const indent = p.list ? 22 : 0,
+    const indent = (p.list ? 22 : 0) + (p.indent ?? 0) * INDENT_CM * 28.35,
       lines: string[] = pdf.splitTextToSize(p.text || " ", contentWidth - indent);
     lines.forEach((line, li) => {
       if (y + p.size * 1.4 > bottom) {
@@ -397,9 +424,19 @@ export async function exportPdf(value: YalikaDocument): Promise<Blob> {
         x = p.align === "center" ? (left + width - 56) / 2 : p.align === "right" ? width - 56 : left;
       if (li === 0 && p.list === "bullet") pdf.circle(56 + 8, y - p.size * 0.3, 1.8, "F");
       if (li === 0 && p.list === "number") pdf.text(counter + ".", 56 + 14, y, { align: "right" });
-      pdf.text(line, x, y, { align: p.align });
+      // Justificado: se reparte el espacio de cada renglón menos el último de cada párrafo.
+      const words = line.trim().split(/ +/);
+      if (p.align === "justify" && li < lines.length - 1 && words.length > 1) {
+        const widths = words.map((w) => pdf.getTextWidth(w)),
+          gap = (contentWidth - indent - widths.reduce((n, w) => n + w, 0)) / (words.length - 1);
+        let at = left;
+        words.forEach((w, k) => {
+          pdf.text(w, at, y);
+          at += widths[k] + gap;
+        });
+      } else pdf.text(line, x, y, { align: p.align === "justify" ? "left" : p.align });
       if (p.underline) {
-        const w = pdf.getTextWidth(line),
+        const w = p.align === "justify" && li < lines.length - 1 ? contentWidth - indent : pdf.getTextWidth(line),
           start = p.align === "center" ? x - w / 2 : p.align === "right" ? x - w : x;
         pdf.line(start, y + 2, start + w, y + 2);
       }

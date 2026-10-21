@@ -104,3 +104,54 @@ export async function fitPicture(file: File, maxBase64: number): Promise<{ data:
 }
 export const pictureFit = (maxBase64: number) => (bytes: Uint8Array, name: string) =>
   fitPicture(new File([bytes as BlobPart], name), maxBase64);
+// Una credencial lista para imprimir: llevada al tamaño exacto, con las esquinas redondeadas y un filo fino. Devuelve un JPEG.
+export async function renderCard(p: Pixels, width: number, height: number, note = ""): Promise<Uint8Array> {
+  const src = document.createElement("canvas");
+  toCanvas(p, src);
+  const out = document.createElement("canvas");
+  out.width = width;
+  out.height = height;
+  const ctx = out.getContext("2d");
+  if (!ctx) throw Error("Tu navegador no permite procesar imágenes.");
+  const r = width * 0.037,
+    edge = Math.max(2, width * 0.004);
+  const round = (inset: number) => {
+    ctx.beginPath();
+    ctx.moveTo(inset + r, inset);
+    ctx.arcTo(width - inset, inset, width - inset, height - inset, r);
+    ctx.arcTo(width - inset, height - inset, inset, height - inset, r);
+    ctx.arcTo(inset, height - inset, inset, inset, r);
+    ctx.arcTo(inset, inset, width - inset, inset, r);
+    ctx.closePath();
+  };
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, width, height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.save();
+  round(0);
+  ctx.clip();
+  ctx.drawImage(src, 0, 0, width, height);
+  if (note) {
+    // Leyenda en diagonal, repetida y discreta: si alguien usa la copia para otra cosa, se nota.
+    const size = Math.round(height / 13);
+    ctx.font = "700 " + size + "px Arial, Helvetica, sans-serif";
+    ctx.fillStyle = "rgba(40,40,40,0.2)";
+    ctx.textBaseline = "middle";
+    ctx.translate(width / 2, height / 2);
+    ctx.rotate(-Math.PI / 8);
+    const text = note.toUpperCase(),
+      step = ctx.measureText(text).width + size * 2.5,
+      rows = Math.ceil(width / (size * 2.4));
+    for (let r = -rows; r <= rows; r++)
+      for (let x = -width * 1.5 + ((r & 1) * step) / 2; x < width * 1.5; x += step) ctx.fillText(text, x, r * size * 2.4);
+  }
+  ctx.restore();
+  ctx.strokeStyle = "#8d949c";
+  ctx.lineWidth = edge;
+  round(edge / 2);
+  ctx.stroke();
+  const blob = await new Promise<Blob | null>((ok) => out.toBlob(ok, "image/jpeg", 0.93));
+  if (!blob) throw Error("No se pudo crear la imagen.");
+  return new Uint8Array(await blob.arrayBuffer());
+}

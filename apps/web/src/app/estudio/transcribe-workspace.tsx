@@ -194,7 +194,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
       )
     ) : null;
   const fileCard = file && (
-    <section className={`${styles.txCard} ${segments.length ? styles.txFirst : ""}`} aria-label="Archivo">
+    <section className={`${styles.uiCard} ${segments.length ? styles.txFirst : ""}`} aria-label="Archivo">
       <div className={styles.txFile}>
         <span className={styles.txFileIcon} aria-hidden="true">
           {video ? <Icon d="M4 6h11a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm15 4 4-2v8l-4-2" /> : <Icon d="M4 12v0M8 8v8M12 4v16M16 8v8M20 12v0" />}
@@ -211,33 +211,33 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
         </div>
       </div>
       {player}
-      {file.size === 0 && <p className={styles.txNote}>Para escuchar cada parte, elige otra vez el mismo archivo.</p>}
-      {picker(file.size === 0 ? "Elegir el archivo" : "Cambiar archivo", styles.txGhost)}
+      {file.size === 0 && <p className={styles.uiNote}>Para escuchar cada parte, elige otra vez el mismo archivo.</p>}
+      {picker(file.size === 0 ? "Elegir el archivo" : "Cambiar archivo", styles.uiGhost)}
     </section>
   );
 
   return (
     <main className={`${styles.workspace} ${styles.tx}`}>
-      <header className={styles.txHead}>
+      <header className={styles.uiHead}>
         <div>
-          <span className={styles.txEyebrow}>Convertir</span>
+          <span className={styles.uiEyebrow}>Convertir</span>
           <h1>Audio y video a texto</h1>
           <p>Pasa una grabación, una nota de voz, una clase o un video a texto y descárgalo en Word, PDF o subtítulos.</p>
         </div>
-        <span className={styles.txPrivacy}>
+        <span className={styles.uiPrivacy}>
           <Icon d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6l-7-3Zm-3 9 2.2 2.2L15.5 10" /> Todo en este dispositivo
         </span>
       </header>
 
       {!file && (
         <>
-          <div className={styles.txDrop} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files); }}>
-            <span className={styles.txDropIcon} aria-hidden="true">
+          <div className={styles.uiDrop} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files); }}>
+            <span className={styles.uiDropIcon} aria-hidden="true">
               <Icon d="M4 12v0M8 8v8M12 4v16M16 8v8M20 12v0" size={34} />
             </span>
             <strong>Elige la grabación o el video</strong>
             <p>MP3, M4A, WAV, OGG, MP4, MOV, WebM y más · hasta 3 horas. También puedes arrastrar el archivo aquí.</p>
-            {picker("Elegir audio o video", styles.txCta)}
+            {picker("Elegir audio o video", styles.uiCta)}
           </div>
           {draft && (
             <div className={styles.txBanner}>
@@ -250,7 +250,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
               <div className={styles.txBannerActions}>
                 <button
                   type="button"
-                  className={styles.txSolid}
+                  className={styles.uiSolid}
                   onClick={() => {
                     setSegments(draft.segments);
                     setLanguage(draft.language);
@@ -268,7 +268,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
               </div>
             </div>
           )}
-          <ul className={styles.txFeatures}>
+          <ul className={styles.uiFeatures}>
             <li>
               <strong>Privado</strong>
               <span>El audio nunca sale de tu equipo ni se sube a internet.</span>
@@ -288,8 +288,8 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
       {file && !segments.length && !busy && (
         <div className={styles.txGrid}>
           {fileCard}
-          <section className={styles.txCard} aria-label="Ajustes">
-            <h2 className={styles.txCardTitle}>Ajustes</h2>
+          <section className={styles.uiCard} aria-label="Ajustes">
+            <h2 className={styles.uiCardTitle}>Ajustes</h2>
             <label className={styles.txField}>
               Idioma que se habla
               <select value={language} onChange={(e) => setLanguage(e.target.value)}>
@@ -300,30 +300,30 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
                 ))}
               </select>
             </label>
-            <fieldset className={styles.txTiers}>
+            <fieldset className={styles.uiTiers}>
               <legend>Exactitud</legend>
               {TIERS.map((t) => {
                 const blocked = t.gpuOnly && gpu === false;
                 return (
-                  <label key={t.id} className={styles.txTier} aria-disabled={blocked}>
+                  <label key={t.id} className={styles.uiTier} aria-disabled={blocked}>
                     <input type="radio" name="tier" checked={tier === t.id} disabled={blocked} onChange={() => setTier(t.id)} />
                     <span>
-                      <span className={styles.txTierTop}>
+                      <span className={styles.uiTierTop}>
                         <strong>{t.label}</strong>
                         {t.id === "preciso" && <em>Recomendado</em>}
                         <small>{t.size}</small>
                       </span>
-                      <span className={styles.txTierHint}>{blocked ? "No disponible: este navegador o equipo no tiene WebGPU." : t.hint}</span>
+                      <span className={styles.uiTierHint}>{blocked ? "No disponible: este navegador o equipo no tiene WebGPU." : t.hint}</span>
                     </span>
                   </label>
                 );
               })}
             </fieldset>
-            <p className={styles.txNote}>
+            <p className={styles.uiNote}>
               Con «{chosen.label}» se descargan {chosen.size} la primera vez y quedan en este dispositivo. Deja esta pestaña abierta mientras trabaja.
               {gpu === false && " Este equipo no tiene aceleración gráfica compatible, así que será más lento: una hora de audio puede tardar varias horas. Para audios largos usa «Rápido»."}
             </p>
-            <button type="button" className={styles.txCta} onClick={() => void start()}>
+            <button type="button" className={styles.uiCta} onClick={() => void start()}>
               Transcribir
             </button>
           </section>
@@ -358,7 +358,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
       )}
 
       {notice && (
-        <p role="status" className={styles.txNotice}>
+        <p role="status" className={styles.uiNotice}>
           {notice}
         </p>
       )}
@@ -383,9 +383,9 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
           </div>
         </section>
       )}
-      {info?.engineNote && <p className={styles.txNote}>{info.engineNote}</p>}
+      {info?.engineNote && <p className={styles.uiNote}>{info.engineNote}</p>}
       {ready && info && file && file.size > 0 && tier !== "maximo" && (info.notes.noisy || total.doubtful > segments.length / 4) && (tier === "rapido" || gpu) && (
-        <div className={styles.txNotice}>
+        <div className={styles.uiNotice}>
           Este audio tiene ruido o partes difíciles; con otro nivel de exactitud saldría mejor.{" "}
           <button
             type="button"
@@ -406,7 +406,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
         <div className={styles.txWork}>
           <div className={styles.txMain}>
             <div className={styles.txTools}>
-              <div className={styles.txSeg} role="group" aria-label="Qué mostrar">
+              <div className={styles.uiSeg} role="group" aria-label="Qué mostrar">
                 <button type="button" aria-pressed={!onlyDoubt} onClick={() => setOnlyDoubt(false)}>
                   Todo ({segments.length})
                 </button>
@@ -415,7 +415,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
                 </button>
               </div>
               {total.doubtful > 0 && (
-                <button type="button" className={styles.txSolid} onClick={nextDoubt}>
+                <button type="button" className={styles.uiSolid} onClick={nextDoubt}>
                   Ir a la siguiente parte dudosa
                 </button>
               )}
@@ -438,7 +438,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
                 </div>
               </details>
             </div>
-            {ready && shakyTotal > 0 && <p className={styles.txNote}>Las palabras en amarillo son donde el modelo dudó: toca una para escuchar esa parte.</p>}
+            {ready && shakyTotal > 0 && <p className={styles.uiNote}>Las palabras en amarillo son donde el modelo dudó: toca una para escuchar esa parte.</p>}
             <ol className={styles.txList} aria-label="Texto con sus tiempos">
               {shown.map(({ s, i }) => {
                 const doubt = hasDoubt(s),
@@ -480,15 +480,15 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
           <aside className={styles.txSide}>
             {fileCard}
             {ready && (
-              <section className={`${styles.txCard} ${styles.txLast}`} aria-label="Descargar">
-                <h2 className={styles.txCardTitle}>Descargar</h2>
+              <section className={`${styles.uiCard} ${styles.txLast}`} aria-label="Descargar">
+                <h2 className={styles.uiCardTitle}>Descargar</h2>
                 <label className={styles.check}>
                   <input type="checkbox" checked={times} onChange={(e) => setTimes(e.target.checked)} /> Poner la hora en cada párrafo
                 </label>
                 <label className={styles.check}>
                   <input type="checkbox" checked={mark} onChange={(e) => setMark(e.target.checked)} /> Marcar con [¿?] lo que no he revisado ({total.doubtful})
                 </label>
-                <button type="button" className={styles.txCta} onClick={() => void make("docx")}>
+                <button type="button" className={styles.uiCta} onClick={() => void make("docx")}>
                   Descargar en Word
                 </button>
                 <div className={styles.txFormats}>
@@ -497,7 +497,7 @@ export function TranscribeWorkspace({ scope }: { scope: FileScope }) {
                   <button type="button" onClick={() => void make("srt")}>SRT</button>
                   <button type="button" onClick={() => void make("vtt")}>VTT</button>
                 </div>
-                <p className={styles.txNote}>SRT y VTT son subtítulos para video. Ningún programa escribe lo que oye sin errores: revisa lo marcado antes de usar el texto en algo importante.</p>
+                <p className={styles.uiNote}>SRT y VTT son subtítulos para video. Ningún programa escribe lo que oye sin errores: revisa lo marcado antes de usar el texto en algo importante.</p>
               </section>
             )}
             {made && (
