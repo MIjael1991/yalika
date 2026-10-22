@@ -1,9 +1,9 @@
 import { requireBusinessSession } from "../../lib/yalika-business-session";
 import { FilesWorkspace } from "../archivos/files-workspace";
+import Link from "next/link";
 import { TOOLS } from "../../lib/estudio-tools";
 import { ConvertHub } from "./convert-hub";
 import { EstudioHome } from "./estudio-home";
-import { EstudioMenu } from "./estudio-menu";
 import { IdentificationWorkspace } from "./id-workspace";
 import { ImageWorkspace } from "./image-workspace";
 import { OfflineSwitch } from "./offline-switch";
@@ -29,10 +29,14 @@ export default async function StudioPage({
     scope = { userId: user.id, companyId: user.companyId },
     key = `${user.companyId}:${user.id}`;
   return (
-    <div className={styles.shell}>
-      <EstudioMenu key={tab} current={tab} />
-      <div className={styles.main}>
-        <OfflineSwitch />
+    <div className={styles.page}>
+      <OfflineSwitch />
+      {tab && (
+        <Link href="/estudio" className={styles.backLink}>
+          ← ¿Qué quieres hacer?
+        </Link>
+      )}
+      <div>
         {tab === "archivos" ? (
           <FilesWorkspace scope={scope} />
         ) : tab === "expedientes" ? (
