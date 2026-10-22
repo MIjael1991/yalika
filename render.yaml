@@ -3,7 +3,7 @@ services:
     name: plataforma-encuestas-piloto
     runtime: node
     plan: free
-    buildCommand: cd apps/api && npm ci && npx prisma migrate deploy && npm run build && cd ../web && npm ci && npm run build
+    buildCommand: cd apps/api && npm ci --include=dev && npx prisma migrate deploy && npm run build && cd ../web && npm ci --include=dev && npm run build
     startCommand: node infrastructure/render/start-platform.mjs
     healthCheckPath: /login
     envVars:
