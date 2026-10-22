@@ -149,6 +149,9 @@ export function MesActividades({ overdue = 0 }: { overdue?: number }) {
 
   useEffect(() => {
     void load();
+    const refresh = () => void load();
+    window.addEventListener("yalika:services-changed", refresh);
+    return () => window.removeEventListener("yalika:services-changed", refresh);
   }, [load]);
 
   const items = useMemo(
@@ -329,6 +332,7 @@ export function MesActividades({ overdue = 0 }: { overdue?: number }) {
           estimatedMinutes: 30,
           spaceId,
           dueAt: due.toISOString(),
+          reminderMinutesBefore: 0,
           ...(chosen.freq
             ? {
                 recurrenceFrequency: chosen.freq,
