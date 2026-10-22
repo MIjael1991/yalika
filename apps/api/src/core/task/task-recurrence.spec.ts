@@ -71,3 +71,26 @@ describe('task recurrence calendar', () => {
     );
   });
 });
+
+describe('task recurrence hourly', () => {
+  it('adds whole hours and finds the latest occurrence', () => {
+    const start = new Date('2026-10-22T16:35:00.000Z');
+
+    expect(
+      calculateNextOccurrence(start, start, 'hourly', 8).toISOString(),
+    ).toBe('2026-10-23T00:35:00.000Z');
+
+    const found = findLatestOccurrenceAtOrBefore(
+      start,
+      start,
+      'hourly',
+      8,
+      new Date('2026-10-23T09:00:00.000Z'),
+    );
+
+    expect(found.occurrenceAt.toISOString()).toBe('2026-10-23T08:35:00.000Z');
+    expect(found.nextOccurrenceAt.toISOString()).toBe(
+      '2026-10-23T16:35:00.000Z',
+    );
+  });
+});

@@ -1,6 +1,6 @@
 import { normalizeCaptureText } from './capture-classifier';
 
-type RecurrenceFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
+type RecurrenceFrequency = 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly';
 
 export type CaptureTemporalResult = {
   title: string;
@@ -65,6 +65,7 @@ export function interpretCaptureTemporal(input: {
     ? { frequency: 'daily' as const, interval: 1 }
     : inferRecurrence(normalized);
   const time = inferTime(normalized);
+  const duration = recurrence.frequency ? inferDuration(normalized) : null;
   const date = inferDate(normalizedDateSignals, localNow, recurrence.frequency);
   const hasTemporalSignal = Boolean(
     time.explicit || date.explicit || recurrence.frequency,
@@ -74,10 +75,20 @@ export function interpretCaptureTemporal(input: {
   let invalidDate = false;
   let explicitTimeAlreadyPassed = false;
 
+  const startsNow =
+    recurrence.frequency === 'hourly' && !date.value && !time.value;
+
   if (hasTemporalSignal) {
-    const selectedDate =
-      date.value ?? defaultDate(localNow, recurrence.frequency);
-    const selectedTime = time.value ?? { hour: 9, minute: 0 };
+    const nowRounded = getZonedParts(
+      new Date(Math.ceil((now.getTime() + 60000) / 300000) * 300000),
+      input.timezone,
+    );
+    const selectedDate = startsNow
+      ? nowRounded
+      : (date.value ?? defaultDate(localNow, recurrence.frequency));
+    const selectedTime = startsNow
+      ? { hour: nowRounded.hour, minute: nowRounded.minute }
+      : (time.value ?? { hour: 9, minute: 0 });
     usedDefaultTime = !time.value;
     invalidDate = !isValidLocalDate(selectedDate);
 
@@ -104,7 +115,23 @@ export function interpretCaptureTemporal(input: {
   }
 
   const dueAt = localDue ? zonedDateTimeToUtc(localDue, input.timezone) : null;
-  const recurrenceEndsAt = todayAndTomorrow
+  const durationEndsAt =
+    localDue && duration
+      ? new Date(
+          zonedDateTimeToUtc(
+            duration.unit === 'months'
+              ? { ...localDue, ...addLocalMonths(localDue, duration.amount) }
+              : addLocalDays(
+                  localDue,
+                  duration.unit === 'weeks'
+                    ? duration.amount * 7
+                    : duration.amount,
+                ),
+            input.timezone,
+          ).getTime() - 60000,
+        )
+      : null;
+  const recurrenceEndsAt = durationEndsAt ?? (todayAndTomorrow
     ? zonedDateTimeToUtc(
         {
           ...addLocalDays(
@@ -120,7 +147,7 @@ export function interpretCaptureTemporal(input: {
         },
         input.timezone,
       )
-    : null;
+    : null);
   const reminderMinutesBefore = inferReminder(normalized, Boolean(dueAt));
   const temporalSummary = invalidDate
     ? 'La fecha indicada no existe. Corrígela antes de guardar.'
@@ -135,6 +162,11 @@ export function interpretCaptureTemporal(input: {
           time.assumedPeriod,
           todayAndTomorrow,
           explicitTimeAlreadyPassed,
+          {
+            rolled: Boolean(date.rolled),
+            startsNow,
+            duration,
+          },
         )
       : null;
 
@@ -150,16 +182,51 @@ export function interpretCaptureTemporal(input: {
       usedDefaultTime ||
       invalidDate ||
       time.assumedPeriod ||
-      explicitTimeAlreadyPassed,
+      explicitTimeAlreadyPassed ||
+      Boolean(date.rolled),
     canUseTemporalProposal:
       time.assumedPeriod &&
       !usedDefaultTime &&
       !invalidDate &&
-      !explicitTimeAlreadyPassed,
+      !explicitTimeAlreadyPassed &&
+      !date.rolled,
   };
 }
 
+type DurationUnit = 'days' | 'weeks' | 'months';
+
+function inferDuration(
+  normalized: string,
+): { amount: number; unit: DurationUnit } | null {
+  const match = normalized.match(
+    /\b(?:por|durante)\s+(\d{1,3})\s+(dias?|semanas?|meses)\b/,
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  const amount = Math.max(1, Number(match[1]));
+  const unit: DurationUnit = match[2].startsWith('dia')
+    ? 'days'
+    : match[2].startsWith('semana')
+      ? 'weeks'
+      : 'months';
+
+  return { amount, unit };
+}
+
 function inferRecurrence(normalized: string) {
+  const hourMatch = normalized.match(
+    /\bcada\s+(?:(\d{1,3})\s+)?(?:horas?|hrs?)\b/,
+  );
+  if (hourMatch) {
+    return {
+      frequency: 'hourly' as const,
+      interval: Math.max(1, Number(hourMatch[1] ?? 1)),
+    };
+  }
+
   const intervalMatch = normalized.match(
     /\bcada\s+(\d{1,3})\s+(dias?|semanas?|meses|anos?)\b/,
   );
@@ -245,7 +312,11 @@ function inferDate(
   normalized: string,
   localNow: LocalDateTime,
   recurrenceFrequency: RecurrenceFrequency | null,
-) {
+): {
+  explicit: boolean;
+  value: { year: number; month: number; day: number } | null;
+  rolled?: boolean;
+} {
   const localDate = {
     year: localNow.year,
     month: localNow.month,
@@ -284,6 +355,25 @@ function inferDate(
     }
 
     return { explicit: true, value: candidate };
+  }
+
+  const dayOfMonth = normalized.match(
+    /\b(?:el\s+)?dia\s+(\d{1,2})\b(?!\s+de\s)|\bel\s+(\d{1,2})(?=\s+(?:a\s+las?|de\s+las?|por\s+la|en\s+la)\b|$)/,
+  );
+
+  if (dayOfMonth) {
+    const day = Number(dayOfMonth[1] ?? dayOfMonth[2]);
+
+    if (day >= 1 && day <= 31) {
+      const thisMonth = { year: localNow.year, month: localNow.month, day };
+
+      if (compareLocalDate(thisMonth, localDate) >= 0) {
+        return { explicit: true, value: thisMonth };
+      }
+
+      const next = addLocalMonths({ ...thisMonth, day: 1 }, 1);
+      return { explicit: true, value: { ...next, day }, rolled: true };
+    }
   }
 
   const weekdayMatch = normalized.match(
@@ -367,10 +457,13 @@ function cleanTemporalTitle(title: string) {
       /\b(?:a\s+las?|de\s+las?)\s+\d{1,2}(?::\d{2})?\s*(?:(?:de\s+la\s+)?(?:mañana|tarde|noche)|am|pm)?\b/gi,
       ' ',
     )
+    .replace(/\b(?:el\s+)?d[ií]a\s+\d{1,2}\b/gi, ' ')
+    .replace(/\bel\s+\d{1,2}(?=\s+(?:a\s+las?|de\s+las?)\b)/gi, ' ')
+    .replace(/\brecordar(?:me)?\b/gi, ' ')
     .replace(/\bpasado\s+mañana\b/gi, ' ')
     .replace(/\b(?:hoy|mañana)\b/gi, ' ')
     .replace(
-      /\b(?:cada\s+(?:\d+\s+)?(?:día|dias?|semana|semanas|mes|meses|año|años|lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)|diari[oa]|semanal|mensual|anual)\b/gi,
+      /\b(?:(?:por|durante)\s+\d+\s+(?:días?|dias?|semanas?|meses)|cada\s+(?:\d+\s+)?(?:horas?|hrs?)|cada\s+(?:\d+\s+)?(?:día|dias?|semana|semanas|mes|meses|año|años|lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado|domingo)|diari[oa]|semanal|mensual|anual)\b/gi,
       ' ',
     )
     .replace(
@@ -385,6 +478,7 @@ function cleanTemporalTitle(title: string) {
     .replace(/\s+/g, ' ')
     .trim()
     .replace(/^(?:y|para|que)\s+|\s+(?:y|para|que)$/gi, '')
+    .replace(/^(?:que\s+)?(?:hay|tengo|tenemos)\s+/gi, '')
     .replace(/\s+([,.;:])/g, '$1')
     .trim();
 
@@ -403,6 +497,11 @@ function buildSummary(
   assumedPeriod: boolean,
   todayAndTomorrow: boolean,
   explicitTimeAlreadyPassed: boolean,
+  extra: {
+    rolled: boolean;
+    startsNow: boolean;
+    duration: { amount: number; unit: DurationUnit } | null;
+  },
 ) {
   const date = new Intl.DateTimeFormat('es-MX', {
     timeZone: timezone,
@@ -419,12 +518,25 @@ function buildSummary(
     parts.push('2 ocasiones: hoy y mañana');
   } else if (frequency) {
     const labels: Record<RecurrenceFrequency, string> = {
+      hourly: interval === 1 ? 'cada hora' : `cada ${interval} horas`,
       daily: interval === 1 ? 'cada día' : `cada ${interval} días`,
       weekly: interval === 1 ? 'cada semana' : `cada ${interval} semanas`,
       monthly: interval === 1 ? 'cada mes' : `cada ${interval} meses`,
       yearly: interval === 1 ? 'cada año' : `cada ${interval} años`,
     };
     parts.push(labels[frequency]);
+
+    if (extra.duration) {
+      const unitLabels: Record<DurationUnit, [string, string]> = {
+        days: ['día', 'días'],
+        weeks: ['semana', 'semanas'],
+        months: ['mes', 'meses'],
+      };
+      const [one, many] = unitLabels[extra.duration.unit];
+      parts.push(
+        `durante ${extra.duration.amount} ${extra.duration.amount === 1 ? one : many}`,
+      );
+    }
   }
 
   if (reminderMinutesBefore !== null) {
@@ -436,7 +548,17 @@ function buildSummary(
   }
 
   if (usedDefaultTime) {
-    parts.push('9:00 es una hora propuesta; confírmala');
+    parts.push(
+      extra.startsNow
+        ? 'empieza ahora; confirma la hora de la primera toma'
+        : '9:00 es una hora propuesta; confírmala',
+    );
+  }
+
+  if (extra.rolled) {
+    parts.push(
+      'ese día ya pasó este mes; lo puse en el mes siguiente. Confirma o elige otra fecha',
+    );
   }
 
   if (assumedPeriod) {

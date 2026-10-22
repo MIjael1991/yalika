@@ -1,4 +1,5 @@
 export const recurrenceFrequencies = [
+  'hourly',
   'daily',
   'weekly',
   'monthly',
@@ -19,6 +20,10 @@ export function calculateNextOccurrence(
   frequency: RecurrenceFrequency,
   interval: number,
 ) {
+  if (frequency === 'hourly') {
+    return new Date(occurrenceAt.getTime() + interval * 60 * 60 * 1000);
+  }
+
   if (frequency === 'daily' || frequency === 'weekly') {
     const next = new Date(occurrenceAt);
     const days = frequency === 'daily' ? interval : interval * 7;
@@ -67,7 +72,15 @@ export function findLatestOccurrenceAtOrBefore(
 
   let estimatedSteps = 0;
 
-  if (frequency === 'daily' || frequency === 'weekly') {
+  if (frequency === 'hourly') {
+    estimatedSteps = Math.max(
+      0,
+      Math.floor(
+        (limit.getTime() - firstOccurrenceAt.getTime()) /
+          (interval * 60 * 60 * 1000),
+      ),
+    );
+  } else if (frequency === 'daily' || frequency === 'weekly') {
     const days = frequency === 'daily' ? interval : interval * 7;
     estimatedSteps = Math.max(
       0,
@@ -145,6 +158,12 @@ function addOccurrences(
 ) {
   if (count === 0) {
     return new Date(firstOccurrenceAt);
+  }
+
+  if (frequency === 'hourly') {
+    return new Date(
+      firstOccurrenceAt.getTime() + interval * count * 60 * 60 * 1000,
+    );
   }
 
   if (frequency === 'daily' || frequency === 'weekly') {

@@ -132,3 +132,52 @@ describe('capture temporal interpretation', () => {
     expect(result.needsTemporalConfirmation).toBe(true);
   });
 });
+
+describe('capture temporal: horas, duración y día del mes', () => {
+  const timezone = 'America/Mexico_City';
+  const now = new Date('2026-10-22T16:33:00.000Z');
+
+  it('understands "cada 8 horas por 10 días" and starts now', () => {
+    const result = interpretCaptureTemporal({
+      message: 'Recuérdame cada 8 horas por 10 días pastillas',
+      title: 'Recuérdame cada 8 horas por 10 días pastillas',
+      timezone,
+      now,
+    });
+
+    expect(result.title).toBe('Pastillas');
+    expect(result.recurrenceFrequency).toBe('hourly');
+    expect(result.recurrenceInterval).toBe(8);
+    expect(result.dueAt).toBe('2026-10-22T16:35:00.000Z');
+    expect(result.recurrenceEndsAt).toBe('2026-11-01T16:34:00.000Z');
+    expect(result.needsTemporalConfirmation).toBe(true);
+    expect(result.temporalSummary).toContain('cada 8 horas');
+    expect(result.temporalSummary).toContain('durante 10 días');
+  });
+
+  it('puts a past day-of-month in the next month and asks to confirm', () => {
+    const result = interpretCaptureTemporal({
+      message: 'Recordar el día 19 a las 10 que hay junta',
+      title: 'Recordar el día 19 a las 10 que hay junta',
+      timezone,
+      now,
+    });
+
+    expect(result.title).toBe('Junta');
+    expect(result.dueAt).toBe('2026-11-19T16:00:00.000Z');
+    expect(result.needsTemporalConfirmation).toBe(true);
+    expect(result.temporalSummary).toContain('ya pasó este mes');
+  });
+
+  it('keeps a future day-of-month in the current month', () => {
+    const result = interpretCaptureTemporal({
+      message: 'Recordar el día 25 a las 10 junta con proveedores',
+      title: 'Recordar el día 25 a las 10 junta con proveedores',
+      timezone,
+      now,
+    });
+
+    expect(result.dueAt).toBe('2026-10-25T16:00:00.000Z');
+    expect(result.temporalSummary).not.toContain('ya pasó este mes');
+  });
+});

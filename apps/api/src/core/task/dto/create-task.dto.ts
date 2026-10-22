@@ -63,8 +63,9 @@ export class CreateTaskDto {
   spaceId?: string;
 
   @IsOptional()
-  @IsIn(['daily', 'weekly', 'monthly', 'yearly'], {
-    message: 'La frecuencia debe ser diaria, semanal, mensual o anual',
+  @IsIn(['hourly', 'daily', 'weekly', 'monthly', 'yearly'], {
+    message:
+      'La frecuencia debe ser por horas, diaria, semanal, mensual o anual',
   })
   recurrenceFrequency?: string;
 
