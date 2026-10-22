@@ -1,0 +1,26 @@
+// Avisos: suscripciones de notificaciones push y control de repeticion de cada aviso.
+// Sin llaves foraneas a proposito: no toca los modelos de otros modulos; el servicio limpia los restos.
+
+model PushSubscription {
+  id         String   @id @default(uuid())
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  userId String
+
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+model ReminderPush {
+  id         String   @id @default(uuid())
+  reminderId String   @unique
+  sentCount  Int      @default(0)
+  lastSentAt DateTime
+
+  @@map("reminder_pushes")
+}

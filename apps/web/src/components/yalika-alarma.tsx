@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ACTIVE_STATUSES, hourText, isImportant, yalikaApi, type PendingTask } from "../lib/yalika-alarmas";
+import { enablePush, type PushState } from "../lib/yalika-push";
 import { AccionesPendiente } from "./yalika-pendiente";
 import styles from "./yalika-alarma.module.css";
 
@@ -21,6 +22,7 @@ export function AlarmaYalika() {
   const [due, setDue] = useState<Reminder[]>([]);
   const [perm, setPerm] = useState<NotificationPermission | "unsupported">("unsupported");
   const [toast, setToast] = useState("");
+  const [push, setPush] = useState<PushState | "">("");
   const stopped = useRef(false);
   const lastNotified = useRef(new Map<string, number>());
   const seen = useRef(new Set<string>());
@@ -41,6 +43,7 @@ export function AlarmaYalika() {
 
   useEffect(() => {
     setPerm("Notification" in window ? Notification.permission : "unsupported");
+    if ("Notification" in window && Notification.permission === "granted") void enablePush(false).then(setPush);
     void poll();
     const id = window.setInterval(() => void poll(), POLL_MS);
     const wake = () => {
@@ -116,10 +119,21 @@ export function AlarmaYalika() {
               }}
             />
             {perm === "default" && (
-              <button type="button" className={styles.perm} onClick={() => void Notification.requestPermission().then(setPerm)}>
+              <button
+                type="button"
+                className={styles.perm}
+                onClick={() =>
+                  void enablePush(true).then((state) => {
+                    setPush(state);
+                    setPerm("Notification" in window ? Notification.permission : "unsupported");
+                  })
+                }
+              >
                 Permitir avisos aunque tenga Yalika cerrada o en segundo plano
               </button>
             )}
+            {push === "denied" && <p className={styles.more}>Bloqueaste los avisos en este navegador. Puedes permitirlos en los ajustes del sitio.</p>}
+            {push === "server-off" && <p className={styles.more}>Con Yalika cerrada todavía no puedo avisarte: falta activar los avisos en el servidor.</p>}
             {due.length > 1 && <p className={styles.more}>Y tienes {due.length - 1} aviso{due.length - 1 === 1 ? "" : "s"} más después de este.</p>}
           </div>
         </div>
