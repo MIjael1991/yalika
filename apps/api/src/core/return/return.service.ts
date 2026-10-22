@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,16 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { fromCents, toCents } from '../order-discount/discount-calculator';
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { CreateReturnDto } from './dto/create-return.dto';
+
+/**
+ * Cuando un cajero solo tiene permiso de devolver ciertos productos
+ * (`returns_item:`), el servicio limita lo que puede devolver y confirmar.
+ * `null` en onlyProductIds = sin límite (administrador o permiso general).
+ */
+export type ReturnScope = {
+  actorId: string;
+  onlyProductIds: string[] | null;
+};
 
 @Injectable()
 export class ReturnService {
@@ -34,13 +45,17 @@ export class ReturnService {
       include: {
         order: true,
         exchangeOrder: true,
-        authorizedBy: true,
+        authorizedBy: { select: { id: true, name: true } },
         items: {
           include: {
             orderItem: true,
           },
         },
-        refunds: true,
+        // Quién devolvió el dinero y cuándo, para el registro del administrador.
+        refunds: {
+          include: { processedBy: { select: { id: true, name: true } } },
+          orderBy: { refundedAt: 'asc' },
+        },
         creditPayment: true,
       },
       orderBy: { createdAt: 'desc' },
@@ -55,7 +70,7 @@ export class ReturnService {
         company: true,
         order: true,
         exchangeOrder: true,
-        authorizedBy: true,
+        authorizedBy: { select: { id: true, name: true } },
         items: {
           include: {
             orderItem: {
@@ -69,7 +84,7 @@ export class ReturnService {
         refunds: {
           include: {
             payment: true,
-            processedBy: true,
+            processedBy: { select: { id: true, name: true } },
           },
           orderBy: { refundedAt: 'asc' },
         },
@@ -84,7 +99,20 @@ export class ReturnService {
     return returnRecord;
   }
 
-  async create(dto: CreateReturnDto) {
+  private async assertOwnReturn(id: string, scope?: ReturnScope) {
+    if (!scope?.onlyProductIds) return;
+    const found = await this.prisma.return.findUnique({
+      where: { id },
+      select: { authorizedById: true },
+    });
+    if (found && found.authorizedById !== scope.actorId) {
+      throw new ForbiddenException(
+        'Solo puedes confirmar o cancelar las devoluciones que tú registraste',
+      );
+    }
+  }
+
+  async create(dto: CreateReturnDto, scope?: ReturnScope) {
     if (dto.operationId) {
       const existing = await this.prisma.return.findFirst({
         where: {
@@ -307,6 +335,15 @@ export class ReturnService {
           );
         }
 
+        if (
+          scope?.onlyProductIds &&
+          !scope.onlyProductIds.includes(orderItem.productId.toLowerCase())
+        ) {
+          throw new ForbiddenException(
+            `No tienes autorización para devolver ${orderItem.productName}. Pídesela al administrador`,
+          );
+        }
+
         const returnedBefore = previouslyReturned.get(orderItem.id) ?? 0;
         const availableQuantity = orderItem.quantity - returnedBefore;
 
@@ -394,7 +431,7 @@ export class ReturnService {
         include: {
           order: true,
           exchangeOrder: true,
-          authorizedBy: true,
+          authorizedBy: { select: { id: true, name: true } },
           items: {
             include: {
               orderItem: true,
@@ -405,7 +442,8 @@ export class ReturnService {
     });
   }
 
-  async confirm(id: string) {
+  async confirm(id: string, scope?: ReturnScope) {
+    await this.assertOwnReturn(id, scope);
     const existing = await this.prisma.return.findUnique({
       where: { id },
       select: {
@@ -737,7 +775,7 @@ export class ReturnService {
         include: {
           order: true,
           exchangeOrder: true,
-          authorizedBy: true,
+          authorizedBy: { select: { id: true, name: true } },
           items: {
             include: {
               orderItem: true,
@@ -756,7 +794,8 @@ export class ReturnService {
     });
   }
 
-  async cancel(id: string) {
+  async cancel(id: string, scope?: ReturnScope) {
+    await this.assertOwnReturn(id, scope);
     const cancelResult = await this.prisma.return.updateMany({
       where: {
         id,
@@ -989,7 +1028,7 @@ export class ReturnService {
         },
         include: {
           payment: true,
-          processedBy: true,
+          processedBy: { select: { id: true, name: true } },
         },
       });
 

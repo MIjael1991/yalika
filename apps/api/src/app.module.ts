@@ -15,6 +15,8 @@ import { OperationsModule } from './core/operations/operations.module';
 import { TaskModule } from './core/task/task.module';
 import { HealthModule } from './health/health.module';
 import { ClinicalModule } from './clinical/clinical.module';
+import { VeterinariaModule } from './veterinaria/veterinaria.module';
+import { PresenteModule } from './presente/presente.module';
 import { CompanyModule } from './identity/company/company.module';
 import { RoleModule } from './identity/role/role.module';
 import { TeamModule } from './identity/team/team.module';
@@ -57,6 +59,8 @@ import { ReservationModule } from './core/reservation/reservation.module';
     CommerceSecurityModule,
     HealthModule,
     ClinicalModule,
+    VeterinariaModule,
+    PresenteModule,
     CompanyModule,
     RoleModule,
     TeamModule,

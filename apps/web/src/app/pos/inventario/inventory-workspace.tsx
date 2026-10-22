@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { groupByCatalog } from '../../../lib/yalika-pos-groups';
+import { groupByCatalog, namedCatalogs, type CatalogRef } from '../../../lib/yalika-pos-groups';
 import { StockAlertsPanel } from './stock-alerts-panel';
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 
@@ -40,7 +40,7 @@ function line(productId = ''): ReceiptLine { return { productId, variantId: '', 
 export function InventoryWorkspace({ companyId }: { companyId: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [receipts, setReceipts] = useState<Receipt[]>([]);
-  const [catalogs, setCatalogs] = useState<Array<{ id: string; name: string }>>([]);
+  const [catalogs, setCatalogs] = useState<CatalogRef[]>([]);
   const [lines, setLines] = useState<ReceiptLine[]>([line()]);
   const [sourceName, setSourceName] = useState('');
   const [reference, setReference] = useState('');
@@ -73,7 +73,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
     trackInventory: p.trackInventory, stock: p.variants.length ? p.variants.reduce((s, v) => s + v.stock, 0) : p.stock, product: p,
   })), catalogs), [activeProducts, catalogs]);
   const catalogLabel = useMemo(() => {
-    const names = new Map(catalogs.map((c) => [c.id, c.name]));
+    const names = new Map(namedCatalogs(catalogs).map((c) => [c.id, c.name]));
     return (id?: string | null) => (id ? names.get(id) : undefined);
   }, [catalogs]);
   const lowStock = useMemo(() => activeProducts.map((p) => ({
@@ -160,7 +160,7 @@ export function InventoryWorkspace({ companyId }: { companyId: string }) {
               return (
                 <div key={index} className="grid gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3 md:grid-cols-5">
                   <label className="text-sm md:col-span-2">Producto<select className={field} value={item.productId} onChange={e=>changeLine(index,{productId:e.target.value})}><option value="">Selecciona</option>{productGroups.map(g=><optgroup key={g.id} label={g.name}>{g.categories.flatMap(c=>c.items).map(({product:p})=><option key={p.id} value={p.id}>{p.name}{p.sku ? ` · ${p.sku}` : ''}</option>)}</optgroup>)}</select></label>
-                  {product?.variants.length ? <label className="text-sm">Variante<select className={field} value={item.variantId} onChange={e=>changeLine(index,{variantId:e.target.value})}><option value="">Selecciona</option>{product.variants.filter(v=>v.status==='active').map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></label> : <div />}
+                  {product?.variants.length ? <label className="text-sm">Variante<select className={field} value={item.variantId} onChange={e=>changeLine(index,{variantId:e.target.value})}><option value="">Selecciona</option>{product.variants.filter(v=>v.status==='active').map(v=><option key={v.id} value={v.id}>{v.name} · hay {v.stock}</option>)}</select></label> : <div />}
                   <label className="text-sm">{item.variantId ? 'Piezas' : 'Cajas / paquetes'}<input className={field} type="number" min="1" max="10000" step="1" value={item.packs} onChange={e=>changeLine(index,{packs:e.target.value})} /></label>
                   <label className="text-sm">Costo por {item.variantId ? 'pieza' : 'caja'}<input className={field} type="number" min="0" step="0.01" value={item.costPerPack} onChange={e=>changeLine(index,{costPerPack:e.target.value})} placeholder="Opcional" /></label>
                   <div className="md:col-span-5 flex items-center justify-between text-xs text-slate-400"><span>{Number.isFinite(quantity) ? `${quantity} unidades entrarán a existencia` : '—'}</span><button type="button" disabled={lines.length===1} onClick={()=>{setLines(current=>current.filter((_,i)=>i!==index));setOperationId('');}} className="text-red-300 disabled:opacity-30">Quitar</button></div>

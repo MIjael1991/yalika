@@ -130,6 +130,24 @@ describe('Equipo: el administrador da de alta a sus cajeros', () => {
     expect(result.permissions).toEqual(['returns', 'refunds']);
   });
 
+  it('el permiso por artículo solo vale para productos del propio negocio', async () => {
+    const { service, prisma, tx } = build();
+    const productId = '8f0a2e0c-0000-4000-8000-000000000009';
+    prisma.user.findFirst.mockResolvedValue({ id: 'u1' });
+    (prisma as any).product = { count: jest.fn().mockResolvedValue(0) };
+
+    await expect(
+      service.setPermissions('c1', 'admin1', 'u1', { permissions: [`returns_item:${productId}`] }),
+    ).rejects.toThrow(BadRequestException);
+    expect((prisma as any).product.count.mock.calls[0][0].where).toEqual({ id: { in: [productId] }, companyId: 'c1' });
+    expect(tx.membership.upsert).not.toHaveBeenCalled();
+
+    (prisma as any).product.count.mockResolvedValue(1);
+    tx.user.findUniqueOrThrow.mockResolvedValue({ id: 'u1', memberships: [{ companyId: 'c1', permissions: [`returns_item:${productId}`, 'catalog'] }] });
+    await service.setPermissions('c1', 'admin1', 'u1', { permissions: ['catalog', `returns_item:${productId}`] });
+    expect(tx.membership.upsert.mock.calls[0][0].update.permissions).toEqual(['catalog', `returns_item:${productId}`]);
+  });
+
   it('no da permisos a quien no es cajero de su empresa', async () => {
     const { service, prisma, tx } = build();
     prisma.user.findFirst.mockResolvedValue(null);

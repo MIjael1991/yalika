@@ -1,6 +1,7 @@
 import { ProductGallery } from './product-gallery';
 import { CatalogBrowser } from './catalog-browser';
-import { SiteExtraSections } from './site-extra-sections';
+import { SiteExtraSections } from './site-extra-sections';
+import { stockInfo } from './stock-label';
 
 type SiteSection = {
   id: string;
@@ -381,11 +382,7 @@ function ProductGrid({
                       : 'text-red-400'
                   }`}
                 >
-                  {totalStock > 0
-                    ? hasVariants
-                      ? `${totalStock} disponibles entre opciones`
-                      : `${totalStock} disponibles`
-                    : 'Agotado'}
+                  {stockInfo(product).label}
                 </p>
               ) : null}
               {activeVariants.length > 0 ? (

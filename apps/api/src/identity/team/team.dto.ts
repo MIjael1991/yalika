@@ -6,9 +6,27 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  Validate,
+  ValidatorConstraint,
+  type ValidatorConstraintInterface,
 } from 'class-validator';
 
-import { cashierGrantablePermissions } from '../../auth/permissions';
+import {
+  cashierGrantablePermissions,
+  isValidGrantedPermission,
+  MAX_ITEM_PERMISSIONS,
+} from '../../auth/permissions';
+
+@ValidatorConstraint({ name: 'allGrantedPermissions', async: false })
+class AllGrantedPermissions implements ValidatorConstraintInterface {
+  validate(value: unknown) {
+    return Array.isArray(value) && value.every(isValidGrantedPermission);
+  }
+
+  defaultMessage() {
+    return 'Alguno de los permisos no existe';
+  }
+}
 
 export class CreateCashierDto {
   @IsString()
@@ -54,10 +72,7 @@ export class SetCashierStatusDto {
 
 export class SetCashierPermissionsDto {
   @IsArray()
-  @ArrayMaxSize(cashierGrantablePermissions.length)
-  @IsIn(cashierGrantablePermissions, {
-    each: true,
-    message: 'Alguno de los permisos no existe',
-  })
+  @ArrayMaxSize(cashierGrantablePermissions.length + MAX_ITEM_PERMISSIONS)
+  @Validate(AllGrantedPermissions)
   permissions: string[];
 }

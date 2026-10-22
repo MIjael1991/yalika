@@ -38,6 +38,7 @@ export type SurveyRecord = {
   ineRetentionDays: number;
   ineStorageMode: "temporary" | "yaleka_cloud";
   showPublicResults: boolean;
+  closesAt?: string | null;
   privacyNotice: string;
   thankYouMessage: string | null;
   questions: SurveyQuestion[];
@@ -228,6 +229,29 @@ async function api<T>(path: string, options?: RequestInit) {
   return data;
 }
 
+function toLocalInput(iso?: string | null) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function closingNote(status: string, iso?: string | null) {
+  if (!iso) return "";
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const when = date.toLocaleString("es-MX", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+  if (status === "active") return `Cierra el ${when}`;
+  if (status === "closed" && date.getTime() <= Date.now()) {
+    return `Cerró el ${when}`;
+  }
+  return "";
+}
+
 function statusLabel(status: string) {
   if (status === "active") return "Recibiendo respuestas";
   if (status === "closed") return "Cerrada";
@@ -282,6 +306,7 @@ export function SurveyWorkspace({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [accessMode, setAccessMode] = useState("public");
+  const [closesAtInput, setClosesAtInput] = useState("");
   const [personalFields, setPersonalFields] = useState<PersonalField[]>([{key:"name",required:true},{key:"phone",required:true}]);
   const [importBusy, setImportBusy] = useState(false);
   const [identityMode, setIdentityMode] = useState("phone");
@@ -474,17 +499,6 @@ export function SurveyWorkspace({
   };
 
   const publishAndShare = async (survey: SurveyRecord) => {
-    if ((survey.accessMode ?? 'public') !== 'public') {
-      try {
-        if (survey.status !== 'active') {
-          await api(`survey/${survey.id}/status`, {method:'PATCH',body:JSON.stringify({status:'active'})});
-          setSurveys(current => current.map(item => item.id === survey.id ? {...item,status:'active'} : item));
-        }
-        setMessage('Encuesta abierta. Importa la lista y descarga los enlaces individuales desde su tarjeta.');
-      } catch (caught) { setError(caught instanceof Error ? caught.message : 'No se pudo abrir'); }
-      return;
-    }
-
     setError("");
     setMessage("");
 
@@ -501,7 +515,9 @@ export function SurveyWorkspace({
       await refresh();
       setShareSurvey(published);
       setMessage(
-        "Encuesta publicada. El enlace ya está listo para recibir respuestas.",
+        (published.accessMode ?? "public") === "public"
+          ? "Encuesta publicada. El enlace ya está listo para recibir respuestas."
+          : "Encuesta abierta. Descarga los códigos desde su tarjeta y comparte el enlace general.",
       );
     } catch (caught) {
       setError(
@@ -518,6 +534,7 @@ export function SurveyWorkspace({
     setDescription("");
     setIdentityMode("phone");
     setAccessMode("public");
+    setClosesAtInput("");
     setPersonalFields([{key:"name",required:true},{key:"phone",required:true}]);
     setCollectMunicipality(false);
     setCollectLocality(false);
@@ -689,6 +706,7 @@ export function SurveyWorkspace({
     setDescription(survey.description ?? "");
     setIdentityMode(survey.identityMode);
     setAccessMode(survey.accessMode ?? "public");
+    setClosesAtInput(toLocalInput(survey.closesAt));
     setPersonalFields(legacyFields(survey));
     setCollectMunicipality(survey.collectMunicipality);
     setCollectLocality(survey.collectLocality);
@@ -897,7 +915,7 @@ export function SurveyWorkspace({
       if (file.size > 2_000_000) throw new Error("El archivo debe pesar menos de 2 MB");
       const content = await new Promise<string>((resolve,reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(",")[1]); reader.onerror = reject; reader.readAsDataURL(file); });
       const result = await api<{imported:number;skipped:number}>(`survey/${survey.id}/invitations/import`, {method:"POST",body:JSON.stringify({filename:file.name,content})});
-      setMessage(`${result.imported} invitaciones creadas; ${result.skipped} ya existían. Descarga los enlaces individuales para compartirlos.`);
+      setMessage(`${result.imported} personas importadas, cada una con su código; ${result.skipped} ya estaban. Descarga el Excel con los códigos para compartirlos.`);
     } catch (caught) { setError(caught instanceof Error ? caught.message : "No se pudo importar"); }
     finally { setImportBusy(false); }
   };
@@ -913,6 +931,7 @@ export function SurveyWorkspace({
       status,
       identityMode,
       accessMode,
+      closesAt: closesAtInput ? new Date(closesAtInput).toISOString() : null,
       personalFields,
       collectMunicipality,
       collectLocality,
@@ -958,11 +977,11 @@ export function SurveyWorkspace({
       setShowCreator(false);
       setMessage(
         status === "active"
-          ? (accessMode === "public" ? "Encuesta publicada. Ya puedes compartir el enlace o QR." : "Encuesta abierta. Importa participantes y descarga los enlaces individuales desde su tarjeta.")
+          ? (accessMode === "public" ? "Encuesta publicada. Ya puedes compartir el enlace o QR." : "Encuesta abierta. Importa la lista, descarga el Excel con los códigos y comparte el enlace general.")
           : "Borrador guardado.",
       );
       if (status === "active") {
-        if ((saved.accessMode ?? 'public') === 'public') setShareSurvey(saved);
+        setShareSurvey(saved);
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No pude guardar");
@@ -1318,6 +1337,31 @@ export function SurveyWorkspace({
                   <option value="group">Grupo · participantes de una lista</option>
                   <option value="private">Privada · personas específicas</option>
                 </select>
+              </label>
+
+              <label className="block text-sm font-bold">Cierre automático (opcional)
+                <div className="mt-2 flex gap-2">
+                  <input
+                    type="datetime-local"
+                    value={closesAtInput}
+                    onChange={(event) => setClosesAtInput(event.target.value)}
+                    className="min-w-0 flex-1 rounded-xl bg-[#071425] p-3"
+                  />
+                  {closesAtInput ? (
+                    <button
+                      type="button"
+                      onClick={() => setClosesAtInput("")}
+                      className="rounded-xl border border-white/20 px-3 text-xs font-bold"
+                    >
+                      Quitar
+                    </button>
+                  ) : null}
+                </div>
+                <span className="mt-1 block text-xs font-normal text-slate-300">
+                  {closesAtInput
+                    ? "Después de esa fecha y hora la encuesta deja de recibir respuestas."
+                    : "Sin fecha: sigue abierta hasta que tú la cierres."}
+                </span>
               </label>
             </div>
             <section className="mt-5 rounded-2xl border border-white/10 p-4">
@@ -1769,6 +1813,11 @@ export function SurveyWorkspace({
                       >
                         {statusLabel(survey.status)}
                       </span>
+                      {closingNote(survey.status, survey.closesAt) ? (
+                        <span className="ml-2 text-[11px] font-semibold text-slate-300">
+                          {closingNote(survey.status, survey.closesAt)}
+                        </span>
+                      ) : null}
                       {survey.collectIne ? (
                         <span className="ml-2 inline-flex rounded-full border border-amber-300/25 bg-amber-300/10 px-2.5 py-1 text-[11px] font-bold text-amber-100">
                           INE {survey.ineRequired ? "necesaria" : "opcional"}
@@ -1833,12 +1882,12 @@ export function SurveyWorkspace({
                     </button>
                   ) : null}
                   {(survey.accessMode ?? "public") !== "public" ? <div className="mt-3 rounded-xl border border-cyan-300/20 p-4 text-sm">
-                    <p>Acceso {survey.accessMode === "group" ? "de grupo" : "privado"}. El enlace general no permite responder.</p>
+                    <p>Acceso {survey.accessMode === "group" ? "de grupo" : "privado"}. Cada persona entra con su código de acceso (o con su enlace personal).</p>
                     <label className="mt-3 block">Importar participantes (.xlsx o .csv)
                       <input type="file" accept=".xlsx,.csv" disabled={importBusy} onChange={event => { void importParticipants(survey,event.target.files?.[0]); event.target.value = ""; }} className="mt-2 block w-full" />
                     </label>
-                    <p className="my-2 text-xs text-slate-300">Columnas: Nombre, Correo, Teléfono/Celular, Grupo, Referencia. Cada fila necesita correo o teléfono. Hasta 1000 filas por archivo.</p>
-                    <a href={`/api/yalika/survey/${survey.id}/invitations.xlsx`} className="font-bold text-cyan-200">Descargar enlaces en Excel</a>
+                    <p className="my-2 text-xs text-slate-300">Columnas: Nombre, Correo, Teléfono/Celular, Grupo, Referencia. Basta con el nombre: si un correo o teléfono está mal, esa persona entra con su código. Hasta 1000 filas por archivo.</p>
+                    <a href={`/api/yalika/survey/${survey.id}/invitations.xlsx`} className="font-bold text-cyan-200">Descargar códigos y enlaces (Excel)</a>
                   </div> : null}
                   {survey.collectIne ? (
                     <button
@@ -1892,6 +1941,13 @@ export function SurveyWorkspace({
                 ×
               </button>
             </div>
+            {(shareSurvey.accessMode ?? "public") !== "public" ? (
+              <p className="mt-4 rounded-xl border border-cyan-200 bg-cyan-50 p-3 text-xs font-semibold leading-5 text-cyan-950">
+                Encuesta de acceso restringido: quien abra este enlace escribe
+                su código de acceso. Descarga los códigos desde la tarjeta de la
+                encuesta (Descargar códigos y enlaces).
+              </p>
+            ) : null}
             {shareUrl && !isLocalUrl(shareUrl) ? (
               qrDataUrl ? (
                 <Image
@@ -1909,9 +1965,10 @@ export function SurveyWorkspace({
               <div className="mt-5 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950">
                 <p className="font-black">Falta la dirección pública</p>
                 <p className="mt-1 text-xs font-semibold leading-5">
-                  Ejecuta <strong>COMPARTIR_ENCUESTAS_HOY.bat</strong> y pega
-                  abajo la dirección nueva que comienza con https:// y termina
-                  en trycloudflare.com.
+                  Abre Yalika con <strong>INICIAR_YALIKA.cmd</strong>, luego
+                  ejecuta <strong>COMPARTIR_ENCUESTAS_HOY.cmd</strong> (en la
+                  carpeta ORION) y pega abajo la dirección que comienza con
+                  https:// y termina en trycloudflare.com.
                 </p>
                 <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                   <input

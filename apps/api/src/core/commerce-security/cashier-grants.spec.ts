@@ -81,3 +81,32 @@ describe('Permisos extra del cajero', () => {
     expect(cashierMayCall('POST', ['return', id, 'refund'])).toBe(false);
   });
 });
+
+describe('Permisos extra del cajero · agregar productos y devolver un artículo', () => {
+  it('agregar productos: crear sí, editar o borrar no', () => {
+    const permissions = ['catalog'];
+    expect(grantedMayCall(permissions, 'POST', ['catalog', 'product'])).toBe(true);
+    expect(grantedMayCall(permissions, 'POST', ['catalog', 'category'])).toBe(true);
+    expect(grantedMayCall(permissions, 'POST', ['catalog', 'product', id, 'image'])).toBe(true);
+    expect(grantedMayCall(permissions, 'PATCH', ['catalog', 'product', id])).toBe(false);
+    expect(grantedMayCall(permissions, 'PATCH', ['catalog', 'product', id, 'stock'])).toBe(false);
+    expect(grantedMayCall(permissions, 'POST', ['catalog', 'receipt'])).toBe(false);
+    expect(grantedMayCall(permissions, 'POST', ['media', 'image'])).toBe(true);
+    expect(grantedMayCall(['returns'], 'POST', ['media', 'image'])).toBe(false);
+    expect(grantedMayCall(permissions, 'DELETE', ['catalog', 'product', id, 'image', id])).toBe(false);
+  });
+
+  it('devolver un artículo: abre devolución y confirmar o cancelar, nunca reembolsar', () => {
+    const permissions = [`returns_item:${id}`];
+    expect(grantedMayCall(permissions, 'POST', ['return'])).toBe(true);
+    expect(grantedMayCall(permissions, 'POST', ['return', id, 'confirm'])).toBe(true);
+    expect(grantedMayCall(permissions, 'POST', ['return', id, 'cancel'])).toBe(true);
+    expect(grantedMayCall(permissions, 'POST', ['return', id, 'refund'])).toBe(false);
+  });
+
+  it('el permiso de un artículo no abre reportes ni descuentos', () => {
+    const permissions = [`returns_item:${id}`];
+    expect(grantedMayCall(permissions, 'GET', ['order', 'company', id, 'report'])).toBe(false);
+    expect(grantedMayCall(permissions, 'POST', ['discount', 'order', id])).toBe(false);
+  });
+});

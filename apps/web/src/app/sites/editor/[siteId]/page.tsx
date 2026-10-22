@@ -52,6 +52,7 @@ export default async function SiteEditorPage({ params }: { params: Promise<{ sit
           <a href={`/sites/menu/${siteId}`} className="rounded-xl border border-cyan-300/20 px-3 py-2 text-xs font-bold text-cyan-200">Ordenar menú</a>
           <a href={`/sites/equipo/${siteId}`} className="rounded-xl border border-violet-300/20 px-3 py-2 text-xs font-bold text-violet-200">Equipo y permisos</a>
           <a href={`/sites/qr/${siteId}`} className="rounded-xl border border-emerald-300/20 px-3 py-2 text-xs font-bold text-emerald-200">QR</a>
+          <a href={`/sites/tarjeta/${siteId}`} className="rounded-xl border border-emerald-300/20 px-3 py-2 text-xs font-bold text-emerald-200">Tarjeta</a>
         </div>
       </div>
       <SiteBuilderWorkspace

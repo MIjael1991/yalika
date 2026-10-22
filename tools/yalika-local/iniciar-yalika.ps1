@@ -148,8 +148,42 @@ else {
 
 New-Item -ItemType Directory -Path $ClinicalStorage -Force | Out-Null
 
+# ¿Cambió el esquema desde la última vez que se preparó el cliente de la base de datos?
+$SchemaTime = (Get-ChildItem -LiteralPath (Join-Path $Api "prisma\schema") -Filter *.prisma |
+    Measure-Object -Property LastWriteTime -Maximum).Maximum
+$ClientFile = Join-Path $Api "src\generated\prisma\client.ts"
+$ClientOutdated = -not (Test-Path -LiteralPath $ClientFile) -or
+    ((Get-Item -LiteralPath $ClientFile).LastWriteTime -lt $SchemaTime)
+
+if ($ClientOutdated -and (Test-Url "http://localhost:3000/health")) {
+    Write-Host "AVISO: la API está prendida con una versión vieja de la base de datos." -ForegroundColor Yellow
+    Write-Host "Cierra la ventana de la API (la de npm.cmd run start:dev) y vuelve a abrir INICIAR_YALIKA.cmd." -ForegroundColor Yellow
+    exit 19
+}
+
+# Base de datos: aplica las migraciones nuevas (antes de prender la API).
+Info "Actualizando la base de datos"
+$MigrateResult = Invoke-CapturedCommand "cd /d `"$Api`" && npx.cmd prisma migrate deploy"
+if ($MigrateResult.ExitCode -ne 0) {
+    Write-Host $MigrateResult.Text -ForegroundColor Red
+    Write-Host "ERROR: no se pudieron aplicar las migraciones de la base de datos." -ForegroundColor Red
+    exit 17
+}
+Ok "Base de datos al día."
+
 Info "Comprobando API en puerto 3000"
 if (-not (Test-Url "http://localhost:3000/health")) {
+    if ($ClientOutdated) {
+        Info "Preparando el cliente de la base de datos"
+        $GenerateResult = Invoke-CapturedCommand "cd /d `"$Api`" && npx.cmd prisma generate"
+        if ($GenerateResult.ExitCode -ne 0) {
+            Write-Host $GenerateResult.Text -ForegroundColor Red
+            Write-Host "ERROR: no se pudo preparar el cliente de la base de datos." -ForegroundColor Red
+            exit 18
+        }
+        Ok "Cliente de la base de datos listo."
+    }
+
     if (Test-Port 3000) {
         Write-Host "ERROR: el puerto 3000 está ocupado, pero /health no responde como Yalika." -ForegroundColor Red
         exit 20

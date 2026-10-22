@@ -1,0 +1,11 @@
+// Cuenta: datos de recuperación de la cuenta Yalika. Aditivo: no cambia la tabla de usuarios.
+
+/** Teléfono para recuperar la cuenta. Se guarda ya; se verifica cuando haya envío de SMS. */
+model AccountContact {
+  userId          String    @id
+  recoveryPhone   String?
+  phoneVerifiedAt DateTime?
+  updatedAt       DateTime  @updatedAt
+
+  @@map("account_contacts")
+}

@@ -116,6 +116,7 @@ export function SiteListWorkspace({ initialSites }: { initialSites: SiteSummary[
                   <Link href={`/sites/menu/${site.id}`} className="rounded-xl border border-cyan-300/20 bg-cyan-300/5 px-4 py-3 text-center text-sm font-bold text-cyan-100">Menú</Link>
                   <Link href={`/sites/equipo/${site.id}`} className="rounded-xl border border-violet-300/20 bg-violet-300/5 px-4 py-3 text-center text-sm font-bold text-violet-100">Equipo</Link>
                   <Link href={`/sites/qr/${site.id}`} className="rounded-xl border border-emerald-300/20 bg-emerald-300/5 px-4 py-3 text-center text-sm font-bold text-emerald-100">QR</Link>
+                  <Link href={`/sites/tarjeta/${site.id}`} className="rounded-xl border border-emerald-300/20 bg-emerald-300/5 px-4 py-3 text-center text-sm font-bold text-emerald-100">Tarjeta</Link>
                   <button onClick={() => void copyLink(site)} className="rounded-xl border border-white/10 px-4 py-3 text-sm font-bold">{copied === site.id ? 'Copiado ✓' : 'Copiar enlace'}</button>
                 </div>
 

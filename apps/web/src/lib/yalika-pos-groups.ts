@@ -10,7 +10,7 @@ export type GroupableOption = {
   stock: number;
 };
 
-export type CatalogRef = { id: string; name: string };
+export type CatalogRef = { id: string; name: string; isDefault?: boolean };
 
 export type CategoryGroup<T extends GroupableOption> = {
   id: string; // categoryId o 'none'
@@ -40,7 +40,7 @@ export function groupByCatalog<T extends GroupableOption>(
   options: T[],
   catalogs: CatalogRef[],
 ): CatalogGroup<T>[] {
-  const names = new Map(catalogs.map((catalog) => [catalog.id, catalog.name]));
+  const names = new Map(namedCatalogs(catalogs).map((catalog) => [catalog.id, catalog.name]));
   const byCatalog = new Map<string, Map<string, CategoryGroup<T>>>();
 
   for (const option of options) {
@@ -101,5 +101,16 @@ export function catalogNameOf(
   catalogs: CatalogRef[],
 ) {
   if (!catalogId) return NO_CATALOG_NAME;
-  return catalogs.find((catalog) => catalog.id === catalogId)?.name ?? NO_CATALOG_NAME;
+  return namedCatalogs(catalogs).find((catalog) => catalog.id === catalogId)?.name ?? NO_CATALOG_NAME;
+}
+
+// El catálogo automático "General" nunca se muestra con ese nombre: confunde.
+// Sus productos se ven como "Sin negocio asignado" hasta que se les elija una página.
+export function namedCatalogs<T extends CatalogRef>(catalogs: T[]) {
+  return catalogs.filter((catalog) => !catalog.isDefault);
+}
+
+// Opciones para desplegables y pestañas: sólo negocios con nombre propio, por orden alfabético.
+export function catalogChoices<T extends CatalogRef>(catalogs: T[]) {
+  return namedCatalogs(catalogs).sort((a, b) => collator.compare(a.name, b.name));
 }

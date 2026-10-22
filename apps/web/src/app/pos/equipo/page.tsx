@@ -32,6 +32,7 @@ export default async function TeamPage() {
   return (
     <TeamWorkspace
       currentUserId={user.id}
+      companyId={user.companyId}
       initialMembers={team.members}
       initialError={team.error}
     />

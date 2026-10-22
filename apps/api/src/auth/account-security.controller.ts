@@ -13,6 +13,11 @@ import { CurrentAuth } from './current-auth.decorator';
 import type { AuthContext } from './auth.types';
 import { SessionAuthGuard } from './session-auth.guard';
 import { AccountSecurityService } from './account-security.service';
+import {
+  ChangeEmailDto,
+  CurrentPasswordDto,
+  RecoveryPhoneDto,
+} from './dto/account-contact.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -30,6 +35,36 @@ export class AccountSecurityController {
   @UseGuards(SessionAuthGuard)
   security(@CurrentAuth() auth: AuthContext) {
     return this.accountSecurity.getSecurityStatus(auth.user.id);
+  }
+
+  @Post('recovery-phone')
+  @HttpCode(200)
+  @UseGuards(SessionAuthGuard)
+  setRecoveryPhone(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: RecoveryPhoneDto,
+  ) {
+    return this.accountSecurity.setRecoveryPhone(auth.user.id, dto);
+  }
+
+  @Post('recovery-phone/remove')
+  @HttpCode(200)
+  @UseGuards(SessionAuthGuard)
+  removeRecoveryPhone(
+    @CurrentAuth() auth: AuthContext,
+    @Body() dto: CurrentPasswordDto,
+  ) {
+    return this.accountSecurity.removeRecoveryPhone(
+      auth.user.id,
+      dto.currentPassword,
+    );
+  }
+
+  @Post('email/change')
+  @HttpCode(200)
+  @UseGuards(SessionAuthGuard)
+  changeEmail(@CurrentAuth() auth: AuthContext, @Body() dto: ChangeEmailDto) {
+    return this.accountSecurity.changeEmail(auth.user.id, dto);
   }
 
   @Post('recovery-key')

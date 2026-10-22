@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import QRCode from 'qrcode';
 import { useEffect, useMemo, useState } from 'react';
+import { ReturnsLogPanel } from './returns-log-panel';
 import { SalesReportPanel } from './sales-report-panel';
 
 type OrderItemSummary = {
@@ -31,6 +32,13 @@ export type ReturnSummary = {
   orderId: string;
   status: string;
   createdAt: string;
+  returnNumber?: string;
+  type?: string;
+  reason?: string;
+  totalAmount?: number;
+  completedAt?: string | null;
+  order?: { orderNumber: string } | null;
+  authorizedBy?: { id: string; name: string } | null;
   items: Array<{
     orderItemId: string;
     quantity: number;
@@ -39,6 +47,8 @@ export type ReturnSummary = {
     amount: number;
     status: string;
     refundedAt: string;
+    method?: string;
+    processedBy?: { id: string; name: string } | null;
   }>;
 };
 
@@ -329,6 +339,7 @@ export function SalesHistoryWorkspace({
         </div>
 
         {!isCashier && companyId ? <SalesReportPanel companyId={companyId} /> : null}
+        {!isCashier ? <ReturnsLogPanel returns={initialReturns} /> : null}
 
         <div className="grid gap-5 xl:grid-cols-[minmax(360px,0.8fr)_minmax(0,1.2fr)]">
           <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-5">

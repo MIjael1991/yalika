@@ -529,3 +529,26 @@
     transition: none;
   }
 }
+
+/* Lado derecho: asistente y avisos del negocio, sin barra flotante. */
+.side {
+  display: grid;
+  gap: 20px;
+  align-content: start;
+}
+.assistantInline > button {
+  width: 100%;
+  background: linear-gradient(110deg, #0758b3, #3a51bd);
+  color: #fff;
+  border-color: #075ec1;
+  min-height: 58px;
+  border-radius: 15px;
+}
+.side .attention {
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}

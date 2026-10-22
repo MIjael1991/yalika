@@ -10,6 +10,8 @@ export function ServiceArt({ kind }: { kind: string }) {
     pos: ["#ccf3e7", "#f1fff9", "#168769"],
     sites: ["#e5ddff", "#f7f5ff", "#7355d2"],
     surveys: ["#d7eaff", "#f3faff", "#347dd3"],
+    veterinaria: ["#ffe9d1", "#fff8f0", "#c76a12"],
+    presente: ["#d4f2e7", "#f0fcf7", "#0f7a5a"],
   };
   const [a, b, c] = tones[kind] ?? tones.surveys;
   return (
@@ -201,6 +203,32 @@ export function ServiceArt({ kind }: { kind: string }) {
               fill={c}
               stroke="white"
               strokeWidth="3"
+              strokeLinejoin="round"
+            />
+          </>
+        ) : kind === "veterinaria" ? (
+          <>
+            <circle cx="120" cy="76" r="50" fill={`url(#${g})`} stroke="white" strokeWidth="3" />
+            <ellipse cx="120" cy="92" rx="20" ry="16" fill={c} />
+            <ellipse cx="96" cy="68" rx="8" ry="11" fill={c} opacity=".8" />
+            <ellipse cx="112" cy="56" rx="8" ry="11" fill={c} opacity=".8" />
+            <ellipse cx="128" cy="56" rx="8" ry="11" fill={c} opacity=".8" />
+            <ellipse cx="144" cy="68" rx="8" ry="11" fill={c} opacity=".8" />
+          </>
+        ) : kind === "presente" ? (
+          <>
+            <path
+              d="M120 22c-25 0-44 19-44 43 0 32 44 66 44 66s44-34 44-66c0-24-19-43-44-43Z"
+              fill={`url(#${g})`}
+              stroke="white"
+              strokeWidth="3"
+            />
+            <circle cx="120" cy="65" r="22" fill={c} />
+            <path
+              d="m109 65 8 8 14-15"
+              stroke="white"
+              strokeWidth="5"
+              strokeLinecap="round"
               strokeLinejoin="round"
             />
           </>

@@ -32,3 +32,6 @@ tools/cloudflared/
 apps/api/.agents/
 apps/api/.claude/
 apps/api/.windsurf/
+
+# apps independientes que se guardan aparte (ver _externos/LEEME.md)
+/_externos/

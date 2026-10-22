@@ -81,6 +81,7 @@ export default async function PosPage() {
     <PosWorkspace
       initialCompanyId={companyId}
       initialAuthorizedUserId={user.id}
+      cashierName={user.name}
       initialProducts={catalog.products}
       initialPromotions={promotions}
       initialCatalogError={catalog.error}

@@ -52,7 +52,7 @@ async function getInitialData(companyId: string, cookieHeader: string) {
 }
 
 export default async function ReturnsPage() {
-  const user = await requireManagerOrPermission('returns', 'refunds');
+  const user = await requireManagerOrPermission('returns', 'refunds', 'returns_item:*');
   const companyId = user.companyId;
   const data = await getInitialData(companyId, (await cookies()).toString());
 

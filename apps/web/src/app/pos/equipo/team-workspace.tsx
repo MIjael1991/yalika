@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 export type TeamMember = {
   id: string;
@@ -21,7 +21,18 @@ const EXTRA_PERMISSIONS = [
   { id: 'refunds', label: 'Reembolsos (devolver dinero)' },
   { id: 'discounts', label: 'Descuentos escritos a mano' },
   { id: 'reports', label: 'Reportes de ventas e inventario' },
+  { id: 'catalog', label: 'Agregar productos nuevos' },
 ] as const;
+
+const ITEM_PREFIX = 'returns_item:';
+type ProductOption = { id: string; name: string };
+
+/** Un solo producto que ese cajero puede devolver o cambiar sin el permiso general. */
+function itemIdsOf(member: TeamMember) {
+  return (member.permissions ?? [])
+    .filter((permission) => permission.startsWith(ITEM_PREFIX))
+    .map((permission) => permission.slice(ITEM_PREFIX.length));
+}
 
 function messageOf(payload: unknown) {
   if (payload && typeof payload === 'object' && 'message' in payload) {
@@ -70,10 +81,12 @@ const inputClass =
 
 export function TeamWorkspace({
   currentUserId,
+  companyId,
   initialMembers,
   initialError,
 }: {
   currentUserId: string;
+  companyId: string;
   initialMembers: TeamMember[];
   initialError: string;
 }) {
@@ -90,6 +103,30 @@ export function TeamWorkspace({
   const [passwordFor, setPasswordFor] = useState<TeamMember>();
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [products, setProducts] = useState<ProductOption[] | null>(null);
+  const [itemSearch, setItemSearch] = useState<Record<string, string>>({});
+
+  async function loadProducts() {
+    if (products) return;
+    try {
+      const list = await apiRequest<ProductOption[]>(`catalog/product/company/${companyId}`);
+      setProducts(list.map((product) => ({ id: product.id.toLowerCase(), name: product.name })));
+    } catch {
+      setProducts([]);
+    }
+  }
+
+  // Si alguien ya tiene artículos autorizados, trae los nombres para mostrarlos.
+  const hasItemGrants = initialMembers.some((member) => itemIdsOf(member).length > 0);
+  useEffect(() => {
+    if (hasItemGrants) void loadProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasItemGrants]);
+
+  const productNames = useMemo(
+    () => new Map((products ?? []).map((product) => [product.id, product.name])),
+    [products],
+  );
 
   async function refresh() {
     setMembers(await apiRequest<TeamMember[]>('team'));
@@ -200,7 +237,8 @@ export function TeamWorkspace({
           <p className="mt-2 text-sm leading-6 text-slate-400">
             El cajero vende y cobra. No puede cambiar productos, inventario ni
             promociones. Después de crearlo puedes darle permisos extra, uno por
-            uno: devoluciones, reembolsos, descuentos o reportes.
+            uno: devoluciones, reembolsos, descuentos, reportes o agregar
+            productos nuevos.
           </p>
 
           <label className="mt-4 block text-sm font-medium text-slate-300" htmlFor="cashierName">
@@ -364,6 +402,78 @@ export function TeamWorkspace({
                             {permission.label}
                           </label>
                         ))}
+                      </div>
+
+                      <div className="mt-3 border-t border-slate-800 px-2 pt-3">
+                        <p className="text-sm font-medium text-slate-200">
+                          Autorizar un artículo
+                        </p>
+                        <p className="mt-1 text-xs leading-5 text-slate-500">
+                          Para cuando no estás: {member.name} podrá devolver o cambiar solo estos
+                          productos, sin el permiso general. Nunca devuelve dinero.
+                        </p>
+                        {itemIdsOf(member).length ? (
+                          <ul className="mt-2 flex flex-wrap gap-2">
+                            {itemIdsOf(member).map((productId) => (
+                              <li
+                                key={productId}
+                                className="flex items-center gap-2 rounded-full bg-cyan-400/10 px-3 py-1.5 text-xs text-cyan-100"
+                              >
+                                {productNames.get(productId) ?? 'Producto'}
+                                <button
+                                  type="button"
+                                  aria-label={`Quitar autorización de ${productNames.get(productId) ?? 'este producto'}`}
+                                  onClick={() =>
+                                    void togglePermission(member, `${ITEM_PREFIX}${productId}`)
+                                  }
+                                  className="text-cyan-200 hover:text-white"
+                                >
+                                  ✕
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                        <input
+                          type="search"
+                          placeholder="Buscar producto por nombre…"
+                          value={itemSearch[member.id] ?? ''}
+                          onFocus={() => void loadProducts()}
+                          onChange={(event) =>
+                            setItemSearch({ ...itemSearch, [member.id]: event.target.value })
+                          }
+                          className="mt-3 h-11 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 text-sm outline-none focus:border-cyan-400"
+                        />
+                        {(itemSearch[member.id] ?? '').trim() ? (
+                          <ul className="mt-2 max-h-48 overflow-auto rounded-xl border border-slate-800">
+                            {(products ?? [])
+                              .filter(
+                                (product) =>
+                                  !itemIdsOf(member).includes(product.id) &&
+                                  product.name
+                                    .toLowerCase()
+                                    .includes((itemSearch[member.id] ?? '').trim().toLowerCase()),
+                              )
+                              .slice(0, 6)
+                              .map((product) => (
+                                <li key={product.id}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setItemSearch({ ...itemSearch, [member.id]: '' });
+                                      void togglePermission(member, `${ITEM_PREFIX}${product.id}`);
+                                    }}
+                                    className="block w-full px-4 py-2.5 text-left text-sm text-slate-200 hover:bg-slate-800"
+                                  >
+                                    {product.name}
+                                  </button>
+                                </li>
+                              ))}
+                            {products === null ? (
+                              <li className="px-4 py-2.5 text-sm text-slate-500">Cargando productos…</li>
+                            ) : null}
+                          </ul>
+                        ) : null}
                       </div>
                     </fieldset>
                   ) : null}

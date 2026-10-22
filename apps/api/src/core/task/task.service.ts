@@ -151,6 +151,43 @@ export class TaskService {
     });
   }
 
+  async findHistory(
+    queryValue: string,
+    companyId: string,
+    actorUserId: string,
+  ) {
+    const words = normalizeTaskTitle(queryValue ?? '')
+      .split(' ')
+      .filter((word) => word.length >= 2)
+      .slice(0, 6);
+
+    if (words.length === 0) {
+      throw new BadRequestException('Escribe qué quieres buscar');
+    }
+
+    const now = new Date();
+    const candidates = await this.prisma.task.findMany({
+      where: {
+        companyId,
+        AND: [
+          this.accessibleTaskScope(actorUserId),
+          { OR: [{ status: 'completed' }, { dueAt: { lt: now } }] },
+        ],
+        NOT: { status: 'cancelled' },
+      },
+      include: taskInclude,
+      orderBy: [{ completedAt: 'desc' }, { dueAt: 'desc' }],
+      take: 1000,
+    });
+
+    return candidates
+      .filter((task) => {
+        const text = normalizeTaskTitle(task.title);
+        return words.every((word) => text.includes(word));
+      })
+      .slice(0, 20);
+  }
+
   async findAgenda(
     fromValue: string,
     toValue: string,

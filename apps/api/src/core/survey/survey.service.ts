@@ -1,9 +1,17 @@
 import { randomBytes } from 'node:crypto';
 import {
+  contactKey,
   invitationHash,
   parseParticipants,
   type InvitationContact,
 } from './survey-invitations';
+import { AccessSurveyDto } from './dto/access-survey.dto';
+import {
+  accessCodeHash,
+  formatAccessCode,
+  newAccessCode,
+  normalizeAccessCode,
+} from './survey-access-code';
 import {
   BadRequestException,
   ConflictException,
@@ -17,6 +25,12 @@ import ExcelJS from 'exceljs';
 import JSZip from 'jszip';
 
 import { publicBaseUrl } from '../../common/public-url';
+import {
+  assertCanOpen,
+  effectiveSurveyStatus,
+  resolveClosesAt,
+  surveyIsOpen,
+} from './survey-closing';
 import type { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ExtractSurveyIneDto } from './dto/extract-survey-ine.dto';
@@ -105,6 +119,7 @@ function completeAnswerSummary(
 @Injectable()
 export class SurveyService implements OnModuleInit {
   private readonly ineExtractionAttempts = new Map<string, number[]>();
+  private readonly codeFailures = new Map<string, number[]>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -133,6 +148,95 @@ export class SurveyService implements OnModuleInit {
     return invite;
   }
 
+  private async takenCodeHashes(surveyId: string) {
+    const rows = await this.prisma.surveyInvitation.findMany({
+      where: { surveyId, codeHash: { not: null } },
+      select: { codeHash: true },
+    });
+    return new Set(rows.map((row) => row.codeHash!));
+  }
+
+  /** Código nuevo que no se repite dentro de la encuesta (reserva su hash en `taken`). */
+  private freshAccessCode(surveyId: string, taken: Set<string>) {
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const code = newAccessCode();
+      const hash = accessCodeHash(surveyId, code);
+      if (!taken.has(hash)) {
+        taken.add(hash);
+        return code;
+      }
+    }
+    throw new BadRequestException('No pudimos generar códigos, intenta de nuevo');
+  }
+
+  private codeFailureCount(key: string) {
+    const now = Date.now();
+    const recent = (this.codeFailures.get(key) ?? []).filter(
+      (value) => now - value < 15 * 60_000,
+    );
+    if (recent.length) this.codeFailures.set(key, recent);
+    else this.codeFailures.delete(key);
+    return recent.length;
+  }
+
+  private recordCodeFailure(key: string) {
+    this.codeFailures.set(key, [
+      ...(this.codeFailures.get(key) ?? []),
+      Date.now(),
+    ]);
+  }
+
+  /**
+   * Cambia un código de acceso por el enlace personal de una sola vez. El mensaje de error es el mismo
+   * para código inexistente, mal escrito o ya usado, y hay límite de intentos por persona y por encuesta.
+   */
+  async accessByCode(slug: string, dto: AccessSurveyDto, clientKey: string) {
+    const survey = await this.prisma.survey.findUnique({
+      where: { slug: slug.trim().toLowerCase() },
+      select: { id: true, status: true, closesAt: true, accessMode: true },
+    });
+
+    if (survey && effectiveSurveyStatus(survey) === 'closed') {
+      throw new NotFoundException(
+        'Esta encuesta ya terminó y no recibe más respuestas.',
+      );
+    }
+    if (
+      !survey ||
+      !surveyIsOpen(survey) ||
+      (survey.accessMode ?? 'public') === 'public'
+    ) {
+      throw new NotFoundException(
+        'Esta encuesta no existe o ya no acepta respuestas',
+      );
+    }
+
+    const personKey = `${survey.id}:${clientKey}`;
+    if (
+      this.codeFailureCount(personKey) >= 8 ||
+      this.codeFailureCount(survey.id) >= 300
+    ) {
+      throw new BadRequestException(
+        'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+      );
+    }
+
+    const code = normalizeAccessCode(dto.code);
+    const invite = code
+      ? await this.prisma.surveyInvitation.findFirst({
+          where: { surveyId: survey.id, codeHash: accessCodeHash(survey.id, code) },
+        })
+      : null;
+
+    if (!invite || invite.usedAt) {
+      this.recordCodeFailure(personKey);
+      this.recordCodeFailure(survey.id);
+      throw new ForbiddenException('El código no es válido o ya fue utilizado');
+    }
+
+    return { invitation: decryptSurveyValue(invite.tokenCipher) };
+  }
+
   async importParticipants(
     id: string,
     companyId: string,
@@ -145,17 +249,21 @@ export class SurveyService implements OnModuleInit {
       throw new BadRequestException(
         'Selecciona audiencia Grupo o Privada antes de importar',
       );
-    const contacts = await parseParticipants(filename, content);
+    const contacts = await parseParticipants(filename, content, {
+      lenient: true,
+    });
+    const takenCodes = await this.takenCodeHashes(id);
     const data = contacts.map((contact) => {
       const token = randomBytes(32).toString('base64url');
+      const code = this.freshAccessCode(id, takenCodes);
       return {
         surveyId: id,
         tokenHash: invitationHash(token),
         tokenCipher: encryptSurveyValue(token)!,
-        contactHash: hashSurveyIdentity(
-          contact.email ? `email:${contact.email}` : `phone:${contact.phone}`,
-        )!,
+        contactHash: hashSurveyIdentity(contactKey(contact))!,
         detailsCipher: encryptSurveyValue(JSON.stringify(contact))!,
+        codeHash: accessCodeHash(id, code),
+        codeCipher: encryptSurveyValue(code)!,
       };
     });
     const result = await this.prisma.surveyInvitation.createMany({
@@ -179,27 +287,39 @@ export class SurveyService implements OnModuleInit {
       'Teléfono',
       'Grupo',
       'Referencia',
+      'Código de acceso',
       'Enlace individual',
       'Estado',
     ]);
+    // Sin dirección pública configurada (por ejemplo en tu computadora) el Excel sale igual, con los
+    // códigos; solo quedan vacíos los enlaces individuales.
     const publicUrl = publicBaseUrl();
-    if (!publicUrl) {
-      throw new BadRequestException(
-        'Falta configurar la dirección pública de Yalika (YALIKA_PUBLIC_URL) en el servidor para generar los enlaces individuales.',
-      );
-    }
+    const taken = await this.takenCodeHashes(id);
     for (const invite of invites) {
       const contact = JSON.parse(
         decryptSurveyValue(invite.detailsCipher),
       ) as InvitationContact;
       const token = decryptSurveyValue(invite.tokenCipher);
+      let code = invite.codeCipher ? decryptSurveyValue(invite.codeCipher) : '';
+      if (!code && !invite.usedAt) {
+        // Invitaciones anteriores a los códigos: se les asigna uno al exportar.
+        code = this.freshAccessCode(id, taken);
+        await this.prisma.surveyInvitation.update({
+          where: { id: invite.id },
+          data: {
+            codeHash: accessCodeHash(id, code),
+            codeCipher: encryptSurveyValue(code)!,
+          },
+        });
+      }
       sheet.addRow([
         contact.name,
         contact.email,
         contact.phone,
         contact.group,
         contact.reference,
-        invite.usedAt
+        invite.usedAt || !code ? '' : formatAccessCode(code),
+        invite.usedAt || !publicUrl
           ? ''
           : `${publicUrl}/e/${encodeURIComponent(survey.slug)}?invitation=${encodeURIComponent(token)}`,
         invite.usedAt ? 'Respondida' : 'Pendiente',
@@ -209,7 +329,7 @@ export class SurveyService implements OnModuleInit {
     sheet.columns.forEach((column) => {
       column.width = 25;
     });
-    sheet.getColumn(6).width = 80;
+    sheet.getColumn(7).width = 80;
     return {
       data: Buffer.from(await workbook.xlsx.writeBuffer()),
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -332,7 +452,7 @@ export class SurveyService implements OnModuleInit {
   }
 
   async findAll(companyId: string, userId: string) {
-    return this.prisma.survey.findMany({
+    const surveys = await this.prisma.survey.findMany({
       where: {
         companyId,
         createdById: userId,
@@ -342,6 +462,11 @@ export class SurveyService implements OnModuleInit {
         updatedAt: 'desc',
       },
     });
+
+    return surveys.map((survey) => ({
+      ...survey,
+      status: effectiveSurveyStatus(survey),
+    }));
   }
 
   async findOne(id: string, companyId: string, userId: string) {
@@ -362,6 +487,8 @@ export class SurveyService implements OnModuleInit {
   }
 
   async create(dto: SaveSurveyDto, companyId: string, userId: string) {
+    const closesAt = resolveClosesAt(dto.closesAt, null);
+    assertCanOpen(dto.status ?? 'draft', closesAt);
     const questions = this.preparedQuestions(dto);
     const slug = await this.availableSlug(dto.slug || dto.title);
 
@@ -373,6 +500,7 @@ export class SurveyService implements OnModuleInit {
         status: dto.status ?? 'draft',
         identityMode: dto.identityMode ?? 'phone',
         accessMode: dto.accessMode ?? 'public',
+        closesAt,
         personalFields: dto.personalFields
           ? dto.personalFields.map((field) => ({
               key: field.key,
@@ -419,6 +547,8 @@ export class SurveyService implements OnModuleInit {
     userId: string,
   ) {
     const current = await this.findOne(id, companyId, userId);
+    const closesAt = resolveClosesAt(dto.closesAt, current.closesAt);
+    assertCanOpen(dto.status ?? current.status, closesAt);
     const questions = this.preparedQuestions(dto);
     const currentQuestions = current.questions.map((question) => ({
       prompt: question.prompt,
@@ -461,6 +591,7 @@ export class SurveyService implements OnModuleInit {
           status: dto.status ?? current.status,
           identityMode: dto.identityMode ?? current.identityMode,
           accessMode: dto.accessMode ?? current.accessMode ?? 'public',
+          closesAt,
           personalFields: dto.personalFields
             ? dto.personalFields.map((field) => ({
                 key: field.key,
@@ -523,6 +654,8 @@ export class SurveyService implements OnModuleInit {
       );
     }
 
+    assertCanOpen(status, current.closesAt);
+
     return this.prisma.survey.update({
       where: {
         id,
@@ -579,7 +712,13 @@ export class SurveyService implements OnModuleInit {
       },
     });
 
-    if (!survey || survey.status !== 'active') {
+    if (survey && effectiveSurveyStatus(survey) === 'closed') {
+      throw new NotFoundException(
+        'Esta encuesta ya terminó y no recibe más respuestas.',
+      );
+    }
+
+    if (!survey || !surveyIsOpen(survey)) {
       throw new NotFoundException(
         'Esta encuesta no existe o todavía no está abierta',
       );
@@ -871,6 +1010,7 @@ export class SurveyService implements OnModuleInit {
         personalFields: true,
         id: true,
         status: true,
+        closesAt: true,
         identityMode: true,
         collectMunicipality: true,
         collectLocality: true,
@@ -883,7 +1023,7 @@ export class SurveyService implements OnModuleInit {
         ineAutoExtract: true,
       },
     });
-    if (!survey || survey.status !== 'active') {
+    if (!survey || !surveyIsOpen(survey)) {
       throw new NotFoundException(
         'Esta encuesta no existe o ya no acepta respuestas',
       );
@@ -931,7 +1071,7 @@ export class SurveyService implements OnModuleInit {
       },
     });
 
-    if (!survey || survey.status !== 'active') {
+    if (!survey || !surveyIsOpen(survey)) {
       throw new NotFoundException(
         'Esta encuesta no existe o ya no acepta respuestas',
       );
@@ -2180,7 +2320,7 @@ export class SurveyService implements OnModuleInit {
       !survey ||
       (survey.accessMode ?? 'public') !== 'public' ||
       !survey.showPublicResults ||
-      survey.status !== 'active'
+      !surveyIsOpen(survey)
     ) {
       throw new NotFoundException('Los resultados no están disponibles');
     }

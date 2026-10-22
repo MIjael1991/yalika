@@ -52,8 +52,8 @@ export class OrderDiscountService {
           include: {
             orderItem: true,
             promotion: true,
-            authorizedBy: true,
-            voidedBy: true,
+            authorizedBy: { select: { id: true, name: true } },
+            voidedBy: { select: { id: true, name: true } },
           },
           orderBy: [{ appliedAt: 'asc' }, { id: 'asc' }],
         },
@@ -572,8 +572,8 @@ export class OrderDiscountService {
       include: {
         orderItem: true,
         promotion: true,
-        authorizedBy: true,
-        voidedBy: true,
+        authorizedBy: { select: { id: true, name: true } },
+        voidedBy: { select: { id: true, name: true } },
       },
     });
     const order = await tx.order.findUniqueOrThrow({
@@ -584,8 +584,8 @@ export class OrderDiscountService {
           include: {
             orderItem: true,
             promotion: true,
-            authorizedBy: true,
-            voidedBy: true,
+            authorizedBy: { select: { id: true, name: true } },
+            voidedBy: { select: { id: true, name: true } },
           },
           orderBy: [{ appliedAt: 'asc' }, { id: 'asc' }],
         },

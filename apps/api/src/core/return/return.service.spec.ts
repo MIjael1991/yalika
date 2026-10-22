@@ -611,3 +611,57 @@ describe('Reembolsos', () => {
     });
   });
 });
+
+/* ------------------------------------------------ permiso por artículo */
+
+describe('Devoluciones · permiso por artículo', () => {
+  it('con permiso del producto, devuelve ese producto', async () => {
+    const { service, tx } = setupCreate();
+    await service.create(dto(), { actorId: 'u1', onlyProductIds: ['p1'] });
+    expect(tx.return.create).toHaveBeenCalled();
+  });
+
+  it('si el producto no está autorizado, no crea nada y lo dice por nombre', async () => {
+    const { service, tx } = setupCreate();
+    await expect(service.create(dto(), { actorId: 'u1', onlyProductIds: ['otro'] })).rejects.toThrow(
+      /No tienes autorización para devolver Collar/,
+    );
+    expect(tx.return.create).not.toHaveBeenCalled();
+  });
+
+  it('sin límite (administrador o permiso general) devuelve cualquier producto', async () => {
+    const { service, tx } = setupCreate();
+    await service.create(dto(), { actorId: 'u1', onlyProductIds: null });
+    expect(tx.return.create).toHaveBeenCalled();
+  });
+
+  it('con permiso por artículo solo confirma o cancela lo que él mismo registró', async () => {
+    const prisma: Row = {
+      return: {
+        findUnique: jest.fn().mockResolvedValue({ authorizedById: 'otra-persona' }),
+        updateMany: jest.fn(),
+      },
+    };
+    const service = new ReturnService(prisma as never);
+    const scope = { actorId: 'u1', onlyProductIds: ['p1'] };
+    await expect(service.confirm('r1', scope)).rejects.toThrow(/que tú registraste/);
+    await expect(service.cancel('r1', scope)).rejects.toThrow(/que tú registraste/);
+    expect(prisma.return.updateMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('Devoluciones · lo que se entrega al navegador', () => {
+  it('la lista y el detalle solo traen id y nombre de quien autorizó, nunca el usuario completo', async () => {
+    const prisma: Row = {
+      return: {
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn().mockResolvedValue({ id: 'r1', items: [], refunds: [] }),
+      },
+    };
+    const service = new ReturnService(prisma as never);
+    await service.findByCompany(COMPANY);
+    await service.findOne('r1');
+    expect(prisma.return.findMany.mock.calls[0][0].include.authorizedBy).toEqual({ select: { id: true, name: true } });
+    expect(prisma.return.findUnique.mock.calls[0][0].include.authorizedBy).toEqual({ select: { id: true, name: true } });
+  });
+});

@@ -2,7 +2,7 @@ import { Type } from 'class-transformer';
 import { IsISO8601, ArrayMaxSize, IsArray, IsBoolean, IsIn, IsInt, IsObject, IsOptional, IsString, MaxLength, Min, ValidateNested } from 'class-validator';
 
 export class SiteSectionInputDto {
-  @IsIn(['hero', 'banner', 'catalog', 'promotions', 'gallery', 'video', 'menu', 'text', 'loyalty', 'location', 'contact'])
+  @IsIn(['hero', 'banner', 'catalog', 'promotions', 'gallery', 'video', 'menu', 'text', 'faq', 'testimonials', 'links', 'loyalty', 'location', 'contact'])
   type!: string;
 
   @IsOptional()

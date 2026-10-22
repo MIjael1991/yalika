@@ -39,8 +39,8 @@ export class OrderService {
           include: {
             orderItem: true,
             promotion: true,
-            authorizedBy: true,
-            voidedBy: true,
+            authorizedBy: { select: { id: true, name: true } },
+            voidedBy: { select: { id: true, name: true } },
           },
 
           orderBy: {
@@ -197,8 +197,8 @@ export class OrderService {
           include: {
             orderItem: true,
             promotion: true,
-            authorizedBy: true,
-            voidedBy: true,
+            authorizedBy: { select: { id: true, name: true } },
+            voidedBy: { select: { id: true, name: true } },
           },
 
           orderBy: {
@@ -1547,8 +1547,8 @@ export class OrderService {
           include: {
             orderItem: true,
             promotion: true,
-            authorizedBy: true,
-            voidedBy: true,
+            authorizedBy: { select: { id: true, name: true } },
+            voidedBy: { select: { id: true, name: true } },
           },
 
           orderBy: {

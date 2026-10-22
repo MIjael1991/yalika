@@ -104,3 +104,31 @@ describe('R8.2 disponibilidad de Salud', () => {
     expect(result.availableModules.includes('health')).toBe(expected);
   });
 });
+
+describe('disponibilidad de Veterinaria y Presente', () => {
+  const original = { ...process.env };
+  afterEach(() => { process.env = { ...original }; });
+  it.each([
+    ['production', undefined, false],
+    ['production', 'true', true],
+    ['test', 'false', false],
+    ['test', undefined, true],
+  ])('entorno %s con bandera %s', async (env, flag, expected) => {
+    Object.assign(process.env, { NODE_ENV: env });
+    for (const name of ['YALIKA_VETERINARIA_ENABLED', 'YALIKA_PRESENTE_ENABLED']) {
+      if (flag === undefined) delete process.env[name];
+      else process.env[name] = String(flag);
+    }
+    const service = new AssistantPreferenceService({ assistantPreference: { findUnique: jest.fn().mockResolvedValue(null) } } as unknown as PrismaService);
+    const result = await service.findVisibleForUser('u1', ['all']);
+    expect(result.availableModules.includes('veterinaria')).toBe(expected);
+    expect(result.availableModules.includes('presente')).toBe(expected);
+  });
+
+  it('se pueden guardar como visibles', async () => {
+    const visibleModules = ['presente', 'veterinaria'];
+    const upsert = jest.fn().mockResolvedValue({ visibleModules });
+    const service = new AssistantPreferenceService({ assistantPreference: { upsert } } as unknown as PrismaService);
+    await expect(service.updateVisibleForUser('u1', ['all'], visibleModules)).resolves.toEqual({ visibleModules });
+  });
+});

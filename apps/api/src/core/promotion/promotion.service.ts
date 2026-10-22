@@ -178,14 +178,14 @@ export class PromotionService {
   async findPublicByCompany(companyId: string) {
     const published = await this.prisma.site.findFirst({
         where: { companyId, isPrimary: true },
-      select: { status: true },
+      select: { status: true, slug: true },
     });
     if (published?.status !== 'published') {
       throw new NotFoundException('El escaparate no está publicado');
     }
     const now = new Date();
 
-    return this.prisma.promotion.findMany({
+    const promotions = await this.prisma.promotion.findMany({
       where: {
         companyId,
         status: 'active',
@@ -215,6 +215,12 @@ export class PromotionService {
         },
       ],
     });
+
+    // La dirección pública sirve para el QR de promociones del ticket.
+    return promotions.map((promotion) => ({
+      ...promotion,
+      siteSlug: published.slug ?? null,
+    }));
   }
 
   async findOne(id: string) {

@@ -22,6 +22,29 @@ const grants: Grant[] = [
     path: new RegExp(`^${any}/(confirm|cancel)$`),
   },
 
+  // Devolver o cambiar solo un producto autorizado (el servicio revisa que todo lo
+  // devuelto sea de esos productos y que solo confirme lo que esa persona creó).
+  { permission: 'returns_item', method: 'POST', root: 'return', path: /^$/ },
+  {
+    permission: 'returns_item',
+    method: 'POST',
+    root: 'return',
+    path: new RegExp(`^${any}/(confirm|cancel)$`),
+  },
+
+  // Agregar productos nuevos (no editar ni borrar los que ya existen).
+  { permission: 'catalog', method: 'POST', root: 'catalog', path: /^product$/ },
+  { permission: 'catalog', method: 'POST', root: 'catalog', path: /^category$/ },
+  {
+    permission: 'catalog',
+    method: 'POST',
+    root: 'catalog',
+    path: new RegExp(`^product/${any}/(image|variant|barcodes|barcodes/generate)$`),
+  },
+
+  // Subir la foto de un producto nuevo.
+  { permission: 'catalog', method: 'POST', root: 'media', path: /^image$/ },
+
   // Devolver dinero: es un permiso aparte de la devolución.
   {
     permission: 'refunds',
@@ -53,6 +76,12 @@ const grants: Grant[] = [
   },
 ];
 
+function hasGrant(permissions: readonly string[], permission: string) {
+  return permission === 'returns_item'
+    ? permissions.some((value) => value.startsWith('returns_item:'))
+    : permissions.includes(permission);
+}
+
 export function grantedMayCall(
   permissions: readonly string[] | undefined,
   method: string,
@@ -65,7 +94,7 @@ export function grantedMayCall(
 
   return grants.some(
     (grant) =>
-      permissions.includes(grant.permission) &&
+      hasGrant(permissions, grant.permission) &&
       grant.root === root &&
       grant.method === verb &&
       grant.path.test(path),

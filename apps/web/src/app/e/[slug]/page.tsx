@@ -1,4 +1,5 @@
 import type { PersonalField } from '../../../lib/survey-fields';
+import { AccessCodeForm } from './access-code-form';
 import { SurveyResponseWorkspace } from './survey-response-workspace';
 
 export const metadata = { referrer: 'no-referrer' as const };
@@ -57,6 +58,8 @@ export default async function PublicSurveyPage({
     process.env.YALIKA_API_URL ?? 'http://localhost:3000'
   ).replace(/\/+$/, '');
   let survey: PublicSurvey | null = null;
+  let needsCode = false;
+  let notice = '';
 
   try {
     const response = await fetch(
@@ -68,9 +71,23 @@ export default async function PublicSurveyPage({
 
     if (response.ok) {
       survey = (await response.json()) as PublicSurvey;
+    } else if (response.status === 403) {
+      // Encuesta de grupo o privada abierta sin enlace personal: se pide el código de acceso.
+      needsCode = true;
+    } else {
+      const body = (await response.json().catch(() => null)) as {
+        message?: unknown;
+      } | null;
+      if (typeof body?.message === 'string' && body.message.includes('terminó')) {
+        notice = body.message;
+      }
     }
   } catch {
     survey = null;
+  }
+
+  if (!survey && needsCode) {
+    return <AccessCodeForm slug={slug} />;
   }
 
   if (!survey) {
@@ -80,7 +97,8 @@ export default async function PublicSurveyPage({
           <div className="text-4xl">🔒</div>
           <h1 className="mt-4 text-2xl font-black">Encuesta no disponible</h1>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            Puede estar cerrada o el enlace no es correcto. Solicita un enlace nuevo a quien te invitó.
+            {notice ||
+              'Puede estar cerrada o el enlace no es correcto. Solicita un enlace nuevo a quien te invitó.'}
           </p>
         </section>
       </main>

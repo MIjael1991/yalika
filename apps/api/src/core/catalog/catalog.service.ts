@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  availableQuantity,
+  BLOCKING_RESERVATION_STATUSES,
+} from '../reservation/reservation-rules';
 
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { CreateImageDto } from './dto/create-image.dto';
@@ -414,6 +418,35 @@ export class CatalogService {
     if (!site) {
       throw new NotFoundException('El escaparate no está publicado');
     }
+    const [products, reservations] = await Promise.all([
+      this.findPublicProductRows(companyId),
+      this.prisma.commerceReservation.findMany({
+        where: { companyId, status: { in: [...BLOCKING_RESERVATION_STATUSES] } },
+        select: { items: { select: { productId: true, variantId: true, quantity: true } } },
+      }),
+    ]);
+
+    // Lo apartado ya está comprometido: la página muestra lo que de verdad se puede vender
+    // (existencia − apartados activos), igual que la pantalla de Apartados.
+    const reserved = new Map<string, number>();
+    for (const reservation of reservations) {
+      for (const item of reservation.items) {
+        const key = `${item.productId}:${item.variantId ?? ''}`;
+        reserved.set(key, (reserved.get(key) ?? 0) + item.quantity);
+      }
+    }
+
+    return products.map((product) => ({
+      ...product,
+      stock: availableQuantity(product.stock, reserved.get(`${product.id}:`) ?? 0),
+      variants: product.variants.map((variant) => ({
+        ...variant,
+        stock: availableQuantity(variant.stock, reserved.get(`${product.id}:${variant.id}`) ?? 0),
+      })),
+    }));
+  }
+
+  private findPublicProductRows(companyId: string) {
     return this.prisma.product.findMany({
       where: { companyId, status: 'active', webVisible: true },
       select: {

@@ -217,6 +217,41 @@ describe('TaskService agenda', () => {
   });
 });
 
+describe('TaskService history', () => {
+  it('keeps the privacy scope and matches words without accents', async () => {
+    const findMany = jest.fn().mockResolvedValue([
+      { id: 't1', title: 'Desparasitar al gato Michi', status: 'completed' },
+      { id: 't2', title: 'Vacuna del perro', status: 'completed' },
+      { id: 't3', title: 'Desparasité gato', status: 'completed' },
+    ]);
+    const service = new TaskService({
+      task: { findMany },
+    } as unknown as PrismaService);
+
+    const result = await service.findHistory(
+      'DESPARASITAR gato',
+      'company-1',
+      'user-1',
+    );
+
+    expect(result.map((task: { id: string }) => task.id)).toEqual(['t1']);
+    const where = findMany.mock.calls[0][0].where;
+    expect(where.companyId).toBe('company-1');
+    expect(where.AND[0].OR).toEqual(expect.any(Array));
+    expect(where.OR).toBeUndefined();
+  });
+
+  it('asks for something to search', async () => {
+    const service = new TaskService({
+      task: { findMany: jest.fn() },
+    } as unknown as PrismaService);
+
+    await expect(service.findHistory(' ', 'company-1', 'user-1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+  });
+});
+
 describe('TaskService recurring work', () => {
   function createRecurrenceFixture(updateCount: number) {
     const startsAt = new Date(Date.now() + 60 * 60 * 1000);

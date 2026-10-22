@@ -1,5 +1,7 @@
 import { SiteView, type Site, type Product, type Promotion, type StoreData } from './site-view';
 import { ShowcaseStorefront } from './showcase-storefront';
+import { ThemedStorefront } from './themed-storefront';
+import { PRESET_BY_ID } from './template-presets';
 const apiUrl = (
   process.env.YALIKA_API_URL ??
   'http://localhost:3000'
@@ -62,6 +64,10 @@ async function getStoreData(
 export default async function PublicSitePage({params}:{params:Promise<{slug:string}>}) {
   const {slug}=await params;
   const data = await getStoreData(slug);
+
+  if (data.site && PRESET_BY_ID[data.site.template]) {
+    return <ThemedStorefront site={data.site} products={data.products} promotions={data.promotions} />;
+  }
 
   if (
     data.site &&

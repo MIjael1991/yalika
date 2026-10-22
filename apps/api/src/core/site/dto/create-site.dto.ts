@@ -42,6 +42,18 @@ export class CreateSiteDto {
     'punk_rock',
     'dark_neon',
     'vacation_bright',
+    'yk_inmobiliaria',
+    'yk_unas',
+    'yk_boutique',
+    'yk_papeleria',
+    'yk_dia_muertos',
+    'yk_navidad',
+    'yk_amor',
+    'yk_gran_venta',
+    'yk_madres',
+    'yk_clases',
+    'yk_restaurante',
+    'yk_taller',
   ])
   template?: string;
 

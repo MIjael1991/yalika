@@ -24,6 +24,8 @@ const yalikaSurveySecurityHeaders = [
             "style-src 'self' 'unsafe-inline'",
             "script-src 'self' 'unsafe-inline'",
             "connect-src 'self'",
+            "frame-src https://www.tiktok.com https://www.youtube-nocookie.com",
+            "media-src 'self' blob: https:",
             "worker-src 'self' blob:",
             'upgrade-insecure-requests',
           ].join('; '),

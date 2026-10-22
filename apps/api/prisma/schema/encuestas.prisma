@@ -14,6 +14,7 @@ model Survey {
   collectLocality       Boolean            @default(false)
   collectLeaderProposal Boolean            @default(false)
   showPublicResults     Boolean            @default(false)
+  closesAt              DateTime?
   privacyNotice         String
   thankYouMessage       String?
   createdAt             DateTime           @default(now())
@@ -183,10 +184,14 @@ model SurveyInvitation {
   tokenCipher   String
   contactHash   String
   detailsCipher String
+  codeHash      String?
+  codeCipher    String?
   usedAt        DateTime?
   createdAt     DateTime  @default(now())
 
   @@unique([surveyId, contactHash])
+  @@unique([surveyId, codeHash])
   @@index([surveyId, usedAt])
   @@map("survey_invitations")
-}
+}
+

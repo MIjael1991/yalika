@@ -100,6 +100,23 @@ export const destinations = [
     words: "pagina paginas web catalogo sitio tienda internet",
   },
   {
+    id: "veterinaria",
+    name: "Veterinaria",
+    detail: "Fichas, consultas y recetas de tus mascotas",
+    href: "/veterinaria",
+    module: "veterinaria",
+    words: "veterinaria veterinario mascota mascotas perro gato vacuna receta",
+  },
+  {
+    id: "presente",
+    name: "Tequio",
+    detail: "Ayuda verificada cerca de ti",
+    href: "/tequio",
+    module: "presente",
+    words:
+      "tequio presente ayuda servicio plomero electricista cerrajero llanta vulcanizadora pipa agua grua mecanico trabajar oficio",
+  },
+  {
     id: "services",
     name: "Mis servicios",
     detail: "Elige qué mostrar en tu inicio",

@@ -9,6 +9,7 @@ type RouteParameters = {
 const allowedRoots = new Set([
   'site-team',
   'reservation',
+  'push',
   'business-assistant',
   'clinical',
   'assistant-preference',
@@ -32,6 +33,8 @@ const allowedRoots = new Set([
   'survey',
   'task',
   'promotion',
+  'presente',
+  'veterinaria',
 ]);
 
 function getTargetUrl(request: NextRequest, path: string[]) {

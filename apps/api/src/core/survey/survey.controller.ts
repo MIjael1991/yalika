@@ -20,6 +20,7 @@ import type { Request } from 'express';
 import { type AuthContext } from '../../auth/auth.types';
 import { CurrentAuth } from '../../auth/current-auth.decorator';
 import { SessionAuthGuard } from '../../auth/session-auth.guard';
+import { AccessSurveyDto } from './dto/access-survey.dto';
 import { ConfirmSurveyBackupDto } from './dto/confirm-survey-backup.dto';
 import { ExtractSurveyIneDto } from './dto/extract-survey-ine.dto';
 import { PurgeSurveyIneDto } from './dto/purge-survey-ine.dto';
@@ -61,6 +62,15 @@ export class SurveyController {
   @Post('public/:slug/responses')
   submit(@Param('slug') slug: string, @Body() dto: SubmitSurveyDto) {
     return this.surveyService.submit(slug, dto);
+  }
+
+  @Post('public/:slug/access')
+  accessByCode(
+    @Param('slug') slug: string,
+    @Body() dto: AccessSurveyDto,
+    @Req() request: Request,
+  ) {
+    return this.surveyService.accessByCode(slug, dto, request.ip || 'unknown');
   }
 
   @Get('public/:slug/results')

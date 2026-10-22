@@ -19,9 +19,21 @@ const normalize = (value: string) =>
     .trim()
     .toLowerCase();
 
+/** Clave que identifica a una persona de la lista (correo, luego teléfono, luego nombre + referencia). */
+export function contactKey(contact: InvitationContact) {
+  if (contact.email) return `email:${contact.email}`;
+  if (contact.phone) return `phone:${contact.phone}`;
+  return `name:${normalize(contact.name)}|${normalize(contact.reference)}`;
+}
+
+/**
+ * `lenient`: para encuestas con código de acceso. Una persona puede venir solo con nombre, y un
+ * correo o teléfono mal escrito no detiene la importación: se conserva como nota en Referencia.
+ */
 export async function parseParticipants(
   filename: string,
   content: string,
+  options: { lenient?: boolean } = {},
 ): Promise<InvitationContact[]> {
   if (
     !/\.(csv|xlsx)$/i.test(filename) ||
@@ -74,7 +86,12 @@ export async function parseParticipants(
     group: pick(['grupo']),
     reference: pick(['referencia']),
   };
-  if (!mapping.email && !mapping.phone)
+  if (options.lenient) {
+    if (!mapping.name && !mapping.email && !mapping.phone)
+      throw new BadRequestException(
+        'Incluye una columna Nombre, Correo o Teléfono/Celular',
+      );
+  } else if (!mapping.email && !mapping.phone)
     throw new BadRequestException(
       'Incluye una columna Correo o Teléfono/Celular',
     );
@@ -97,17 +114,39 @@ export async function parseParticipants(
         );
     }
     if (!Object.values(result).some(Boolean)) continue;
+    const rawPhone = result.phone;
     result.email = result.email.toLowerCase();
     result.phone = result.phone.replace(/\D/g, '');
-    if (!result.email && !result.phone)
-      throw new BadRequestException(`Fila ${row}: falta correo o teléfono`);
-    if (result.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email))
-      throw new BadRequestException(`Fila ${row}: correo inválido`);
-    if (result.phone && (result.phone.length < 10 || result.phone.length > 15))
-      throw new BadRequestException(`Fila ${row}: teléfono inválido`);
-    const key = result.email
-      ? `email:${result.email}`
-      : `phone:${result.phone}`;
+    const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email);
+    const validPhone = result.phone.length >= 10 && result.phone.length <= 15;
+    if (options.lenient) {
+      const notes: string[] = [];
+      if (result.email && !validEmail) {
+        notes.push(`correo no válido: ${result.email}`);
+        result.email = '';
+      }
+      if (result.phone && !validPhone) {
+        notes.push(`teléfono no válido: ${rawPhone}`);
+        result.phone = '';
+      }
+      if (notes.length) {
+        result.reference = [result.reference, ...notes]
+          .filter(Boolean)
+          .join(' · ')
+          .slice(0, 254);
+      }
+      if (!result.name && !result.email && !result.phone) {
+        result.name = `Persona de la fila ${row}`;
+      }
+    } else {
+      if (!result.email && !result.phone)
+        throw new BadRequestException(`Fila ${row}: falta correo o teléfono`);
+      if (result.email && !validEmail)
+        throw new BadRequestException(`Fila ${row}: correo inválido`);
+      if (result.phone && !validPhone)
+        throw new BadRequestException(`Fila ${row}: teléfono inválido`);
+    }
+    const key = contactKey(result);
     if (seen.has(key)) continue;
     seen.add(key);
     contacts.push(result);

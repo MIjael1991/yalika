@@ -8,6 +8,8 @@ import {
   type FormEvent,
 } from 'react';
 import QRCode from 'qrcode';
+import { heroArt } from '../s/[slug]/template-art';
+import { PRESETS, suggestedSeason } from '../s/[slug]/template-presets';
 
 export type SiteRecord = {
   id: string;
@@ -451,6 +453,14 @@ const templates = [
     accent: '#fbbf24',
     background: '#0369a1',
   },
+  ...PRESETS.map((preset) => ({
+    id: preset.id,
+    name: preset.label,
+    description: preset.eyebrow,
+    preview: 'from-slate-100 to-slate-300',
+    accent: preset.c.accent,
+    background: preset.c.bg,
+  })),
 ];
 
 const mainTemplateIds = new Set([
@@ -3024,6 +3034,54 @@ export function SiteBuilderWorkspace({
               </button>
               ))}
           </div>
+        </section>
+
+        <section className={`${activeStudioSection === 'design' ? '' : 'hidden'} mt-9 border-t border-slate-800 pt-8`}>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+            Plantillas nuevas
+          </p>
+          <h2 className="mt-1 text-xl font-semibold">
+            Para tu negocio y para la temporada
+          </h2>
+          <p className="mt-2 text-sm text-slate-400">
+            Ya traen dibujos, textos y pasos listos. Tus productos y fotos reales los reemplazan cuando los cargas. Puedes cambiar de diseño cuando quieras.
+          </p>
+          {(['negocio', 'temporada'] as const).map((group) => (
+            <div key={group} className="mt-6">
+              <p className="text-sm font-bold text-slate-300">
+                {group === 'negocio' ? 'Negocios' : 'Temporada'}
+              </p>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {PRESETS.filter((preset) => preset.group === group).map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => selectTemplate(preset.id)}
+                    className={`overflow-hidden rounded-3xl border text-left transition ${
+                      siteForm.template === preset.id
+                        ? 'border-cyan-300 ring-2 ring-cyan-300/20'
+                        : 'border-slate-800 hover:border-slate-600'
+                    }`}
+                  >
+                    <div
+                      className="relative h-36 overflow-hidden [&>svg]:h-full [&>svg]:w-full"
+                      dangerouslySetInnerHTML={{ __html: heroArt(preset.hero, preset.label) }}
+                    />
+                    <div className="bg-slate-900 p-4">
+                      <p className="font-semibold">
+                        {suggestedSeason() === preset.id ? '★ ' : ''}
+                        {preset.label}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-slate-400">
+                        {suggestedSeason() === preset.id ? 'De temporada ahora · ' : ''}
+                        {preset.eyebrow}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </section>
 
         <section className={`${activeStudioSection === 'design' ? '' : 'hidden'} mt-8 grid gap-6 xl:grid-cols-[1.1fr_.9fr]`}>

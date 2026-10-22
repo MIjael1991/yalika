@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { FormEvent, useMemo, useState } from 'react';
+import { PRESETS, suggestedSeason } from '../../s/[slug]/template-presets';
 
 const templates = [
   ['yaleka_cherry_nails', 'Servicios elegante · sin catálogo'],
@@ -61,9 +62,9 @@ export function CreateSiteWorkspace({ companyId }: { companyId: string }) {
         slug: suggested,
         template,
         whatsappPhone: whatsappPhone.trim() || undefined,
-        heroTitle: name.trim(),
+        heroTitle: template.startsWith('yk_') ? undefined : name.trim(),
         heroSubtitle:
-          template === 'yaleka_prisma_papeleria'
+          template.startsWith('yk_') ? undefined : template === 'yaleka_prisma_papeleria'
             ? 'Escuela, oficina y creatividad en un solo lugar.'
             : template === 'yaleka_cherry_nails'
               ? 'Servicios, galería y contacto directo.'
@@ -89,7 +90,7 @@ export function CreateSiteWorkspace({ companyId }: { companyId: string }) {
         <label className="mt-6 block text-sm font-bold">Nombre<input value={name} onChange={(e) => setName(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3" placeholder="Ej. Mi tienda" /></label>
         <label className="mt-4 block text-sm font-bold">Enlace<input value={slug} onChange={(e) => setSlug(slugify(e.target.value))} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3" placeholder={suggested || 'mi-tienda'} /></label>
         <p className="mt-1 text-xs text-slate-500">Quedará como /s/{suggested || 'mi-tienda'}</p>
-        <label className="mt-4 block text-sm font-bold">Diseño<select value={template} onChange={(e) => setTemplate(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3">{templates.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</select></label>
+        <label className="mt-4 block text-sm font-bold">Diseño<select value={template} onChange={(e) => setTemplate(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3"><optgroup label="Negocios">{PRESETS.filter((p) => p.group === 'negocio').map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}</optgroup><optgroup label="Temporada">{PRESETS.filter((p) => p.group === 'temporada').map((p) => <option key={p.id} value={p.id}>{suggestedSeason() === p.id ? '★ ' : ''}{p.label}{suggestedSeason() === p.id ? ' · de temporada ahora' : ''}</option>)}</optgroup><optgroup label="Otros diseños">{templates.map(([id, label]) => <option key={id} value={id}>{label}</option>)}</optgroup></select></label>
         <label className="mt-4 block text-sm font-bold">WhatsApp<input value={whatsappPhone} onChange={(e) => setWhatsappPhone(e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3" placeholder="443..." /></label>
         <label className="mt-5 flex items-center gap-3 text-sm"><input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} /> Publicarla al crear</label>
         <div className="mt-7 flex gap-3"><button disabled={busy} className="flex-1 rounded-xl bg-cyan-300 px-5 py-3 font-black text-slate-950 disabled:opacity-50">{busy ? 'Creando…' : 'Crear página'}</button><a href="/sites" className="rounded-xl border border-white/10 px-5 py-3 font-bold">Cancelar</a></div>

@@ -12,7 +12,7 @@ function load(file) {
   vm.runInNewContext(out, { module: mod, exports: mod.exports, Intl });
   return mod.exports;
 }
-const { groupByCatalog, catalogNameOf, isSoldOut, NO_CATALOG_ID, NO_CATALOG_NAME } =
+const { groupByCatalog, catalogNameOf, catalogChoices, isSoldOut, NO_CATALOG_ID, NO_CATALOG_NAME } =
   load(path.join(__dirname, '..', 'src', 'lib', 'yalika-pos-groups.ts'));
 
 // Los arreglos vienen de otro contexto (vm): se comparan como datos planos.
@@ -82,4 +82,22 @@ test('lista vacía y nombre de negocio para el carrito', () => {
   assert.equal(catalogNameOf('cat-unas', catalogs), 'Uñas');
   assert.equal(catalogNameOf(undefined, catalogs), NO_CATALOG_NAME);
   assert.equal(catalogNameOf('otro', catalogs), NO_CATALOG_NAME);
+});
+
+test('el catálogo automático "General" nunca se muestra con ese nombre', () => {
+  const withDefault = [{ id: 'cat-gen', name: 'General', isDefault: true }, ...catalogs];
+  const groups = groupByCatalog(
+    [opt('a', 'cat-gen', 'c1', 'Abrigos'), opt('b', 'cat-bout', 'c2', 'Accesorios'), opt('c', null, null, 'Sin categoría')],
+    withDefault,
+  );
+  assert.deepEqual(plain(groups.map((g) => g.name)), ['Boutique', NO_CATALOG_NAME]);
+  assert.equal(groups.length, 2, 'lo de General y lo sin negocio quedan en un solo grupo');
+  assert.equal(groups[1].count, 2);
+  assert.equal(catalogNameOf('cat-gen', withDefault), NO_CATALOG_NAME);
+});
+
+test('los desplegables sólo ofrecen negocios con nombre propio, en orden', () => {
+  const withDefault = [{ id: 'cat-gen', name: 'General', isDefault: true }, ...catalogs];
+  assert.deepEqual(plain(catalogChoices(withDefault).map((c) => c.name)), ['Boutique', 'Uñas']);
+  assert.deepEqual(plain(catalogChoices([{ id: 'cat-gen', name: 'General', isDefault: true }])), []);
 });

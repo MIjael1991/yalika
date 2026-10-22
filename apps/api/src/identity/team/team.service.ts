@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 
 import { validateNewPasswordPair } from '../../auth/account-security.helpers';
-import { cleanPermissions } from '../../auth/permissions';
+import { cleanPermissions, itemReturnProductIds } from '../../auth/permissions';
 import { cashierRoleName } from '../../auth/tenant-policy';
 import { hashPassword } from '../../auth/password';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -198,6 +198,17 @@ export class TeamService {
   ) {
     await this.cashierOf(companyId, userId);
     const permissions = cleanPermissions(dto.permissions);
+
+    // Un permiso por artículo solo vale para productos del propio negocio.
+    const itemIds = itemReturnProductIds(permissions);
+    if (itemIds.length) {
+      const own = await this.prisma.product.count({
+        where: { id: { in: itemIds }, companyId },
+      });
+      if (own !== itemIds.length) {
+        throw new BadRequestException('Alguno de los productos no es de tu negocio');
+      }
+    }
 
     return this.prisma.$transaction(async (tx) => {
       await tx.membership.upsert({

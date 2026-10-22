@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -15,6 +16,10 @@ import {
   validateNewPasswordPair,
 } from './account-security.helpers';
 import { publicBaseUrl } from '../common/public-url';
+import type {
+  ChangeEmailDto,
+  RecoveryPhoneDto,
+} from './dto/account-contact.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
@@ -74,15 +79,16 @@ export class AccountSecurityService {
   }
 
   async getSecurityStatus(userId: string) {
-    const [user, key] = await Promise.all([
+    const [user, key, contact] = await Promise.all([
       this.prisma.user.findUnique({
         where: { id: userId },
-        select: { passwordChangedAt: true, email: true },
+        select: { passwordChangedAt: true, email: true, name: true },
       }),
       this.prisma.authRecoveryKey.findUnique({
         where: { userId },
         select: { createdAt: true, updatedAt: true },
       }),
+      this.prisma.accountContact.findUnique({ where: { userId } }),
     ]);
 
     if (!user) throw new UnauthorizedException('Tu sesión ya no es válida.');
@@ -90,12 +96,76 @@ export class AccountSecurityService {
     return {
       ok: true,
       email: user.email,
+      name: user.name,
+      recoveryPhone: contact?.recoveryPhone ?? null,
+      recoveryPhoneVerified: Boolean(contact?.phoneVerifiedAt),
       emailDeliveryAvailable: emailDeliveryAvailable(),
       recoveryKeyConfigured: Boolean(key),
       recoveryKeyUpdatedAt: key?.updatedAt ?? null,
       passwordChangedAt: user.passwordChangedAt,
       passwordMinLength: 10,
     };
+  }
+
+  /** Confirma la contraseña actual antes de cambiar datos de recuperación. */
+  private async requireCurrentPassword(userId: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, passwordHash: true, email: true },
+    });
+    if (
+      !user?.passwordHash ||
+      !(await verifyPassword(password, user.passwordHash))
+    ) {
+      throw new UnauthorizedException('La contraseña actual no es correcta.');
+    }
+    return user;
+  }
+
+  /**
+   * Teléfono para recuperar la cuenta. Se guarda ya; se verificará con un código por SMS
+   * cuando haya proveedor de envío. Cambiarlo pide la contraseña actual.
+   */
+  async setRecoveryPhone(userId: string, dto: RecoveryPhoneDto) {
+    await this.requireCurrentPassword(userId, dto.currentPassword);
+    const digits = dto.phone.replace(/\D/g, '').slice(-10);
+    if (digits.length !== 10) {
+      throw new BadRequestException('Escribe un celular de 10 dígitos');
+    }
+    const phone = `+52${digits}`;
+    await this.prisma.accountContact.upsert({
+      where: { userId },
+      create: { userId, recoveryPhone: phone },
+      update: { recoveryPhone: phone, phoneVerifiedAt: null },
+    });
+    return this.getSecurityStatus(userId);
+  }
+
+  async removeRecoveryPhone(userId: string, currentPassword: string) {
+    await this.requireCurrentPassword(userId, currentPassword);
+    await this.prisma.accountContact.upsert({
+      where: { userId },
+      create: { userId, recoveryPhone: null },
+      update: { recoveryPhone: null, phoneVerifiedAt: null },
+    });
+    return this.getSecurityStatus(userId);
+  }
+
+  /** Cambiar el correo con el que entra (pide la contraseña actual). */
+  async changeEmail(userId: string, dto: ChangeEmailDto) {
+    const user = await this.requireCurrentPassword(userId, dto.currentPassword);
+    const email = dto.newEmail.trim().toLowerCase();
+    if (email === user.email.toLowerCase()) {
+      throw new BadRequestException('Ese ya es tu correo.');
+    }
+    const taken = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (taken)
+      throw new ConflictException('Ese correo ya está en otra cuenta.');
+    await this.prisma.user.update({ where: { id: userId }, data: { email } });
+    return this.getSecurityStatus(userId);
   }
 
   async generateRecoveryKey(userId: string) {

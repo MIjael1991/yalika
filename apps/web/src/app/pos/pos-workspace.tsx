@@ -22,7 +22,9 @@ import {
   type Frequency,
 } from '../../lib/yalika-quick-entry';
 import {
+  catalogChoices,
   catalogNameOf,
+  type CatalogRef,
   groupByCatalog,
   isSoldOut,
   NO_CATALOG_ID,
@@ -277,6 +279,8 @@ export type ActivePromotion = {
   featured: boolean;
   startsAt: string;
   endsAt: string;
+  /** Dirección pública de la página, para el QR de promociones del ticket. */
+  siteSlug?: string | null;
   products: Array<{
     productId: string;
   }>;
@@ -641,12 +645,14 @@ function getEqualSplitTotals(total: number, parts: number) {
 export function PosWorkspace({
   initialCompanyId,
   initialAuthorizedUserId,
+  cashierName,
   initialProducts,
   initialPromotions,
   initialCatalogError,
 }: {
   initialCompanyId: string;
   initialAuthorizedUserId: string;
+  cashierName?: string;
   initialProducts: Product[];
   initialPromotions: ActivePromotion[];
   initialCatalogError: string;
@@ -667,7 +673,9 @@ export function PosWorkspace({
   const [categoryId, setCategoryId] = useState('all');
   const [catalogId, setCatalogId] = useState('all');
   const [openGroups, setOpenGroups] = useState<string[]>([]);
-  const [commerceCatalogs, setCommerceCatalogs] = useState<Array<{ id: string; name: string }>>([]);
+  const [commerceCatalogs, setCommerceCatalogs] = useState<CatalogRef[]>([]);
+  // Desplegable y pestañas: sólo negocios con nombre propio (nunca "General").
+  const catalogOptions = useMemo(() => catalogChoices(commerceCatalogs), [commerceCatalogs]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orderDiscount, setOrderDiscount] = useState<CartDiscount>();
   const [discountEditor, setDiscountEditor] = useState<DiscountEditor>();
@@ -683,6 +691,7 @@ export function PosWorkspace({
     orderId: '',
     dataUrl: '',
   });
+  const [promoQr, setPromoQr] = useState('');
   const [customerReceipts, setCustomerReceipts] = useState<Receipt[]>([]);
   const [showCancelSale, setShowCancelSale] = useState(false);
   const [showConfirmCheckout, setShowConfirmCheckout] = useState(false);
@@ -846,6 +855,32 @@ export function PosWorkspace({
     };
   }, [receipt?.payment.benefitClaim]);
 
+  // QR de promociones: solo si hay promociones vigentes y la página está publicada.
+  const promoSlug = activePromotions.find((promotion) => promotion.siteSlug)?.siteSlug ?? '';
+  const receiptTime = useMemo(
+    () => (receipt ? new Date() : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [receipt?.order.id],
+  );
+  useEffect(() => {
+    if (!receipt || !promoSlug) {
+      setPromoQr('');
+      return;
+    }
+    let cancelled = false;
+    void QRCode.toDataURL(`${window.location.origin}/s/${promoSlug}#promociones`, {
+      width: 240,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: { dark: '#020617', light: '#ffffff' },
+    }).then((dataUrl) => {
+      if (!cancelled) setPromoQr(dataUrl);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [receipt?.order.id, promoSlug]);
+
   useEffect(() => {
     if (cart.length === 0) {
       setAppliedPromotionId('');
@@ -904,7 +939,7 @@ export function PosWorkspace({
   useEffect(() => {
     if (!companyId) return;
     let active = true;
-    void apiRequest<Array<{ id: string; name: string }>>(`catalog/commerce/company/${companyId}`)
+    void apiRequest<CatalogRef[]>(`catalog/commerce/company/${companyId}`)
       .then((result) => { if (active) setCommerceCatalogs(result); })
       .catch(() => { if (active) setCommerceCatalogs([]); });
     return () => { active = false; };
@@ -2796,7 +2831,7 @@ export function PosWorkspace({
 
           <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-3">
             <label htmlFor="pos-catalogo-activo" className="hidden shrink-0 text-sm font-medium text-slate-200 md:block">
-              Catálogo
+              Negocio
             </label>
             <select
               id="pos-catalogo-activo"
@@ -2811,18 +2846,18 @@ export function PosWorkspace({
               }}
               className="hidden min-w-0 flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm text-white md:block"
             >
-              <option value="all">Todos los catálogos</option>
-              {commerceCatalogs.map((catalog) => (
+              <option value="all">Todos mis negocios</option>
+              {catalogOptions.map((catalog) => (
                 <option key={catalog.id} value={catalog.id}>{catalog.name}</option>
               ))}
             </select>
-            {commerceCatalogs.length > 0 ? (
+            {catalogOptions.length > 0 ? (
               <div
                 role="tablist"
                 aria-label="Negocio"
                 className="-mx-1 flex w-full gap-2 overflow-x-auto px-1 pb-1 md:hidden"
               >
-                {[{ id: 'all', name: 'Todo' }, ...commerceCatalogs].map((tab) => (
+                {[{ id: 'all', name: 'Todo' }, ...catalogOptions].map((tab) => (
                   <button
                     key={tab.id}
                     type="button"
@@ -3171,7 +3206,7 @@ export function PosWorkspace({
                         <p className="mt-0.5 truncate text-xs text-slate-500">
                           {item.variantName ?? item.sku ?? item.categoryName}
                         </p>
-                        {commerceCatalogs.length > 1 ? (
+                        {catalogOptions.length > 1 ? (
                           <p className="mt-0.5 truncate text-[11px] font-semibold text-cyan-400/80">
                             {catalogNameOf(item.catalogId, commerceCatalogs)}
                           </p>
@@ -4303,6 +4338,12 @@ export function PosWorkspace({
             <h2 className="mt-2 text-center text-2xl font-semibold">
               {receipt.order.orderNumber}
             </h2>
+            <p className="mt-1 text-center text-xs text-slate-400">
+              {receiptTime
+                ? receiptTime.toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })
+                : ''}
+              {cashierName ? ` · Atendió: ${cashierName}` : ''}
+            </p>
 
             <div className="mt-6 space-y-3 border-y border-slate-800 py-5 text-sm">
               {receipt.items.map((item) => (
@@ -4372,6 +4413,19 @@ export function PosWorkspace({
                   {receipt.payment.loyalty
                     ? 'Escanea para consultar los beneficios de esta compra.'
                     : 'Escanea este ticket pagado para registrar la visita. Solo puede asociarse a un teléfono.'}
+                </p>
+              </div>
+            ) : null}
+
+            {promoQr ? (
+              <div className="mt-5 text-center">
+                <img
+                  src={promoQr}
+                  alt="QR de promociones vigentes"
+                  className="mx-auto h-28 w-28 rounded-xl bg-white p-1.5"
+                />
+                <p className="mx-auto mt-2 max-w-xs text-xs leading-5 text-slate-300">
+                  Escanea para ver las promociones vigentes y pedir en línea.
                 </p>
               </div>
             ) : null}

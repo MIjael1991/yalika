@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { ServiceArt } from "../../components/service-art";
 import { useEffect, useState } from "react";
+import { MesActividades } from "./mes-actividades";
+import { PendientesAsistente } from "./pendientes-asistente";
 import { YalikaSearch } from "../../components/yalika-search";
 import { destinations } from "../../lib/yalika-navigation";
 import styles from "./home.module.css";
@@ -141,7 +143,7 @@ export function HomeWorkspace() {
   const cards = visible.flatMap((module) =>
     destinations.filter(
       (d) =>
-        ["surveys", "health", "pos", "sites"].includes(d.id) &&
+        ["surveys", "health", "pos", "sites", "veterinaria", "presente"].includes(d.id) &&
         d.module === module,
     ),
   );
@@ -198,6 +200,8 @@ export function HomeWorkspace() {
                       health: "Tu salud, a la mano",
                       pos: "Caja, productos y ventas",
                       sites: "Tu escaparate en línea",
+                      veterinaria: "Tus mascotas, al día",
+                      presente: "Ayuda verificada cerca de ti",
                     } as Record<string,string>)[d.id] ?? d.detail}
                   </span>
                 </span>
@@ -218,68 +222,23 @@ export function HomeWorkspace() {
           )}
         </section>
         <div className={styles.columns}>
-          <section className={styles.panel} aria-labelledby="today-heading">
-            <div className={styles.section}>
-              <h2 id="today-heading">Hoy</h2>
-              <Link href="/life">Ver mi día →</Link>
-            </div>
-            {dayNotice ? (
-              <p role="status" className={styles.message}>
-                {dayNotice}
+          <MesActividades overdue={briefing?.overdue.count ?? 0} />
+          <div className={styles.side}>
+            <section className={styles.panel} aria-labelledby="assistant-heading">
+              <p className={styles.eyebrow}>A TU LADO</p>
+              <h2 id="assistant-heading">Tu asistente</h2>
+              <PendientesAsistente name={name} />
+              <p className={styles.message}>
+                Anota, di o toma una foto. Yalika lo ordena y tú revisas antes de guardar.
               </p>
-            ) : (
-              briefing && (
-                <>
-                  {briefing.today.tasks.length ? (
-                    <ul className={styles.timeline}>
-                      {briefing.today.tasks.slice(0, 3).map((task) => (
-                        <li key={task.id}>
-                          <time dateTime={task.dueAt ?? undefined}>
-                            {time(task.dueAt)}
-                          </time>
-                          <Link href="/life">
-                            {task.category === "health"
-                              ? "Actividad de salud"
-                              : task.title}
-                            <span>Ver en Mi día →</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className={styles.empty}>
-                      <p>No tienes actividades programadas para hoy.</p>
-                      <Link href="/life#yalika-captura">
-                        Agregar una actividad →
-                      </Link>
-                    </div>
-                  )}
-                  {briefing.overdue.count > 0 && (
-                    <Link className={styles.pending} href="/life">
-                      Tienes {briefing.overdue.count} pendientes anteriores.
-                      Revisar →
-                    </Link>
-                  )}
-                </>
-              )
-            )}
-          </section>
-          <section className={styles.panel} aria-labelledby="assistant-heading">
-            <p className={styles.eyebrow}>A TU LADO</p>
-            <h2 id="assistant-heading">Tu asistente</h2>
-            <p className={styles.message}>
-              Escribe o habla para organizar una actividad. Revisa la propuesta
-              antes de guardarla.
-            </p>
-            <Link className={styles.primary} href="/life#yalika-captura">
-              Organizar una actividad →
-            </Link>
-            <Link className={styles.secondary} href="/estudio">
-              Escribir o abrir mis archivos →
-            </Link>
-          </section>
-        </div>
-        {suggestions.length > 0 && (
+              <div className={styles.assistantInline}>
+                <YalikaSearch compact />
+              </div>
+              <Link className={styles.secondary} href="/estudio">
+                Escribir o abrir mis archivos →
+              </Link>
+            </section>
+            {suggestions.length > 0 && (
           <section
             className={styles.attention}
             aria-labelledby="attention-heading"
@@ -303,6 +262,8 @@ export function HomeWorkspace() {
             ))}
           </section>
         )}
+          </div>
+        </div>
         {(notice || dayNotice) && (
           <button
             className={styles.retry}
@@ -316,9 +277,7 @@ export function HomeWorkspace() {
             ? "Tus servicios, a tu ritmo."
             : "Sin conexión: las acciones que requieren el servidor no están disponibles."}
         </footer>
-        <div className={styles.assistantBar}>
-          <YalikaSearch compact />
-        </div>
+        
       </div>
     </main>
   );

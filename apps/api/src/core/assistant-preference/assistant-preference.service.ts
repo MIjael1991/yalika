@@ -15,6 +15,14 @@ const preferenceSelect = {
   voiceRate: true,
 } as const;
 
+/** Módulos con interruptor: en producción solo si la variable es "true"; fuera, salvo "false". */
+function featureOn(name: string) {
+  const value = process.env[name]?.trim();
+  return process.env.NODE_ENV === 'production'
+    ? value === 'true'
+    : value !== 'false';
+}
+
 function defaultPreferredName(currentName: string) {
   return currentName.trim().split(/\s+/)[0] || 'Usuario';
 }
@@ -96,10 +104,14 @@ export class AssistantPreferenceService {
     return {
       visibleModules: preference?.visibleModules ?? null,
       // Availability is distinct from user visibility and never grants access.
-      availableModules: ['surveys', 'life', 'pos', 'sites',
-        ...(process.env.NODE_ENV === 'production'
-          ? process.env.CLINICAL_MODULE_ENABLED?.trim() === 'true' ? ['health'] : []
-          : process.env.CLINICAL_MODULE_ENABLED?.trim() !== 'false' ? ['health'] : []),
+      availableModules: [
+        'surveys',
+        'life',
+        'pos',
+        'sites',
+        ...(featureOn('CLINICAL_MODULE_ENABLED') ? ['health'] : []),
+        ...(featureOn('YALIKA_VETERINARIA_ENABLED') ? ['veterinaria'] : []),
+        ...(featureOn('YALIKA_PRESENTE_ENABLED') ? ['presente'] : []),
       ],
     };
   }
@@ -111,7 +123,15 @@ export class AssistantPreferenceService {
   ) {
     this.requireGeneralAccess(modules);
 
-    const valid = new Set(['surveys', 'life', 'pos', 'sites', 'health']);
+    const valid = new Set([
+      'surveys',
+      'life',
+      'pos',
+      'sites',
+      'health',
+      'veterinaria',
+      'presente',
+    ]);
 
     if (
       !Array.isArray(visibleModules) ||

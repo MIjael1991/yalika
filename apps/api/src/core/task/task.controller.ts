@@ -47,6 +47,15 @@ export class TaskController {
     );
   }
 
+  @Get('history')
+  findHistory(@Query('q') q: string, @CurrentAuth() auth: AuthContext) {
+    return this.taskService.findHistory(
+      q,
+      auth.user.companyId,
+      auth.user.id,
+    );
+  }
+
   @Get('agenda')
   findAgenda(
     @Query() query: TaskAgendaQueryDto,

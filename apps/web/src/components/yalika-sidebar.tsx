@@ -141,18 +141,23 @@ const menu = [
       { name: "Salud", href: "/salud" },
       { name: "Punto de venta", href: "/pos" },
       { name: "Páginas web", href: "/sites" },
+      { name: "Veterinaria", href: "/veterinaria" },
+      { name: "Tequio", href: "/tequio" },
     ],
   },
 ];
 
 /** Pantallas de administración que un cajero ve si el administrador le dio el permiso. */
 const grantedBy: Record<string, string[]> = {
-  "/pos/devoluciones": ["returns", "refunds"],
+  "/pos/devoluciones": ["returns", "refunds", "returns_item:*"],
+  "/pos/productos": ["catalog"],
 };
 
 function grantedLink(href: string, permissions: string[]) {
   return (grantedBy[href] ?? []).some((permission) =>
-    permissions.includes(permission),
+    permission.endsWith(":*")
+      ? permissions.some((item) => item.startsWith(permission.slice(0, -1)))
+      : permissions.includes(permission),
   );
 }
 
@@ -182,7 +187,11 @@ export function YalikaSidebar() {
             ? "sites"
             : href === "/pos" || href.startsWith("/pos/")
               ? "pos"
-              : null;
+              : href === "/veterinaria"
+                ? "veterinaria"
+                : href === "/tequio"
+                  ? "presente"
+                  : null;
     if (isCashier && moduleId === "sites") return false;
     if (moduleId === null) return true;
     if (visibleModules === null) return false;

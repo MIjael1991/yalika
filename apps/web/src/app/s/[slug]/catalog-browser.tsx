@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 
 import { ProductGallery } from './product-gallery';
+import { stockInfo } from './stock-label';
 
 export type StorefrontProduct = {
   id: string;
@@ -345,11 +346,7 @@ export function CatalogBrowser({
                           : 'text-red-400'
                       }`}
                     >
-                      {available > 0
-                        ? available <= 3
-                          ? `Últimas ${available} disponibles`
-                          : `${available} disponibles`
-                        : 'Agotado'}
+                      {stockInfo(product).label}
                     </p>
                   ) : null}
                   {activeVariants.length > 0 ? (

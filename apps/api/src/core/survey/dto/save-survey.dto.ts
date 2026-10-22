@@ -7,6 +7,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsISO8601,
   Max,
   Min,
   IsNotEmpty,
@@ -94,6 +95,11 @@ export class SaveSurveyDto {
   @IsOptional()
   @IsIn(['public', 'group', 'private'])
   accessMode?: string;
+
+  /** Fecha y hora (ISO) en que la encuesta deja de recibir respuestas; null la quita. */
+  @IsOptional()
+  @IsISO8601()
+  closesAt?: string | null;
 
   @IsOptional()
   @IsBoolean()

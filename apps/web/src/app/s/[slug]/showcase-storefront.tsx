@@ -1,3 +1,5 @@
+import { stockInfo } from './stock-label';
+
 type SiteSection = {
   id: string;
   type: string;
@@ -32,6 +34,9 @@ type ShowcaseProduct = {
   price: number;
   compareAtPrice: number | null;
   images: Array<{ id: string; url: string; isPrimary: boolean; sortOrder: number }>;
+  trackInventory?: boolean;
+  stock?: number;
+  variants?: Array<{ status?: string; stock: number }>;
 };
 
 type ShowcasePromotion = { id: string; title: string; description: string | null };
@@ -132,9 +137,10 @@ const lunaDemo = ['Vestido Isabella','Blusa Valentina','Pantalón Sofía','Carte
 const prismaDemo = ['Cuaderno profesional','Plumas gel','Mochila escolar','Marcadores','Hojas carta','Kit de arte'];
 
 function ProductGrid({ products, demo, tone }: { products: ShowcaseProduct[]; demo: string[]; tone: 'luna' | 'prisma' }) {
-  const rows = products.slice(0, 6);
-  const cards = rows.length ? rows.map((product) => ({ name: product.name, price: product.price, image: product.images?.[0]?.url ?? null })) : demo.map((name) => ({ name, price: null, image: null }));
-  return <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">{cards.map((card, index) => <article key={`${card.name}-${index}`} className="overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm"><div className={`aspect-[4/5] ${tone === 'luna' ? 'bg-gradient-to-br from-[#f3dfd2] to-[#fff9f4]' : 'bg-gradient-to-br from-blue-100 to-yellow-100'}`}>{card.image ? <img src={card.image} alt={card.name} className="h-full w-full object-contain p-3" /> : <div className="grid h-full place-items-center text-4xl">{tone === 'luna' ? '✦' : '✎'}</div>}</div><div className="p-4"><h3 className="font-black">{card.name}</h3><p className="mt-2 text-sm font-bold">{card.price === null ? 'Muestra de diseño' : money.format(card.price)}</p></div></article>)}</div>;
+  const stockOf = (product: ShowcaseProduct) => stockInfo({ trackInventory: product.trackInventory ?? false, stock: product.stock ?? 0, variants: product.variants });
+  const rows = [...products].sort((a, b) => Number(stockOf(a).state === 'out') - Number(stockOf(b).state === 'out')).slice(0, 6);
+  const cards = rows.length ? rows.map((product) => ({ name: product.name, price: product.price, image: product.images?.[0]?.url ?? null, stock: stockOf(product) })) : demo.map((name) => ({ name, price: null, image: null, stock: null as ReturnType<typeof stockOf> | null }));
+  return <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">{cards.map((card, index) => <article key={`${card.name}-${index}`} className="overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm"><div className={`relative aspect-[4/5] ${card.stock?.state === 'out' ? 'opacity-60 grayscale ' : ''}${tone === 'luna' ? 'bg-gradient-to-br from-[#f3dfd2] to-[#fff9f4]' : 'bg-gradient-to-br from-blue-100 to-yellow-100'}`}>{card.image ? <img src={card.image} alt={card.name} className="h-full w-full object-contain p-3" /> : <div className="grid h-full place-items-center text-4xl">{tone === 'luna' ? '✦' : '✎'}</div>}</div><div className="p-4"><h3 className="font-black">{card.name}</h3><p className="mt-2 text-sm font-bold">{card.price === null ? 'Muestra de diseño' : money.format(card.price)}</p>{card.stock && card.stock.state !== 'ok' && card.stock.label ? <p className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-black ${card.stock.state === 'out' ? 'bg-slate-800 text-white' : 'bg-amber-200 text-amber-900'}`}>{card.stock.label}</p> : null}</div></article>)}</div>;
 }
 
 function LunaBoutique({ site, products }: { site: ShowcaseSite; products: ShowcaseProduct[] }) {

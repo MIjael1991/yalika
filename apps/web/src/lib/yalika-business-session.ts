@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 
 type BusinessUser = {
   id: string;
+  /** Nombre de la persona, para el ticket y los registros. */
+  name: string;
   companyId: string;
   modules: string[];
   /** El cajero vende y cobra; no administra el negocio. */
@@ -76,6 +78,7 @@ export async function requireBusinessSession(): Promise<BusinessUser> {
 
   return {
     id: user.id,
+    name: 'name' in user && typeof user.name === 'string' ? user.name : '',
     companyId: user.companyId,
     modules: user.modules,
     isCashier: 'role' in user && isCashierRole(user.role),
@@ -108,10 +111,13 @@ export async function requireManagerOrPermission(
 ): Promise<BusinessUser> {
   const user = await requireBusinessSession();
 
-  if (
-    user.isCashier &&
-    !permissions.some((permission) => user.permissions.includes(permission))
-  ) {
+  // "returns_item:*" vale para cualquier permiso por artículo (devolver un producto).
+  const has = (permission: string) =>
+    permission.endsWith(':*')
+      ? user.permissions.some((item) => item.startsWith(permission.slice(0, -1)))
+      : user.permissions.includes(permission);
+
+  if (user.isCashier && !permissions.some(has)) {
     redirect('/pos');
   }
 

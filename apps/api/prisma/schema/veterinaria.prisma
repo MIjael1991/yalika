@@ -1,0 +1,132 @@
+// Veterinaria R1: identidad propia de cada animal, tutores y recetas veterinarias.
+// Aditivo: no modifica ninguna tabla Clinical* ni ClinicalProfile.
+// El veterinario se verifica con ClinicalProfessionalProfile (R30); los ids de usuario
+// son texto sin FK, igual que en los modelos clínicos.
+
+model VetPet {
+  id              String    @id @default(uuid())
+  name            String
+  species         String
+  breed           String?
+  sex             String?
+  birthDate       DateTime?
+  birthDateApprox Boolean   @default(false)
+  microchip       String?
+  createdByUserId String
+  active          Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  guardians     VetPetGuardian[]
+  consultations VetConsultation[]
+  prescriptions VetPrescription[]
+  auditEvents   VetAuditEvent[]
+
+  @@index([createdByUserId])
+  @@index([microchip])
+  @@map("vet_pets")
+}
+
+model VetPetGuardian {
+  id          String    @id @default(uuid())
+  petId       String
+  userId      String
+  role        String    @default("OWNER")
+  status      String    @default("ACTIVE")
+  invitedById String?
+  startsAt    DateTime?
+  endsAt      DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  pet VetPet @relation(fields: [petId], references: [id], onDelete: Restrict)
+
+  @@unique([petId, userId])
+  @@index([userId, status])
+  @@map("vet_pet_guardians")
+}
+
+model VetConsultation {
+  id                  String    @id @default(uuid())
+  petId               String
+  requestedByUserId   String
+  veterinarianUserId  String?
+  mode                String    @default("presential")
+  status              String    @default("scheduled")
+  scheduledAt         DateTime
+  startedAt           DateTime?
+  completedAt         DateTime?
+  timezone            String    @default("America/Mexico_City")
+  reason              String?
+  professionalSummary String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  pet           VetPet            @relation(fields: [petId], references: [id], onDelete: Restrict)
+  prescriptions VetPrescription[]
+
+  @@index([petId, scheduledAt])
+  @@index([veterinarianUserId, status, scheduledAt])
+  @@index([requestedByUserId, status])
+  @@map("vet_consultations")
+}
+
+model VetPrescription {
+  id                   String   @id @default(uuid())
+  petId                String
+  consultationId       String
+  veterinarianUserId   String
+  professionalProfileId String
+  status               String   @default("ACTIVE")
+  issuedAt             DateTime
+  idempotencyKey       String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  pet          VetPet                 @relation(fields: [petId], references: [id], onDelete: Restrict)
+  consultation VetConsultation        @relation(fields: [consultationId], references: [id], onDelete: Restrict)
+  items        VetPrescriptionItem[]
+
+  @@unique([consultationId, idempotencyKey])
+  @@index([petId, issuedAt])
+  @@map("vet_prescriptions")
+}
+
+model VetPrescriptionItem {
+  id             String   @id @default(uuid())
+  prescriptionId String
+  medicationName String
+  strength       String?
+  form           String?
+  route          String?
+  dosageText     String?
+  frequencyText  String?
+  durationText   String?
+  quantityText   String?
+  instructions   String?
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  prescription VetPrescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([prescriptionId, sortOrder])
+  @@map("vet_prescription_items")
+}
+
+model VetAuditEvent {
+  id           String   @id @default(uuid())
+  petId        String?
+  actorUserId  String
+  action       String
+  result       String   @default("RECORDED")
+  resourceType String?
+  resourceId   String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  pet VetPet? @relation(fields: [petId], references: [id], onDelete: Restrict)
+
+  @@index([petId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("vet_audit_events")
+}

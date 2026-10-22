@@ -27,6 +27,10 @@ const publicRoutes: Array<[RegExp, string]> = [
   [/^(GET|POST) reservation\/public\//, 'seguimiento público de apartados'],
   [/^GET mobility\/shared\/:token$/, 'viaje compartido por enlace'],
   [/^GET mobility\/safe-rides\/shared\/:token$/, 'viaje seguro compartido'],
+  [
+    /^POST presente\/webhooks\/mercadopago$/,
+    'aviso de pago de Mercado Pago (cada pago se confirma con su API)',
+  ],
 ];
 
 const METHODS: Record<number, string> = {

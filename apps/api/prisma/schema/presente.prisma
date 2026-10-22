@@ -1,0 +1,554 @@
+// Presente P1: registro y verificación de quien ofrece un oficio, y su estado Presente/Ausente.
+// Aditivo: no modifica tablas existentes. Los ids de usuario son texto sin FK, igual que Veterinaria.
+// Privacidad: la CURP se guarda cifrada (más una huella para que no se repita) y las fotos de
+// verificación viven cifradas en el almacenamiento privado solo hasta que el operador decide.
+
+model PresenteProvider {
+  id                 String    @id @default(uuid())
+  userId             String    @unique
+  displayName        String
+  bio                String?
+  trades             String[]
+  zoneLabel          String?
+  municipalityCode   String?
+  radiusKm           Int       @default(5)
+  availability       Json?
+  curpHash           String?   @unique
+  curpEncrypted      String?
+  curpLast4          String?
+  status             String    @default("DRAFT")
+  biometricConsentAt DateTime?
+  consentVersion     String?
+  submittedAt        DateTime?
+  reviewedAt         DateTime?
+  reviewedByUserId   String?
+  reviewNote         String?
+  presence           String    @default("ABSENT")
+  presenceChangedAt  DateTime?
+  lastSeenAt         DateTime?
+  /** Baja temporal por faltas (más de 5 cancelaciones en un mes). */
+  suspendedUntil     DateTime?
+  /** Su página publicada en Yalika (Mis páginas), si quiere mostrarla en su perfil. */
+  siteId             String?
+  /** Negocio (verdulería, carnicería, distribuidora...) en vez de persona. */
+  isBusiness         Boolean   @default(false)
+  businessName       String?
+  /** Lleva a domicilio lo que vende. */
+  delivers           Boolean   @default(false)
+  /** También da clases de lo que sabe hacer. */
+  teaches            Boolean   @default(false)
+  /** Da factura (CFDI): ve los pedidos de clientes que piden factura. */
+  invoices           Boolean   @default(false)
+  /** Quién lo recomendó (con su código al registrarse). */
+  referredByProviderId String?
+  /** Se dio de baja: deja de ofrecer servicios pero conserva su registro para volver. */
+  withdrawnAt        DateTime?
+  /** Estado que tenía al darse de baja (se restaura al volver). */
+  statusBeforeWithdraw String?
+  /** Última vez que se comprobó que sigue siendo la misma persona (selfie revisada). */
+  identityCheckedAt  DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  documents PresenteDocument[]
+  quotes    PresenteQuote[]
+  photos    PresenteProviderPhoto[]
+  strikes   PresenteStrike[]
+  favoredBy PresenteFavorite[]
+  credentials PresenteCredential[]
+
+  @@index([referredByProviderId])
+  @@index([status, submittedAt])
+  @@index([presence, lastSeenAt])
+  @@map("presente_providers")
+}
+
+model PresenteDocument {
+  id         String   @id @default(uuid())
+  providerId String
+  kind       String
+  objectKey  String
+  mimeType   String
+  bytes      Int
+  createdAt  DateTime @default(now())
+
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, kind])
+  @@map("presente_documents")
+}
+
+model PresenteAuditEvent {
+  id          String   @id @default(uuid())
+  providerId  String?
+  actorUserId String
+  action      String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([providerId, createdAt])
+  @@map("presente_audit_events")
+}
+
+// P2: pedidos de ayuda y presupuestos.
+// La referencia del domicilio (addressHint) solo la ve el trabajador elegido.
+model PresenteRequest {
+  id               String    @id @default(uuid())
+  clientUserId     String
+  /** Uno o más oficios (por ejemplo plomería y electricidad en la misma visita). */
+  trades           String[]
+  /** Pedido directo a un trabajador de confianza: solo él lo ve. */
+  targetProviderId String?
+  /** Día y hora en que se quiere la visita (seguimientos, visitas agendadas). */
+  scheduledFor     DateTime?
+  /** Visita anterior de la que es seguimiento. */
+  followUpOfId     String?
+  description      String
+  municipalityCode String
+  addressHint      String?
+  /** Punto exacto del domicilio: solo lo ve el trabajador elegido. */
+  lat              Float?
+  lng              Float?
+  urgency          String    @default("NOW")
+  status           String    @default("OPEN")
+  photoKey         String?
+  photoMime        String?
+  /** Fotos extra del problema: [{ key, mime }] (la primera vive en photoKey). */
+  extraPhotos      Json?
+  /** El cliente pide factura: solo cotizan quienes facturan y el precio lleva IVA aparte. */
+  needsInvoice     Boolean   @default(false)
+  /** Datos fiscales del cliente al pedir (RFC, nombre, régimen, CP, uso, correo). */
+  invoiceData      Json?
+  /** Lugar guardado del cliente (Casa, Casa de mamá, Oficina...). */
+  placeId          String?
+  placeLabel       String?
+  chosenQuoteId    String?   @unique
+  expiresAt        DateTime
+  closedAt         DateTime?
+  // Trabajo: en camino, llegada, duración y fin
+  enRouteAt        DateTime?
+  etaAt            DateTime?
+  delayNote        String?
+  /** Cuántas veces avisó que se retrasa (hay un máximo). */
+  delayCount       Int       @default(0)
+  arrivedAt        DateTime?
+  arrivalDistanceM Int?
+  pinFailures      Int       @default(0)
+  pinLockedUntil   DateTime?
+  startedAt        DateTime?
+  estimatedMinutes Int?
+  finishedAt       DateTime?
+  /** Precio real al terminar (puede cambiar si salió más trabajo). */
+  finalAmountMxn   Int?
+  /** El cliente confirmó que quedó bien (o pasaron 48 h sin respuesta: autoConfirmed). */
+  clientConfirmedAt DateTime?
+  autoConfirmed    Boolean   @default(false)
+  /** El cliente reportó un problema al terminar: no se cierra solo, lo revisa el operador. */
+  problemAt        DateTime?
+  problemNote      String?
+  cancelledBy      String?
+  cancelReason     String?
+  cancelFeeMxn     Int?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  quotes      PresenteQuote[]
+  messages    PresenteMessage[]
+  trackPoints PresenteTrackPoint[]
+  reviews     PresenteReview[]
+
+  @@index([status, createdAt])
+  @@index([clientUserId, createdAt])
+  @@index([targetProviderId, status])
+  @@index([status, finishedAt])
+  @@map("presente_requests")
+}
+
+model PresenteQuote {
+  id         String   @id @default(uuid())
+  requestId  String
+  providerId String
+  /** Cita: si no puede a la hora que le pidieron, propone otra (el cliente la acepta al elegirlo). */
+  proposedFor DateTime?
+  amountMxn  Int
+  etaMinutes Int
+  /** Cuánto tarda en hacer el trabajo, una vez que llega (el mismo día). */
+  durationMinutes Int?
+  note       String?
+  status     String   @default("SENT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  request  PresenteRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, providerId])
+  @@index([providerId, status])
+  @@map("presente_quotes")
+}
+
+// P3: quien pide ayuda, mensajes, recorrido, calificaciones, fotos y faltas.
+
+/** Datos de quien pide ayuda. La foto de su casa solo la ve el trabajador elegido. */
+model PresenteClient {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  displayName    String
+  homeLat        Float?
+  homeLng        Float?
+  homeReference  String?
+  housePhotoKey  String?
+  housePhotoMime String?
+  /** Datos para factura (se guardan una vez y se usan cuando pide factura). */
+  fiscalRfc      String?
+  fiscalName     String?
+  fiscalRegime   String?
+  fiscalZip      String?
+  fiscalUse      String?
+  fiscalEmail    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("presente_clients")
+}
+
+/**
+ * Lugares guardados de quien pide ayuda: su casa, la casa de un familiar, la oficina.
+ * Al pedir solo se elige el lugar; el punto exacto y la foto solo los ve el trabajador elegido.
+ */
+model PresentePlace {
+  id               String   @id @default(uuid())
+  clientUserId     String
+  label            String
+  street           String
+  number           String?
+  neighborhood     String?
+  municipalityCode String
+  lat              Float
+  lng              Float
+  reference        String?
+  photoKey         String?
+  photoMime        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([clientUserId, createdAt])
+  @@map("presente_places")
+}
+
+model PresenteMessage {
+  id           String   @id @default(uuid())
+  requestId    String
+  senderUserId String
+  senderRole   String
+  /** TEXT, TIP (aviso de seguridad) o FOLLOW_UP (propuesta de siguiente visita). */
+  kind         String   @default("TEXT")
+  meta         Json?
+  body         String
+  createdAt    DateTime @default(now())
+
+  request PresenteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+  @@map("presente_messages")
+}
+
+/** Recorrido del trabajador mientras va en camino. Se borra a los 30 días. */
+model PresenteTrackPoint {
+  id         String   @id @default(uuid())
+  requestId  String
+  lat        Float
+  lng        Float
+  recordedAt DateTime @default(now())
+
+  request PresenteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, recordedAt])
+  @@index([recordedAt])
+  @@map("presente_track_points")
+}
+
+/** Estrellas de los dos lados: el cliente califica al trabajador y al revés. */
+model PresenteReview {
+  id         String   @id @default(uuid())
+  requestId  String
+  fromUserId String
+  toUserId   String
+  toRole     String
+  stars      Int
+  comment    String?
+  /** El cliente calificó sin que llegara la factura que pidió (pasó el plazo). */
+  invoiceMissing Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  request PresenteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, fromUserId])
+  @@index([toUserId, createdAt])
+  @@map("presente_reviews")
+}
+
+/** Fotos que el trabajador muestra: trabajos, su negocio o sus cursos. */
+model PresenteProviderPhoto {
+  id         String   @id @default(uuid())
+  providerId String
+  kind       String
+  caption    String?
+  objectKey  String
+  mimeType   String
+  createdAt  DateTime @default(now())
+
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, createdAt])
+  @@map("presente_provider_photos")
+}
+
+/** Falta del trabajador: canceló un trabajo donde ya lo habían elegido. */
+model PresenteStrike {
+  id         String   @id @default(uuid())
+  providerId String
+  requestId  String
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId, createdAt])
+  @@map("presente_strikes")
+}
+
+/** Trabajadores de confianza de cada cliente, para pedirles directo. */
+model PresenteFavorite {
+  id           String   @id @default(uuid())
+  clientUserId String
+  providerId   String
+  createdAt    DateTime @default(now())
+
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([clientUserId, providerId])
+  @@map("presente_favorites")
+}
+
+/**
+ * Saldo del trabajador, estilo recarga: cada movimiento es un renglón (bono de bienvenida,
+ * recarga, comisión por trabajo). El saldo es la suma. Sin llave a presente_providers para
+ * que los movimientos queden para la contabilidad aunque la persona se dé de baja; no guarda
+ * datos personales. dedupeKey evita cobrar o acreditar dos veces lo mismo.
+ */
+model PresenteWalletEntry {
+  id              String   @id @default(uuid())
+  providerId      String
+  /** WELCOME, TOPUP o COMMISSION. */
+  kind            String
+  /** En centavos: positivo entra, negativo sale. */
+  amountCents     Int
+  dedupeKey       String   @unique
+  requestId       String?
+  /** Clave de rastreo o referencia del pago (recargas). */
+  reference       String?
+  note            String?
+  createdByUserId String?
+  createdAt       DateTime @default(now())
+
+  @@index([providerId, createdAt])
+  @@map("presente_wallet_entries")
+}
+
+/**
+ * Cédula profesional (ingeniería, contaduría, arquitectura, leyes, psicología...): número, foto
+ * del título o la cédula y selfie con ella en mano. El operador la revisa; al aprobarse, la
+ * profesión se agrega a lo que ofrece. Las fotos se borran al decidir: queda el resultado.
+ */
+model PresenteCredential {
+  id               String    @id @default(uuid())
+  providerId       String
+  trade            String
+  licenseNumber    String
+  status           String    @default("PENDING")
+  reviewNote       String?
+  titleKey         String?
+  titleMime        String?
+  selfieKey        String?
+  selfieMime       String?
+  /**
+   * Comprobante de la SEP (constancia en PDF con QR o captura de la consulta). A diferencia de
+   * las fotos, este sí se queda: una vez revisado lo pueden ver sus clientes.
+   */
+  sepProofKey       String?
+  sepProofMime      String?
+  sepProofAt        DateTime?
+  sepProofCheckedAt DateTime?
+  submittedAt      DateTime  @default(now())
+  reviewedAt       DateTime?
+  reviewedByUserId String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  provider PresenteProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, trade])
+  @@index([status, submittedAt])
+  @@map("presente_credentials")
+}
+
+/**
+ * Lo que un cliente debe por cancelar con el trabajador en camino. Se suma a su siguiente
+ * pedido: lo cobra quien lo atienda y, al cerrar ese trabajo, se descuenta del saldo de quien
+ * lo cobró y se abona al saldo del trabajador que fue. Si el cliente le paga directo, el
+ * trabajador lo marca como pagado. El asistente se lo recuerda al cliente mientras no se pague.
+ */
+model PresenteCancelDebt {
+  id               String    @id @default(uuid())
+  clientUserId     String
+  /** Pedido que se canceló. */
+  requestId        String    @unique
+  /** Trabajador a quien se le debe (sin llave, como el saldo, para la contabilidad). */
+  providerId       String
+  workerName       String
+  amountMxn        Int
+  advancedKm       Float?
+  /** Pedido siguiente al que se sumó: lo cobra quien lo atienda. */
+  appliedRequestId String?
+  lastRemindedAt   DateTime?
+  /** NEXT_SERVICE (se cobró en el siguiente pedido) o PAID_DIRECT (le pagó directo). */
+  settledHow       String?
+  settledAt        DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([clientUserId, settledAt])
+  @@index([providerId, settledAt])
+  @@index([appliedRequestId])
+  @@map("presente_cancel_debts")
+}
+
+/**
+ * Avisos al celular (Web Push) aunque Yalika esté cerrada. Cada celular o computadora donde la
+ * persona activó los avisos guarda aquí su dirección. El aviso llega vacío y el celular pide
+ * a Yalika lo que tiene pendiente (PresentePushMessage), así no viaja información por fuera.
+ */
+model PresentePushSubscription {
+  id         String    @id @default(uuid())
+  userId     String
+  endpoint   String    @unique
+  p256dh     String
+  authKey    String
+  failures   Int       @default(0)
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@map("presente_push_subscriptions")
+}
+
+/** Lo que el celular muestra cuando le llega el aviso. Se borra a los 2 días. */
+model PresentePushMessage {
+  id          String    @id @default(uuid())
+  userId      String
+  title       String
+  body        String
+  url         String
+  tag         String?
+  createdAt   DateTime  @default(now())
+  deliveredAt DateTime?
+
+  @@index([userId, deliveredAt])
+  @@index([createdAt])
+  @@map("presente_push_messages")
+}
+
+/** Llaves VAPID de Yalika para mandar avisos (si no vienen en variables de entorno). */
+model PresentePushConfig {
+  id         String   @id
+  publicKey  String
+  privateKey String
+  createdAt  DateTime @default(now())
+
+  @@map("presente_push_config")
+}
+
+/**
+ * Factura que el profesional emitió por un trabajo (él la timbra con su RFC) y sube aquí: el
+ * cliente la recibe y la descarga. Se revisa que el XML sea para el RFC del cliente.
+ */
+model PresenteInvoice {
+  id           String   @id @default(uuid())
+  requestId    String   @unique
+  providerId   String
+  clientUserId String
+  uuid         String?
+  receiverRfc  String
+  totalMxn     Float?
+  pdfKey       String
+  xmlKey       String
+  sentAt       DateTime @default(now())
+
+  @@index([providerId, sentAt])
+  @@index([clientUserId, sentAt])
+  @@map("presente_invoices")
+}
+
+/**
+ * Llamada de voz dentro de Tequio entre cliente y trabajador: va por internet y nadie ve el
+ * número del otro. Aquí solo se guarda lo necesario para conectarla; la voz solo se graba si uno toca «Grabar» (con aviso al otro).
+ */
+model PresenteCall {
+  id           String    @id @default(uuid())
+  requestId    String
+  callerUserId String
+  calleeUserId String
+  /** RINGING, ACCEPTED, ENDED, MISSED o DECLINED. */
+  status       String    @default("RINGING")
+  offerSdp     String
+  answerSdp    String?
+  /** Quién está grabando ahora (al otro se le avisa en pantalla). */
+  recordingByUserId String?
+  createdAt    DateTime  @default(now())
+  answeredAt   DateTime?
+  endedAt      DateTime?
+
+  @@index([requestId, createdAt])
+  @@index([calleeUserId, status])
+  @@map("presente_calls")
+}
+
+/**
+ * Recarga de saldo pagada en línea con Mercado Pago. El saldo se suma solo cuando Mercado Pago
+ * confirma el pago aprobado (se le pregunta directo con la clave de Yalika).
+ */
+model PresenteTopup {
+  id           String    @id @default(uuid())
+  providerId   String
+  amountMxn    Int
+  /** PENDING, APPROVED o REJECTED. */
+  status       String    @default("PENDING")
+  preferenceId String?
+  paymentId    String?   @unique
+  creditedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([providerId, createdAt])
+  @@map("presente_topups")
+}
+
+/**
+ * Grabación de una llamada que hizo uno de los dos (al otro se le avisó). La pueden escuchar y
+ * descargar ambos durante 30 días; después queda sellada y se borra al terminar el plazo de
+ * resguardo (PRESENTE_SAFETY_KEEP_DAYS).
+ */
+model PresenteCallRecording {
+  id               String   @id @default(uuid())
+  callId           String
+  requestId        String
+  recordedByUserId String
+  mime             String
+  storageKey       String
+  seconds          Int
+  createdAt        DateTime @default(now())
+
+  @@index([requestId, createdAt])
+  @@index([createdAt])
+  @@map("presente_call_recordings")
+}

@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { FormEvent, useMemo, useState } from 'react';
 
+import { api } from './reservation-api';
+import { ReservationPolicyForm, type ReservationPolicy } from './reservation-policy-form';
+
 type ReservationItem = {
   id: string;
   productId: string;
@@ -35,15 +38,7 @@ export type ReservationRecord = {
   items: ReservationItem[];
 };
 
-export type ReservationPolicy = {
-  companyId: string;
-  enabled: boolean;
-  depositRequired: boolean;
-  depositType: string;
-  depositValue: number;
-  holdMinutes: number;
-  activeDays: number;
-};
+export type { ReservationPolicy } from './reservation-policy-form';
 
 type PaymentResult = {
   order: {
@@ -74,37 +69,6 @@ const statusText: Record<string, string> = {
   converted: 'Convertido a venta',
   completed: 'Completado',
 };
-
-function getMessage(value: unknown) {
-  if (typeof value === 'object' && value !== null && 'message' in value) {
-    const message = (value as { message: unknown }).message;
-    if (Array.isArray(message)) return message.join('. ');
-    if (typeof message === 'string') return message;
-  }
-  return 'No fue posible completar la operación';
-}
-
-async function api<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`/api/yalika/${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...init?.headers,
-    },
-    cache: 'no-store',
-  });
-  const text = await response.text();
-  let body: unknown = {};
-  if (text) {
-    try {
-      body = JSON.parse(text) as unknown;
-    } catch {
-      body = { message: text };
-    }
-  }
-  if (!response.ok) throw new Error(getMessage(body));
-  return body as T;
-}
 
 function yalikaWhatsappUrl(phone: string, message: string) {
   const digits = phone.replace(/\D/g, '');
@@ -142,10 +106,8 @@ export function ReservationWorkspace({
   initialError: string;
 }) {
   const [reservations, setReservations] = useState(initialReservations);
-  const [policy, setPolicy] = useState(initialPolicy);
   const [error, setError] = useState(initialError);
   const [busyId, setBusyId] = useState('');
-  const [savingPolicy, setSavingPolicy] = useState(false);
   const [filter, setFilter] = useState('open');
   const [depositEditor, setDepositEditor] = useState<ReservationRecord>();
   const [depositAmount, setDepositAmount] = useState('');
@@ -181,33 +143,6 @@ export function ReservationWorkspace({
       `reservation/company/${companyId}`,
     );
     setReservations(next);
-  }
-
-  async function savePolicy(event: FormEvent) {
-    event.preventDefault();
-    setSavingPolicy(true);
-    setError('');
-    try {
-      const next = await api<ReservationPolicy>(
-        `reservation/company/${companyId}/policy`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({
-            enabled: policy.enabled,
-            depositRequired: policy.depositRequired,
-            depositType: policy.depositType,
-            depositValue: Number(policy.depositValue),
-            holdMinutes: Number(policy.holdMinutes),
-            activeDays: Number(policy.activeDays),
-          }),
-        },
-      );
-      setPolicy(next);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'No fue posible guardar');
-    } finally {
-      setSavingPolicy(false);
-    }
   }
 
   async function confirmDeposit(event: FormEvent) {
@@ -424,137 +359,11 @@ export function ReservationWorkspace({
         </section>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[330px_1fr]">
-          <form
-            onSubmit={savePolicy}
-            className="h-fit rounded-3xl border border-white/10 bg-slate-900/70 p-5"
-          >
-            <fieldset disabled={isCashier} className="m-0 min-w-0 border-0 p-0">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-bold">Reglas de apartados</h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  Se aplican a tu tienda web.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() =>
-                  setPolicy((p) => ({ ...p, enabled: !p.enabled }))
-                }
-                className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                  policy.enabled
-                    ? 'bg-emerald-400 text-slate-950'
-                    : 'bg-slate-800 text-slate-300'
-                }`}
-              >
-                {policy.enabled ? 'Activos' : 'Desactivados'}
-              </button>
-            </div>
-
-            <label className="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-white/5 p-3 text-sm">
-              Exigir anticipo
-              <input
-                type="checkbox"
-                checked={policy.depositRequired}
-                onChange={(e) =>
-                  setPolicy((p) => ({
-                    ...p,
-                    depositRequired: e.target.checked,
-                  }))
-                }
-              />
-            </label>
-
-            <label className="mt-3 block text-xs font-bold uppercase tracking-wider text-slate-500">
-              Tipo de anticipo
-              <select
-                value={policy.depositType}
-                onChange={(e) =>
-                  setPolicy((p) => ({
-                    ...p,
-                    depositType: e.target.value,
-                  }))
-                }
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-sm text-white"
-              >
-                <option value="fixed">Cantidad fija</option>
-                <option value="percentage">Porcentaje</option>
-              </select>
-            </label>
-
-            <label className="mt-3 block text-xs font-bold uppercase tracking-wider text-slate-500">
-              {policy.depositType === 'percentage'
-                ? 'Porcentaje'
-                : 'Anticipo'}
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={policy.depositValue}
-                onChange={(e) =>
-                  setPolicy((p) => ({
-                    ...p,
-                    depositValue: Number(e.target.value),
-                  }))
-                }
-                className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-sm text-white"
-              />
-            </label>
-
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Minutos
-                <input
-                  type="number"
-                  min="5"
-                  max="1440"
-                  value={policy.holdMinutes}
-                  onChange={(e) =>
-                    setPolicy((p) => ({
-                      ...p,
-                      holdMinutes: Number(e.target.value),
-                    }))
-                  }
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-sm text-white"
-                />
-              </label>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Días activo
-                <input
-                  type="number"
-                  min="1"
-                  max="90"
-                  value={policy.activeDays}
-                  onChange={(e) =>
-                    setPolicy((p) => ({
-                      ...p,
-                      activeDays: Number(e.target.value),
-                    }))
-                  }
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-slate-950 p-3 text-sm text-white"
-                />
-              </label>
-            </div>
-
-            <button
-              disabled={savingPolicy}
-              className="mt-5 w-full rounded-2xl bg-cyan-300 px-4 py-3 font-black text-slate-950 disabled:opacity-60"
-            >
-              {savingPolicy ? 'Guardando…' : 'Guardar reglas'}
-            </button>
-
-            <p className="mt-4 text-xs leading-5 text-slate-500">
-              Si existe anticipo confirmado y vence la fecha de recogida,
-              Yalika lo manda a revisión; no libera ni confisca dinero
-              automáticamente.
-            </p>
-            </fieldset>
-            {isCashier ? (
-              <p className="mt-3 text-xs text-amber-200">
-                Solo el administrador cambia estas reglas.
-              </p>
-            ) : null}
-          </form>
+          <ReservationPolicyForm
+            companyId={companyId}
+            initialPolicy={initialPolicy}
+            readOnly={isCashier}
+          />
 
           <section>
             <div className="flex flex-wrap gap-2">

@@ -8,9 +8,14 @@ import {
 
 export class UpdateVisibleModulesDto {
   @IsArray()
-  @ArrayMaxSize(5)
+  @ArrayMaxSize(7)
   @ArrayUnique()
   @IsString({ each: true })
-  @IsIn(['surveys', 'life', 'pos', 'sites', 'health'], { each: true })
+  @IsIn(
+    ['surveys', 'life', 'pos', 'sites', 'health', 'veterinaria', 'presente'],
+    {
+      each: true,
+    },
+  )
   visibleModules!: string[];
 }
